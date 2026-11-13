@@ -1,0 +1,8 @@
+[
+  {
+    "name": "skill-smith",
+    "version": "1.0.0",
+    "purpose": "Guides an agent through building a new skill that passes the factory linter, evals and review.",
+    "status": "ready"
+  }
+]
