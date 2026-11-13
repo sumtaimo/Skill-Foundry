@@ -16,7 +16,7 @@ step-by-step layers, and showcases **the real output each skill produces**, neve
 | Factory | One standard and one toolchain (lint, evals, pack, install, site) produce many skills, not one | [built] for lint, evals, pack, install, site |
 | Layers | Every skill uses the same layer template (10 core layers, more allowed); each layer is a detailed chapter of what the agent does at that step, like a book | [built] standard and template; existing skills not migrated yet |
 | Composition | Skills are atoms that combine into larger workflows (for example BA + UX + QA on one feature) | [planned] |
-| Real output | The showcase shows only files a skill really produced from a real input, captured with its check results | [planned]; current covers are hand-authored engine renders |
+| Real output | The showcase shows only files a skill really produced from a real input, captured with its check results | [built] run recorder; [planned] site shows recorded runs; current covers are hand-authored engine renders |
 
 ## 3. Kinds of skills and their output
 
@@ -27,7 +27,7 @@ step-by-step layers, and showcases **the real output each skill produces**, neve
 ## 4. Showcase rules (real output, low token cost)
 
 1. A skill appears on the site only when it has at least one recorded real run that passed its checks. [planned]
-2. A recorded run is: the input, the files produced, the skill version, the check results and the token cost, saved under `runs/<skill>/<run-id>/` with a manifest. [planned]
+2. A recorded run is: the input, the files produced, the skill version, the check results and the token cost, saved under `runs/<skill>/<run-id>/` with a manifest. [built] `src/factory/run-skill.mjs`; `maxLines` expectations are not applied to recorded files.
 3. A run is made by a real agent following the skill, once. It is cached by input hash and skill version and repeated only when one of them changes. Deterministic steps (render, lint, pack) run as scripts, not as agent work.
 4. A failed or incomplete output is shown as it is. Nobody polishes it by hand.
 5. Hand-drawn images may only appear labelled as "concept".
@@ -47,7 +47,7 @@ step-by-step layers, and showcases **the real output each skill produces**, neve
 ## 6. Roadmap
 
 1. Layer standard and template. **[built]**
-2. Run recorder with cache: `node src/factory/run-skill.mjs <skill> --input <file>`. [planned]
+2. Run recorder with cache: `node src/factory/run-skill.mjs <skill> (--case <id> | --input <file>)`. **[built]**
 3. Pilot: replace the figure-craft cover with a recorded real run. [planned]
 4. Migrate `skill-smith` and `figure-craft` to the layer files. [planned]
 5. Recipes for combining skills. [planned]
