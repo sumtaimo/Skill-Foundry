@@ -14,6 +14,7 @@ Every skill lives in `src/skills/<name>/`. `src/skills/_template/` is the starti
 | `CHANGELOG.md` | Version history |
 | `preview.json` | Card metadata for the preview |
 | `preview/cover.svg` | Cover image |
+| `layers/01-intent.md` ... `layers/10-evidence.md` | The ten core layers (section 12) |
 
 Missing files are reported as `chk-required-files`.
 
@@ -31,6 +32,7 @@ version: <semver, e.g. 1.0.0>
 
 - `name` MUST equal the folder name (`chk-name-match`).
 - `name`, `description` and `version` MUST be present; `version` MUST be semver (`chk-frontmatter`).
+- Optional `scope: factory` marks a skill that only runs inside this repository (for example `skill-smith`). Every other skill is portable: other people install it in their own project and start it by stating their goal.
 
 ## 3. Writing a description that triggers correctly
 
@@ -82,6 +84,8 @@ These are the lint problem codes from `src/factory/lint-skills.mjs`:
 | `chk-links` | Relative links in the skill point to existing files |
 | `chk-preview-json` | preview.json has the required fields within limits |
 | `chk-cover-svg` | cover.svg meets the safety and size limits |
+| `chk-layers` | The ten core layer files exist, have numbered steps and are linked from SKILL.md |
+| `chk-portable` | SKILL.md, layers and references name no `src/`, `docs/` or `tests/` repository path (unless `scope: factory`) |
 
 Lint output format: `<file>:<line> <code> <message>`. Exit code 0 means no problems.
 
@@ -145,4 +149,6 @@ Every skill follows the same layer template, so an agent learns the structure on
 - A skill MAY add layers after 10 (`layers/11-<name>.md`, ...) when it needs more steps; it NEVER removes or renumbers a core layer.
 - Analysis skills (BA, system analysis, QA) write layers as numbered clauses with defined terms, so each clause can be cited.
 - Output skills (UI, figures) state in layer 08 the real files produced; the showcase shows only real recorded output (see `docs/PROJECT.md` section 4).
-- Status: the layer files are in `src/skills/_template/layers/`. Lint does not enforce them yet, and `skill-smith` and `figure-craft` are not migrated yet.
+- Layer 01 MUST start from the goal the user states and ask when it is missing.
+- Quality and detail MUST come from the skill's own rules, lint and references, NEVER from editing its output by hand.
+- Enforced by `chk-layers` and `chk-portable`. `skill-smith` and `figure-craft` follow this section.

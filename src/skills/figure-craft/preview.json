@@ -1,7 +1,18 @@
 {
   "title": "figure-craft",
-  "tagline": "Isometric explanatory figures with tokens, one motion story and geometry lint.",
+  "tagline": "Detailed isometric figures from a stated goal, checked by a geometry and detail lint.",
   "prompt": "explain how a CDN edge cache serves a request, interactive",
-  "outputs": ["Self-contained HTML page or SVG figure", "Lint result for L1 to L8", "Checklist outcome", "Short report"],
-  "tags": ["diagram", "isometric", "svg", "explainer", "motion"]
+  "outputs": [
+    "Self-contained HTML page or SVG figure",
+    "Lint result for L1 to L11",
+    "Checklist outcome",
+    "Short report"
+  ],
+  "tags": [
+    "diagram",
+    "isometric",
+    "svg",
+    "explainer",
+    "motion"
+  ]
 }

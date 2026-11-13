@@ -14,9 +14,9 @@ step-by-step layers, and showcases **the real output each skill produces**, neve
 | Idea | Meaning | Status |
 |---|---|---|
 | Factory | One standard and one toolchain (lint, evals, pack, install, site) produce many skills, not one | [built] for lint, evals, pack, install, site |
-| Layers | Every skill uses the same layer template (10 core layers, more allowed); each layer is a detailed chapter of what the agent does at that step, like a book | [built] standard and template; existing skills not migrated yet |
+| Layers | Every skill uses the same layer template (10 core layers, more allowed); each layer is a detailed chapter of what the agent does at that step, like a book | [built] standard, template, lint `chk-layers`; both shipped skills use layers |
 | Composition | Skills are atoms that combine into larger workflows (for example BA + UX + QA on one feature) | [planned] |
-| Real output | The showcase shows only files a skill really produced from a real input, captured with its check results | [built] run recorder; [planned] site shows recorded runs; current covers are hand-authored engine renders |
+| Real output | The showcase shows only files a skill really produced from a real input, captured with its check results | [built] run recorder; the site shows the newest passing run of the current version, and falls back to the skill's own demo when there is none |
 
 ## 3. Kinds of skills and their output
 
@@ -26,7 +26,7 @@ step-by-step layers, and showcases **the real output each skill produces**, neve
 
 ## 4. Showcase rules (real output, low token cost)
 
-1. A skill appears on the site only when it has at least one recorded real run that passed its checks. [planned]
+1. The site shows a skill's newest recorded real run that passed and matches the current version: its figure as the cover, its prompt, and its page in a frame. [built] A skill with no such run (today: `skill-smith`) still appears with its own cover; requiring a run for every skill is [planned].
 2. A recorded run is: the input, the files produced, the skill version, the check results and the token cost, saved under `runs/<skill>/<run-id>/` with a manifest. [built] `src/factory/run-skill.mjs`; `maxLines` expectations are not applied to recorded files; text checks skip Markdown reports. First real runs: `runs/figure-craft/` (screenshots in `screens/`).
 3. A run is made by a real agent following the skill, once. It is cached by input hash and skill version and repeated only when one of them changes. Deterministic steps (render, lint, pack) run as scripts, not as agent work.
 4. A failed or incomplete output is shown as it is. Nobody polishes it by hand.
@@ -48,13 +48,15 @@ step-by-step layers, and showcases **the real output each skill produces**, neve
 
 1. Layer standard and template. **[built]**
 2. Run recorder with cache: `node src/factory/run-skill.mjs <skill> (--case <id> | --input <file>)`. **[built]**
-3. Pilot: replace the figure-craft cover with a recorded real run. [planned]
-4. Migrate `skill-smith` and `figure-craft` to the layer files. [planned]
+3. Pilot: figure-craft showcase comes from a recorded real run (refrigerator). **[built]**
+4. Migrate `skill-smith` and `figure-craft` to the layer files; skills portable (`chk-portable`). **[built]**
 5. Recipes for combining skills. [planned]
 6. New skills from `docs/factory/ROADMAP.md`, BA and UI skills first. [planned]
 
 ## 7. Rules for every agent
 
+- Quality and detail come from the skill (rules, lint, references). When output is weak, fix the skill and run again; never touch up the output.
+- Every skill is for other people too: it starts from the goal its user states and is self-contained in its folder.
 - Investigate code, docs and tests yourself; ask TAIMO only for business rules, scope, UX decisions or approvals.
 - Cite `file:line`; separate confirmed facts from assumptions.
 - A task is done only when `npm test` and `node src/factory/lint-skills.mjs` pass and the real output was checked, not when the code looks right.

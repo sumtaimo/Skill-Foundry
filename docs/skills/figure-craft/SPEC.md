@@ -1,6 +1,6 @@
 # figure-craft spec
 
-Isometric explanatory figures: one idea, one object, drawn from shared tokens with the iso engine and checked by lint rules L1-L8. Checklist item numbers (C#) refer to `CHECKLIST.md`.
+Isometric explanatory figures: one idea, one object, drawn from shared tokens with the iso engine and checked by lint rules L1-L11. The skill's own layers (`src/skills/figure-craft/layers/`) are the procedure; this file is the factory-side spec. Checklist item numbers (C#) refer to `CHECKLIST.md`.
 
 ## Inputs
 - A one-line prompt naming the idea.
@@ -59,3 +59,6 @@ A second reader restates the idea; warnings fixed or justified.
 | L6-raw-colour | error | fill or stroke not `var(--...)`, `none` or `url(#...)` |
 | L7-motion-no-reduced | error | animation without reduced-motion fallback |
 | L8-motion-off-axis | error | move not along one axis of the resting surface |
+| L9-moving-unlabelled | error | the moving part has no label |
+| L10-crowded | warning | parts on one base closer than 4, or spanning under 30% of the base |
+| L11-no-detail | error | a labelled part has no face detail (`line` or `dot` with `on`) |

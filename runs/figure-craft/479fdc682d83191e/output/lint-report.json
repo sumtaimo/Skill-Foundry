@@ -1,0 +1,13 @@
+{
+  "errors": [],
+  "warnings": [
+    {
+      "rule": "L10-crowded",
+      "message": "back-wall and left-wall are 0 apart on floor (min 4); leave a gap so each reads as its own part"
+    },
+    {
+      "rule": "L10-crowded",
+      "message": "left-wall and door are 0 apart on floor (min 4); leave a gap so each reads as its own part"
+    }
+  ]
+}

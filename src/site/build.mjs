@@ -75,7 +75,7 @@ export async function buildSite({ root = REPO_ROOT, out = join(REPO_ROOT, 'dist'
     await mkdir(dir, { recursive: true });
     await writeFile(join(dir, 'index.html'), renderSkillPage(s, { download: dl }));
     pages.push(`skills/${s.name}/index.html`);
-    if (s.example) await copyFile(join(skillsRoot, s.name, 'preview', 'example.html'), join(dir, 'example.html'));
+    if (s.example) await copyFile(s.exampleSrc, join(dir, 'example.html'));
   }
   return { pages, skills: skills.length, downloads };
 }

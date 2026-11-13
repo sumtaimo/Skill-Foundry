@@ -227,6 +227,9 @@ dd { margin: 2px 0 0; font-weight: 500; }
 .example { display: block; width: 100%; height: 420px; min-height: 320px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
 .example-open { display: inline-block; margin-top: 8px; }
 .get-cover { margin-bottom: 16px; }
+.run-facts { display: flex; flex-wrap: wrap; gap: 6px; font-size: 0.85rem; color: var(--muted); }
+/* Recorded skill output keeps its own markup; its figure tokens are mapped onto the site tokens here. */
+svg { --iso-top: var(--surface); --iso-a: var(--surface2); --iso-b: var(--line); --iso-ink: var(--fg); --iso-ink-top: var(--line-strong); --iso-ink-a: var(--muted); --iso-ink-b: var(--fg); }
 
 .foot { border-top: 1px solid var(--line); padding: 24px var(--gutter); color: var(--faint); font-size: .85rem; }
 

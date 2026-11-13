@@ -76,7 +76,8 @@ Forbidden anywhere: left rail, pointer glyph, `01 / 05` numbering, any class con
 | prompt | preview.json | hero, plate, what-you-type |
 | outputs | preview.json | plate, what-you-get |
 | tags | preview.json | plate and page |
-| coverSvg | preview/cover.svg | through `sanitizeSvg`; build fails on `<script`, `<foreignObject`, `on*` attrs, external href |
+| run | runs/<name>/<key>/manifest.json | newest run with `status: pass` and the registry version; when present its `.svg` is the cover, its `input.md` the prompt and its `.html` the example; heading `run.title`, note `run.note`, facts in `.run-facts` |
+| coverSvg | preview/cover.svg (fallback when no run) | through `sanitizeSvg`; build fails on `<script`, `<foreignObject`, `on*` attrs, external href |
 | procedure | SKILL.md `## Procedure` | numbered list items, in order |
 | rules.total | RULES.json | count of entries |
 | rules.machine | RULES.json | entries with `check` |
