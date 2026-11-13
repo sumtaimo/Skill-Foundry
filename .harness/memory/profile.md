@@ -8,6 +8,6 @@ like to work. Replace each "(fill me)". You can also just tell your editor AI:
 - Role / what I do: (fill me)
 - Coding experience: (fill me — e.g. "I don't code; explain everything in plain words")
 - Language I want answers in: (fill me)
-- What this project is: (fill me)
+- What this project is: Skill Foundry, a library of AI agent skills (Node / TypeScript)
 - How I like answers: (fill me — e.g. "short, step by step, one command at a time")
 - Things the AI must always ask me before doing: (fill me — e.g. "deleting files, pushing to GitHub, paying for anything")

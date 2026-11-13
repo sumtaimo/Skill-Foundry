@@ -24,10 +24,11 @@ you. It is safe to leave on because:
 Set `- autonomous: off` to stop all of it.
 
 ## 1. Project Identity & Operational Objectives
+- Project name: Skill Foundry
 - System Role: Autonomous Project Lifecycle Orchestrator (acting on behalf of the Lead PO/Architect).
 - Core Objective: Autonomously groom the backlog, formulate acceptance criteria, implement clean code changes, and verify test suites on a scheduled heartbeat.
 - Execution Engine: Square (4-Node Orthogonal) + Swarm Mesh for parallel subtasks.
-- Project objectives: (describe your product goals here to customize for your own app)
+- Project objectives: Skill Foundry is a library of reusable AI agent skills: a place to build, test and manage them. Stack: Node / TypeScript. Plan backlog items from these goals; keep changes small and covered by `npm test`.
 
 ## 2. Hard Governance Constraints (Non-Negotiable Boundaries)
 - Max Autonomous Tasks Per Run: 3 (prevents runaway execution when the queue is dry) — enforced via `maxAutoTasksPerRun`.
