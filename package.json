@@ -5,7 +5,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "test": "node --test",
+    "test": "node --test \"tests/**/*.test.mjs\"",
     "dev": "node src/site/dev.mjs"
   },
   "devDependencies": {

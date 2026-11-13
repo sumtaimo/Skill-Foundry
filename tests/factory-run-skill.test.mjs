@@ -100,3 +100,21 @@ test('checkExpectations covers contains, notContains and fileExists', () => {
   assert.deepEqual(checkExpectations(ex, ['f.svg'], 'a'), []);
   assert.equal(checkExpectations(ex, [], 'b').length, 3);
 });
+
+test('text checks skip Markdown reports, and cached runs are re-checked without the agent', async () => {
+  const f = await fixture();
+  const runner = async ({ outputDir }) => {
+    runner.calls = (runner.calls ?? 0) + 1;
+    await writeFile(join(outputDir, 'figure.svg'), '<svg fill="var(--a)"/>');
+    await writeFile(join(outputDir, 'REPORT.md'), 'Checked: no #fff anywhere.');
+    return { code: 0 };
+  };
+  const opts = { skill: 'demo', caseId: 'strict', runner, skillsRoot: f.skillsRoot, outRoot: f.outRoot };
+  const first = await recordRun(opts);
+  assert.equal(first.manifest.status, 'pass', first.manifest.checks.failures.join('; '));
+  assert.equal(first.manifest.files.length, 2);
+  const again = await recordRun(opts);
+  assert.equal(again.cached, true);
+  assert.equal(again.manifest.status, 'pass');
+  assert.equal(runner.calls, 1);
+});

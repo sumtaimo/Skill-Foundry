@@ -27,7 +27,7 @@ step-by-step layers, and showcases **the real output each skill produces**, neve
 ## 4. Showcase rules (real output, low token cost)
 
 1. A skill appears on the site only when it has at least one recorded real run that passed its checks. [planned]
-2. A recorded run is: the input, the files produced, the skill version, the check results and the token cost, saved under `runs/<skill>/<run-id>/` with a manifest. [built] `src/factory/run-skill.mjs`; `maxLines` expectations are not applied to recorded files.
+2. A recorded run is: the input, the files produced, the skill version, the check results and the token cost, saved under `runs/<skill>/<run-id>/` with a manifest. [built] `src/factory/run-skill.mjs`; `maxLines` expectations are not applied to recorded files; text checks skip Markdown reports. First real runs: `runs/figure-craft/` (screenshots in `screens/`).
 3. A run is made by a real agent following the skill, once. It is cached by input hash and skill version and repeated only when one of them changes. Deterministic steps (render, lint, pack) run as scripts, not as agent work.
 4. A failed or incomplete output is shown as it is. Nobody polishes it by hand.
 5. Hand-drawn images may only appear labelled as "concept".

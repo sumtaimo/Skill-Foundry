@@ -8,7 +8,7 @@
  * env RUN_PROMPT_FILE, RUN_OUTPUT_DIR, SKILL_DIR and runs with cwd = RUN_OUTPUT_DIR.
  * @governed-by PO_ARCHITECT
  */
-import { readFile, readdir, mkdir, writeFile, rm, stat } from 'node:fs/promises';
+import { readFile, readdir, mkdir, writeFile, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, resolve, dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -80,6 +80,25 @@ export function checkExpectations(expect, files, text) {
     }
   }
   return failures;
+}
+
+/**
+ * Hash the produced files and check expectations. Text checks read product files only:
+ * Markdown files are the agent's own reports, which may quote the rules they were checked against.
+ * @param {string} outputDir @param {object[]} expect
+ */
+export async function evaluate(outputDir, expect) {
+  const names = await listFiles(outputDir);
+  const files = [];
+  let text = '';
+  for (const f of names) {
+    const data = await readFile(join(outputDir, f));
+    files.push({ path: f, bytes: data.length, sha256: sha256(data) });
+    if (!f.endsWith('.md')) text += `${data.toString('utf8')}\n`;
+  }
+  const failures = names.length === 0 ? ['no output files produced'] : [];
+  failures.push(...checkExpectations(expect, names, text));
+  return { files, failures };
 }
 
 /** Runs a shell command; resolves with exit code, stdout and stderr. */
@@ -159,7 +178,13 @@ export async function recordRun(opts) {
   const runDir = join(outRoot, skill, key.slice(0, 16));
   const manifestPath = join(runDir, 'manifest.json');
   if (!force && existsSync(manifestPath)) {
-    return { cached: true, runDir, manifest: JSON.parse(await readFile(manifestPath, 'utf8')) };
+    // Cached: no agent run. Checks are re-applied to the saved output (deterministic, free).
+    const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+    const ev = await evaluate(join(runDir, 'output'), expect);
+    const failures = [...(manifest.exitCode === 0 ? [] : [`runner exited with code ${manifest.exitCode}`]), ...ev.failures];
+    Object.assign(manifest, { checks: { expectations: expect.length, failures }, status: failures.length === 0 ? 'pass' : 'fail' });
+    await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+    return { cached: true, runDir, manifest };
   }
 
   await rm(runDir, { recursive: true, force: true });
@@ -174,18 +199,11 @@ export async function recordRun(opts) {
   const res = (await runner({ prompt, promptFile, outputDir, skillDir })) ?? {};
   const finishedAt = now();
 
-  const fileNames = await listFiles(outputDir);
-  const files = [];
-  let text = '';
-  for (const f of fileNames) {
-    const data = await readFile(join(outputDir, f));
-    files.push({ path: f, bytes: (await stat(join(outputDir, f))).size, sha256: sha256(data) });
-    text += `${data.toString('utf8')}\n`;
-  }
+  const ev = await evaluate(outputDir, expect);
+  const files = ev.files;
   const failures = [];
   if (res.code !== 0) failures.push(`runner exited with code ${res.code}`);
-  if (files.length === 0) failures.push('no output files produced');
-  failures.push(...checkExpectations(expect, fileNames, text));
+  failures.push(...ev.failures);
 
   const manifest = {
     skill,
