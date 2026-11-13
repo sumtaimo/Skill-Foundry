@@ -1,14 +1,14 @@
 [
   {
     "name": "skill-smith",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "purpose": "Guides an agent through building a new skill that passes the factory linter, evals and review.",
     "status": "ready"
   },
   {
     "name": "figure-craft",
-    "version": "1.0.0",
-    "purpose": "Draws isometric explanatory figures with tokens, a shared iso engine and geometry lint L1 to L8.",
+    "version": "1.1.0",
+    "purpose": "Draws detailed isometric explanatory figures from a stated goal, with tokens, a shared iso engine and lint L1 to L11.",
     "status": "ready"
   }
 ]

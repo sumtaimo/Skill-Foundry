@@ -12,7 +12,13 @@ export const REPO_ROOT = resolve(dirname(HERE), '..', '..');
 
 export const CHECK_IDS = [
   'chk-required-files', 'chk-frontmatter', 'chk-name-match', 'chk-size', 'chk-rules-mapped',
-  'chk-check-tested', 'chk-links', 'chk-preview-json', 'chk-cover-svg',
+  'chk-check-tested', 'chk-links', 'chk-preview-json', 'chk-cover-svg', 'chk-layers', 'chk-portable',
+];
+
+/** The ten core layers every skill has (docs/factory/STANDARD.md section 12). */
+export const CORE_LAYERS = [
+  '01-intent', '02-context', '03-inputs', '04-flow', '05-rules',
+  '06-states', '07-checks', '08-output', '09-handoff', '10-evidence',
 ];
 
 export const REQUIRED_FILES = [
@@ -71,6 +77,7 @@ export async function lintSkill(skillDir, { testsDir } = {}) {
   }
 
   // SKILL.md
+  let scope = 'portable';
   const skill = await readText(join(dir, 'SKILL.md'));
   if (skill !== null) {
     const lines = skill.replace(/\r\n/g, '\n').split('\n');
@@ -91,11 +98,34 @@ export async function lintSkill(skillDir, { testsDir } = {}) {
           if (!fm[k]) add('SKILL.md', 1, 'chk-frontmatter', `frontmatter key ${k} missing`);
         }
         if (fm.version && !SEMVER.test(fm.version)) add('SKILL.md', 1, 'chk-frontmatter', `version ${fm.version} is not semver`);
+        if (fm.scope) scope = fm.scope;
+        if (fm.scope && !['portable', 'factory'].includes(fm.scope)) add('SKILL.md', 1, 'chk-frontmatter', `scope ${fm.scope} must be portable or factory`);
         if (fm.name && fm.name !== name) add('SKILL.md', 1, 'chk-name-match', `name ${fm.name} does not equal folder ${name}`);
       }
     }
     for (const s of SECTIONS) {
       if (!lines.some((l) => l.trim() === `## ${s}`)) add('SKILL.md', 1, 'chk-frontmatter', `missing section ## ${s}`);
+    }
+  }
+
+  // Layers: the ten core layer files exist, are not empty and are linked from SKILL.md
+  for (const l of CORE_LAYERS) {
+    const rel = `layers/${l}.md`;
+    const text = await readText(join(dir, rel));
+    if (text === null) add(rel, 1, 'chk-layers', `missing core layer ${rel}`);
+    else if (!/^\s*\d+\.\s+\S/m.test(text)) add(rel, 1, 'chk-layers', `${rel} has no numbered steps`);
+    if (skill !== null && !skill.includes(`(${rel})`)) add('SKILL.md', 1, 'chk-layers', `SKILL.md does not link ${rel}`);
+  }
+
+  // Portable: a skill other people install must not depend on this repository's folders
+  if (scope !== 'factory') {
+    for (const file of await listFiles(dir)) {
+      const rel = relative(dir, file).split(sep).join('/');
+      if (!(rel === 'SKILL.md' || rel.startsWith('layers/') || rel.startsWith('references/')) || !rel.endsWith('.md')) continue;
+      const text = (await readText(file)) ?? '';
+      const re = /(?:^|[\s`("'])((?:src|docs|tests)\/[\w./-]+)/g;
+      let m;
+      while ((m = re.exec(text))) add(rel, lineOf(text, m.index), 'chk-portable', `${m[1]} is a Skill Foundry repository path; keep the skill self-contained or set scope: factory`);
     }
   }
 

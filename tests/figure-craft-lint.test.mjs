@@ -4,7 +4,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { box, dot, renderSvg } from '../src/skills/figure-craft/engine/iso.mjs';
+import { box, dot, line, renderSvg } from '../src/skills/figure-craft/engine/iso.mjs';
 import { lint } from '../src/skills/figure-craft/engine/lint.mjs';
 
 function clean() {
@@ -13,11 +13,13 @@ function clean() {
     box({ at: [60, 0, 0], size: [20, 20, 40], id: 'postB' }),
     box({ at: [0, 0, 40], size: [80, 20, 10], id: 'beam', rests: 'postA' }),
     dot([40, 10, 50], { face: 'top', on: 'beam', tone: 'ok' }),
+    line([[64, 10, 40], [76, 10, 40]], { on: 'postB', face: 'top', id: 'postB-seam' }),
     box({ at: [0, 40, 0], size: [10, 10, 10], id: 'mover', anim: 'slide', move: [20, 0, 0] }),
   ];
   return renderSvg(shapes, { labels: [
     { at: [40, 10, 50], text: 'Beam', side: 'r' },
     { at: [70, 10, 0], text: 'Post B', side: 'r' },
+    { at: [5, 45, 5], text: 'Mover', side: 'l' },
   ] }).model;
 }
 const copy = (m) => structuredClone(m);
@@ -92,4 +94,44 @@ test('L4-leader-crosses-solid: leader crossing a box is a warning', () => {
   const r = lint(m);
   assert.ok(has(r.warnings, 'L4-leader-crosses-solid'), 'expected warning');
   assert.equal(has(r.errors, 'L4-leader-crosses-solid'), false, 'L4 must be a warning, not an error');
+});
+
+test('L1: a box sitting on another without declaring rests is an error', () => {
+  const m = renderSvg([box({ at: [0, 0, 0], size: [40, 40, 4], id: 'ground' }), box({ at: [4, 4, 4], size: [10, 10, 10], id: 'part' })]).model;
+  assert.ok(lint(m).errors.some((e) => e.rule === 'L1-painter-order' && /does not declare rests/.test(e.message)));
+});
+
+test('L2: a line detail must lie in its face', () => {
+  const ok = clean();
+  assert.equal(has(lint(ok).errors, 'L2-face-detail'), false);
+  const m = copy(ok);
+  byId(m, 'postB-seam').points[1] = [90, 10, 40];
+  assert.ok(has(lint(m).errors, 'L2-face-detail'));
+});
+
+test('L9-moving-unlabelled: the moving part must be labelled', () => {
+  const m = copy(clean());
+  m.labels = m.labels.filter((l) => l.text !== 'Mover');
+  assert.ok(has(lint(m).errors, 'L9-moving-unlabelled'));
+});
+
+test('L10-crowded: parts too close, or huddled on a big base, are warned', () => {
+  const g = box({ at: [0, 0, 0], size: [100, 100, 4], id: 'ground' });
+  const part = (id, x, y) => box({ at: [x, y, 4], size: [10, 10, 20], id, rests: 'ground' });
+  const tight = lint(renderSvg([g, part('a', 0, 0), part('b', 11, 0)]).model).warnings.filter((w) => w.rule === 'L10-crowded');
+  assert.equal(tight.length, 2, 'too close and spanning too little');
+  const spread = lint(renderSvg([g, part('a', 5, 5), part('b', 70, 70)]).model).warnings;
+  assert.equal(has(spread, 'L10-crowded'), false);
+});
+
+test('L11-no-detail: a labelled part needs an identifying face detail', () => {
+  const m = copy(clean());
+  m.shapes = m.shapes.filter((s) => s.id !== 'postB-seam');
+  const r = lint(m);
+  assert.ok(r.errors.some((e) => e.rule === 'L11-no-detail' && /Post B/.test(e.message)));
+});
+
+test('the skill demo passes its own lint with no errors and no warnings', async () => {
+  const { demoRender } = await import('../src/skills/figure-craft/examples/build-demo.mjs');
+  assert.deepEqual(lint(demoRender().model), { errors: [], warnings: [] });
 });

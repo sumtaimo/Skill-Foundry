@@ -1,12 +1,15 @@
 [
-  { "id": "R-skill-smith-1", "text": "The new skill folder contains every required file.", "check": "chk-required-files" },
-  { "id": "R-skill-smith-2", "text": "SKILL.md has frontmatter name, description, semver version and all required sections.", "check": "chk-frontmatter" },
-  { "id": "R-skill-smith-3", "text": "The frontmatter name equals the folder name.", "check": "chk-name-match" },
-  { "id": "R-skill-smith-4", "text": "SKILL.md stays within 150 lines and the cover within 40 KB.", "check": "chk-size" },
-  { "id": "R-skill-smith-5", "text": "Every rule maps to a check or a checklist item.", "check": "chk-rules-mapped" },
-  { "id": "R-skill-smith-6", "text": "Every check id used by a rule is named in a test file.", "check": "chk-check-tested" },
-  { "id": "R-skill-smith-7", "text": "Links never leave the skill folder; docs paths are written in backticks.", "check": "chk-links" },
-  { "id": "R-skill-smith-8", "text": "preview.json has title, a tagline of at most 90 characters, prompt, outputs and at most 5 tags.", "check": "chk-preview-json" },
-  { "id": "R-skill-smith-9", "text": "cover.svg is safe: viewBox, no script, no foreignObject, no external href, token colours only.", "check": "chk-cover-svg" },
-  { "id": "R-skill-smith-10", "text": "No invented facts: unknown goals or constraints are asked, not assumed.", "checklist": "Reviewer confirms the intent and rules come from the interview, not guesses." }
+  {"id": "R-skill-smith-1", "text": "The new skill folder contains every required file.", "check": "chk-required-files"},
+  {"id": "R-skill-smith-2", "text": "SKILL.md has frontmatter name, description, semver version and all required sections.", "check": "chk-frontmatter"},
+  {"id": "R-skill-smith-3", "text": "The frontmatter name equals the folder name.", "check": "chk-name-match"},
+  {"id": "R-skill-smith-4", "text": "SKILL.md stays within 150 lines and the cover within 40 KB.", "check": "chk-size"},
+  {"id": "R-skill-smith-5", "text": "Every rule maps to a check or a checklist item.", "check": "chk-rules-mapped"},
+  {"id": "R-skill-smith-6", "text": "Every check id used by a rule is named in a test file.", "check": "chk-check-tested"},
+  {"id": "R-skill-smith-7", "text": "Links never leave the skill folder; docs paths are written in backticks.", "check": "chk-links"},
+  {"id": "R-skill-smith-8", "text": "preview.json has title, a tagline of at most 90 characters, prompt, outputs and at most 5 tags.", "check": "chk-preview-json"},
+  {"id": "R-skill-smith-9", "text": "cover.svg is safe: viewBox, no script, no foreignObject, no external href, token colours only.", "check": "chk-cover-svg"},
+  {"id": "R-skill-smith-10", "text": "No invented facts: unknown goals or constraints are asked, not assumed.", "checklist": "Reviewer confirms the intent and rules come from the interview, not guesses."},
+  {"id": "R-skill-smith-11", "text": "The new skill MUST have the ten core layers, each with numbered steps and linked from SKILL.md.", "check": "chk-layers"},
+  {"id": "R-skill-smith-12", "text": "The new skill MUST be self-contained so other people can install and use it; NEVER reference repository paths.", "check": "chk-portable"},
+  {"id": "R-skill-smith-13", "text": "The new skill MUST start from the goal its user states, and its quality MUST come from its own rules, NEVER from hand edits to output.", "checklist": "Layer 01 asks for the user's goal, and a recorded real run passes without edits to its output."}
 ]

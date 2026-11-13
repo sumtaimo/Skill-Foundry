@@ -34,12 +34,12 @@ Rules live in `RULES.json`. Each rule has an id `R-<skill>-<n>` and a check or c
 
 ## Checks
 
-- Run `node src/factory/lint-skills.mjs <skill>` and fix every problem.
-- Run the evals in `evals/cases.json`.
+- List the checks a user of this skill can run in their own project, machine checks first.
+- List the checklist items a reviewer answers yes or no.
 
 ## Review
 
-Review the skill with `docs/factory/REVIEW.md` before marking it ready.
+Say who reviews the output and what they compare it with. Keep every path inside this skill folder, so the skill works after it is installed in another project.
 
 ## Output
 

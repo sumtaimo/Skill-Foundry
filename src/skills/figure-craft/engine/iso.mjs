@@ -57,10 +57,18 @@ export function box(o) {
   return s;
 }
 
-/** @param {number[][]} points @param {{bold?:boolean,id?:string}} [opts] */
+/**
+ * A line. With `on` and `face` it is a face detail of that box (a seam, handle, vent, shelf edge).
+ * @param {number[][]} points @param {{bold?:boolean,id?:string,on?:string,face?:'top'|'y'|'x'}} [opts]
+ */
 export function line(points, opts = {}) {
   if (!Array.isArray(points) || points.length < 2) throw new TypeError('line: at least two points required');
   const s = { kind: 'line', points: points.map((p) => vec3(p, 'line point')), bold: !!opts.bold };
+  if (opts.on !== undefined) {
+    const face = opts.face ?? 'top';
+    if (!['top', 'x', 'y'].includes(face)) throw new TypeError('line: face must be top, x or y');
+    s.on = String(opts.on); s.face = face;
+  }
   if (opts.id !== undefined) s.id = String(opts.id);
   return s;
 }
@@ -121,7 +129,7 @@ export function layoutLabels(labels, bounds, fontSize = FONT_SIZE) {
     if (!l || typeof l.text !== 'string') throw new TypeError(`layoutLabels: label ${i} needs text`);
     const side = l.side === 'l' ? 'l' : 'r';
     const [x, y] = project(l.at);
-    return { text: l.text, side, x, y, tx: side === 'l' ? bounds.minX - COL_GAP : bounds.maxX + COL_GAP, ty: y, i, ...(fontSize !== FONT_SIZE ? { fontSize } : {}) };
+    return { text: l.text, side, at: vec3(l.at, `label ${i} at`), x, y, tx: side === 'l' ? bounds.minX - COL_GAP : bounds.maxX + COL_GAP, ty: y, i, ...(fontSize !== FONT_SIZE ? { fontSize } : {}) };
   });
   for (const side of ['l', 'r']) {
     const col = out.filter((l) => l.side === side).sort((a, b) => a.ty - b.ty || a.i - b.i);

@@ -6,7 +6,7 @@
  */
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { box, dot, renderSvg } from '../engine/iso.mjs';
+import { box, dot, line, renderSvg } from '../engine/iso.mjs';
 import { tokensCss } from '../engine/tokens.mjs';
 
 const TITLE = 'How a CDN edge cache serves a request';
@@ -17,14 +17,18 @@ export const DEMO_FONT_SIZE = 16;
 /** @param {boolean} animated include the request motion */
 function shapes(animated) {
   if (typeof animated !== 'boolean') throw new TypeError('shapes: animated must be boolean');
-  const request = { at: [30, 26, 4], size: [8, 8, 8], id: 'request' };
+  const request = { at: [30, 26, 4], size: [8, 8, 8], id: 'request', rests: 'ground' };
   if (animated) Object.assign(request, { move: [26, 0, 0], delay: 0 });
   return [
     box({ at: [0, 0, 0], size: [160, 60, 4], r: 4, id: 'ground' }),
-    box({ at: [8, 22, 4], size: [18, 18, 16], id: 'client' }),
+    box({ at: [8, 22, 4], size: [18, 18, 16], id: 'client', rests: 'ground' }),
+    line([[26, 25, 16], [26, 37, 16]], { on: 'client', face: 'x', id: 'client-screen' }), // screen edge on the side facing the request
     box(request),
-    box({ at: [64, 14, 4], size: [32, 32, 36], tone: 'ink', id: 'edge' }),
-    box({ at: [128, 14, 4], size: [24, 32, 52], id: 'origin' }),
+    box({ at: [64, 14, 4], size: [32, 32, 36], tone: 'ink', id: 'edge', rests: 'ground' }),
+    box({ at: [128, 14, 4], size: [24, 32, 52], id: 'origin', rests: 'ground' }),
+    line([[152, 18, 44], [152, 42, 44]], { on: 'origin', face: 'x', id: 'origin-bay-1' }), // drive bays
+    line([[152, 18, 34], [152, 42, 34]], { on: 'origin', face: 'x', id: 'origin-bay-2' }),
+    line([[152, 18, 24], [152, 42, 24]], { on: 'origin', face: 'x', id: 'origin-bay-3' }),
     dot([80, 30, 40], { face: 'top', on: 'edge', tone: 'ok' }),
   ];
 }
@@ -104,16 +108,21 @@ ${svg}
 `;
 }
 
+/** The animated demo figure: `{ svg, model }`, the model is what lint checks. */
+export function demoRender() {
+  return renderSvg(shapes(true), {
+    labels: [LABELS.client, LABELS.request, LABELS.edge, LABELS.origin],
+    title: FIG_TITLE,
+    fontSize: DEMO_FONT_SIZE,
+  });
+}
+
 /**
  * Build the demo page and the preview cover from the engine.
  * @returns {{demoHtml:string, coverSvg:string}}
  */
 export function buildDemo() {
-  const demo = renderSvg(shapes(true), {
-    labels: [LABELS.client, LABELS.request, LABELS.edge, LABELS.origin],
-    title: FIG_TITLE,
-    fontSize: DEMO_FONT_SIZE,
-  });
+  const demo = demoRender();
   const cover = renderSvg(shapes(false), {
     labels: [LABELS.client, LABELS.edge, LABELS.origin],
     padding: 16,

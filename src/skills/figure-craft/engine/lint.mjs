@@ -1,11 +1,14 @@
 /**
- * figure-craft lint: geometry and taste checks L1-L8 on a renderSvg model (or a hand-built one).
+ * figure-craft lint: geometry, layout and detail checks L1-L11 on a renderSvg model (or a hand-built one).
  * Node 24 ESM, stdlib only, zero deps.
  * @governed-by PO_ARCHITECT
  */
 import { boxOutline, shapePoints, labelBox, LABEL_GAP } from './iso.mjs';
 
 const EPS = 1e-6;
+/** L10: minimum gap between sibling parts, and minimum share of the base they span. */
+export const MIN_PART_GAP = 4;
+export const MIN_BASE_USE = 0.3;
 
 function segCross(a, b, c, d) {
   const o = (p, q, r) => (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
@@ -23,7 +26,7 @@ function inPoly(p, poly) {
 }
 
 /** Check a dot against the face of its box. @returns {string|null} problem */
-function faceProblem(d, b) {
+function faceProblem(d, b, corners = true) {
   const [x, y, z] = b.at; const [w, h3, h] = [b.size[0], b.size[1], b.size[2]];
   const face = d.face ?? 'top';
   const [px, py, pz] = d.at;
@@ -34,7 +37,7 @@ function faceProblem(d, b) {
   else { plane = Math.abs(py - (y + h3)) < EPS; [u, v, u0, u1, v0, v1] = [px, pz, x, x + w, z, z + h]; }
   if (!plane) return `not in the plane of the ${face} face`;
   if (u < u0 || u > u1 || v < v0 || v > v1) return `outside the ${face} face`;
-  for (const cu of [u0, u1]) for (const cv of [v0, v1]) {
+  if (corners) for (const cu of [u0, u1]) for (const cv of [v0, v1]) {
     if (Math.hypot(u - cu, v - cv) < r) return `within r=${r} of a rounded corner`;
   }
   return null;
@@ -62,7 +65,23 @@ export function lint(model) {
     else if (base.drawIndex > s.drawIndex) err('L1-painter-order', `${s.id} is drawn before ${s.rests}, which it rests on`);
   }
 
-  // L2 face detail
+  // L1 also: a box sitting on another box's top must declare it with `rests`
+  const within = (a0, a1, b0, b1) => a0 >= b0 - EPS && a1 <= b1 + EPS;
+  for (const s of boxes) {
+    if (s.rests !== undefined || s.at[2] === 0) continue;
+    const base = boxes.find((b) => b !== s && Math.abs(b.at[2] + b.size[2] - s.at[2]) < EPS
+      && within(s.at[0], s.at[0] + s.size[0], b.at[0], b.at[0] + b.size[0]) && within(s.at[1], s.at[1] + s.size[1], b.at[1], b.at[1] + b.size[1]));
+    if (base) err('L1-painter-order', `${s.id} sits on ${base.id} but does not declare rests: '${base.id}'`);
+  }
+
+  // L2 face detail (lines used as face details: every point in the face; corners may be touched)
+  for (const d of shapes) {
+    if (d.kind !== 'line' || d.on === undefined) continue;
+    const b = byId.get(d.on);
+    if (!b || b.kind !== 'box') { err('L2-face-detail', `${d.id} lies on unknown box ${d.on}`); continue; }
+    const p = d.points.map((pt) => faceProblem({ at: pt, face: d.face }, b, false)).find(Boolean);
+    if (p) err('L2-face-detail', `${d.id} on ${d.on}: ${p}`);
+  }
   for (const d of shapes) {
     if (d.kind !== 'dot' || d.on === undefined) continue;
     const b = byId.get(d.on);
@@ -118,6 +137,47 @@ export function lint(model) {
     const nonZero = s.move.filter((n) => n !== 0).length;
     if (nonZero > 1) err('L8-motion-off-axis', `${s.id} moves along more than one axis`);
     else if (s.rests !== undefined && s.move[2] !== 0) err('L8-motion-off-axis', `${s.id} rests on ${s.rests} but moves in z`);
+  }
+
+  // Which box a label names: the smallest box whose volume holds the label's 3D anchor.
+  const holds = (b, p) => [0, 1, 2].every((k) => p[k] >= b.at[k] - EPS && p[k] <= b.at[k] + b.size[k] + EPS);
+  const vol = (b) => b.size[0] * b.size[1] * b.size[2];
+  const named = new Map();
+  for (const l of labels) {
+    if (!Array.isArray(l.at)) continue;
+    const b = boxes.filter((x) => holds(x, l.at)).sort((p, q) => vol(p) - vol(q))[0];
+    if (b) named.set(b.id, l);
+  }
+
+  // L9 the moving part is the story: it must be labelled
+  for (const s of boxes) {
+    if (Array.isArray(s.move) && s.move.some((n) => n !== 0) && !named.has(s.id)) err('L9-moving-unlabelled', `${s.id} moves but has no label; name the part that tells the story`);
+  }
+
+  // L10 parts on one base: not crowded, and using the base (warnings)
+  const kids = new Map();
+  for (const s of boxes) if (s.rests !== undefined && !s.move) kids.set(s.rests, [...(kids.get(s.rests) ?? []), s]);
+  for (const [baseId, list] of kids) {
+    const base = byId.get(baseId);
+    for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length; j++) {
+      const a = list[i]; const b = list[j];
+      const gap = (k) => Math.max(a.at[k] - (b.at[k] + b.size[k]), b.at[k] - (a.at[k] + a.size[k]), 0);
+      const d = Math.hypot(gap(0), gap(1));
+      if (d < MIN_PART_GAP - EPS) warnings.push({ rule: 'L10-crowded', message: `${a.id} and ${b.id} are ${Math.round(d * 10) / 10} apart on ${baseId} (min ${MIN_PART_GAP}); leave a gap so each reads as its own part` });
+    }
+    if (base && base.kind === 'box' && list.length >= 2) {
+      const x0 = Math.min(...list.map((b) => b.at[0])); const x1 = Math.max(...list.map((b) => b.at[0] + b.size[0]));
+      const y0 = Math.min(...list.map((b) => b.at[1])); const y1 = Math.max(...list.map((b) => b.at[1] + b.size[1]));
+      const used = ((x1 - x0) * (y1 - y0)) / (base.size[0] * base.size[1]);
+      if (used < MIN_BASE_USE - EPS) warnings.push({ rule: 'L10-crowded', message: `parts span ${Math.round(used * 100)}% of ${baseId} (min ${MIN_BASE_USE * 100}%); spread them out or shrink the base` });
+    }
+  }
+
+  // L11 every labelled part carries a detail that identifies it
+  for (const [id, l] of named) {
+    const b = byId.get(id);
+    if (b.move || kids.has(id)) continue; // moving tokens and bases that carry parts are identified by those
+    if (!shapes.some((s) => (s.kind === 'dot' || s.kind === 'line') && s.on === id)) err('L11-no-detail', `"${l.text}" (${id}) has no face detail; add a line or dot with on: '${id}' that identifies it`);
   }
 
   return { errors, warnings };
