@@ -1,7 +1,7 @@
 ---
 name: skill-smith
 description: Build a new Skill Foundry skill from the template so it passes the factory linter, evals and review.
-version: 1.0.0
+version: 1.0.1
 ---
 
 # skill-smith
