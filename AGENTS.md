@@ -1,5 +1,8 @@
 # AGENTS.md — instructions for any AI working in this folder
 
+> **Project goal first:** read `docs/PROJECT.md` (what Skill Foundry is, the layer standard,
+> the real-output rule, the roadmap). This file covers how the harness runs; that file covers what we build.
+
 This project contains an **Agentic Harness** in `.harness/`. It is a background controller that
 runs AI coding agents (Claude Code, Antigravity, Orca, Gemini, Codex) in a checked loop:
 

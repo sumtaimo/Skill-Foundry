@@ -87,7 +87,7 @@ Lint output format: `<file>:<line> <code> <message>`. Exit code 0 means no probl
 
 ## 8. Size and references
 
-SKILL.md MUST be at most 150 lines (`chk-size`). Move background, long tables and edge cases into `references/` and link to them with relative links.
+SKILL.md MUST be at most 150 lines (`chk-size`). SKILL.md is the index of the skill, not the whole book: the step-by-step detail lives in the layer files (section 12), and background, long tables and edge cases live in `references/`. Link to both with relative links.
 
 ## 9. Evals
 
@@ -123,3 +123,26 @@ SKILL.md MUST be at most 150 lines (`chk-size`). Move background, long tables an
 - NEVER contains `<script` or `<foreignObject`.
 - NEVER has `href` or `xlink:href` starting with `http`, `https` or `//`.
 - Every `fill`, `stroke`, `stop-color` and `color` attribute value is `var(--...)`, `currentColor` or `none`.
+
+## 12. Layers (one workflow for every skill)
+
+Every skill follows the same layer template, so an agent learns the structure once. Each layer is a file in `layers/`, written as a detailed chapter: what the agent does at that step, in numbered imperative steps, with the inputs it needs and what it hands to the next layer. The `## Procedure` in SKILL.md lists one step per layer and links to it.
+
+| # | File | The agent answers |
+|---|------|-------------------|
+| 01 | `layers/01-intent.md` | What is asked, for whom, and the one outcome that proves success |
+| 02 | `layers/02-context.md` | What already exists (code, docs, prior output) and must be preserved |
+| 03 | `layers/03-inputs.md` | Which inputs are required, which are optional, and what to do when one is missing |
+| 04 | `layers/04-flow.md` | The ordered work, one action per step |
+| 05 | `layers/05-rules.md` | The MUST / NEVER rules that apply, by id from RULES.json |
+| 06 | `layers/06-states.md` | States, edge cases, errors, empty and loading cases, responsive behaviour |
+| 07 | `layers/07-checks.md` | The checks to run, machine first, then the checklist |
+| 08 | `layers/08-output.md` | The exact files and format produced, and quality bar down to micro detail |
+| 09 | `layers/09-handoff.md` | What the next person or skill receives, and open items |
+| 10 | `layers/10-evidence.md` | The proof recorded: input, output files, check results, assumptions |
+
+- The ten core layers keep these numbers and names in every skill.
+- A skill MAY add layers after 10 (`layers/11-<name>.md`, ...) when it needs more steps; it NEVER removes or renumbers a core layer.
+- Analysis skills (BA, system analysis, QA) write layers as numbered clauses with defined terms, so each clause can be cited.
+- Output skills (UI, figures) state in layer 08 the real files produced; the showcase shows only real recorded output (see `docs/PROJECT.md` section 4).
+- Status: the layer files are in `src/skills/_template/layers/`. Lint does not enforce them yet, and `skill-smith` and `figure-craft` are not migrated yet.
