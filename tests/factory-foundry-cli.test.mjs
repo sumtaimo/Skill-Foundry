@@ -102,3 +102,26 @@ test('recordings of our own evals are not installed into users\' projects', () =
   assert.ok(!existsSync(join(d, 'evals', 'live')), 'live recordings must not be installed');
   assert.equal(checkProject({ project: p }).every((x) => x.current), true, 'check still sees it as current');
 });
+
+test('by default add lists the skills in AGENTS.md and denies agents edit rights on installed skills', async () => {
+  const { protectSkills, DENY } = await import('../src/factory/foundry.mjs');
+  const p = mkdtempSync(join(tmpdir(), 'sf-prot-'));
+  mkdirSync(join(p, '.claude'), { recursive: true });
+  writeFileSync(join(p, '.claude', 'settings.json'), JSON.stringify({ model: 'x', permissions: { allow: ['Bash(ls:*)'], deny: ['Read(.env)'] } }));
+  const cwd = process.cwd(); process.chdir(p);
+  try { main(['add', 'copy-tight'], () => {}); main(['update'], () => {}); } finally { process.chdir(cwd); }
+  const cfg = JSON.parse(readFileSync(join(p, '.claude', 'settings.json'), 'utf8'));
+  assert.equal(cfg.model, 'x'); assert.deepEqual(cfg.permissions.allow, ['Bash(ls:*)']);
+  assert.deepEqual(cfg.permissions.deny, ['Read(.env)', ...DENY], 'user rules kept, ours added once');
+  assert.ok(DENY.some((d) => d.startsWith('Edit(.claude/skills')) && DENY.some((d) => d.startsWith('Write(.claude/skills')));
+  const md = readFileSync(join(p, 'AGENTS.md'), 'utf8');
+  assert.match(md, /Never edit, delete or overwrite anything under/);
+  assert.deepEqual(protectSkills({ project: p }).added, [], 'idempotent');
+  const q = mkdtempSync(join(tmpdir(), 'sf-optout-')); process.chdir(q);
+  try { main(['add', 'copy-tight', '--no-rules', '--no-protect'], () => {}); } finally { process.chdir(cwd); }
+  assert.ok(!existsSync(join(q, 'AGENTS.md')) && !existsSync(join(q, '.claude', 'settings.json')), 'opt-out writes neither');
+  const bad = mkdtempSync(join(tmpdir(), 'sf-badjson-')); mkdirSync(join(bad, '.claude'));
+  writeFileSync(join(bad, '.claude', 'settings.json'), '{ not json');
+  assert.match(protectSkills({ project: bad }).skipped, /left untouched/);
+  assert.equal(readFileSync(join(bad, '.claude', 'settings.json'), 'utf8'), '{ not json');
+});

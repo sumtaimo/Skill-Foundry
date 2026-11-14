@@ -51,7 +51,8 @@ site at https://sumtaimo.github.io/Skill-Foundry/. Check the workflow run succee
 |---|---|---|
 | Claude Code | `npx github:sumtaimo/Skill-Foundry add <skill>` | the skill in `.claude/skills/`, picked by its description |
 | An agentic harness | `npx github:sumtaimo/Skill-Foundry add --role <ROLE>` | also `.harness/skills/<skill>/`, injected into workers of the matching role |
-| Codex, Cursor, Gemini | add `--rules` | one managed block in `AGENTS.md` listing the skills and when to use each; their own text is kept |
+| Codex, Cursor, Gemini, any agent | (default) | one managed block in `AGENTS.md` listing the skills and when to use each; their own text is kept. Opt out with `--no-rules` |
+| Any Claude Code project | (default) | deny rules in `.claude/settings.json` so the agent cannot edit the installed skills or run `add`/`update`; only the user updates skills. Existing settings are merged, never replaced. Opt out with `--no-protect`. A guard rail, not a lock: tested with a real agent (edit blocked), but a user can always change it |
 | Already installed | `npx github:sumtaimo/Skill-Foundry check` then `update` | new content; files they changed are kept |
 
 Never break `add`, `check`, `update` or `--rules` for projects that already installed a skill

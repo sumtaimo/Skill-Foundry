@@ -1,0 +1,37 @@
+[
+  {
+    "id": "R-copy-tight-1",
+    "text": "The skill folder contains every required file.",
+    "check": "chk-required-files"
+  },
+  {
+    "id": "R-copy-tight-2",
+    "text": "SKILL.md has valid frontmatter and all required sections.",
+    "check": "chk-frontmatter"
+  },
+  {
+    "id": "R-copy-tight-3",
+    "text": "The rewrite MUST NEVER change the meaning of the copy.",
+    "checklist": "Reviewer confirms each example rewrite keeps the original meaning."
+  },
+  {
+    "id": "R-copy-tight-4",
+    "text": "The rewrite MUST NEVER change numbers, names or their capital letters.",
+    "checklist": "Reviewer confirms every number and name in the input appears unchanged in the output."
+  },
+  {
+    "id": "R-copy-tight-5",
+    "text": "Legal text MUST NEVER be rewritten; it is returned with the fixed note.",
+    "checklist": "Reviewer confirms the legal-text example is returned unchanged."
+  },
+  {
+    "id": "R-copy-tight-6",
+    "text": "The output MUST contain the rewritten copy and a short list of what changed.",
+    "checklist": "Reviewer confirms every example has both parts."
+  },
+  {
+    "id": "R-copy-tight-7",
+    "text": "The change list MUST NEVER quote removed words.",
+    "checklist": "Reviewer confirms no change bullet quotes a removed phrase."
+  }
+]
