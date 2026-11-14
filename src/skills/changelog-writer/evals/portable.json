@@ -1,0 +1,14 @@
+{
+  "skill": "changelog-writer",
+  "prompt": "We are at version 2.3.0. We added dark mode and fixed a crash on login. Today is 2026-11-14. Write the changelog entry.",
+  "recordedAt": "2026-11-14",
+  "agent": "claude -p in an empty project outside the repository",
+  "skillSha": "2ba15bf661b01aca526cde7b1fefdd85a852f32bf4c5f4b3cbdb40cc1bed1392",
+  "exit": 0,
+  "usedSkill": true,
+  "leakedRepoRules": false,
+  "touchedRepo": [],
+  "produced": 0,
+  "cost": 0.00446913,
+  "answer": "```markdown\n## 2.4.0 - 2026-11-14\n\n- Add dark mode.\n- Fix a crash on login.\n```\n\n**Bump: MINOR (2.3.0 → 2.4.0).** Dark mode is new behaviour, which sets the bump. The login crash fix is a patch, so it sits under the new minor version.\n\n**Version mismatches: not checked.** The project or skill name wasn't given, and no CHANGELOG.md or version file exists at the root of this folder. Set the version to 2.4.0 in every version file, the CHANGELOG and any registry entry.\n\nWhich project or skill is this for? With that, I can check its version files and say where the entry goes."
+}
