@@ -28,5 +28,6 @@
   {"id": "R-figure-craft-27", "text": "Inside parts and contents MUST be drawn inside the body and marked inside; NEVER beside it.", "check": "L18-outside-container"},
   {"id": "R-figure-craft-28", "text": "The figure MUST carry at least twelve face details, three per labelled part and one per solid on average, and no large solid may be bare.", "check": "L19-sparse"},
   {"id": "R-figure-craft-29", "text": "The reader MUST be able to turn the object through four views, and the back sides MUST carry their real features.", "checklist": "The turn buttons show four views and no view has a bare side that the real object does not have."},
-  {"id": "R-figure-craft-30", "text": "Outlines MUST be the engine's one hairline weight; NEVER a heavier stroke.", "checklist": "No stroke width is set by the build script."}
+  {"id": "R-figure-craft-30", "text": "Outlines MUST be the engine's one hairline weight; NEVER a heavier stroke.", "checklist": "No stroke width is set by the build script."},
+  {"id": "R-figure-craft-31", "text": "Every part MUST sit where it sits in the real object, with the source of that fact recorded; an unsure location is asked about or marked as an assumption, NEVER guessed silently.", "checklist": "The report lists each part's real location and its source, and marks every assumption."}
 ]

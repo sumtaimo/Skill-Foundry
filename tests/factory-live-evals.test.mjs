@@ -54,3 +54,10 @@ test('agentPrompt gives the agent only the skill path and the request', () => {
   assert.match(p, /\/x\/skill/);
   assert.match(p, /User request: do it/);
 });
+
+test('runText: a recording that points at a run adds the text of the files the agent produced', async () => {
+  const { runText } = await import('../src/factory/live-evals.mjs');
+  assert.equal(runText({}), '');
+  assert.equal(runText({ run: '../etc' }), '', 'only runs/<skill>/<hex id> is read');
+  assert.equal(runText({ run: 'runs/none/0000000000000000' }), '');
+});

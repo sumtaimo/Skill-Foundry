@@ -118,3 +118,27 @@ test('text checks skip Markdown reports, and cached runs are re-checked without 
   assert.equal(again.manifest.status, 'pass');
   assert.equal(runner.calls, 1);
 });
+
+test('a case that expects no files passes without files, and the agent reply is scored as output', async () => {
+  const f = await fixture();
+  const { writeFile: wf } = await import('node:fs/promises');
+  await wf(join(f.dir, 'evals', 'cases.json'), JSON.stringify([{ id: 'refuse', prompt: 'make a chart', expect: [{ type: 'contains', value: 'does not cover' }, { type: 'notContains', value: 'renderSvg' }] }]));
+  const ok = await recordRun({ skill: 'demo', caseId: 'refuse', runner: async () => ({ code: 0, report: 'This skill does not cover charts.' }), skillsRoot: f.skillsRoot, outRoot: f.outRoot });
+  assert.equal(ok.manifest.status, 'pass', ok.manifest.checks.failures.join('; '));
+  assert.equal(ok.manifest.files.length, 0);
+});
+
+test('recording a case writes the live eval recording that points at the run, without changing the cache key', async () => {
+  const f = await fixture();
+  const runner = writer('<svg fill="var(--a)"/>');
+  const opts = { skill: 'demo', caseId: 'ok', runner, skillsRoot: f.skillsRoot, outRoot: f.outRoot };
+  const first = await recordRun(opts);
+  const rec = JSON.parse(await readFile(join(f.dir, 'evals', 'live', 'ok.json'), 'utf8'));
+  assert.equal(rec.case, 'ok');
+  assert.equal(rec.prompt, 'draw a box');
+  assert.deepEqual(rec.files, ['figure.svg']);
+  assert.match(rec.run, /[0-9a-f]{16}$/);
+  const again = await recordRun(opts);
+  assert.equal(again.cached, true, 'the recording is not part of the skill hash');
+  assert.equal(again.manifest.key, first.manifest.key);
+});

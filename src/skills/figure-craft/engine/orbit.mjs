@@ -177,6 +177,7 @@ export function orbitHtml(views, opts = {}) {
   const css = `#${id}{position:relative;touch-action:pan-y}` +
     // The figure never grows taller than the screen, so the controls stay in view.
     `#${id} .fc-orbit-view svg{display:block;margin:0 auto;width:100%;height:auto;max-height:min(70vh,640px)}` +
+    `#${id} .fc-orbit-view{animation:${id}-in .2s ease}@keyframes ${id}-in{from{opacity:.35}to{opacity:1}}@media (prefers-reduced-motion: reduce){#${id} .fc-orbit-view{animation:none}}` +
     `#${id} .fc-orbit-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;margin-top:8px;font:inherit;font-size:.85rem;color:var(--muted)}` +
     `#${id} .fc-orbit-bar button{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 12px;cursor:pointer}` +
     `#${id} .fc-orbit-bar button:hover{border-color:var(--line-strong)}` +

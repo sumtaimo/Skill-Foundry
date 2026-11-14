@@ -6,7 +6,7 @@
  *   with --run:    start a fresh agent per case (costs tokens), save, then score
  * @governed-by PO_ARCHITECT
  */
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
@@ -36,7 +36,7 @@ export function scoreLive(skillDir) {
   const byPrompt = new Map(cases.map((c) => [c.prompt, rec[c.id]?.prompt === c.prompt ? rec[c.id] : undefined]));
   const r = runEvals(skillDir, (prompt) => {
     const x = byPrompt.get(prompt);
-    return x ? { text: x.output, files: x.files ?? [] } : { text: '' };
+    return x ? { text: x.output + runText(x), files: x.files ?? [] } : { text: '' };
   });
   const missing = cases.filter((c) => !rec[c.id]).map((c) => c.id);
   const stale = cases.filter((c) => rec[c.id] && rec[c.id].prompt !== c.prompt).map((c) => c.id);
@@ -46,6 +46,21 @@ export function scoreLive(skillDir) {
   }
   const passed = r.results.filter((x) => x.ok).length;
   return { passed, failed: r.results.length - passed, missing, stale, results: r.results };
+}
+
+/**
+ * A recording made by src/factory/run-skill.mjs points at the run folder that holds the files the agent produced
+ * (`run: "runs/<skill>/<id>"`). Their text is scored together with the agent's reply; Markdown reports are left out.
+ * @param {{run?:string}} rec
+ */
+export function runText(rec) {
+  if (!rec || typeof rec.run !== 'string' || !/^runs\/[a-z0-9-]+\/[0-9a-f]+$/.test(rec.run)) return '';
+  const dir = join(REPO_ROOT, rec.run, 'output');
+  if (!existsSync(dir)) return '';
+  let text = '';
+  const walk = (d) => { for (const e of readdirSync(d)) { const p = join(d, e); if (statSync(p).isDirectory()) walk(p); else if (!e.endsWith('.md')) text += `\n${readFileSync(p, 'utf8')}`; } };
+  walk(dir);
+  return text;
 }
 
 /** Build the prompt a fresh agent receives: only the skill path and the user request. */
