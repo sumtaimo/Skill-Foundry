@@ -1,0 +1,8 @@
+{
+  "case": "no-change-text",
+  "prompt": "What should we retest after this change?",
+  "agent": "claude (fresh general-purpose subagent, skill folder and case prompt only)",
+  "recordedAt": "2026-11-14",
+  "output": "Paste the change description or the diff you want the checklist for. I need the text of what changed before I can list what to retest.",
+  "files": []
+}

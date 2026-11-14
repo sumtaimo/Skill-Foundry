@@ -1,0 +1,8 @@
+{
+  "case": "title-only",
+  "prompt": "Give me a regression checklist for the new checkout release.",
+  "agent": "claude",
+  "recordedAt": "2026-11-14",
+  "output": "Describe what changed in the new checkout release.",
+  "files": []
+}

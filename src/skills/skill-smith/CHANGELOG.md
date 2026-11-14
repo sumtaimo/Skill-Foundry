@@ -1,9 +1,12 @@
 # Changelog
 
-## 1.0.1
+## 1.0.0 - 2026-11-14
 
-- Cover is a drawing only; the title text was removed so the page does not show the name twice.
+The version stays 1.0.0 until the owner calls it final. Changes are listed here as they land.
 
-## 1.0.0
-
-- First release: ten-step procedure from interview to report, rules mapped to linter checks.
+- Ten-step procedure from interview to report, as ten layer files; rules mapped to the factory linter.
+- New skills are written as layers, start from the user's goal, are self-contained and need a recorded real run.
+- Live eval step: each case is run by a fresh agent and recorded before review.
+- `scope: factory`: this skill itself runs inside the Skill Foundry repository.
+- Versions of new skills stay at their first number until the owner calls a version final.
+- Replies report safety checks in words, never by quoting forbidden markup, so the reply stays clean under text checks (SKILL.md Review, layers 04 and 10).

@@ -1,0 +1,7 @@
+{
+  "title": "test-planner",
+  "tagline": "Turns a change description or diff into a regression checklist grouped by area.",
+  "prompt": "What should we retest after this change? Checkout now has a promo code field that the promotions service checks.",
+  "outputs": ["Numbered regression checklist grouped by area", "Possible impact and open questions"],
+  "tags": ["qa", "regression", "testing", "checklist"]
+}

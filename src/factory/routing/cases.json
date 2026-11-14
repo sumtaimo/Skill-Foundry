@@ -1,0 +1,18 @@
+[
+  { "id": "r1", "prompt": "Our signup button says \"Click here to begin the registration process\". Can you make it shorter?", "expect": "copy-tight" },
+  { "id": "r2", "prompt": "We bumped the skill to 2.1.0 after adding a new step, write the changelog entry.", "expect": "changelog-writer" },
+  { "id": "r3", "prompt": "Show me how a message queue works, with a picture I can put in the docs.", "expect": "figure-craft" },
+  { "id": "r4", "prompt": "Turn our code review checklist into a reusable skill.", "expect": "skill-smith" },
+  { "id": "r5", "prompt": "Make a pie chart of our revenue by region.", "expect": "none" },
+  { "id": "r6", "prompt": "Write a commit message for my last change.", "expect": "none" },
+  { "id": "r7", "prompt": "Translate this button label into Korean.", "expect": "none" },
+  { "id": "r8", "prompt": "Draw an illustration explaining how DNS resolution works step by step.", "expect": "figure-craft" },
+  { "id": "r9", "prompt": "This error toast is too wordy: \"An unexpected error has occurred while attempting to save your changes.\"", "expect": "copy-tight" },
+  { "id": "r10", "prompt": "Write a 2000-word blog post about our new release.", "expect": "none" },
+  { "id": "r11", "prompt": "Design a login screen mockup for our app.", "expect": "none" },
+  { "id": "r12", "prompt": "I keep doing the same release checklist by hand every week, can we package that up for agents?", "expect": "skill-smith" },
+  { "id": "r13", "prompt": "What should we retest after this change? We moved the invoice export button from the toolbar to the File menu.", "expect": "test-planner" },
+  { "id": "r14", "prompt": "Here is the diff for our new login throttle. Give me a regression checklist for it.", "expect": "test-planner" },
+  { "id": "r15", "prompt": "Write Jest unit tests for our promo code validator.", "expect": "none" },
+  { "id": "r16", "prompt": "Review this pull request for bugs and security problems.", "expect": "none" }
+]

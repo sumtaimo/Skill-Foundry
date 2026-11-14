@@ -50,7 +50,7 @@ test('renderSvg draws dots and face ellipses', () => {
 });
 
 test('layoutLabels: no overlaps (min gap 13 per column) and text inside viewBox', () => {
-  const { model } = renderSvg(scene(), { labels });
+  const { model } = renderSvg(scene(), { labels, labelMode: 'always' });
   assert.equal(model.labels.length, labels.length);
   for (const side of ['l', 'r']) {
     const col = model.labels.filter((l) => l.side === side).sort((a, b) => a.ty - b.ty);

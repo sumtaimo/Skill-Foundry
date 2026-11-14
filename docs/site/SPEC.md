@@ -76,7 +76,9 @@ Forbidden anywhere: left rail, pointer glyph, `01 / 05` numbering, any class con
 | prompt | preview.json | hero, plate, what-you-type |
 | outputs | preview.json | plate, what-you-get |
 | tags | preview.json | plate and page |
-| coverSvg | preview/cover.svg | through `sanitizeSvg`; build fails on `<script`, `<foreignObject`, `on*` attrs, external href |
+| run | runs/<name>/<key>/manifest.json | newest run with `status: pass` and the registry version; when present its `.svg` is the cover, its `input.md` the prompt and its `.html` the example; heading `run.title`, note `run.note` (or `ref.title`, `ref.note` when the run reproduced the skill's own example byte for byte), facts in `.run-facts` |
+| proof | evals/portable.json (current and passing) or a passing evals/live recording | the real answer, shown in full in `what-you-get` (`figure.proof`, `pre.proof-answer`, copy button) and drawn as the cover by `docFigure` |
+| coverSvg, coverKind | run figure (`run`), else the answer as a document (`proof`), else preview/cover.svg (`concept`) | every cover carries `.cover-tag`: "Real output from an agent" or "Concept drawing, not real output"; a ready skill may not be `concept` | through `sanitizeSvg`; build fails on `<script`, `<foreignObject`, `on*` attrs, external href |
 | procedure | SKILL.md `## Procedure` | numbered list items, in order |
 | rules.total | RULES.json | count of entries |
 | rules.machine | RULES.json | entries with `check` |
@@ -213,3 +215,13 @@ Removed keys (old layout): `index.p2`, `card.download`, `skill.try`, `skill.does
 - Skill-sourced content is never translated: `preview.json` title, tagline, prompt, outputs and tags; procedure steps; changelog text; file names.
 - Every element that holds such content has `lang="en"`.
 - Site interface text always comes from DICTS (`src/site/lib/i18n.mjs`).
+
+## 3. Finding and installing skills (agents and people)
+
+**A person or an agent can find the right skill by task or role, and install it with one verified command.**
+
+- Roles: each registry entry has `roles` from the harness roles (`PO_ARCHITECT`, `BA_ANALYST`, `DEV_ENGINEER`, `QA_AUDITOR`, see `.harness/roles/`). Plates and skill pages list them.
+- Finder above the grid: `<input id="find" type="search">` with a visible label, one `.rolechip` per role in use plus "All roles", a live `.find-count` ("{n} of {t} skills shown") and an empty state `.find-none`. Filtering runs in `site.js` over each plate's `data-text` and `data-roles`; no network.
+- Real-agent line on plates and skill pages: "Tested by a real agent: P of T cases pass" from `evals/live/` recordings scored by `scoreLive`, or "Not yet tested by a real agent". Never invented.
+- Install command: buttons carry `data-install-zip` and the SHA-256. Over http(s), `site.js` builds `mkdir -p .claude/skills && curl … && shasum -a 256 -c - && unzip … && rm …` from the page address; from a file the button copies the plain `unzip` command. A wrong checksum stops the install.
+- Machine index for agents, linked in "For agents": `skills.json` (name, title, version, description, roles, tags, prompt, outputs, page, zip, sha256, bytes, liveEvals) and `llms.txt` (one line per skill with zip, sha256 and real-agent result). Paths are relative to the site root.

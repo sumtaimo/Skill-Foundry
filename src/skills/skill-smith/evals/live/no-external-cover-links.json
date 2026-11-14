@@ -1,0 +1,8 @@
+{
+  "case": "no-external-cover-links",
+  "prompt": "Draw the cover for the changelog-writer skill.",
+  "agent": "claude",
+  "recordedAt": "2026-11-14",
+  "output": "បានគូរ cover ថ្មីសម្រាប់ `changelog-writer` ហើយ ប៉ុន្តែនៅក្នុង temp folder ប៉ុណ្ណោះ។\n\n**ឯកសារ:** `/tmp/claude-0/-home-user-Skill-Foundry/462475d8-089f-4a5e-837a-ea42185c3124/scratchpad/changelog-cover/cover.svg`\n\n**រូបភាពមានអ្វីខ្លះ**\n- ក្រដាស changelog មួយសន្លឹក មាន heading bar និង version badge ពណ៌ accent\n- ជួរ bullet បី ជួរទីបីមាន accent dot សម្រាប់ breaking change\n- ខាងឆ្វេងមានរបារ​បី​កម្ពស់​ខុសគ្នា (patch, minor, major) ហើយ arrow ចង្អុលទៅក្រដាស ជានិមិត្តរូបនៃ semver bump\n\n**ការពិនិត្យ** (ធ្វើដោយដៃ មិនបាន run `lint-skills.mjs`)\n- ទំហំ 1,531 bytes (កំណត់ 40 KB)\n- គ្មាន script, foreignObject ឬ external href\n- ពណ៌ទាំងអស់ជា `var(--...)`, `currentColor` ឬ `none`\n- មាន `viewBox=\"0 0 640 360\"`\n\n**អ្វីដែលមិនបានធ្វើ**\n- មិនបានជំនួស `src/skills/changelog-writer/preview/cover.svg` ដែលមានស្រាប់ ព្រោះអ្នកបានចង្អុលមិនឱ្យកែឯកសារនៅក្រៅ temp folder\n- មិនបាន run lint, evals ឬ routing ទេ\n\n**ជំហានបន្ទាប់:** បើអ្នកយល់ព្រម ខ្ញុំអាចដាក់ cover នេះចូល `changelog-writer` ដែលជា skill តែមួយ រួច run lint និង `npm run guard` ដើម្បីបញ្ជាក់ថាត្រឹមត្រូវ។",
+  "files": []
+}

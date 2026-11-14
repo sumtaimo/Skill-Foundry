@@ -1,0 +1,14 @@
+{
+  "skill": "figure-craft",
+  "prompt": "Show how an electric kettle boils water. I want to see the real parts of the kettle in detail, open, with the water inside.",
+  "recordedAt": "2026-11-14",
+  "agent": "claude -p in an empty project outside the repository",
+  "skillSha": "2adc452ab60b6451c87eecd37cd13399a613512025ac93e38ba886a64f7cb4bf",
+  "exit": 0,
+  "usedSkill": true,
+  "leakedRepoRules": false,
+  "touchedRepo": [],
+  "produced": 5,
+  "cost": 0.27821123,
+  "answer": "The kettle figure is built and passes the figure-craft lint with no errors or warnings. I have not looked at it rendered: headless Chrome needed approval and I didn't run it, so the layout is checked by geometry rules only.\n\nFiles, in the folder you started in:\n- `/tmp/claude-0/-home-user-Skill-Foundry/5047bed5-41ba-5efd-8096-0f91e80265c7/scratchpad/pc/kettle-rec3/electric-kettle.html` is the turnable figure. It has an open state (jug cut away, water inside, lid lifted) and a closed state (lid on, switch off). Hover or tap a part to see its name, and a card under the figure says what each part does and where it sits.\n- `.../kettle-rec3/electric-kettle.svg` is the front view, standalone.\n- `.../kettle-rec3/report.md` has the parts table, the engine functions used, and open items.\n- `.../kettle-rec3/build-kettle.mjs` rebuilds everything with `node build-kettle.mjs`.\n- `.../kettle-rec3/lint-report.json` holds the empty lint result.\n\nWhat the figure shows:\n- **Heat path:** a heating element sealed in the floor heats the water from below. Warm lines rise through the water, and a loop of hot water rising in the middle and cooler water falling at the side shows convection.\n- **Water and level:** the water is glass, with a level window on the right side of the jug.\n- **Auto-off:** steam rises past a steam-sensing bimetal strip under the lid. A thermal cut-out bimetal sits on the element as a backup. The auto-off switch is on the front of the base.\n- **Base and parts:** the power cord, plug, base contacts, pilot light, handle, spout and lid are all drawn.\n\nChoices I made that you may want to change:\n- **Layout is typical, not a real model.** No kettle model was given, so sizes are not to scale.\n- **Spout is behind the jug.** The cutaway window is on the front-left, so the spout is visible only when you turn the kettle.\n- **Simplifications.** The lid lifts straight up (real lids hinge at the back, and the hinge is not drawn). The element is drawn as a flat plate with a coil; a real one is a tube sealed into the floor. The bimetal-to-switch linkage is not drawn; the card explains it.\n\nNot checked: light and dark themes, a phone-width screen, reduced motion, hover and keyboard reveal, and a second reader's read-through."
+}

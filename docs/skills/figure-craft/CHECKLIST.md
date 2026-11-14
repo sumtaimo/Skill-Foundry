@@ -1,6 +1,6 @@
 # figure-craft checklist
 
-Answer every item yes or no. Any "no" blocks release. Items marked with a lint id are also enforced by `engine/lint.mjs`.
+Answer every item yes or no. Any "no" blocks release. Items marked with a lint id are also enforced by `engine/lint.mjs`. The full, current checklist is `src/skills/figure-craft/references/checklist.md`; this copy adds: a round object is drawn round and opened as a round cutaway with a lid that lifts; every handle, spout or hinge is fixed to the outside of its body (L20-attach-outside); the cards under the figure show where each part sits and the source (R31-card-location); the figure reaches the fullness floor (L19-sparse).
 
 ## 1. Intent
 1. Is the size chosen and stated: Figure, Hero or Page?

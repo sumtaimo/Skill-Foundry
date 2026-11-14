@@ -1,0 +1,8 @@
+{
+  "case": "description-diff-conflict",
+  "prompt": "Give me a regression checklist. Description: the cart limit is now 20 items. Diff:\n\n-const MAX_ITEMS = 50;\n+const MAX_ITEMS = 25;",
+  "agent": "claude",
+  "recordedAt": "2026-11-14",
+  "output": "## Regression checklist: cart item limit\n\nChange: The cart limit is now 20 items, and the diff changes `MAX_ITEMS` from 50 to 25.\n\n### cart\n1. [ ] Add items to the cart until it holds 20 and check the 21st item is refused. _the cart limit is now 20 items_\n2. [ ] Add items to the cart until it holds 25 and check the 26th item is refused. _const MAX_ITEMS = 25;_\n3. [ ] Add items past the old limit and check the cart no longer accepts a 51st item. _MAX_ITEMS = 50;_\n\n### Possible impact, not stated\n- Does checkout also enforce the item limit? The change text does not name it.\n\n### Open questions\n- Conflict: the description says \"the cart limit is now 20 items\", but the diff sets `const MAX_ITEMS = 25;`. Which value is intended?\n- What message does the user see when the limit is reached? The change text does not say.",
+  "files": []
+}

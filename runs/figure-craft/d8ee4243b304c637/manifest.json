@@ -1,0 +1,80 @@
+{
+  "skill": "figure-craft",
+  "version": "1.0.0",
+  "caseId": "refrigerator-cooling",
+  "inputSha256": "949bb654617ca9e77be32133cfbe5164c24f30d462868cfd556165919c599661",
+  "skillSha256": "73441fa6cf7224f603cdaf234a906154f8749743baf92667d9d9cfefe752387c",
+  "key": "d8ee4243b304c637e65d6f9cee8548aed0e580ca07f69ff33b72341dbe2b8764",
+  "startedAt": "2026-11-14T11:35:38.244Z",
+  "finishedAt": "2026-11-14T11:37:34.385Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.11989867,
+  "usage": {
+    "input_tokens": 40,
+    "cache_creation_input_tokens": 88832,
+    "cache_read_input_tokens": 1717931,
+    "output_tokens": 27118,
+    "output_tokens_details": {
+      "thinking_tokens": 7856
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 88832,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 698,
+        "cache_read_input_tokens": 113383,
+        "cache_creation_input_tokens": 5705,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 5705
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [
+    {
+      "path": "build-figure.mjs",
+      "bytes": 20826,
+      "sha256": "b72460be53280fa9a6fa4ac3348f5e506717d26323dbfe078f42d95fa868b2b2"
+    },
+    {
+      "path": "lint-report.json",
+      "bytes": 37,
+      "sha256": "e0c2924b0cf38903b5cc04c6b7491eb4acbcdfb846f4563bd1fe20d4953aff75"
+    },
+    {
+      "path": "refrigerator.html",
+      "bytes": 667052,
+      "sha256": "3d60f9c69f68c8923538a7005e8556487c58ec5ff433e062c12b530419a1cfb5"
+    },
+    {
+      "path": "refrigerator.svg",
+      "bytes": 131386,
+      "sha256": "624b5bfabbac76ee0642429ee58f5a70f1b3a9f8da05d0064ab2a16770277366"
+    },
+    {
+      "path": "report.md",
+      "bytes": 7711,
+      "sha256": "65bc94433891a7f7fead0dd54fca943a2431aff3e8649ea801b097e4ae78e6c1"
+    }
+  ],
+  "checks": {
+    "expectations": 8,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "The figure is built and lints clean, but the browser checks and the second-reader check did not run.\n\n**Files** (all in `/home/user/Skill-Foundry/runs/figure-craft/d8ee4243b304c637/output`):\n- `refrigerator.html`: the page, with an open refrigerator you can turn, hover, and close. Food and drinks are inside, and there is one card per labelled part.\n- `refrigerator.svg`: the front view, doors open, as a standalone file.\n- `build-figure.mjs`: regenerates everything from the engine. It imports the engine from the skill folder rather than copying it.\n- `lint-report.json`: 0 errors, 0 warnings.\n- `report.md`: the idea sentence, parts and details, motion story, facts and assumptions, and the checklist answers.\n\n**Checks run:**\n- Lint over both door states and all four views: 0 errors, 0 warnings.\n- Rebuilding gives identical SHA-256 hashes for the HTML, SVG and lint report.\n- The SVG has no colour attributes written as hex; hex values appear only in its token style block.\n\n**Not run:**\n- Browser checks (light and dark, 390px, reduced motion, console errors, hover and tap reveal). Headless Chrome needed a command approval that was not granted, so no screenshots were taken.\n- Second-reader check.\n\n**Open items:**\n- No product spec was supplied, so the layout and part positions are general knowledge of a standard fridge. They are marked as assumptions in the report and on the cards. Please confirm them before customer release.\n- The compressor and condenser coil are drawn larger than to scale for legibility.\n- Checklist items 7–11 are written for multi-section pages and were treated as not applicable to a single figure. A reviewer should confirm that.\n\nThe request matches the skill's reference example, so the shape list follows that example closely. The copy, cards, assumptions and build script are my own."
+}

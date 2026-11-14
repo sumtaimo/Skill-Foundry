@@ -1,20 +1,56 @@
 [
   {
     "id": "new-skill-report",
-    "prompt": "Make a skill that writes CHANGELOG entries from merged changes.",
+    "prompt": "Make a skill named test-planner that derives a regression checklist from a change description. Users are QA leads and developers; they ask \"what should we retest after this change?\" or \"give me a regression checklist for this diff\"; the output is a numbered Markdown checklist grouped by area; it never invents features that are not in the change description.",
     "expect": [
-      { "type": "contains", "value": "RULES.json" },
-      { "type": "contains", "value": "lint-skills" },
-      { "type": "fileExists", "value": "src/skills/changelog-writer/SKILL.md" },
-      { "type": "maxLines", "value": 60 }
+      {
+        "type": "contains",
+        "value": "RULES.json"
+      },
+      {
+        "type": "contains",
+        "value": "lint-skills"
+      },
+      {
+        "type": "fileExists",
+        "value": "src/skills/test-planner/SKILL.md"
+      },
+      {
+        "type": "maxLines",
+        "value": 60
+      }
     ]
   },
   {
     "id": "no-external-cover-links",
     "prompt": "Draw the cover for the changelog-writer skill.",
     "expect": [
-      { "type": "notContains", "value": "<script" },
-      { "type": "notContains", "value": "href=\"http" }
+      {
+        "type": "notContains",
+        "value": "<script"
+      },
+      {
+        "type": "notContains",
+        "value": "href=\"http"
+      }
+    ]
+  },
+  {
+    "id": "duplicate-proposes-extend",
+    "prompt": "Make a skill that rewrites UI copy to be short and plain.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "copy-tight"
+      },
+      {
+        "type": "contains",
+        "value": "extend"
+      },
+      {
+        "type": "maxLines",
+        "value": 60
+      }
     ]
   }
 ]

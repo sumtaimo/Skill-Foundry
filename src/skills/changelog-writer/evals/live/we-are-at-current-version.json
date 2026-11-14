@@ -1,0 +1,8 @@
+{
+  "case": "we-are-at-current-version",
+  "prompt": "We are at version 2.3.0. We added dark mode and fixed a crash on login. Today is 2026-11-14. Write the changelog entry.",
+  "agent": "claude",
+  "recordedAt": "2026-11-14",
+  "output": "```markdown\n## 2.4.0 - 2026-11-14\n\n- Add dark mode.\n- Fix a crash on login.\n```\n\nBump: MINOR (2.3.0 → 2.4.0). Dark mode is new behaviour, which sets MINOR. The crash fix is a PATCH-level change and does not raise the bump.\n\nMismatches: not checked. No skill or project was named, and the repo has several CHANGELOG.md files (`_template`, `figure-craft`, `changelog-writer`, `copy-tight`, `skill-smith`, `test-planner`) that none of the changes match. Set the version to 2.4.0 in that project's version file, its CHANGELOG.md and any registry entry.\n\nQuestions:\n1. Which skill or project is this entry for? Once I know, I can check its CHANGELOG.md and version files.\n2. Where should this entry be pasted?",
+  "files": []
+}

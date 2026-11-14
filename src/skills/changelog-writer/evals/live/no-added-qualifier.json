@@ -1,0 +1,8 @@
+{
+  "case": "no-added-qualifier",
+  "prompt": "Skill spec-check is at 1.2.0. On 2026-11-14 we fixed a link in the references. Write the changelog entry.",
+  "agent": "claude",
+  "recordedAt": "2026-11-14",
+  "output": "```markdown\n## 1.2.1 - 2026-11-14\n\n- Fix a link in the references.\n```\n\nBump: PATCH (1.2.0 → 1.2.1). The change is a fix only, so the patch number goes up.\n\nMismatches: not checked, spec-check not found; set the SKILL.md version, the CHANGELOG.md heading and any registry entry to 1.2.1.",
+  "files": []
+}

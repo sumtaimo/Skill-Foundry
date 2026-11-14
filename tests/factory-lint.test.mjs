@@ -14,7 +14,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const TESTS = path.join(ROOT, 'tests');
 const SMITH = path.join(ROOT, 'src', 'skills', 'skill-smith');
 
-for (const name of ['_template', 'skill-smith']) {
+for (const name of ['_template', 'skill-smith', 'figure-craft']) {
   test(`lintSkill passes on ${name}`, async () => {
     const problems = await lintSkill(path.join(ROOT, 'src', 'skills', name), { testsDir: TESTS });
     assert.deepEqual(problems, []);
@@ -42,6 +42,10 @@ const cases = [
   ['chk-preview-json', async (d) => edit(path.join(d, 'preview.json'), (s) => {
     const p = JSON.parse(s); p.tagline = 'x'.repeat(91); p.tags = ['a', 'b', 'c', 'd', 'e', 'f']; return JSON.stringify(p);
   })],
+  ['chk-layers', async (d) => fs.rm(path.join(d, 'layers', '06-states.md'))],
+  ['chk-layers', async (d) => fs.writeFile(path.join(d, 'layers', '04-flow.md'), '# Layer 04\n\nNo steps here.\n')],
+  ['chk-layers', async (d) => edit(path.join(d, 'SKILL.md'), (s) => s.replace('(layers/09-handoff.md)', '(layers/10-evidence.md)'))],
+  ['chk-portable', async (d) => edit(path.join(d, 'SKILL.md'), (s) => s.replace(/^scope: factory\r?\n/m, ''))],
   ['chk-cover-svg', async (d) => edit(path.join(d, 'preview', 'cover.svg'), (s) =>
     s.replace(/<\/svg>\s*$/, '<script>alert(1)</script><a href="https://evil.example"><rect fill="#ff0000"/></a></svg>'))],
 ];

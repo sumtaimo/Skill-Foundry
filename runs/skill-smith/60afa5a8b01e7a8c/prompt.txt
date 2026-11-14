@@ -1,0 +1,6 @@
+You are running the skill in /home/user/Skill-Foundry/src/skills/skill-smith. Read /home/user/Skill-Foundry/src/skills/skill-smith/SKILL.md and every file it links to, then follow it step by step.
+Write every file you produce into /home/user/Skill-Foundry/runs/skill-smith/60afa5a8b01e7a8c/output and nowhere else. Produce the real output the skill describes, never a placeholder or mock.
+When done, reply with a short report: files produced, checks run and their results, open items.
+
+Input:
+Make a skill named test-planner that derives a regression checklist from a change description. Users are QA leads and developers; they ask "what should we retest after this change?" or "give me a regression checklist for this diff"; the output is a numbered Markdown checklist grouped by area; it never invents features that are not in the change description.

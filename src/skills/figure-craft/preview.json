@@ -1,7 +1,18 @@
 {
   "title": "figure-craft",
-  "tagline": "Isometric explanatory figures with tokens, one motion story and geometry lint.",
-  "prompt": "explain how a CDN edge cache serves a request, interactive",
-  "outputs": ["Self-contained HTML page or SVG figure", "Lint result for L1 to L8", "Checklist outcome", "Short report"],
-  "tags": ["diagram", "isometric", "svg", "explainer", "motion"]
+  "tagline": "Any object you describe, drawn full and lit, with real materials and labels on hover.",
+  "prompt": "Show my customers how a refrigerator keeps food cold. I want them to see the real fridge in detail, open, with the food and drinks inside.",
+  "outputs": [
+    "Self-contained HTML page: an object you can open, turn and hover, plus the SVG",
+    "Lint result for L1 to L19",
+    "Checklist outcome",
+    "Short report"
+  ],
+  "tags": [
+    "diagram",
+    "isometric",
+    "svg",
+    "explainer",
+    "motion"
+  ]
 }

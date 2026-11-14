@@ -227,8 +227,51 @@ dd { margin: 2px 0 0; font-weight: 500; }
 .example { display: block; width: 100%; height: 420px; min-height: 320px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
 .example-open { display: inline-block; margin-top: 8px; }
 .get-cover { margin-bottom: 16px; }
+.run-facts { display: flex; flex-wrap: wrap; gap: 6px; font-size: 0.85rem; color: var(--muted); }
+/* Recorded skill output keeps its own markup; its figure tokens are mapped onto the site tokens here. */
+svg { --iso-top: var(--surface); --iso-a: var(--surface2); --iso-b: var(--line); --iso-ink: var(--fg); --iso-ink-top: var(--line-strong); --iso-ink-a: var(--muted); --iso-ink-b: var(--fg); }
 
 .foot { border-top: 1px solid var(--line); padding: 24px var(--gutter); color: var(--faint); font-size: .85rem; }
+
+/* Proof, agent prompt, skill head actions */
+.layers { padding-left: 1.4em; display: grid; gap: 6px; }
+.table-wrap { overflow-x: auto; margin-top: 16px; }
+.proof { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.proof th, .proof td { text-align: left; padding: 8px 12px 8px 0; border-bottom: 1px solid var(--line); }
+.proof thead th { color: var(--muted); font-weight: 500; }
+.proof td { font-family: var(--mono); }
+.head-actions { margin: 16px 0 0; }
+.codebox pre:has(.agent-prompt), .codebox pre:has(.install-cmd) { white-space: pre-wrap; word-break: break-all; }
+.agent-prompt, .install-cmd { white-space: pre-wrap; word-break: break-word; }
+.hero .finder { margin: 8px 0 24px; }
+
+/* Finder: search, role filter, live count */
+.finder { display: grid; gap: 12px; margin: 0 0 24px; }
+.find-label { font-weight: 500; }
+.find {
+  width: 100%; min-height: 44px; padding: 10px 14px; font: inherit; color: var(--fg);
+  background: var(--surface); border: 1px solid var(--line-strong); border-radius: 10px;
+}
+.find::placeholder { color: var(--faint); }
+.roles-filter { display: flex; flex-wrap: wrap; gap: 8px; }
+.rolechip {
+  min-height: 36px; padding: 6px 14px; font: inherit; font-size: .875rem; color: var(--muted); cursor: pointer;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+  transition: color .15s ease-out, border-color .15s ease-out, background-color .15s ease-out;
+}
+.rolechip:hover { color: var(--fg); border-color: var(--line-strong); }
+.rolechip[aria-pressed=true] { color: var(--fg); border-color: var(--fg); background: var(--surface2); font-weight: 500; }
+.find-count { margin: 0; color: var(--muted); font-size: .875rem; }
+.find-none { color: var(--muted); padding: 24px 0; }
+.plate[hidden] { display: none; }
+.roles { margin: 0; color: var(--muted); font-size: .85rem; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.role { padding: 2px 8px; border: 1px solid var(--line); border-radius: 999px; color: var(--fg); }
+.live { margin: 0; font-size: .85rem; }
+.live-yes { color: var(--fg); }
+.live-no { color: var(--warn); }
+.agent-files { padding-left: 1.2em; }
+.agent-files a { font-family: var(--mono); font-size: .9rem; }
+@media (max-width: 480px) { .rolechip { min-height: 44px; } }
 
 @media (max-width: 720px) {
   .hero { grid-template-columns: minmax(0, 1fr); grid-template-areas: "copy" "figure" "chips"; }
@@ -247,3 +290,24 @@ dd { margin: 2px 0 0; font-weight: 500; }
   .hero-prompt code.typing::after { content: none; }
   .hero-part { animation: none; transition: none; opacity: 1; transform: none; }
 }
+
+/* Every cover says whether it is real output or a concept drawing. */
+.cover, .cover-lg, .get-cover, .hero-figure { position: relative; }
+.cover-tag { position: absolute; left: 8px; bottom: 8px; font-size: 0.72rem; line-height: 1.2; padding: 3px 8px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); color: var(--muted); }
+.cover-tag[data-kind="concept"] { color: var(--fg); border-style: dashed; }
+.cover-tag[data-kind="run"]::before, .cover-tag[data-kind="proof"]::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--fg); margin-right: 6px; vertical-align: middle; }
+.doc-figure { display: block; width: 100%; height: auto; }
+/* The real answer, shown in full so it can be copied and used. */
+.proof { margin: 12px 0 20px; padding: 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.proof-ask { margin: 0 0 10px; font-size: 0.9rem; color: var(--muted); }
+.proof-ask code { white-space: normal; overflow-wrap: anywhere; }
+.proof-label { font-size: 0.72rem; letter-spacing: .06em; text-transform: uppercase; margin-right: 6px; }
+.proof-answer { margin: 0 0 10px; padding: 12px; border-left: 3px solid var(--line-strong); background: var(--surface2); white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.85rem; line-height: 1.5; max-height: 28rem; overflow: auto; }
+
+/* Skills working together: the chain of skills used, then the real answer as a document and in full. */
+.recipe { margin: 16px 0 28px; }
+.recipe-chain { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 6px 0 14px; }
+.recipe-arrow { color: var(--muted); }
+.recipe-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 20px; align-items: start; }
+.recipe-body .cover { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface2); padding: 10px; }
+@media (max-width: 720px) { .recipe-body { grid-template-columns: 1fr; } }
