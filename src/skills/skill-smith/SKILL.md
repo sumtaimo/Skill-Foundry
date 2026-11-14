@@ -44,6 +44,7 @@ See `RULES.json`. Every rule maps to a linter check or a reviewer checklist item
 ## Review
 
 Use `docs/factory/REVIEW.md`. Mention docs paths in backticks; never link outside the skill folder.
+In every reply, name forbidden markup in words ("no script elements, no external links"), never as literal tags, because the reply is checked as text.
 
 ## Output
 

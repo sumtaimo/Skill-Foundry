@@ -9,5 +9,5 @@
 7. For an output skill (UI, figures), put the quality bar in layer 08 and put the detail rules in the skill's own rules, lint or references, so quality never depends on the agent adding it afterwards.
 8. Write each rule in `RULES.json` with id `R-<name>-<n>` and map it to a `check` id or a `checklist` line.
 9. Write `examples/README.md` and `evals/cases.json` from the realistic requests.
-10. Write `preview.json` and `preview/cover.svg` (token colours only, no scripts, no external links).
+10. Write `preview.json` and `preview/cover.svg` (token colours only, no scripts, no external links). When you report on the cover, describe these checks in words and never quote the forbidden tags.
 11. Keep every path inside the skill folder, so the skill works after it is installed elsewhere.

@@ -9,3 +9,4 @@ The version stays 1.0.0 until the owner calls it final. Changes are listed here 
 - Live eval step: each case is run by a fresh agent and recorded before review.
 - `scope: factory`: this skill itself runs inside the Skill Foundry repository.
 - Versions of new skills stay at their first number until the owner calls a version final.
+- Replies report safety checks in words, never by quoting forbidden markup, so the reply stays clean under text checks (SKILL.md Review, layers 04 and 10).
