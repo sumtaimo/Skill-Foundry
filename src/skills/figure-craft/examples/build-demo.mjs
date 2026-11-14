@@ -21,15 +21,15 @@ export const REQUIRED_PARTS = ['fridge', 'freezer', 'door', 'shelf-2', 'crisper'
 
 /** Label anchors sit inside the part they name. */
 export const LABELS = [
-  { at: [69, 30, 74], text: 'Fresh-food cabinet' },
-  { at: [69, 30, 154], text: 'Freezer' },
-  { at: [1.5, 100, 74], text: 'Door and bins' },
-  { at: [62, 48, 83], text: 'Glass shelf' },
-  { at: [62, 52, 48], text: 'Crisper drawer' },
-  { at: [35, 4, 147], text: 'Evaporator coil' },
-  { at: [36, 11, 117], text: 'Cold air' },
-  { at: [18, 14, 13], text: 'Compressor' },
-  { at: [35, -1, 114], text: 'Condenser coil' },
+  { at: [69, 30, 82], text: 'Fresh-food cabinet' },
+  { at: [69, 30, 162], text: 'Freezer' },
+  { at: [1.5, 100, 82], text: 'Door and bins' },
+  { at: [62, 48, 91], text: 'Glass shelf' },
+  { at: [62, 52, 56], text: 'Crisper drawer' },
+  { at: [35, 4, 155], text: 'Evaporator coil' },
+  { at: [36, 11, 125], text: 'Cold air' },
+  { at: [17, 15, 16], text: 'Compressor' },
+  { at: [35, -1, 122], text: 'Condenser coil' },
 ];
 
 /** What each part does, for the cards under the figure. */
@@ -69,18 +69,18 @@ function shapes() {
     ...screws([[6, -2, 40], [64, -2, 150]], { on: 'condenser', face: '-y', id: 'condenser-screw' }),
 
     // Base: the kick plate in front, the machine bay behind it (open at the back, seen after a turn)
-    line([[26, 14, 21], [26, -3, 21], [26, -3, 60]], { tone: 'copper', id: 'discharge-pipe' }),
-    line([[14, 14, 21], [14, -5, 21], [14, -5, 46], [50, -3, 46], [50, -3, 60]], { tone: 'cold', id: 'suction-pipe' }),
+    line([[24, 15, 28], [24, -3, 28], [24, -3, 66]], { tone: 'copper', id: 'discharge-pipe' }),
+    line([[12, 15, 28], [12, -5, 28], [12, -5, 52], [50, -3, 52], [50, -3, 66]], { tone: 'cold', id: 'suction-pipe' }),
     line([[34, 0, 6], [48, -8, 0], [62, -8, 0]], { bold: true, id: 'power-cable' }),
-    box({ at: [0, 0, 3], size: [70, 60, 22], material: 'dark', id: 'base', open: ['-x', '-y'], wall: 3 }),
-    ...slots([[10, 60, 8], [60, 60, 8]], [[10, 60, 20], [60, 60, 20]], 5, { on: 'base', face: 'y', id: 'kick-vent' }),
-    ...slots([[70, 8, 8], [70, 52, 8]], [[70, 8, 20], [70, 52, 20]], 5, { on: 'base', face: 'x', id: 'side-vent' }),
-    box({ at: [40, 6, 5], size: [24, 18, 4], material: 'white', inside: 'base', id: 'drain-pan' }),
-    line([[42, 24, 9], [62, 24, 9]], { on: 'drain-pan', face: 'y', id: 'drain-pan-rim' }),
-    box({ at: [8, 4, 5], size: [20, 20, 16], round: true, material: 'dark', inside: 'base', id: 'compressor' }),
-    disc([18, 14, 21], { on: 'compressor', face: 'top', r: 5, material: 'steel', id: 'compressor-cap' }),
-    disc([18, 14, 21], { on: 'compressor', face: 'top', r: 1.6, material: 'dark', id: 'compressor-terminal' }),
-    line([[11, 14, 21], [25, 14, 21]], { on: 'compressor', face: 'top', id: 'compressor-weld' }),
+    box({ at: [0, 0, 3], size: [70, 60, 30], material: 'dark', id: 'base', open: ['-x', '-y'], wall: 3 }),
+    ...slots([[10, 60, 8], [60, 60, 8]], [[10, 60, 28], [60, 60, 28]], 7, { on: 'base', face: 'y', id: 'kick-vent' }),
+    ...slots([[70, 8, 8], [70, 52, 8]], [[70, 8, 28], [70, 52, 28]], 7, { on: 'base', face: 'x', id: 'side-vent' }),
+    box({ at: [40, 6, 6], size: [24, 18, 4], material: 'white', inside: 'base', id: 'drain-pan' }),
+    line([[42, 24, 10], [62, 24, 10]], { on: 'drain-pan', face: 'y', id: 'drain-pan-rim' }),
+    box({ at: [6, 4, 6], size: [22, 22, 22], round: true, material: 'steel', inside: 'base', id: 'compressor' }),
+    disc([17, 15, 28], { on: 'compressor', face: 'top', r: 6, material: 'dark', id: 'compressor-cap' }),
+    disc([17, 15, 28], { on: 'compressor', face: 'top', r: 2, material: 'steel', id: 'compressor-terminal' }),
+    line([[8, 15, 28], [26, 15, 28]], { on: 'compressor', face: 'top', id: 'compressor-weld' }),
 
     // Fresh-food cabinet, open at the front
     box({ at: [0, 0, 11], size: [70, 60, 108], material: 'steel', id: FR, rests: 'base', open: 'xy', wall: 4, when: 'open' }),
@@ -197,7 +197,7 @@ function shapes() {
   return scene.map((sh) => (GROUND.test(sh.id ?? '') || GROUND.test(sh.on ?? '') || GROUND.test(sh.inside ?? '') ? sh : raise(sh)));
 }
 
-const LIFT = 14;
+const LIFT = 22;
 const GROUND = /^(foot|base|kick-vent|side-vent|drain-pan|compressor|discharge-pipe|suction-pipe|power-cable)/;
 const up = (p) => [p[0], p[1], p[2] + LIFT];
 function raise(sh) {

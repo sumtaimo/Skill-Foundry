@@ -38,6 +38,7 @@ export async function listFiles(dir) {
 export async function skillHash(skillDir) {
   const h = createHash('sha256');
   for (const f of await listFiles(skillDir)) {
+    if (f.startsWith('evals/live/')) continue; // recordings of earlier runs are not part of the skill an agent follows
     h.update(f).update('\0').update(await readFile(join(skillDir, f))).update('\0');
   }
   return h.digest('hex');
@@ -87,16 +88,18 @@ export function checkExpectations(expect, files, text) {
  * Markdown files are the agent's own reports, which may quote the rules they were checked against.
  * @param {string} outputDir @param {object[]} expect
  */
-export async function evaluate(outputDir, expect) {
+export async function evaluate(outputDir, expect, report = '') {
   const names = await listFiles(outputDir);
   const files = [];
-  let text = '';
+  let text = report ? `${report}\n` : ''; // what the agent told the user counts as output too
   for (const f of names) {
     const data = await readFile(join(outputDir, f));
     files.push({ path: f, bytes: data.length, sha256: sha256(data) });
     if (!f.endsWith('.md')) text += `${data.toString('utf8')}\n`;
   }
-  const failures = names.length === 0 ? ['no output files produced'] : [];
+  // A case that expects files fails without them; a case that expects a refusal or plain advice produces none.
+  const needsFiles = (expect ?? []).some((e) => e.type === 'fileExists');
+  const failures = names.length === 0 && (needsFiles || !(expect ?? []).length) ? ['no output files produced'] : [];
   failures.push(...checkExpectations(expect, names, text));
   return { files, failures };
 }
@@ -180,7 +183,7 @@ export async function recordRun(opts) {
   if (!force && existsSync(manifestPath)) {
     // Cached: no agent run. Checks are re-applied to the saved output (deterministic, free).
     const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
-    const ev = await evaluate(join(runDir, 'output'), expect);
+    const ev = await evaluate(join(runDir, 'output'), expect, String(manifest.report ?? ''));
     const failures = [...(manifest.exitCode === 0 ? [] : [`runner exited with code ${manifest.exitCode}`]), ...ev.failures];
     Object.assign(manifest, { checks: { expectations: expect.length, failures }, status: failures.length === 0 ? 'pass' : 'fail' });
     await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
@@ -199,7 +202,7 @@ export async function recordRun(opts) {
   const res = (await runner({ prompt, promptFile, outputDir, skillDir })) ?? {};
   const finishedAt = now();
 
-  const ev = await evaluate(outputDir, expect);
+  const ev = await evaluate(outputDir, expect, String(res.report ?? ''));
   const files = ev.files;
   const failures = [];
   if (res.code !== 0) failures.push(`runner exited with code ${res.code}`);
@@ -224,6 +227,13 @@ export async function recordRun(opts) {
     report: String(res.report ?? '').slice(0, 4000),
   };
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  // The same real run is the skill's live eval recording (docs/factory/STANDARD.md section 13): it points at the run's files.
+  if (caseId != null && opts.live !== false) {
+    const liveDir = join(skillDir, 'evals', 'live');
+    await mkdir(liveDir, { recursive: true });
+    const rec = { case: caseId, prompt: inputText, agent: `${manifest.runner} via run-skill (fresh agent, skill folder and the case prompt only)`, recordedAt: finishedAt.slice(0, 10), output: manifest.report, files: manifest.files.map((f) => f.path), run: relative(REPO_ROOT, runDir).split(sep).join('/') };
+    await writeFile(join(liveDir, `${caseId}.json`), `${JSON.stringify(rec, null, 2)}\n`);
+  }
   return { cached: false, runDir, manifest };
 }
 

@@ -31,6 +31,7 @@ Item 33a applies only to the skill's own demo.
 18. Do all shapes and label text sit inside the viewBox? (L5-outside-viewbox)
 19. Are there no decorative dots on solids (every dot carries meaning and is named in a label or the copy)?
 20. Is the projection the shared one (`project`, C = 0.866), with no hand-drawn skew?
+19u. Does every part sit where it sits in the real object, with the source recorded and every unsure location asked about or marked as an assumption?
 19s. Does every cutaway read as a solid hollow (thick walls, shaded inside), with no solid wall drawn as glass?
 19t. Are controls drawn on the face of the body, and do cables start on a face and stay outside?
 19o. Are inside parts and contents drawn inside the body, seen through an open side, and is the opened body filled as it is really used? (L18-outside-container)

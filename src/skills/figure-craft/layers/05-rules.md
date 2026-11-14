@@ -35,3 +35,4 @@ Checked by the reviewer with the checklist:
 20. R-figure-craft-26: The object MUST look like the real thing from outside, in its real materials, with light and shadow from the engine only; NEVER show only the machinery, and NEVER draw a shadow or highlight by hand.
 21. R-figure-craft-29: The reader MUST be able to turn the object (four views from `renderViews` in `orbitHtml`), and the back sides MUST carry their real features.
 22. R-figure-craft-30: Outlines MUST be the engine's one hairline weight; NEVER a heavier stroke.
+23. R-figure-craft-31: Every part MUST sit where it sits in the real object, with the source of that fact recorded; an unsure location is asked about or marked as an assumption, NEVER guessed silently.

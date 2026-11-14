@@ -476,6 +476,13 @@ export function renderSvg(shapes, opts = {}) {
             shade += `<path class="${pre}-shade" d="${pathOf([lo[i], lo[i + 1], hi[i + 1], hi[i]])}" fill="${F(flat ? FLAT[m].b : FACE[m].b)}" opacity="${r2(o)}"/>`;
           }
         }
+        // A thin highlight just inside the top edge: the edge reads as softly rounded over, not as a knife edge.
+        if (!flat && m !== 'glass' && rr - 0.8 >= 0.2 && w > 6 && d > 6) {
+          const rb = rr - 0.8;
+          const arcB = (cx, cy, a0, a1) => Array.from({ length: 6 }, (_, i) => { const t = ((a0 + ((a1 - a0) * i) / 5) * Math.PI) / 180; return [cx + Math.cos(t) * rb, cy + Math.sin(t) * rb]; });
+          const bevel = [...arcB(rr, rr, 180, 270), ...arcB(w - rr, rr, 270, 360), ...arcB(w - rr, d - rr, 0, 90), ...arcB(rr, d - rr, 90, 180)];
+          inner += `<path class="${pre}-bevel" pointer-events="none" d="${pathOf(bevel.map(([a, b]) => P(a, b, h)))}" fill="none" stroke="${S('var(--mat-shine)')}" stroke-width="${HAIR}" opacity="0.9"/>`;
+        }
         // Side first, then its shading, then the top over both.
         inner = inner.replace(/^(<path [^>]*\/>)$/, '$1');
         const topPath = inner; inner = side + shade + topPath;
@@ -575,7 +582,7 @@ export function renderSvg(shapes, opts = {}) {
     css.push(`${fig} .${pre}-label[data-for]{opacity:0;pointer-events:none;transform:translateY(5px);transition:opacity .22s ease,transform .3s ease}`);
     css.push(`${fig} .${pre}-label[data-for] .leader{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .3s ease .08s}`);
     css.push(`${fig} [data-part] path,${fig} [data-part] ellipse,${fig} [data-part] circle{transition:stroke .2s ease}`);
-    css.push(`${fig} .${pre}-shade{stroke:none!important}`);
+    css.push(`${fig} .${pre}-shade{stroke:none!important}${fig} .${pre}-bevel{stroke:var(--mat-shine)!important}`);
     for (const id of new Set(targets.filter((t) => t !== null))) {
       const v = String(id).replace(/["\\]/g, '\\$&');
       const q = `[data-part="${v}"]`;

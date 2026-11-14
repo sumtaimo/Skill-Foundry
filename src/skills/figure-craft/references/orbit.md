@@ -33,7 +33,8 @@ box({ at: [70, 20, 3], size: [46, 3, 120], material: 'steel', id: 'door', rests:
 - MUST render with `renderViews(shapes, opts)` from `engine/orbit.mjs` and place `orbitHtml(views, { label })` in the page. The reader turns the object a quarter turn at a time with the buttons, a drag, or the arrow keys.
 - MUST give the back sides their real features with `face: '-x'` or `face: '-y'` on `line`, `panel` and `dot`: a rear grille, coils, a power cable, a rating plate, hinges. They show after a turn.
 - MUST check all four views with `lintViews(views)` from `engine/lint.mjs` (or `lintStates`): every rule on the front view, the geometry rules on the others. A labelled part may be hidden from the front when another side shows it, as a compressor at the back is.
-- The front view (view 1) keeps your draw order; the engine orders the other views.
+- The front view (view 1) keeps your draw order; the engine orders the other views and fades between them.
+- MUST make a bay tall enough to see into: a part inside it must show at least 40% from the side the bay opens to (lint `L16-hidden-part` across views).
 - NEVER write your own orbit script or hide and show views by hand.
 
 ```js
