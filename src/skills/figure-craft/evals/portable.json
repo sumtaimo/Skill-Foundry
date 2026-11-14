@@ -1,0 +1,14 @@
+{
+  "skill": "figure-craft",
+  "prompt": "Show how an electric kettle boils water. I want to see the real parts of the kettle in detail, open, with the water inside.",
+  "recordedAt": "2026-11-14",
+  "agent": "claude -p in an empty project outside the repository",
+  "skillSha": "884aafe14c4bd03450dde53ec90e90765761f882c2103746b1c2a1e1a9caf220",
+  "exit": 0,
+  "usedSkill": true,
+  "leakedRepoRules": false,
+  "touchedRepo": [],
+  "produced": 0,
+  "cost": 0.27668228,
+  "answer": "The kettle figure is built and passes the figure-craft lint with no errors or warnings. I have not checked it in a browser. The screenshot step needed approval and I didn't run it.\n\n**Open it here:** `/tmp/claude-0/-tmp-portable-JRaO7R/c7c576f5-f62b-40b3-a97a-21a16a8c4993/scratchpad/kettle/kettle.html`\n\nThe page shows the kettle with the lid off and the right side cut away. You can see the heating element flat on the floor of the jug, the water above it, the thermostat strip on the element, the boil-dry cutoff in the steam space above the water, and the steam rising from the top. The lid sits beside the jug. \"Put the lid on\" switches to the closed kettle, and the page can be turned to see every side. Hovering a part shows its name, and the cards underneath name all nine labelled parts.\n\nI used the figure-craft skill's engine and layer rules to build it. The build script and lint report are in the same folder.\n\n**Simplifications to know about:**\n- **Water is drawn as glass** so the element behind it stays visible. The water and the element are both there; the drawing just shows them through the water.\n- **The jug is square-cornered.** The engine can't cut a round body open, so the open cutaway needs a box.\n- **The base connector is on the base beside the jug.** In a real kettle it sits under the jug and is hidden, so I moved it into view.\n- **The lid is lying beside the jug** when open, rather than hinged up.\n- **Wiring is not drawn.** The current path from the base to the element is not shown.\n- **Only one part moves**, the steam. The step-by-step flow (electricity, heat, convection, boiling, the switch turning off) is in the intro text and the cards, not as a sequence on the page."
+}
