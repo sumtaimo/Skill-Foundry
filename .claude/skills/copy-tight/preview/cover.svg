@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="copy-tight cover">
+  <rect x="0" y="0" width="640" height="360" fill="var(--cover-bg)"/>
+  <rect x="120" y="100" width="400" height="22" rx="6" fill="currentColor" opacity="0.35"/>
+  <rect x="120" y="140" width="320" height="22" rx="6" fill="currentColor" opacity="0.35"/>
+  <path d="M320 186 L320 214 M306 202 L320 216 L334 202" fill="none" stroke="var(--cover-accent)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="200" y="236" width="240" height="30" rx="8" fill="var(--cover-accent)"/>
+</svg>

@@ -24,6 +24,6 @@ jobs:
         shell: bash
         run: |
           mkdir "$RUNNER_TEMP/proj" && cd "$RUNNER_TEMP/proj" && mkdir -p .harness/skills
-          node "$GITHUB_WORKSPACE/src/factory/foundry.mjs" add --role QA_AUDITOR --rules
+          node "$GITHUB_WORKSPACE/src/factory/foundry.mjs" add --role QA_AUDITOR
           node "$GITHUB_WORKSPACE/src/factory/foundry.mjs" check
-          test -f .claude/skills/test-planner/SKILL.md && test -f AGENTS.md && grep -q "autoApply: true" .harness/skills/test-planner/SKILL.md
+          test -f .claude/skills/test-planner/SKILL.md && test -f AGENTS.md && grep -q "autoApply: true" .harness/skills/test-planner/SKILL.md && grep -q "Edit(.claude/skills" .claude/settings.json

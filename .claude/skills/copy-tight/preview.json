@@ -1,0 +1,7 @@
+{
+  "title": "Copy Tight",
+  "tagline": "Short, plain UI copy that keeps meaning, numbers, names and legal text intact.",
+  "prompt": "Shorten this copy: We were unable to process your payment at this time.",
+  "outputs": ["Rewritten copy", "Short list of what changed"],
+  "tags": ["ux-writing", "copy", "ui"]
+}

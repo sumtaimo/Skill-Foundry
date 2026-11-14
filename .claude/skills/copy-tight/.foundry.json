@@ -1,0 +1,27 @@
+{
+  "name": "copy-tight",
+  "version": "0.2.0",
+  "hash": "49b33e0467a832a9c15c52de2cb156778934b213479637b9823ff8b8d18345be",
+  "source": "github:sumtaimo/Skill-Foundry",
+  "files": {
+    "CHANGELOG.md": "870d8b0cb00b0201b16d3d4b94dc8625f136026c6ad2e2785a68032bad489384",
+    "RULES.json": "abc4b79f1ff26589c62a8b34f460c1a61a67c358131295e5c8ad7dccc2dc1daf",
+    "SKILL.md": "81ccbc363765597465719a0f32472ff2c09b167900fb1c4d4a2a382887b101f4",
+    "evals/cases.json": "8c5e7711f27addd5998d53c9ad613b88ff3db070d564914438c1820d8c69e3ba",
+    "examples/README.md": "2d2ed75d26a168c3f2fa121d8779b4228ccff3640efd729adf34fe3fc4d5335d",
+    "layers/01-intent.md": "15c9dc951bf4ae5ff46caed75bbbf48f15389bedc07e84380519c1604aa2f258",
+    "layers/02-context.md": "73b8bd18fe516e0e3dbdbcb6bd6ffd2a2a0a50895592e5ef5c9e304af30eafca",
+    "layers/03-inputs.md": "11aa6cd3fa70858ff820e2b768085f481f6b1fd45b344b22ca1abc135850ad65",
+    "layers/04-flow.md": "40582afae0989affc90439ab7d6ef6890a5da1f06527198af8c293d472d3caff",
+    "layers/05-rules.md": "a1632b7a6148f22a207e4833a37fd09a297bca1265ed35f8228b45bf5d3a289e",
+    "layers/06-states.md": "1867539f0b152ee9f49cf4561224c4ea0a6a91fabd2ea9d95cb977072f4b2f45",
+    "layers/07-checks.md": "88e0cd4cdd3761109ba552124e7cf9cd1182e84df0c219dfb4497bba4cd7a3e9",
+    "layers/08-output.md": "2e80e8c30fe2413af2993dde424220265315d3b414bbf99f3e23a5a6b04f5148",
+    "layers/09-handoff.md": "dc3b36d057ae03cc2dc4759bb752e3b93e379354a0820e3cc95f99d9493cf2bd",
+    "layers/10-evidence.md": "db658188afa9d83a59870d19c031d1d7105215637ca7d8c1540d6793f045ffcb",
+    "preview.json": "3f89e7f9f9ccde93dd58152bb00adecc9c1d070b2338abc02ed7ad5b3bfc4cee",
+    "preview/cover.svg": "6680d28d5eef9f2ab44a796435053b0e134e53cf3abc5b18a79618f2b0d6e57e",
+    "references/README.md": "a47a3ea6cd66ebd639e6a2426a1a413910d9b9aecf30a1a496cabe3a7d17731c",
+    "references/checklist.md": "d55aad6936290ff51ab8150802d3a070477115c5b650364bf7f32e8c6825f8e2"
+  }
+}

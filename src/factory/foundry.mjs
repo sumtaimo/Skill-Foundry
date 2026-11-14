@@ -102,7 +102,7 @@ const END = '<!-- skill-foundry:end -->';
 export function writeRules({ project = process.cwd(), root = REPO } = {}) {
   const cat = new Map(catalog({ root }).map((s) => [s.name, s]));
   const rows = checkProject({ project, root }).map((x) => cat.get(x.name)).filter(Boolean);
-  const block = `${BEGIN}\n## Skills\n\nThis project has these skills in \`.claude/skills/\`. When a task matches one, read its \`SKILL.md\` first and follow its steps and layers, starting from the goal the user states. Use one skill per step; when a request needs several, use them in the order the request gives.\n\n` +
+  const block = `${BEGIN}\n## Skills\n\nThis project has these skills in \`.claude/skills/\`. When a task matches one, read its \`SKILL.md\` first and follow its steps and layers, starting from the goal the user states. Use one skill per step; when a request needs several, use them in the order the request gives.\n\n**Never edit, delete or overwrite anything under \`.claude/skills/\` or \`.harness/skills/\`.** Skills are changed only by the user, with \`npx github:sumtaimo/Skill-Foundry update\`. If a skill seems wrong, say so in your answer instead of editing it.\n\n` +
     rows.map((s) => `- **${s.name}** (\`.claude/skills/${s.name}/SKILL.md\`): ${s.description}`).join('\n') + `\n\nUpdate them with \`npx github:sumtaimo/Skill-Foundry update\`.\n${END}\n`;
   const file = join(project, 'AGENTS.md');
   const old = existsSync(file) ? readFileSync(file, 'utf8') : '';
@@ -110,6 +110,23 @@ export function writeRules({ project = process.cwd(), root = REPO } = {}) {
   const next = i >= 0 && j > i ? old.slice(0, i) + block + old.slice(j + END.length).replace(/^\n/, '') : (old ? `${old.replace(/\n*$/, '\n\n')}${block}` : `# AGENTS.md\n\n${block}`);
   writeFileSync(file, next);
   return { file: 'AGENTS.md', skills: rows.map((s) => s.name) };
+}
+
+export const DENY = ['Edit(.claude/skills/**)', 'Write(.claude/skills/**)', 'Edit(.harness/skills/**)', 'Write(.harness/skills/**)', 'Bash(npx github:sumtaimo/Skill-Foundry update*)', 'Bash(npx github:sumtaimo/Skill-Foundry add*)'];
+/**
+ * Guard rail so the user's agent cannot change the installed skills: deny rules in the project's `.claude/settings.json`,
+ * merged into what is there (existing settings and rules are kept; nothing is removed).
+ * Not a lock: only the user changes skills, by running `update` themselves.
+ */
+export function protectSkills({ project = process.cwd() } = {}) {
+  const file = join(project, '.claude', 'settings.json');
+  let cfg = {};
+  if (existsSync(file)) { try { cfg = JSON.parse(readFileSync(file, 'utf8')); } catch { return { file: '.claude/settings.json', added: [], skipped: 'not valid JSON, left untouched' }; } }
+  cfg.permissions = cfg.permissions && typeof cfg.permissions === 'object' ? cfg.permissions : {};
+  const deny = Array.isArray(cfg.permissions.deny) ? cfg.permissions.deny : [];
+  const added = DENY.filter((d) => !deny.includes(d));
+  if (added.length) { cfg.permissions.deny = [...deny, ...added]; mkdirSync(dirname(file), { recursive: true }); writeFileSync(file, JSON.stringify(cfg, null, 2) + '\n'); }
+  return { file: '.claude/settings.json', added };
 }
 
 /** Installed foundry skills and whether each is current. */
@@ -141,7 +158,8 @@ export function main(argv, log = console.log) {
     }
     if (!list.length) throw new Error('usage: add <skill…> | add --role <ROLE>');
     list.forEach((n) => show(addSkill(n, { force })));
-    if (rest.includes('--rules')) log(`rules    AGENTS.md lists ${writeRules().skills.join(', ')}`);
+    if (!rest.includes('--no-rules')) log(`rules    AGENTS.md lists ${writeRules().skills.join(', ')}`);
+    if (!rest.includes('--no-protect')) { const g = protectSkills(); log(`protect  ${g.file}: ${g.skipped ?? (g.added.length ? `${g.added.length} deny rules added` : 'already in place')}`); }
     log('Restart your agent (Claude Code) so it loads the skills.');
   } else if (cmd === 'check') {
     const r = checkProject();
@@ -152,9 +170,10 @@ export function main(argv, log = console.log) {
     const r = checkProject().filter((x) => x.latest && (!names.length || names.includes(x.name)));
     if (!r.length) log('Nothing to update.');
     r.forEach((x) => show(addSkill(x.name, { force })));
-    if (rest.includes('--rules') || (existsSync(join(process.cwd(), 'AGENTS.md')) && readFileSync(join(process.cwd(), 'AGENTS.md'), 'utf8').includes(BEGIN))) log(`rules    AGENTS.md lists ${writeRules().skills.join(', ')}`);
+    if (r.length && !rest.includes('--no-rules')) log(`rules    AGENTS.md lists ${writeRules().skills.join(', ')}`);
+    if (r.length && !rest.includes('--no-protect')) protectSkills();
   } else {
-    log('skill-foundry list | add <skill…> [--rules] | add --role <PO_ARCHITECT|BA_ANALYST|DEV_ENGINEER|QA_AUDITOR> [--rules] | check | update [skill…] [--force]\n  --rules  also list the skills in AGENTS.md (for Codex, Cursor, Gemini); text outside its block is kept');
+    log('skill-foundry list | add <skill…> | add --role <PO_ARCHITECT|BA_ANALYST|DEV_ENGINEER|QA_AUDITOR> | check | update [skill…] [--force]\n  By default add also (1) lists the skills in AGENTS.md so any agent uses them, and (2) denies agents edit rights on the installed skills in .claude/settings.json.\n  --no-rules  skip (1)   --no-protect  skip (2)   Existing text and settings are kept.');
     return cmd ? 1 : 0;
   }
   return 0;
