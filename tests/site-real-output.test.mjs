@@ -121,3 +121,21 @@ test('text skills are drawn as objects, and every word in an object is cut from 
   for (const r of loadRecipeProofs(ROOT)) check(r.id, r.used.flatMap((u) => KINDS[u] ?? []), r);
   assert.ok(Object.values(DEFAULT_LABELS).every((l) => l.length < 12), 'captions stay short');
 });
+
+test('every skill page has a banner drawn from its real output, safe and self-contained', async () => {
+  const out = await site();
+  const { bannerSvg } = await import('../src/site/lib/banner.mjs');
+  for (const s of loadSkills(ROOT)) {
+    const svg = readFileSync(join(out, 'skills', s.name, 'banner.svg'), 'utf8');
+    assert.equal(sanitizeSvg(svg), svg.trim(), `${s.name}: banner is not safe`);
+    assert.match(svg, /viewBox="0 0 1280 640"/);
+    assert.ok(svg.includes(`>${s.version}<`), `${s.name}: version`);
+    assert.match(svg, /\.sf-banner\{--bg:/, `${s.name}: standalone banner defines its colours`);
+    const inner = /^<svg\b[^>]*>([\s\S]*)<\/svg>$/.exec(s.coverSvg.trim())[1];
+    assert.ok(svg.includes(inner), `${s.name}: the banner must contain the real cover unchanged`);
+    assert.match(svg, s.coverKind === 'concept' ? /Concept drawing, not real output/ : /Real output from an agent/);
+    assert.ok(svg.includes(s.factoryOnly ? 'Works inside the Skill Foundry repository' : `npx github:sumtaimo/Skill-Foundry add ${s.name}`));
+    assert.match(readFileSync(join(out, 'skills', s.name, 'index.html'), 'utf8'), /<img src="banner\.svg"/);
+    assert.doesNotMatch(bannerSvg(s), /\.sf-banner\{--bg:/, 'inline banners use the page theme');
+  }
+});

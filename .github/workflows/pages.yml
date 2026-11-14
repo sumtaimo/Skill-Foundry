@@ -24,7 +24,12 @@ jobs:
         with:
           node-version: 24
       - run: npm test
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
       - run: node src/site/build.mjs --out _site
+        env:
+          SITE_URL: https://sumtaimo.github.io/Skill-Foundry
+      - run: node src/site/banners-png.mjs _site
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

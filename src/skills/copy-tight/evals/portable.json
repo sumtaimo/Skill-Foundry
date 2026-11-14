@@ -3,12 +3,12 @@
   "prompt": "Our error toast says: 'An unexpected error has occurred while attempting to save your changes.' Please make it plain and short.",
   "recordedAt": "2026-11-14",
   "agent": "claude -p in an empty project outside the repository",
-  "skillSha": "2fa87328d2aa175bc28a7ae3e43f7f2e7b3b4036b2637546e4b0007073d2f6a5",
+  "skillSha": "7b71695c3ffa6eb7813a417a73cb9834b2648a600df5ab631a6b99f2b854f5c5",
   "exit": 0,
   "usedSkill": true,
   "leakedRepoRules": false,
   "touchedRepo": [],
   "produced": 0,
-  "cost": 0.004826550000000001,
-  "answer": "Rewritten copy:\nWe couldn't save your changes.\n\nWhat changed:\n- Plain words instead of formal wording\n- Shorter sentence\n- Kept the meaning and \"your changes\"\n\nI searched the repo for this text and found it only in the copy-tight eval file (`.claude/skills/copy-tight/evals/cases.json`), not in any app source. So I haven't changed any code. Point me to the file that renders the toast, or paste the component, and I'll apply the new string there."
+  "cost": 0.00425981,
+  "answer": "Rewritten copy:\nWe couldn't save your changes.\n\nWhat changed:\n- Cut filler\n- Plainer words\n- Kept the meaning: saving failed"
 }

@@ -38,5 +38,10 @@
     "id": "R-copy-tight-8",
     "text": "The rewrite MUST NEVER add a new action, promise or fact that the original does not state (for example a next step such as \"Try again\" that the source never gave).",
     "checklist": "Reviewer confirms the rewrite adds no action, promise or fact that the original does not state."
+  },
+  {
+    "id": "R-copy-tight-9",
+    "text": "The answer MUST contain only the rewritten copy and the change list: nothing before or after them, such as a note about searching or editing project files, a question or an offer.",
+    "checklist": "Reviewer confirms nothing comes before Rewritten copy: or after the last change bullet."
   }
 ]

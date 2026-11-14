@@ -3,6 +3,6 @@
   "prompt": "shorten this copy: We were unable to process your payment of $49.00 at this time. Please try again later.",
   "agent": "claude",
   "recordedAt": "2026-11-14",
-  "output": "Rewritten copy:\nWe couldn't process your payment of $49.00. Please try again later.\n\nWhat changed:\n- Cut filler\n- Active voice",
+  "output": "Rewritten copy:\nWe couldn't process your $49.00 payment. Try again later.\n\nWhat changed:\n- Active voice\n- Cut filler\n- Kept the amount and the next step",
   "files": []
 }
