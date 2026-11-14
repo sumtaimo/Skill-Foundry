@@ -139,3 +139,17 @@ test('every skill page has a banner drawn from its real output, safe and self-co
     assert.doesNotMatch(bannerSvg(s), /\.sf-banner\{--bg:/, 'inline banners use the page theme');
   }
 });
+
+test('banner text fits its column even with wide fallback fonts', async () => {
+  const { bannerSvg, TEXT_MAX } = await import('../src/site/lib/banner.mjs');
+  for (const s of loadSkills(ROOT)) {
+    const svg = bannerSvg(s);
+    for (const m of svg.matchAll(/<text x="(\d+)"[^>]*class="bn-([tm])"[^>]*font-size="([\d.]+)"[^>]*>([^<]*)<\/text>/g)) {
+      const [, x, kind, size, raw] = m;
+      if (Number(x) >= 680) continue; // inside the cover panel
+      const t = raw.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
+      const w = t.length * Number(size) * (kind === 'm' ? 0.62 : 0.68);
+      assert.ok(Number(x) + w <= 72 + TEXT_MAX + 36, `${s.name}: "${t}" may run into the cover (${Math.round(Number(x) + w)})`);
+    }
+  }
+});
