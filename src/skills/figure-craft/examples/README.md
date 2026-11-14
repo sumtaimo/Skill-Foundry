@@ -13,7 +13,7 @@ This is the detail level every figure aims for, whatever the object is.
 - A cutaway (`open: 'xy'`) shows the inside where it really is: three glass shelves, a crisper drawer, a cold-air vent with its dial, a lamp glow, the evaporator in the freezer.
 - Filled as it is used: milk, juice, bottles, jars, eggs, cheese, yogurt, vegetables, an ice tray, frozen food; bottles in the door bins.
 - Two states: doors open and doors closed (`when`), switched with one button.
-- Orbit: four views. From the back the reader sees the condenser rack with its copper tube, the compressor, the pipes and the power cable.
+- Orbit: four views. From the back the reader sees the condenser rack with its copper tube and, in the machine bay inside the base (`open: ['-x', '-y']`), the compressor, the drain pan, the pipes and the power cable.
 - Labels are hidden at rest and appear as a chip when a part is hovered, focused or tapped; cards under the figure name every part.
 - Motion story: the cold-air block falls from the vent past the shelves; it stops under reduced motion.
 - About 130 shapes in the front view. `lintStates` reports 0 errors and 0 warnings.
