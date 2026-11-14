@@ -6,7 +6,7 @@
 |-------------|---------|------|
 | Breaking | A required section is renamed; an eval case changes meaning | MAJOR |
 | New behaviour | A new step, rule, check or example set | MINOR |
-| Fix | Wording, typo, a wrong link | PATCH |
+| Fix | Wording, a typo, a link | PATCH |
 
 ## Entry shape
 
@@ -17,6 +17,9 @@
 - Add a step that reports version mismatches.
 - Fix the link to the standard.
 ```
+
+Each bullet uses only the words of meaning in the input: "fixed a link" gives `- Fix a link.`, never `- Fix a broken link.`
+The entry is written in the language of the request.
 
 ## Format rules
 

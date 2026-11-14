@@ -11,7 +11,9 @@ Required inputs:
 
 Then:
 
-5. Take each input only from the user's message or from the target skill's files read in layer 02 (R-changelog-writer-6). Never take a version or date from this changelog-writer folder.
-6. When any required input is missing, do not write an entry. Reply with a short numbered list that asks only for the missing inputs, then stop. Keep the whole reply under ten lines and write no example heading with a version in it.
-7. When the date given is later than today, use it as given and ask the user to confirm it in the output.
-8. When a change is too vague to describe (for example "fixed stuff"), write it as given and ask for detail in the output; never add detail the user did not give.
+5. Note the language of the request; the entry and the reply use it (R-changelog-writer-10).
+
+6. Take each input only from the user's message or from the target skill's files read in layer 02 (R-changelog-writer-6). Never take a version or date from this changelog-writer folder.
+7. When any required input is missing, do not write an entry. Reply with a short numbered list that asks only for the missing inputs, then stop. Keep the whole reply under ten lines and write no example heading with a version in it.
+8. When the date given is later than today, use it as given and ask the user to confirm it in the output.
+9. When a change is too vague to describe (for example "fixed stuff"), write it in the user's words and ask for detail in the output; never add detail the user did not give, not even an adjective such as "broken" or "old" (R-changelog-writer-11).

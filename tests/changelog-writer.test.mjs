@@ -16,6 +16,8 @@ const answers = {
   'new-behaviour-minor': '## 1.1.0 - 2026-11-14\n\n- Add a step.\n- Fix a link.\n\nBump: MINOR, new behaviour and no breaking change.',
   'breaking-major': '## 2.0.0 - 2026-11-20\n\n- Breaking: Rename the Output section.\n\nBump: MAJOR.',
   'missing-input-asks': 'Please give the skill name, current version, date and the list of changes.',
+  'english-request-english-entry': '## 1.3.0 - 2026-11-14\n\n- Add an example for empty input.\n\nBump: MINOR, an example is new behaviour.',
+  'no-added-qualifier': '## 1.2.1 - 2026-11-14\n\n- Fix a link in the references.\n\nBump: PATCH, a link fix is a fix.',
 };
 
 test('changelog-writer evals pass on reference answers', () => {
@@ -28,6 +30,12 @@ test('changelog-writer evals pass on reference answers', () => {
 test('changelog-writer evals reject an invented entry for missing input', () => {
   const r = runEvals(DIR, () => ({ text: '## 1.0.0 - 2026-01-01\n\n- Add things.' }));
   assert.ok(r.results.find((x) => x.id === 'missing-input-asks').ok === false);
+});
+
+test('changelog-writer evals reject a non-English entry and an added qualifier', () => {
+  const r = runEvals(DIR, () => ({ text: '## 1.3.0 - 2026-11-14\n\n- Add ការបន្ថែម example.\n\n## 1.2.1 - 2026-11-14\n\n- Fix a broken link.' }));
+  assert.equal(r.results.find((x) => x.id === 'english-request-english-entry').ok, false);
+  assert.equal(r.results.find((x) => x.id === 'no-added-qualifier').ok, false);
 });
 
 test('changelog-writer version matches CHANGELOG and registry', () => {

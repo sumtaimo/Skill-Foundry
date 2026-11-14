@@ -7,6 +7,9 @@ Check the draft before returning it. Fix every failure first. Hands to layer 08:
 3. Every bullet starts with a verb (or `Breaking:` and a verb) and holds one idea.
 4. Breaking bullets come first; no bullet appears twice.
 5. Every fact in the entry (change, version, date) comes from the user's input or a file read in layer 02.
+   Read each bullet word by word: remove any adjective, cause or detail that is not in the input (R-changelog-writer-11).
+   Check that the entry and the reply are in the language of the request (R-changelog-writer-10).
 6. Older entries, when shown, are identical to the file and in the same order.
 7. Each place that records the version was compared, or listed as not found.
-8. When the project has a changelog linter or test, run it if you can and give the result; if you cannot run it, say so.
+8. Count the reply's lines: at most fifteen for a normal entry (layer 08).
+9. When the project has a changelog linter or test, run it if you can and give the result; if you cannot run it, say so.

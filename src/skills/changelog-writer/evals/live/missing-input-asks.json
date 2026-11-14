@@ -3,6 +3,6 @@
   "prompt": "Write a changelog entry.",
   "agent": "claude",
   "recordedAt": "2026-11-14",
-  "output": "ដើម្បីសរសេរ CHANGELOG entry សូមផ្តល់ព័ត៌មានដែលខ្វះខាតខាងក្រោម៖\n\n1. **Skill name**: skill ណាដែលត្រូវសរសេរ entry សម្រាប់ (ឧ. `copy-tight`)\n2. **Release date**: ថ្ងៃទី format `YYYY-MM-DD`\n3. **List of changes**: ការផ្លាស់ប្តូរនីមួយៗដែល merge ហើយ សរសេរតាមពាក្យរបស់អ្នក\n\nVersion បច្ចុប្បន្ន ខ្ញុំនឹងអានពី `CHANGELOG.md` របស់ skill នោះ បើអ្នកមិនផ្តល់។",
+  "output": "I need four things before I can write the entry:\n\n1. Which skill is it for? (the skill name or folder)\n2. What is its current version? (I can read it from that skill's CHANGELOG if you don't know it)\n3. What is the release date, in YYYY-MM-DD?\n4. What changed? List each merged change in your own words.",
   "files": []
 }
