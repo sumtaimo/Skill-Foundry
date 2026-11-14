@@ -1,9 +1,9 @@
 /**
- * figure-craft lint: geometry, layout and detail checks L1-L17 on a renderSvg model (or a hand-built one).
+ * figure-craft lint: geometry, layout and detail checks L1-L19 on a renderSvg model (or a hand-built one).
  * Node 24 ESM, stdlib only, zero deps.
  * @governed-by PO_ARCHITECT
  */
-import { boxOutline, shapePoints, labelBox, labelTarget, panelCorners, LABEL_GAP, MAX_LABELS } from './iso.mjs';
+import { boxOutline, shapePoints, labelBox, labelTarget, panelCorners, openingCorners, project, LABEL_GAP, MAX_LABELS } from './iso.mjs';
 
 const EPS = 1e-6;
 /** L10: minimum gap between sibling parts, and minimum share of the base they span. */
@@ -17,6 +17,9 @@ export const BODY_SHARE = 0.2;
 export const BODY_THICK = 0.3;
 /** L16: share of a labelled part that must stay visible behind later-drawn solids (glass does not hide). */
 export const MIN_VISIBLE = 0.4;
+/** L19: fewest face details in a figure, and per labelled part. */
+export const MIN_DETAILS = 12;
+export const DETAILS_PER_PART = 3;
 
 const polyArea = (p) => Math.abs(p.reduce((s, [x, y], i) => { const [a, b] = p[(i + 1) % p.length]; return s + x * b - a * y; }, 0)) / 2;
 
@@ -238,15 +241,36 @@ export function lint(model) {
     const poly = boxOutline(b);
     const px = poly.map((p) => p[0]); const py = poly.map((p) => p[1]);
     const x0 = Math.min(...px), x1 = Math.max(...px), y0 = Math.min(...py), y1 = Math.max(...py);
-    const over = boxes.filter((o) => o !== b && o.drawIndex > b.drawIndex && o.material !== 'glass').map((o) => boxOutline(o));
+    // Contents of an open box are seen through its opening only; the box itself does not hide them.
+    const holder = b.inside !== undefined ? byId.get(b.inside) : null;
+    const hole = holder && holder.open ? openingCorners(holder).map(project) : null;
+    const over = boxes.filter((o) => o !== b && o !== holder && o.drawIndex > b.drawIndex && o.material !== 'glass').map((o) => boxOutline(o));
     let total = 0; let seen = 0;
     for (let i = 0; i < 14; i++) for (let j = 0; j < 14; j++) {
       const pt = [x0 + ((i + 0.5) / 14) * (x1 - x0), y0 + ((j + 0.5) / 14) * (y1 - y0)];
       if (!inPoly(pt, poly)) continue;
       total++;
-      if (!over.some((o) => inPoly(pt, o))) seen++;
+      if ((!hole || inPoly(pt, hole)) && !over.some((o) => inPoly(pt, o))) seen++;
     }
-    if (total && seen / total < MIN_VISIBLE - EPS) err('L16-hidden-part', `"${l.text}" (${id}) is ${Math.round((seen / total) * 100)}% visible (min ${MIN_VISIBLE * 100}%); move it, open the side in front of it, or make the cover glass`);
+    if (holder && !holder.open) err('L16-hidden-part', `"${l.text}" (${id}) is inside ${holder.id}, which has no open side; give ${holder.id} open: 'x' or 'y'`);
+    else if (total && seen / total < MIN_VISIBLE - EPS) err('L16-hidden-part', `"${l.text}" (${id}) is ${Math.round((seen / total) * 100)}% visible (min ${MIN_VISIBLE * 100}%); move it toward the opening, open the side in front of it, or make the cover glass`);
+  }
+
+  // L18 contents stay inside their container
+  for (const s of shapes) {
+    if (s.inside === undefined) continue;
+    const c = byId.get(s.inside);
+    if (!c || c.kind !== 'box') { err('L18-outside-container', `${s.id} is inside unknown box ${s.inside}`); continue; }
+    const pts = s.kind === 'box' ? [s.at, [s.at[0] + s.size[0], s.at[1] + s.size[1], s.at[2] + s.size[2]]] : s.points ?? [s.at];
+    if (pts.some((p) => [0, 1, 2].some((k) => p[k] < c.at[k] - EPS || p[k] > c.at[k] + c.size[k] + EPS))) err('L18-outside-container', `${s.id} is declared inside ${c.id} but reaches outside it`);
+  }
+
+  // L19 micro detail: a figure that names its parts carries enough small real features to look real
+  if (Array.isArray(model.requiredParts) && model.requiredParts.length) {
+    const labelled = [...named.keys()].filter((id) => !byId.get(id).move).length;
+    const need = Math.max(MIN_DETAILS, DETAILS_PER_PART * labelled);
+    const have = shapes.filter((x) => x.kind !== 'box' && x.on !== undefined).length;
+    if (have < need) err('L19-sparse', `${have} face details in the figure (min ${need}); add the small real features of each part: seams, handles, vents, screws, feet, controls, edges`);
   }
 
   // L17 materials: a figure with several solids uses more than one material, as real objects do
@@ -255,4 +279,20 @@ export function lint(model) {
   }
 
   return { errors, warnings };
+}
+
+/** Rules that must hold from every side when the figure can be turned. */
+const EVERY_VIEW = ['L2-face-detail', 'L5-outside-viewbox', 'L6-raw-colour', 'L7-motion-no-reduced', 'L15-floating', 'L18-outside-container'];
+
+/**
+ * Lint a four-view orbit: every rule on the front view, the geometry rules on the other three.
+ * @param {{model:object}[]} views from renderViews
+ */
+export function lintViews(views) {
+  if (!Array.isArray(views) || !views.length) throw new TypeError('lintViews: views required');
+  const front = lint(views[0].model);
+  views.slice(1).forEach((v, i) => {
+    for (const e of lint(v.model).errors) if (EVERY_VIEW.includes(e.rule)) front.errors.push({ rule: e.rule, message: `view ${i + 2}: ${e.message}` });
+  });
+  return front;
 }

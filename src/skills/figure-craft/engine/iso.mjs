@@ -43,12 +43,17 @@ export function labelBox(l) {
 }
 
 /** What a solid is made of. `glass` is see-through: shapes drawn before it stay visible. */
-export const MATERIALS = ['plain', 'ink', 'steel', 'white', 'dark', 'glass'];
+export const MATERIALS = ['plain', 'ink', 'steel', 'white', 'dark', 'glass', 'blue', 'red', 'green', 'amber'];
 /** Stroke tones for lines: pipes and flows. */
 export const LINE_TONES = ['copper', 'cold', 'warm'];
+/** Sides a detail can sit on. `x` and `y` face the reader; `-x` and `-y` are the back sides, seen after turning the object (orbit). */
+export const FACES = ['top', 'x', 'y', '-x', '-y'];
+const backFace = (s) => s.on !== undefined && (s.face === '-x' || s.face === '-y');
 
 /**
  * `material` sets the surface (see MATERIALS); `round: true` draws an upright cylinder (width = depth).
+ * `open: 'x' | 'y'` removes that visible side so the inside shows (walls `wall` thick); shapes with `inside: '<this id>'`
+ * are the contents, seen only through the opening.
  * @param {{at:number[],size:number[],material?:string,round?:boolean,tone?:string,r?:number,anim?:string,move?:number[],delay?:number,rests?:string,id?:string}} o
  */
 export function box(o) {
@@ -58,6 +63,13 @@ export function box(o) {
   const material = o.material ?? (o.tone === 'ink' ? 'ink' : 'plain');
   if (!MATERIALS.includes(material)) throw new TypeError(`box: material must be one of ${MATERIALS.join(', ')}`);
   const s = { kind: 'box', at: vec3(o.at, 'box at'), size, tone: material === 'ink' || material === 'dark' ? 'ink' : 'plain', material, r: isNum(o.r) ? o.r : 3 };
+  if (o.open !== undefined) {
+    if (!['x', 'y'].includes(o.open)) throw new TypeError('box: open must be x or y (the visible side that is open)');
+    s.open = o.open;
+    s.wall = isNum(o.wall) && o.wall > 0 ? o.wall : 2;
+    if (s.wall * 2 >= Math.min(...size)) throw new RangeError('box: wall is too thick for this box');
+  }
+  if (o.inside !== undefined) s.inside = String(o.inside);
   if (o.round === true) { if (size[0] !== size[1]) throw new RangeError('box: a round box needs equal width and depth'); s.round = true; }
   if (o.anim !== undefined) s.anim = String(o.anim);
   if (o.move !== undefined) s.move = vec3(o.move, 'box move');
@@ -75,10 +87,11 @@ export function box(o) {
 export function line(points, opts = {}) {
   if (!Array.isArray(points) || points.length < 2) throw new TypeError('line: at least two points required');
   const s = { kind: 'line', points: points.map((p) => vec3(p, 'line point')), bold: !!opts.bold };
+  if (opts.inside !== undefined) s.inside = String(opts.inside);
   if (opts.tone !== undefined) { if (!LINE_TONES.includes(opts.tone)) throw new TypeError(`line: tone must be one of ${LINE_TONES.join(', ')}`); s.tone = opts.tone; }
   if (opts.on !== undefined) {
     const face = opts.face ?? 'top';
-    if (!['top', 'x', 'y'].includes(face)) throw new TypeError('line: face must be top, x or y');
+    if (!FACES.includes(face)) throw new TypeError('line: face must be top, x, y, -x or -y');
     s.on = String(opts.on); s.face = face;
   }
   if (opts.id !== undefined) s.id = String(opts.id);
@@ -94,7 +107,7 @@ export function panel(corners, opts) {
   if (!Array.isArray(corners) || corners.length !== 2) throw new TypeError('panel: two opposite corners required');
   if (!opts || typeof opts.on !== 'string') throw new TypeError('panel: on (box id) required');
   const face = opts.face ?? 'top';
-  if (!['top', 'x', 'y'].includes(face)) throw new TypeError('panel: face must be top, x or y');
+  if (!FACES.includes(face)) throw new TypeError('panel: face must be top, x, y, -x or -y');
   const material = opts.material ?? 'plain';
   if (!MATERIALS.includes(material)) throw new TypeError(`panel: material must be one of ${MATERIALS.join(', ')}`);
   const s = { kind: 'panel', points: corners.map((p) => vec3(p, 'panel corner')), on: opts.on, face, material };
@@ -106,14 +119,14 @@ export function panel(corners, opts) {
 export function panelCorners(s) {
   const [p, q] = s.points;
   if (s.face === 'top') return [[p[0], p[1], p[2]], [q[0], p[1], p[2]], [q[0], q[1], p[2]], [p[0], q[1], p[2]]];
-  if (s.face === 'x') return [[p[0], p[1], p[2]], [p[0], q[1], p[2]], [p[0], q[1], q[2]], [p[0], p[1], q[2]]];
+  if (s.face === 'x' || s.face === '-x') return [[p[0], p[1], p[2]], [p[0], q[1], p[2]], [p[0], q[1], q[2]], [p[0], p[1], q[2]]];
   return [[p[0], p[1], p[2]], [q[0], p[1], p[2]], [q[0], p[1], q[2]], [p[0], p[1], q[2]]];
 }
 
 /** @param {number[]} at @param {{r?:number,tone?:'ok'|'ink',face?:'top'|'y'|'x',on?:string,id?:string}} [opts] */
 export function dot(at, opts = {}) {
   const face = opts.face ?? 'top';
-  if (!['top', 'x', 'y'].includes(face)) throw new TypeError('dot: face must be top, x or y');
+  if (!FACES.includes(face)) throw new TypeError('dot: face must be top, x, y, -x or -y');
   const s = { kind: 'dot', at: vec3(at, 'dot at'), r: isNum(opts.r) ? opts.r : 3, tone: opts.tone === 'ink' ? 'ink' : 'ok', face };
   if (opts.on !== undefined) s.on = String(opts.on);
   if (opts.id !== undefined) s.id = String(opts.id);
@@ -133,6 +146,17 @@ export function labelTarget(label, shapes) {
   const holds = (b) => [0, 1, 2].every((k) => label.at[k] >= b.at[k] - e && label.at[k] <= b.at[k] + b.size[k] + e);
   const vol = (b) => b.size[0] * b.size[1] * b.size[2];
   return shapes.filter((x) => x.kind === 'box' && holds(x)).sort((p, q) => vol(p) - vol(q))[0] ?? null;
+}
+
+/**
+ * The opening of an open box, as 3D corners of the hole in its open side (inset by the wall), or null.
+ * @param {{at:number[],size:number[],open?:string,wall?:number}} b
+ */
+export function openingCorners(b) {
+  if (!b || (b.open !== 'x' && b.open !== 'y')) return null;
+  const [x, y, z] = b.at; const [w, d, h] = b.size; const t = b.wall ?? 2;
+  if (b.open === 'x') return [[x + w, y + t, z + t], [x + w, y + d - t, z + t], [x + w, y + d - t, z + h - t], [x + w, y + t, z + h - t]];
+  return [[x + t, y + d, z + t], [x + w - t, y + d, z + t], [x + w - t, y + d, z + h - t], [x + t, y + d, z + h - t]];
 }
 
 /** The 8 corners of a box. @param {{at:number[],size:number[]}} b */
@@ -204,14 +228,17 @@ const FACE = {
   steel: { top: 'var(--mat-steel-top)', a: 'var(--mat-steel-a)', b: 'var(--mat-steel-b)' },
   white: { top: 'var(--mat-white-top)', a: 'var(--mat-white-a)', b: 'var(--mat-white-b)' },
   glass: { top: 'var(--mat-glass)', a: 'var(--mat-glass)', b: 'var(--mat-glass)' },
+  ...Object.fromEntries(['blue', 'red', 'green', 'amber'].map((t) => [t, { top: `var(--mat-${t}-top)`, a: `var(--mat-${t}-a)`, b: `var(--mat-${t}-b)` }])),
 };
 /** Flat faces using only shared site tokens (safe for preview covers: no gradients, no shadows). */
 const FLAT_LIGHT = { top: 'var(--surface)', a: 'var(--surface2)', b: 'var(--line)' };
 const FLAT_DARK = { top: 'var(--line-strong)', a: 'var(--muted)', b: 'var(--fg)' };
-const FLAT = { plain: FLAT_LIGHT, steel: FLAT_LIGHT, white: FLAT_LIGHT, glass: { top: 'var(--line)', a: 'var(--line)', b: 'var(--line)' }, ink: FLAT_DARK, dark: FLAT_DARK };
+const FLAT = { plain: FLAT_LIGHT, steel: FLAT_LIGHT, white: FLAT_LIGHT, blue: FLAT_LIGHT, red: FLAT_LIGHT, green: FLAT_LIGHT, amber: FLAT_LIGHT, glass: { top: 'var(--line)', a: 'var(--line)', b: 'var(--line)' }, ink: FLAT_DARK, dark: FLAT_DARK };
 const GLASS_OPACITY = 0.32;
 /** Light comes from the upper left: the left-facing face is lit and shadows fall toward +x. */
-const SHADOW = { dx: 0.5, dy: -0.12, max: 34, opacity: 0.2, blur: 1.8 };
+const SHADOW = { dx: 0.5, dy: -0.12, max: 34, opacity: 0.14, blur: 3 };
+/** Hairline outlines: one thin weight for every edge, as in a technical drawing. */
+const HAIR = 0.5;
 const TONE_STROKE = { copper: 'var(--mat-copper)', cold: 'var(--mat-cold)', warm: 'var(--mat-warm)' };
 const pathOf = (pts) => 'M' + pts.map(([x, y]) => `${r2(x)} ${r2(y)}`).join(' L') + ' Z';
 
@@ -231,7 +258,7 @@ export function renderSvg(shapes, opts = {}) {
   const pre = typeof opts.idPrefix === 'string' && /^[a-z][\w-]*$/i.test(opts.idPrefix) ? opts.idPrefix : 'fc';
   const flat = opts.flat === true;
   if (opts.fontSize !== undefined && (!isNum(opts.fontSize) || opts.fontSize <= 0)) throw new TypeError('renderSvg: fontSize must be a positive number');
-  const fontSize = opts.fontSize ?? FONT_SIZE;
+  let fontSize = opts.fontSize ?? FONT_SIZE;
   const labelMode = opts.labelMode ?? 'hover';
   if (!['hover', 'always'].includes(labelMode)) throw new TypeError('renderSvg: labelMode must be hover or always');
   if (opts.requiredParts !== undefined && (!Array.isArray(opts.requiredParts) || !opts.requiredParts.every((x) => typeof x === 'string'))) throw new TypeError('renderSvg: requiredParts must be an array of ids');
@@ -240,10 +267,11 @@ export function renderSvg(shapes, opts = {}) {
   const F = (v) => { fills.add(v); return v; };
   const S = (v) => { strokes.add(v); return v; };
 
+  // Details on the back sides are not drawn in this view; they appear when the object is turned.
   const model = { shapes: shapes.map((s, i) => {
     if (!s || !['box', 'line', 'dot', 'panel'].includes(s.kind)) throw new TypeError(`renderSvg: shape ${i} has unknown kind`);
-    return { ...structuredClone(s), id: s.id ?? `${s.kind}${i}`, drawIndex: i };
-  }) };
+    return { ...structuredClone(s), id: s.id ?? `${s.kind}${i}` };
+  }).filter((s) => !backFace(s)).map((s, i) => ({ ...s, drawIndex: i })) };
   const byId = new Map(model.shapes.map((s) => [s.id, s]));
 
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -255,6 +283,8 @@ export function renderSvg(shapes, opts = {}) {
   const bounds = { minX, minY, maxX, maxY };
   const given = opts.labels ?? [];
   if (!Array.isArray(given)) throw new TypeError('renderSvg: labels must be an array');
+  // With no size given, chips are sized from the drawing so they render at about 11 CSS px on a 390px phone.
+  if (hover && opts.fontSize === undefined) fontSize = Math.max(FONT_SIZE, Math.ceil(((maxX - minX + 2 * padding) * 11) / 326));
   if (hover) {
     // Chips: each label sits just above its anchor, kept inside the drawing, so no side columns are reserved.
     model.labels = given.map((l, i) => {
@@ -287,7 +317,7 @@ export function renderSvg(shapes, opts = {}) {
     for (const m of [...used].filter((x) => x !== 'glass').sort()) {
       const f = FACE[m];
       // Lit left face with a soft specular band; shaded right face that picks up bounce light at its far edge; top fades away from the light.
-      defs.push(`<linearGradient id="${pre}-${m}-a" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${f.a}"/><stop offset="0.12" stop-color="var(--mat-shine)" stop-opacity="0.45"/><stop offset="0.3" stop-color="${f.a}"/><stop offset="1" stop-color="${f.a}"/></linearGradient>`);
+      defs.push(`<linearGradient id="${pre}-${m}-a" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${f.a}"/><stop offset="0.12" stop-color="var(--mat-shine)" stop-opacity="0.6"/><stop offset="0.3" stop-color="${f.a}"/><stop offset="1" stop-color="${f.a}"/></linearGradient>`);
       defs.push(`<linearGradient id="${pre}-${m}-b" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${f.b}"/><stop offset="0.85" stop-color="${f.b}"/><stop offset="1" stop-color="${f.a}"/></linearGradient>`);
       defs.push(`<linearGradient id="${pre}-${m}-top" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${f.top}"/><stop offset="0.6" stop-color="${f.top}"/><stop offset="1" stop-color="${f.a}"/></linearGradient>`);
       defs.push(`<linearGradient id="${pre}-${m}-cyl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${f.b}"/><stop offset="0.22" stop-color="${f.a}"/><stop offset="0.36" stop-color="${f.top}"/><stop offset="0.6" stop-color="${f.a}"/><stop offset="1" stop-color="${f.b}"/></linearGradient>`);
@@ -334,27 +364,45 @@ export function renderSvg(shapes, opts = {}) {
         // Upright cylinder: a body shaded around its curve and an elliptical top.
         const r = w / 2; const rx = r * C * Math.SQRT2; const ry = r * Math.SQRT1_2;
         const [tx, ty] = P(r, r, h); const [bx, by] = P(r, r, 0);
-        inner += `<path d="M${r2(tx - rx)} ${r2(ty)} L${r2(bx - rx)} ${r2(by)} A${r2(rx)} ${r2(ry)} 0 0 0 ${r2(bx + rx)} ${r2(by)} L${r2(tx + rx)} ${r2(ty)} Z" fill="${F(flat ? FLAT[m].a : m === 'glass' ? FACE.glass.a : `url(#${pre}-${m}-cyl)`)}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="0.6" stroke-linejoin="round"/>`;
-        inner += `<ellipse cx="${r2(tx)}" cy="${r2(ty)}" rx="${r2(rx)}" ry="${r2(ry)}" fill="${F(faceFill(m, 'top'))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="0.8"/>`;
+        inner += `<path d="M${r2(tx - rx)} ${r2(ty)} L${r2(bx - rx)} ${r2(by)} A${r2(rx)} ${r2(ry)} 0 0 0 ${r2(bx + rx)} ${r2(by)} L${r2(tx + rx)} ${r2(ty)} Z" fill="${F(flat ? FLAT[m].a : m === 'glass' ? FACE.glass.a : `url(#${pre}-${m}-cyl)`)}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}" stroke-linejoin="round"/>`;
+        inner += `<ellipse cx="${r2(tx)}" cy="${r2(ty)}" rx="${r2(rx)}" ry="${r2(ry)}" fill="${F(faceFill(m, 'top'))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}"/>`;
       } else {
         const top = [P(0, 0, h), P(w, 0, h), P(w, d, h), P(0, d, h)];
         const fy = [P(0, d, 0), P(w, d, 0), P(w, d, h), P(0, d, h)];
         const fx = [P(w, 0, 0), P(w, d, 0), P(w, d, h), P(w, 0, h)];
         const rr = Math.max(0, Math.min(s.r, w / 2, d / 2));
-        inner += `<path d="${pathOf(fy)}" fill="${F(faceFill(m, 'a'))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="0.6" stroke-linejoin="round"/>`;
-        inner += `<path d="${pathOf(fx)}" fill="${F(faceFill(m, 'b'))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="0.6" stroke-linejoin="round"/>`;
-        inner += `<path d="${pathOf(top)}" fill="${F(faceFill(m, 'top'))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="${r2(0.6 + rr * 0.2)}" stroke-linejoin="round"/>`;
+        inner += `<path d="${pathOf(fy)}" fill="${F(faceFill(m, 'a'))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}" stroke-linejoin="round"/>`;
+        inner += `<path d="${pathOf(fx)}" fill="${F(faceFill(m, 'b'))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}" stroke-linejoin="round"/>`;
+        inner += `<path d="${pathOf(top)}" fill="${F(faceFill(m, 'top'))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}" stroke-linejoin="round"/>`;
+        if (s.open) {
+          // An open side: the hole shows the inside faces the viewer can see (floor, back wall, far side wall).
+          const t = s.wall ?? 2;
+          const hole = openingCorners(s).map(project);
+          const oid = `${pre}-open-${String(s.id).replace(/[^\w-]/g, '_')}`;
+          defs.push(`<clipPath id="${oid}"><path d="${pathOf(hole)}"/></clipPath>`);
+          const Q = (a, b, c) => project([a, b, c]);
+          const x0 = x + t, x1 = x + w - t, y0 = y + t, y1 = y + d - t, z0 = z + t, z1 = z + h - t;
+          const floor = s.open === 'x' ? [Q(x0, y0, z0), Q(x + w, y0, z0), Q(x + w, y1, z0), Q(x0, y1, z0)] : [Q(x0, y0, z0), Q(x1, y0, z0), Q(x1, y + d, z0), Q(x0, y + d, z0)];
+          const back = s.open === 'x' ? [Q(x0, y0, z0), Q(x0, y1, z0), Q(x0, y1, z1), Q(x0, y0, z1)] : [Q(x0, y0, z0), Q(x1, y0, z0), Q(x1, y0, z1), Q(x0, y0, z1)];
+          const side = s.open === 'x' ? [Q(x0, y0, z0), Q(x + w, y0, z0), Q(x + w, y0, z1), Q(x0, y0, z1)] : [Q(x0, y0, z0), Q(x0, y + d, z0), Q(x0, y + d, z1), Q(x0, y0, z1)];
+          const liner = flat ? FLAT.plain : FACE.white;
+          inner += `<g clip-path="url(#${oid})"><path d="${pathOf(hole)}" fill="${F(flat ? 'var(--line)' : 'var(--mat-cavity)')}"/>` +
+            `<path d="${pathOf(back)}" fill="${F(flat ? 'var(--line)' : 'var(--mat-cavity)')}" stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}" stroke-linejoin="round"/>` +
+            `<path d="${pathOf(side)}" fill="${F(liner.b)}" stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}" stroke-linejoin="round"/>` +
+            `<path d="${pathOf(floor)}" fill="${F(liner.top)}" stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}" stroke-linejoin="round"/></g>` +
+            `<path d="${pathOf(hole)}" fill="${F('none')}" stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}" stroke-linejoin="round"/>`;
+        }
         const [ex, ey0] = P(w, d, 0); const [, ey1] = P(w, d, h);
         // Edge highlight where the two side faces meet: the corner catches the light.
-        inner += `<path d="M${r2(ex)} ${r2(ey0)} L${r2(ex)} ${r2(ey1)}" fill="none" stroke="${S(flat ? FLAT[m].top : m === 'glass' ? 'var(--mat-shine)' : 'var(--mat-shine)')}" stroke-width="${r2(Math.max(0.6, rr * 0.4))}" stroke-linecap="round" opacity="0.5"/>`;
+        inner += `<path d="M${r2(ex)} ${r2(ey0)} L${r2(ex)} ${r2(ey1)}" fill="none" stroke="${S(flat ? FLAT[m].top : m === 'glass' ? 'var(--mat-shine)' : 'var(--mat-shine)')}" stroke-width="${HAIR}" stroke-linecap="round" opacity="0.7"/>`;
       }
     } else if (s.kind === 'panel') {
       const m = s.material ?? 'plain';
       const face = s.face === 'top' ? 'top' : s.face === 'x' ? 'b' : 'a';
-      inner = `<path d="${pathOf(panelCorners(s).map(project))}" fill="${F(faceFill(m, face))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="0.5" stroke-linejoin="round"/>`;
+      inner = `<path d="${pathOf(panelCorners(s).map(project))}" fill="${F(faceFill(m, face))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}" stroke-linejoin="round"/>`;
     } else if (s.kind === 'line') {
       const stroke = s.tone && !flat ? TONE_STROKE[s.tone] : s.bold ? 'var(--fg)' : 'var(--line-strong)';
-      inner = `<path d="M${s.points.map((p) => project(p).map(r2).join(' ')).join(' L')}" fill="${F('none')}" stroke="${S(stroke)}" stroke-width="${s.bold ? 2 : s.tone ? 1.4 : 1}" stroke-linecap="round" stroke-linejoin="round"/>`;
+      inner = `<path d="M${s.points.map((p) => project(p).map(r2).join(' ')).join(' L')}" fill="${F('none')}" stroke="${S(stroke)}" stroke-width="${s.bold ? 1.3 : s.tone ? 1.1 : HAIR}" stroke-linecap="round" stroke-linejoin="round"/>`;
     } else {
       const [cx, cy] = project(s.at);
       const fill = F(s.tone === 'ink' ? (flat ? 'var(--fg)' : 'var(--iso-ink)') : 'var(--ok)');
@@ -362,6 +410,15 @@ export function renderSvg(shapes, opts = {}) {
       const [rx, ry] = s.face === 'top' ? [s.r * C * 1.15, s.r * 0.58] : [s.r * 0.6, s.r];
       inner = `<circle class="dot" r="1" transform="translate(${r2(cx)} ${r2(cy)}) scale(${r2(rx)} ${r2(ry)})" fill="${fill}"/>`;
     }
+    // Contents of an open box are seen only through its opening.
+    const holder = s.inside !== undefined ? s.inside : s.on !== undefined ? byId.get(s.on)?.inside : undefined;
+    const holderBox = holder !== undefined ? byId.get(holder) : null;
+    const within = holderBox && holderBox.open ? ` clip-path="url(#${pre}-open-${String(holder).replace(/[^\w-]/g, '_')})"` : '';
+    if (within) {
+      const last = body.length - 1;
+      if (last >= 0 && body[last].startsWith(`<g class="${pre}-shadow"`) && s.kind === 'box') body[last] = `<g${within}>${body[last]}</g>`;
+    }
+    const wrap = (g) => (within ? `<g${within}>${g}</g>` : g);
     if (s.anim !== undefined || s.move) {
       const cls = `${pre}-anim-${String(s.id).replace(/[^\w-]/g, '_')}`;
       const m = s.move ?? [0, 0, 0];
@@ -371,8 +428,8 @@ export function renderSvg(shapes, opts = {}) {
       css.push(`.${cls}{animation:${cls} 3.2s ease-in-out ${r2(s.delay ?? 0)}s infinite}`);
       css.push(`@media (prefers-reduced-motion: reduce){.${cls}{animation:none}}`);
       model.animations.push({ id: s.id, reducedFallback: true });
-      body.push(`<g class="${cls}" ${attrs}>${inner}</g>`);
-    } else body.push(`<g ${attrs}>${inner}</g>`);
+      body.push(wrap(`<g class="${cls}" ${attrs}>${inner}</g>`));
+    } else body.push(wrap(`<g ${attrs}>${inner}</g>`));
   }
 
   if (hover && model.labels.length) {

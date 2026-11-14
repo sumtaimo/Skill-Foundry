@@ -31,6 +31,10 @@ Item 33a applies only to the skill's own demo.
 18. Do all shapes and label text sit inside the viewBox? (L5-outside-viewbox)
 19. Are there no decorative dots on solids (every dot carries meaning and is named in a label or the copy)?
 20. Is the projection the shared one (`project`, C = 0.866), with no hand-drawn skew?
+19o. Are inside parts and contents drawn inside the body, seen through an open side, and is the opened body filled as it is really used? (L18-outside-container)
+19p. Can the reader turn the object (orbit), and do the back sides carry their real features?
+19q. Does the figure have at least twelve face details, three per labelled part on average? (L19-sparse)
+19r. Are all outlines the engine's one hairline weight?
 19k. Does every solid have the material of the real thing, with at least two materials in the figure? (L17-one-material)
 19l. Is every labelled part at least 40% visible, with the inside shown through glass or one open side? (L16-hidden-part)
 19m. Does the object look like the real thing from outside (body, door or cover, handle, feet, controls), not only its machinery?
@@ -63,7 +67,7 @@ Item 33a applies only to the skill's own demo.
 
 ## 7. Verification
 29. Do build and lint pass with zero errors?
-30. Are geometry checks (lint L1-L17) run on the rendered model?
+30. Are geometry checks (lint L1-L19, and `lintViews` for the orbit) run on the rendered model?
 31. Were screenshots taken in light, dark, 390px width and a second language?
 32. Is the browser console free of errors?
 33. Was reduced motion checked to show a still figure?

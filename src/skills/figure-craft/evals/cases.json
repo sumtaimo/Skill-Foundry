@@ -55,7 +55,7 @@
   },
   {
     "id": "refrigerator-cooling",
-    "prompt": "Show my customers how a refrigerator keeps food cold. I want them to see the real parts of the fridge in detail.",
+    "prompt": "Show my customers how a refrigerator keeps food cold. I want them to see the real fridge in detail, open, with the food and drinks inside.",
     "expect": [
       {
         "type": "contains",
@@ -63,7 +63,45 @@
       },
       {
         "type": "contains",
+        "value": "fc-orbit"
+      },
+      {
+        "type": "contains",
         "value": "prefers-reduced-motion"
+      },
+      {
+        "type": "notContains",
+        "value": "fill=\"#"
+      },
+      {
+        "type": "notContains",
+        "value": "stroke=\"#"
+      },
+      {
+        "type": "fileExists",
+        "value": "build-figure.mjs"
+      },
+      {
+        "type": "fileExists",
+        "value": "lint-report.json"
+      },
+      {
+        "type": "fileExists",
+        "value": "report.md"
+      }
+    ]
+  },
+  {
+    "id": "washing-machine",
+    "prompt": "Show how a front-loading washing machine washes clothes. I want to see the real machine and what is inside it.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "var(--"
+      },
+      {
+        "type": "contains",
+        "value": "fc-orbit"
       },
       {
         "type": "notContains",

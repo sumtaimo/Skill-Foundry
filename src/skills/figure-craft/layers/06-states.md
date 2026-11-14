@@ -12,4 +12,6 @@
 8. A part hidden behind another: put the taller one farther from the reader (lower x + y), open that side, or make the cover `glass`.
 9. A detail on a hidden face: faces `top`, `x` and `y` are the visible ones. Move the detail to a visible face.
 10. An unknown subject: do not improvise parts. Go back to layer 03, step 8.
+10a. A view from the back shows a bare side: add that side's real features with `face: '-x'` or `'-y'`.
+10b. JavaScript off: the first view shows and the turn buttons do nothing; the cards still name every part.
 11. A request that changes after the build: change the shapes in the build script and run it again. Never patch the SVG.

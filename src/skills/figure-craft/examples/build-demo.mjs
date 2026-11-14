@@ -6,7 +6,7 @@
  */
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { box, dot, line, renderSvg } from '../engine/iso.mjs';
+import { box, dot, line, panel, renderSvg } from '../engine/iso.mjs';
 import { tokensCss } from '../engine/tokens.mjs';
 
 const TITLE = 'How a CDN edge cache serves a request';
@@ -22,14 +22,23 @@ function shapes(animated) {
   return [
     box({ at: [0, 0, 0], size: [160, 60, 4], r: 4, id: 'ground' }),
     box({ at: [8, 22, 4], size: [18, 18, 16], id: 'client', rests: 'ground' }),
-    line([[26, 25, 16], [26, 37, 16]], { on: 'client', face: 'x', id: 'client-screen' }), // screen edge on the side facing the request
+    panel([[26, 24, 9], [26, 38, 18]], { on: 'client', face: 'x', material: 'dark', id: 'client-screen' }), // screen facing the request
+    line([[26, 25, 7], [26, 37, 7]], { on: 'client', face: 'x', id: 'client-stand' }),
+    line([[10, 40, 8], [24, 40, 8]], { on: 'client', face: 'y', id: 'client-vent' }),
     box(request),
     box({ at: [64, 14, 4], size: [32, 32, 36], tone: 'ink', id: 'edge', rests: 'ground' }),
     box({ at: [128, 14, 4], size: [24, 32, 52], id: 'origin', rests: 'ground' }),
     line([[152, 18, 44], [152, 42, 44]], { on: 'origin', face: 'x', id: 'origin-bay-1' }), // drive bays
     line([[152, 18, 34], [152, 42, 34]], { on: 'origin', face: 'x', id: 'origin-bay-2' }),
     line([[152, 18, 24], [152, 42, 24]], { on: 'origin', face: 'x', id: 'origin-bay-3' }),
+    line([[152, 18, 14], [152, 42, 14]], { on: 'origin', face: 'x', id: 'origin-bay-4' }),
+    panel([[132, 46, 44], [140, 46, 50]], { on: 'origin', face: 'y', material: 'dark', id: 'origin-display' }),
+    line([[132, 46, 12], [148, 46, 12]], { on: 'origin', face: 'y', id: 'origin-vent' }),
     line([[96, 20, 30], [96, 40, 30]], { on: 'edge', face: 'x', id: 'edge-vent' }), // vent slot
+    line([[96, 20, 26], [96, 40, 26]], { on: 'edge', face: 'x', id: 'edge-vent-2' }),
+    line([[96, 20, 22], [96, 40, 22]], { on: 'edge', face: 'x', id: 'edge-vent-3' }),
+    panel([[68, 46, 30], [80, 46, 36]], { on: 'edge', face: 'y', material: 'steel', id: 'edge-badge' }), // status plate
+    line([[68, 46, 10], [92, 46, 10]], { on: 'edge', face: 'y', id: 'edge-seam' }),
     dot([80, 30, 40], { face: 'top', on: 'edge', tone: 'ok' }),
   ];
 }

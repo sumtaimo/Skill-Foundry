@@ -24,5 +24,9 @@
   {"id": "R-figure-craft-23", "text": "Labels and leaders MUST stay hidden until their part is hovered, focused or tapped, then appear with motion; the page MUST name every part in a card so nothing depends on hover.", "checklist": "At rest the figure shows no labels or leaders; hovering or focusing each part reveals its label; every part has a card."},
   {"id": "R-figure-craft-24", "text": "A labelled part MUST stay at least 40% visible; glass or one open side shows the inside.", "check": "L16-hidden-part"},
   {"id": "R-figure-craft-25", "text": "Solids MUST have the material of the real thing, at least two in a figure of three or more solids.", "check": "L17-one-material"},
-  {"id": "R-figure-craft-26", "text": "The object MUST look like the real thing from outside, in its real materials, with light and shadow from the engine only; NEVER show only the machinery, and NEVER draw a shadow or highlight by hand.", "checklist": "The outside of the object is recognisable, and the SVG has no hand-drawn shadow or highlight."}
+  {"id": "R-figure-craft-26", "text": "The object MUST look like the real thing from outside, in its real materials, with light and shadow from the engine only; NEVER show only the machinery, and NEVER draw a shadow or highlight by hand.", "checklist": "The outside of the object is recognisable, and the SVG has no hand-drawn shadow or highlight."},
+  {"id": "R-figure-craft-27", "text": "Inside parts and contents MUST be drawn inside the body and marked inside; NEVER beside it.", "check": "L18-outside-container"},
+  {"id": "R-figure-craft-28", "text": "The figure MUST carry at least twelve face details, three per labelled part on average.", "check": "L19-sparse"},
+  {"id": "R-figure-craft-29", "text": "The reader MUST be able to turn the object through four views, and the back sides MUST carry their real features.", "checklist": "The turn buttons show four views and no view has a bare side that the real object does not have."},
+  {"id": "R-figure-craft-30", "text": "Outlines MUST be the engine's one hairline weight; NEVER a heavier stroke.", "checklist": "No stroke width is set by the build script."}
 ]

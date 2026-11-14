@@ -1,21 +1,21 @@
 ---
 name: figure-craft
 description: Draws a detailed isometric figure that explains how a thing works, from the goal the user states, with a token palette, a shared iso engine and a geometry, layout and detail lint. Use for any request for an explanatory diagram, technical illustration or interactive explainer of an object or system. Do not use for data charts, photos, logos, UI mockups or decorative art.
-version: 1.4.0
+version: 1.5.0
 ---
 
 # figure-craft
 
 Turns "explain how X works" into one full isometric object, for any object the user describes:
-real materials, consistent light and soft shadows, identifying details on every named part, labels
-that appear on hover and one motion story. The look is the same whatever the object is. The figure is rendered by `engine/iso.mjs`, coloured only by
+real materials, quiet hairline outlines, consistent light and soft shadows, an inside you can open,
+a view you can turn, micro detail on every part, labels on hover and one motion story. The look is the same whatever the object is. The figure is rendered by `engine/iso.mjs`, coloured only by
 `engine/tokens.mjs` and checked by `engine/lint.mjs`. The skill is self-contained: everything it
 needs is in this folder, so it works in any project.
 
 ## When to use
 
 - Use when someone asks for an explanatory diagram, a technical illustration, a "how it works" figure or an interactive explainer.
-- Use when an existing figure must be redrawn so it passes lint L1-L17.
+- Use when an existing figure must be redrawn so it passes lint L1-L19.
 - Do not use for data charts (bars, lines, pies), photos, logos, UI mockups or purely decorative art.
 - Do not use when the idea cannot be stated in one sentence; split it first.
 
@@ -43,6 +43,7 @@ Each rule is in `RULES.json`; L-rules are enforced by `engine/lint.mjs`. The ful
 - Bigger parts MUST carry more details, up to three (`L11-no-detail`), so the figure is full.
 - The object MUST be full solid volumes (`L13-no-solid-body`) with every part the idea needs (`L14-missing-part`) and nothing floating (`L15-floating`).
 - Solids MUST have real materials (`L17-one-material`) and labelled parts MUST stay visible (`L16-hidden-part`); light and shadow come from the engine only.
+- Inside parts and contents are drawn inside an opened body (`L18-outside-container`); the reader can turn the object to see every side; the figure carries micro detail (`L19-sparse`).
 - Labels stay hidden and appear as a chip, with motion, when a part is hovered, focused or tapped; cards under the figure name every part.
 - Every fill and stroke MUST be a token (`L6-raw-colour`).
 

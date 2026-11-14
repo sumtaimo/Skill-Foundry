@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.5.0 - 2026-11-14
+
+- Modern style: near-white palette, low contrast between faces, one hairline outline weight, softer shadows.
+- Open bodies (`open`, `wall`) with contents (`inside`), seen through the opening; tint materials `blue`, `red`, `green`, `amber`.
+- Orbit: `engine/orbit.mjs` renders four views a quarter turn apart and `orbitHtml` lets the reader turn the object; back-side details with `face: '-x'` and `'-y'`.
+- Lint `L18-outside-container`, `L19-sparse` (micro detail), `lintViews` for all four views; `L16` understands contents.
+- Chip labels size themselves from the drawing. New eval case `washing-machine`.
+
 ## 1.4.0 - 2026-11-14
 
 - Materials: `steel`, `white`, `dark`, `glass`, `plain`, `ink`; round solids (`round: true`); filled `panel` details; pipe and flow tones `copper`, `cold`, `warm`.

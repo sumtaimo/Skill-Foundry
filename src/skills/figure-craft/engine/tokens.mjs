@@ -4,24 +4,32 @@
  * @governed-by PO_ARCHITECT
  */
 
+const TINTS = ['Blue', 'Red', 'Green', 'Amber'];
 const KEYS = ['bg', 'surface', 'surface2', 'line', 'lineStrong', 'fg', 'muted', 'faint', 'ok', 'warn', 'danger',
   'isoTop', 'isoA', 'isoB', 'isoInk', 'isoInkTop', 'isoInkA', 'isoInkB',
-  'matSteelTop', 'matSteelA', 'matSteelB', 'matWhiteTop', 'matWhiteA', 'matWhiteB', 'matGlass', 'matCopper', 'matCold', 'matWarm', 'matShadow', 'matShine'];
+  'matSteelTop', 'matSteelA', 'matSteelB', 'matWhiteTop', 'matWhiteA', 'matWhiteB',
+  ...TINTS.flatMap((t) => [`mat${t}Top`, `mat${t}A`, `mat${t}B`]),
+  'matCavity', 'matGlass', 'matCopper', 'matCold', 'matWarm', 'matShadow', 'matShine'];
 
+// Modern, quiet palette: near-white surfaces, low contrast between faces, hairline grey outlines.
 export const TOKENS = Object.freeze({
   light: Object.freeze({
-    bg: '#f7f6f2', surface: '#ffffff', surface2: '#efede6', line: '#d9d5ca', lineStrong: '#8f8a7c',
-    fg: '#1d1c19', muted: '#5c5850', faint: '#8a857a', ok: '#2f8f5b', warn: '#b7791f', danger: '#c0392b',
-    isoTop: '#ffffff', isoA: '#e6e2d8', isoB: '#cfc9bb', isoInk: '#2b2a27', isoInkTop: '#4a4843', isoInkA: '#33312d', isoInkB: '#22211e',
-    matSteelTop: '#eef1f3', matSteelA: '#cfd6db', matSteelB: '#9ea8b0', matWhiteTop: '#ffffff', matWhiteA: '#f3f2ee', matWhiteB: '#dedbd3',
-    matGlass: '#9cc7dc', matCopper: '#c07a45', matCold: '#3f93c9', matWarm: '#d5663f', matShadow: '#1d1c19', matShine: '#ffffff',
+    bg: '#fafafa', surface: '#ffffff', surface2: '#f4f4f3', line: '#e6e6e3', lineStrong: '#a9a9a4',
+    fg: '#1a1a19', muted: '#6b6b68', faint: '#9a9a96', ok: '#2f8f5b', warn: '#b7791f', danger: '#c0392b',
+    isoTop: '#ffffff', isoA: '#f5f5f4', isoB: '#e8e8e6', isoInk: '#2b2b2a', isoInkTop: '#6a6a67', isoInkA: '#565654', isoInkB: '#434341',
+    matSteelTop: '#f8f9fa', matSteelA: '#eceff1', matSteelB: '#d9dde1', matWhiteTop: '#ffffff', matWhiteA: '#fbfbfa', matWhiteB: '#eeeeec',
+    matBlueTop: '#e2eef8', matBlueA: '#cfe2f3', matBlueB: '#b3cfe8', matRedTop: '#fae1da', matRedA: '#f4cdc2', matRedB: '#e8b0a1',
+    matGreenTop: '#e0f1e3', matGreenA: '#cde6d2', matGreenB: '#b0d4b8', matAmberTop: '#fbf0d6', matAmberA: '#f5e3b8', matAmberB: '#e8cd8e',
+    matCavity: '#dfe1e3', matGlass: '#bcdaea', matCopper: '#c98f63', matCold: '#4f9fd3', matWarm: '#df7655', matShadow: '#1a1a19', matShine: '#ffffff',
   }),
   dark: Object.freeze({
-    bg: '#141413', surface: '#1d1c1a', surface2: '#262522', line: '#3a3833', lineStrong: '#77736a',
-    fg: '#f1efe8', muted: '#b3aea2', faint: '#8a857a', ok: '#4fbf83', warn: '#e0a84a', danger: '#e5675a',
-    isoTop: '#3b3934', isoA: '#2d2b27', isoB: '#22211e', isoInk: '#e8e4da', isoInkTop: '#f6f3ec', isoInkA: '#d6d1c5', isoInkB: '#bdb7a9',
-    matSteelTop: '#6b737a', matSteelA: '#4f565c', matSteelB: '#383d42', matWhiteTop: '#55524c', matWhiteA: '#44413c', matWhiteB: '#33312d',
-    matGlass: '#6fa3bb', matCopper: '#d7935c', matCold: '#62b3e6', matWarm: '#ec8560', matShadow: '#000000', matShine: '#cfd6db',
+    bg: '#141413', surface: '#1d1d1c', surface2: '#262625', line: '#383836', lineStrong: '#7a7a76',
+    fg: '#f1f1ee', muted: '#b0b0ab', faint: '#8a8a86', ok: '#4fbf83', warn: '#e0a84a', danger: '#e5675a',
+    isoTop: '#3a3a38', isoA: '#2f2f2e', isoB: '#252524', isoInk: '#e8e8e4', isoInkTop: '#d9d9d5', isoInkA: '#bdbdb8', isoInkB: '#a0a09c',
+    matSteelTop: '#5b6066', matSteelA: '#4a4f54', matSteelB: '#3a3e42', matWhiteTop: '#4c4c4a', matWhiteA: '#414140', matWhiteB: '#343433',
+    matBlueTop: '#3f5a73', matBlueA: '#334b61', matBlueB: '#283c4e', matRedTop: '#7a4a40', matRedA: '#663d35', matRedB: '#52312a',
+    matGreenTop: '#3f6549', matGreenA: '#33543c', matGreenB: '#284330', matAmberTop: '#7a6534', matAmberA: '#66542b', matAmberB: '#524322',
+    matCavity: '#1b1c1d', matGlass: '#6fa3bb', matCopper: '#d7935c', matCold: '#62b3e6', matWarm: '#ec8560', matShadow: '#000000', matShine: '#8d9399',
   }),
 });
 
