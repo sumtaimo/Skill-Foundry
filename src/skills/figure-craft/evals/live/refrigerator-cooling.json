@@ -1,0 +1,15 @@
+{
+  "case": "refrigerator-cooling",
+  "prompt": "Show my customers how a refrigerator keeps food cold. I want them to see the real fridge in detail, open, with the food and drinks inside.",
+  "agent": "claudeRunner via run-skill (fresh agent, skill folder and the case prompt only)",
+  "recordedAt": "2026-11-14",
+  "output": "The figure is built and lints clean, but the browser checks and the second-reader check did not run.\n\n**Files** (all in `/home/user/Skill-Foundry/runs/figure-craft/d8ee4243b304c637/output`):\n- `refrigerator.html`: the page, with an open refrigerator you can turn, hover, and close. Food and drinks are inside, and there is one card per labelled part.\n- `refrigerator.svg`: the front view, doors open, as a standalone file.\n- `build-figure.mjs`: regenerates everything from the engine. It imports the engine from the skill folder rather than copying it.\n- `lint-report.json`: 0 errors, 0 warnings.\n- `report.md`: the idea sentence, parts and details, motion story, facts and assumptions, and the checklist answers.\n\n**Checks run:**\n- Lint over both door states and all four views: 0 errors, 0 warnings.\n- Rebuilding gives identical SHA-256 hashes for the HTML, SVG and lint report.\n- The SVG has no colour attributes written as hex; hex values appear only in its token style block.\n\n**Not run:**\n- Browser checks (light and dark, 390px, reduced motion, console errors, hover and tap reveal). Headless Chrome needed a command approval that was not granted, so no screenshots were taken.\n- Second-reader check.\n\n**Open items:**\n- No product spec was supplied, so the layout and part positions are general knowledge of a standard fridge. They are marked as assumptions in the report and on the cards. Please confirm them before customer release.\n- The compressor and condenser coil are drawn larger than to scale for legibility.\n- Checklist items 7–11 are written for multi-section pages and were treated as not applicable to a single figure. A reviewer should confirm that.\n\nThe request matches the skill's reference example, so the shape list follows that example closely. The copy, cards, assumptions and build script are my own.",
+  "files": [
+    "build-figure.mjs",
+    "lint-report.json",
+    "refrigerator.html",
+    "refrigerator.svg",
+    "report.md"
+  ],
+  "run": "runs/figure-craft/d8ee4243b304c637"
+}
