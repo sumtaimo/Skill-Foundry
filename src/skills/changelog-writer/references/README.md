@@ -18,6 +18,9 @@
 - Fix the link to the standard.
 ```
 
-## Source
+## Format rules
 
-The format comes from `docs/factory/STANDARD.md` section 10 and the steps in `docs/factory/PUBLISHING.md`.
+- Semver: MAJOR for changes that break existing use, MINOR for new behaviour, PATCH for fixes and wording.
+- Every version bump has a CHANGELOG.md entry: `## <version> - <YYYY-MM-DD>` followed by bullet points.
+- The newest entry is on top; older entries are never edited or reordered.
+- The version in the SKILL.md frontmatter, the CHANGELOG and any registry or manifest entry must match.
