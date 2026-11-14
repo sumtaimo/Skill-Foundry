@@ -1,0 +1,8 @@
+{
+  "case": "new-behaviour-minor",
+  "prompt": "Skill spec-check is at 1.0.0. On 2026-11-14 we added a step and fixed a link. Write the changelog entry.",
+  "agent": "claude-code subagent (fresh context, skill folder only)",
+  "recordedAt": "2026-11-14",
+  "output": "```\n## 1.1.0 - 2026-11-14\n\n- Add a new step to the procedure.\n- Fix a link.\n```\n\n**Bump:** MINOR (1.0.0 to 1.1.0), because adding a step is new behaviour and none of the changes is breaking.\n\n**Version mismatches:** I couldn't check these because I don't have the skill's files. To keep the versions in step, set `version: 1.1.0` in `spec-check/SKILL.md` and in the spec-check registry entry. Put this entry above the existing `## 1.0.0` entry in `spec-check/CHANGELOG.md` and leave the older entries as they are.\n\nThe bullets are general because I don't know which step was added or which link was fixed. Tell me both and I'll make the bullets specific, for example \"Add a step that lists open questions.\"",
+  "files": []
+}

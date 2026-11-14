@@ -1,7 +1,7 @@
 ---
 name: skill-smith
 description: Build a new Skill Foundry skill from the template so it passes the factory linter, evals and review.
-version: 1.0.1
+version: 1.1.0
 ---
 
 # skill-smith
@@ -23,9 +23,10 @@ starting from `src/skills/_template/`.
 5. Write examples and evals: add worked examples to `examples/README.md` and cases to `evals/cases.json` (types contains, notContains, maxLines, fileExists).
 6. Draw the cover and write preview.json: `preview/cover.svg` uses only `var(--...)`, `currentColor` or `none` for colours, no scripts and no external links; `preview.json` has a tagline of at most 90 characters and at most 5 tags.
 7. Run the linter and evals: `node src/factory/lint-skills.mjs <name>` and the eval runner in `src/factory/evals.mjs`; fix every problem.
-8. Review with `docs/factory/REVIEW.md` and record the result.
-9. Pack: `node src/factory/pack.mjs <name>` and add the skill to `src/factory/registry.json`.
-10. Report: list the files created, lint and eval results, review outcome and anything left open.
+8. Run live evals: give each case prompt to a fresh agent that has only the skill folder, save each answer to `evals/live/<case-id>.json`, and run `node src/factory/live-evals.mjs <name>`; fix the skill, not the case, until 0 failed.
+9. Review with `docs/factory/REVIEW.md` and record the result.
+10. Pack: `node src/factory/pack.mjs <name>` and add the skill to `src/factory/registry.json`.
+11. Report: list the files created, lint, eval and live eval results, review outcome and anything left open.
 
 ## Rules
 

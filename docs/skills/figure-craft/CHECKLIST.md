@@ -13,10 +13,10 @@ Answer every item yes or no. Any "no" blocks release. Items marked with a lint i
 6. Does the figure read correctly in both light and dark themes?
 
 ## 3. Layout
-7. Is there a contents rail with numbered sections (01 / 09 style)?
-8. Is there exactly one rail marker for the current state, never zero, never two?
+7. (Page only) Is there a contents rail with numbered sections (01 / 09 style)?
+8. (Page only) Is there exactly one rail marker for the current state, never zero, never two?
 9. Is there one reading column for body text?
-10. Do margin notes fall below the text they annotate on phones?
+10. (Page only) Do margin notes fall below the text they annotate on phones?
 11. Are facts shown as label/value cards, not prose lists?
 12. Is the phone gutter 16px?
 13. Is there no horizontal scroll at 390px wide?
@@ -31,7 +31,7 @@ Answer every item yes or no. Any "no" blocks release. Items marked with a lint i
 20. Is the projection the shared one (`project`, C = 0.866), with no hand-drawn skew?
 20a. Do label leader lines end with no dot, circle or marker at either end?
 20b. Is rendered label text at least 11 CSS px at a 390px wide viewport?
-20c. Does the theme toggle's visible text name the theme it switches to (Dark theme when light shows, Light theme when dark shows, including dark from `prefers-color-scheme`), with `aria-pressed` reflecting the dark state?
+20c. (When the page has a theme toggle) Does the theme toggle's visible text name the theme it switches to (Dark theme when light shows, Light theme when dark shows, including dark from `prefers-color-scheme`), with `aria-pressed` reflecting the dark state?
 
 ## 5. Motion
 21. Does motion tell one story and loop?

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.0 - 2026-11-14
+
+- Require the report to name the engine functions used, so a reader can verify the figure came from the engine.
+- Mark page-only checklist items so a single Figure is not blocked by them.
+
 ## 1.0.0 - 2026-11-13
 
 - First release: tokens, isometric engine with label layout, lint rules L1 to L8.

@@ -1,0 +1,10 @@
+{
+  "case": "new-skill-report",
+  "prompt": "Make a skill that writes CHANGELOG entries from merged changes.",
+  "agent": "claude-code subagent (fresh context, skill folder only)",
+  "recordedAt": "2026-11-14",
+  "output": "I built the `release-notes` skill. The name `changelog-writer` was already taken, so I used `release-notes`. The linter shows no problems, all 3 evals pass, and the pack step made a zip. I set it to `draft` because it overlaps with `changelog-writer`.\n\nInterview answers used: users are skill maintainers, trigger is \"write the changelog entry\", output is one CHANGELOG entry, it must never invent changes.\n\nFiles created (started from `_template`):\n- `src/skills/release-notes/SKILL.md`: version 0.1.0, 6-step procedure, all required sections\n- `src/skills/release-notes/RULES.json`: 8 rules; five reviewer checklist items, three linter checks (chk-required-files, chk-frontmatter, chk-cover-svg)\n- `src/skills/release-notes/examples/README.md`\n- `src/skills/release-notes/evals/cases.json`: 3 cases incl. `notContains` and `maxLines`\n- `src/skills/release-notes/preview.json`, `preview/cover.svg`, `references/README.md`, `CHANGELOG.md`\n- `dist/release-notes-0.1.0.zip`\nChanged: `src/factory/registry.json` (release-notes 0.1.0, status draft).\n\nResults:\n- Lint: `node src/factory/lint-skills.mjs release-notes` printed \"lint-skills: no problems\".\n- Evals: runEvals on a produce function from the examples, 3 passed, 0 failed (not a real-agent test).\n- Pack: dist/release-notes-0.1.0.zip, sha256 13ce689739bb7d1521d31bd8f2ab0fdc0e63b8fc3be070b5426608d015a7d0fd.\n\nReview: all REVIEW.md items pass except \"Does not overlap another skill in the registry\"; kept at draft.\n\nDecisions for you: keep both skills or merge release-notes into changelog-writer.",
+  "files": [
+    "src/skills/release-notes/SKILL.md"
+  ]
+}

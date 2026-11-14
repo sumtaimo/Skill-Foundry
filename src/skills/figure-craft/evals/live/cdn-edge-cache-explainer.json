@@ -1,0 +1,11 @@
+{
+  "case": "cdn-edge-cache-explainer",
+  "prompt": "explain how a CDN edge cache serves a request, interactive",
+  "agent": "claude-code subagent (fresh context, skill folder only)",
+  "recordedAt": "2026-11-14",
+  "output": "I built an interactive figure showing how a CDN edge cache serves a request. The skill's lint passed with no errors and no warnings.\n\n**Size:** Figure (one idea, shown inline).\n\n**Idea:** A request travels from the client to the edge cache, and the edge cache answers it without asking the origin.\n\n**Object:** An isometric base with four blocks on it: Client, Request, Edge cache and Origin (skipped). There is a green dot on top of the edge cache, and the caption says it means a cache hit.\n\n**Motion story:** Only the Request block moves. It slides back and forth along the x axis of the base, from the client towards the edge cache (`move: [26,0,0]`, no movement up or down). The motion stops under `prefers-reduced-motion`, and the still frame explains the idea on its own.\n\n**What the page does:** Pause/Play button; a light/dark theme button that names its target theme; three label/value cards (Client, Edge cache, Origin); all colours from `tokensCss()`; label text about 11.5 CSS px at 390px wide.\n\n**How I built it:** Started from the skill's own demo builder, imported the engine by absolute path, and every block names the base it rests on (`rests: 'ground'`).\n\n**Checks:**\n- Figure lint `lint(model)`: { \"errors\": [], \"warnings\": [] }, viewBox -143.09 -17 453.94 143\n- `node src/factory/lint-skills.mjs figure-craft`: lint-skills: no problems\n- `node --test`: pass 72, fail 0\n\n**Open items:** Browser pass in light and dark, at 390px, and with reduced motion on was not done by the agent.\n\nFILES: live/fc1/cdn-edge-cache.html, live/fc1/build.mjs",
+  "files": [
+    "fc1/cdn-edge-cache.html",
+    "fc1/build.mjs"
+  ]
+}

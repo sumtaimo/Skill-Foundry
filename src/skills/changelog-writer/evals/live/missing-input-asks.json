@@ -1,0 +1,8 @@
+{
+  "case": "missing-input-asks",
+  "prompt": "Write a changelog entry.",
+  "agent": "claude-code subagent (fresh context, skill folder only)",
+  "recordedAt": "2026-11-14",
+  "output": "I can write it, but I need four things from you first. I won't guess any of them:\n\n1. **Skill name**: which skill is the entry for? (e.g. `changelog-writer`)\n2. **Current version**: the version the skill has now (e.g. `1.0.0`)\n3. **Date**: the release date, in YYYY-MM-DD form\n4. **List of changes**: what was merged, one line per change\n\nOnce I have these, I'll read the skill's `CHANGELOG.md` and leave the existing entries as they are. I'll sort each change into breaking, new behaviour or fix, and pick the version bump (MAJOR, MINOR or PATCH). Then I'll give you the entry, the bump with a one-line reason, and any place where SKILL.md or the registry shows a different version.",
+  "files": []
+}

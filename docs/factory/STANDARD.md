@@ -123,3 +123,13 @@ SKILL.md MUST be at most 150 lines (`chk-size`). Move background, long tables an
 - NEVER contains `<script` or `<foreignObject`.
 - NEVER has `href` or `xlink:href` starting with `http`, `https` or `//`.
 - Every `fill`, `stroke`, `stop-color` and `color` attribute value is `var(--...)`, `currentColor` or `none`.
+
+## 12. Live evals (real agent)
+
+Evals that pass only on hand-written answers prove nothing about the skill. Before `ready`:
+
+- Each case in `evals/cases.json` MUST have a recording `evals/live/<case-id>.json` with `prompt`, `agent`, `recordedAt`, `output` and `files`, made by a fresh agent that was given only the skill folder and the case prompt.
+- `node src/factory/live-evals.mjs <name>` MUST print 0 failed. A recording whose prompt differs from the case is stale and fails.
+- Files the agent produced (pages, SVGs) are kept in `evals/live/files/` and UI output is run through `checkPage`.
+- Record new runs with `node src/factory/live-evals.mjs <name> --run` (costs tokens) or by any agent harness that saves the same JSON shape.
+- `tests/factory-live-evals.test.mjs` fails for any `ready` skill without passing recordings.
