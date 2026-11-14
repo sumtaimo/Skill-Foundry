@@ -11,7 +11,7 @@ import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import vm from 'node:vm';
 import { packAll } from '../factory/pack.mjs';
-import { loadSkills } from './lib/content.mjs';
+import { loadSkills, loadRecipeProofs } from './lib/content.mjs';
 import { DICTS } from './lib/i18n.mjs';
 import { renderIndex, renderSkillPage, zipName, installOneLiner } from './lib/render.mjs';
 
@@ -68,7 +68,7 @@ export async function buildSite({ root = REPO_ROOT, out = join(REPO_ROOT, 'dist'
   }
   for (const s of skills) s.zipBytes = checksums[zipName(s)].bytes;
   const pages = ['index.html'];
-  await writeFile(join(out, 'index.html'), renderIndex(skills, { drafts, allBytes: checksums['all-skills.zip']?.bytes, checksums }));
+  await writeFile(join(out, 'index.html'), renderIndex(skills, { drafts, allBytes: checksums['all-skills.zip']?.bytes, checksums, recipes: loadRecipeProofs(root) }));
   for (const s of skills) {
     const dl = checksums[zipName(s)];
     const dir = join(out, 'skills', s.name);

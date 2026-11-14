@@ -1,0 +1,8 @@
+[
+  {
+    "id": "ship-a-change",
+    "title": "Ship a change: retest, release note, error copy",
+    "skills": ["test-planner", "changelog-writer", "copy-tight"],
+    "prompt": "We are at version 2.3.0. Today is 2026-11-14. We changed our checkout so promo codes now apply before shipping is calculated, and we added a limit of 5 promo codes per order. Our new error message for the sixth code says: 'We are sorry, but it is not possible for you to add any more promo codes to this order at this time.' Please give me what we should retest, the changelog entry, and a shorter error message."
+  }
+]

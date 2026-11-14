@@ -7,6 +7,7 @@ import { join, resolve } from 'node:path';
 import { sanitizeSvg } from './svg.mjs';
 import { scoreLive } from '../../factory/live-evals.mjs';
 import { loadProof, docFigure } from './proof.mjs';
+import { loadRecipes, checkRecipe } from '../../factory/recipe-run.mjs';
 import { DICTS } from './i18n.mjs';
 
 /** Agent roles a skill may declare; they match .harness/roles/. */
@@ -146,4 +147,17 @@ export function loadSkills(root, opts = {}) {
       };
     })
     .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+}
+
+/**
+ * Recipes (several skills working together) that have a passing, current recording made by a real agent.
+ * The answer is shown word for word; recipes without such a recording are not shown.
+ * @param {string} root repo root
+ */
+export function loadRecipeProofs(root) {
+  return loadRecipes(root).map((r) => {
+    const c = checkRecipe(r, root);
+    if (!c.ok) return null;
+    return { id: r.id, title: String(r.title ?? r.id), prompt: c.rec.prompt, used: c.rec.used, answer: c.rec.answer, svg: sanitizeSvg(docFigure({ prompt: c.rec.prompt, answer: c.rec.answer }, { askLabel: DICTS.en['answer.asked'], moreLabel: DICTS.en['answer.more'] })) };
+  }).filter(Boolean);
 }

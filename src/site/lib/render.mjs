@@ -270,8 +270,34 @@ ${templates}
 }
 
 /**
+ * Skills working together: one request, several skills, used by a real agent in the order shown. Real output only.
+ * @param {{id:string,title:string,prompt:string,used:string[],answer:string,svg:string}[]} recipes @param {object[]} skills
+ */
+export function renderRecipes(recipes, skills) {
+  if (!recipes.length) return '';
+  const titleOf = (n) => skills.find((s) => s.name === n)?.title ?? n;
+  const items = recipes.map((r) => `<article class="recipe" data-recipe="${esc(r.id)}">
+<h3 lang="en">${esc(r.title)}</h3>
+<p class="recipe-chain">${t('recipe.used', 'span', 'class="proof-label"')} ${r.used.map((n, i) => `${i ? '<span class="recipe-arrow" aria-hidden="true">→</span> ' : ''}<a class="chip" href="skills/${esc(n)}/index.html" lang="en">${esc(titleOf(n))}</a>`).join(' ')}</p>
+<div class="recipe-body">
+<div class="cover" data-cover="proof">${r.svg.replace(/^<svg\b/, '<svg aria-hidden="true" focusable="false"')}${t('cover.real', 'span', 'class="cover-tag" data-kind="proof"')}</div>
+<figure class="proof" data-proof-source="recipe">
+<p class="proof-ask">${t('answer.asked', 'span', 'class="proof-label"')} <code lang="en">${esc(r.prompt)}</code></p>
+<pre class="proof-answer" lang="en">${esc(r.answer)}</pre>
+${copyButton(r.answer, 'answer.copy')}
+</figure>
+</div>
+</article>`).join('\n');
+  return `<section id="together" class="col" aria-labelledby="together-title">
+${t('recipe.title', 'h2', 'id="together-title"')}
+${t('recipe.note', 'p')}
+${items}
+</section>`;
+}
+
+/**
  * @param {object[]} skills ready skills
- * @param {{drafts?:string[], allBytes?:number}} [opts]
+ * @param {{drafts?:string[], allBytes?:number, recipes?:object[]}} [opts]
  */
 export function renderIndex(skills, opts = {}) {
   if (!Array.isArray(skills)) throw new TypeError('renderIndex: skills array required');
@@ -290,6 +316,7 @@ ${sorted.map((s, i) => renderCard(s, { index: i + 1, sha256: sums[zipName(s)]?.s
 </div>
 ${t('find.none', 'p', 'class="find-none" hidden')}
 </section>
+${renderRecipes(opts.recipes ?? [], sorted)}
 <section id="install" class="col" aria-labelledby="install-title">
 ${t('install.title', 'h2', 'id="install-title"')}
 <ol class="steps">
