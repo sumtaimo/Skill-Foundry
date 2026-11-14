@@ -8,3 +8,4 @@ Remove with:  node .harness/memory.mjs forget L3
 - [L3] (2026-11-14) Project purpose: Skill Foundry is a growing library of reusable, tested AI agent skills; plan future work from docs/factory/ROADMAP.md.
 - [L4] (2026-11-14) A skill is done only when a fresh real agent, given only the skill folder, passes its live evals (node src/factory/live-evals.mjs <name>) and routing evals; hand-written answers never count as proof.
 - [L5] (2026-11-14) When a real agent fails a skill eval, fix the skill, not the eval case, and re-record with a new agent.
+- [L6] (2026-11-14) Never bring brands, products or languages from outside this project (e.g. WABOOKS, WeBill365, WeCafe, Korean) into Skill Foundry work or questions; use only what is in this repository or what the user says here.
