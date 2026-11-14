@@ -1,0 +1,80 @@
+{
+  "skill": "figure-craft",
+  "version": "1.5.0",
+  "caseId": "washing-machine",
+  "inputSha256": "b1b958aadcbdf540f75cf37d687f42434a484d7474ae7aa5ce6b7b82fddca913",
+  "skillSha256": "e472e691c4706c9ce98a7066164f8110defdd7e1cbee796322928554ab40688e",
+  "key": "e10b2c171cb9937840a2d20eced2adfd3b79d0e9d3381b7bf6d92d22ef805ca7",
+  "startedAt": "2026-11-14T02:13:52.446Z",
+  "finishedAt": "2026-11-14T02:20:50.326Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.5180581499999999,
+  "usage": {
+    "input_tokens": 58,
+    "cache_creation_input_tokens": 161881,
+    "cache_read_input_tokens": 4089845,
+    "output_tokens": 87381,
+    "output_tokens_details": {
+      "thinking_tokens": 61869
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 161881,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 1151,
+        "cache_read_input_tokens": 188822,
+        "cache_creation_input_tokens": 3315,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 3315
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [
+    {
+      "path": "build-figure.mjs",
+      "bytes": 12002,
+      "sha256": "39eb7edc95cc63930454ed280924a069ea9abfb3f147ad756c5508b5ccb3d300"
+    },
+    {
+      "path": "front-loader-washing-machine.html",
+      "bytes": 115022,
+      "sha256": "b7e346eeda1ca3e0b37f45bfd5bebe0bd9e31796a7a7483d13c7e4b6b4bd3043"
+    },
+    {
+      "path": "front-loader-washing-machine.svg",
+      "bytes": 31811,
+      "sha256": "ed3536e5f437aeede25b90319db008bf064d1972a460bb9a3e97125230420c5e"
+    },
+    {
+      "path": "lint-report.json",
+      "bytes": 37,
+      "sha256": "e0c2924b0cf38903b5cc04c6b7491eb4acbcdfb846f4563bd1fe20d4953aff75"
+    },
+    {
+      "path": "report.md",
+      "bytes": 8485,
+      "sha256": "9273a7d07efc0e730f745233fde20d6058e365b45a31a94e7129f800e8d85702"
+    }
+  ],
+  "checks": {
+    "expectations": 7,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "The washing machine figure is built in the output folder and lints clean (0 errors, 0 warnings). The browser checks did not run because the headless Chrome and ImageMagick commands needed approval, so the page has not been seen rendered.\n\n**Files produced** (all in `/home/user/Skill-Foundry/runs/figure-craft/e10b2c171cb99378/output`):\n- `front-loader-washing-machine.html`: the page. It has the turnable four-view figure, a theme button, a pause button, and one card per labelled part. No external scripts.\n- `front-loader-washing-machine.svg`: the front view as a standalone file.\n- `build-figure.mjs`: rebuilds the three files from the skill's engine. It finds the engine at the skill folder's `engine/` directory, or at `$FIGURE_CRAFT_ENGINE` if that is set.\n- `lint-report.json`: `{ errors: [], warnings: [] }`.\n- `report.md`: the request, idea sentence, parts and details, motion story, checks, and open items.\n\nThe figure shows the cabinet with the door swung open, the drum with laundry inside, the control console, and the motor. The laundry lifts and falls back on a loop.\n\n**Checks run:**\n- Build with `lintViews`: 0 errors, 0 warnings across the front view and the three turned views.\n- Two consecutive builds gave identical bytes (sha256).\n- No raw colours, no external scripts, the reduced-motion rule is present, four views are present.\n- Labels render at about 12 px on a 390px phone.\n\n**Not run:**\n- Browser checks: light and dark, 390px width, reduced motion, console errors, hover and focus. Chrome was available but the command needed approval.\n- Visual review of the drawing, for the same reason.\n- Second-reader check of the idea sentence.\n\n**Open items:**\n1. Run the browser checks above before release.\n2. The motor is drawn under the drum at the front so it can be seen. Real front loaders usually put it at the back. Moving it there would hide it behind the cabinet wall and fail the visibility rule, so I kept it at the front and noted it as a simplification.\n3. The laundry has no face detail, because details on a moving part don't move with it in the engine.\n4. Engine issue: `renderViews` shows labels for parts that are hidden in a turned view, because those labels have no target and the CSS never hides them. My build script works around it by dropping those labels per view. The skill owner should fix this in the engine.\n5. The drum is a box, not a horizontal cylinder, and the porthole is a rectangle, because the engine has no shape for either.\n6. Water, detergent, heating and drainage are not drawn."
+}
