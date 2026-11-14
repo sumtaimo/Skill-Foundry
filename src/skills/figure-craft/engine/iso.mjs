@@ -4,6 +4,7 @@
  * Node 24 ESM, stdlib only, zero deps.
  * @governed-by PO_ARCHITECT
  */
+import { tokensCssScoped } from './tokens.mjs';
 
 export const C = 0.866;
 export const LABEL_GAP = 13;
@@ -41,14 +42,23 @@ export function labelBox(l) {
   return { minX: x0, maxX: x0 + w, minY: l.ty - fs / 2 - 1, maxY: l.ty + fs / 2 + 1 };
 }
 
+/** What a solid is made of. `glass` is see-through: shapes drawn before it stay visible. */
+export const MATERIALS = ['plain', 'ink', 'steel', 'white', 'dark', 'glass'];
+/** Stroke tones for lines: pipes and flows. */
+export const LINE_TONES = ['copper', 'cold', 'warm'];
+
 /**
- * @param {{at:number[],size:number[],tone?:string,r?:number,anim?:string,move?:number[],delay?:number,rests?:string,id?:string}} o
+ * `material` sets the surface (see MATERIALS); `round: true` draws an upright cylinder (width = depth).
+ * @param {{at:number[],size:number[],material?:string,round?:boolean,tone?:string,r?:number,anim?:string,move?:number[],delay?:number,rests?:string,id?:string}} o
  */
 export function box(o) {
   if (!o || typeof o !== 'object') throw new TypeError('box: options object required');
   const size = vec3(o.size, 'box size');
   if (size.some((n) => n <= 0)) throw new RangeError('box: size must be positive');
-  const s = { kind: 'box', at: vec3(o.at, 'box at'), size, tone: o.tone === 'ink' ? 'ink' : 'plain', r: isNum(o.r) ? o.r : 3 };
+  const material = o.material ?? (o.tone === 'ink' ? 'ink' : 'plain');
+  if (!MATERIALS.includes(material)) throw new TypeError(`box: material must be one of ${MATERIALS.join(', ')}`);
+  const s = { kind: 'box', at: vec3(o.at, 'box at'), size, tone: material === 'ink' || material === 'dark' ? 'ink' : 'plain', material, r: isNum(o.r) ? o.r : 3 };
+  if (o.round === true) { if (size[0] !== size[1]) throw new RangeError('box: a round box needs equal width and depth'); s.round = true; }
   if (o.anim !== undefined) s.anim = String(o.anim);
   if (o.move !== undefined) s.move = vec3(o.move, 'box move');
   if (o.delay !== undefined) { if (!isNum(o.delay)) throw new TypeError('box: delay must be a number'); s.delay = o.delay; }
@@ -59,11 +69,13 @@ export function box(o) {
 
 /**
  * A line. With `on` and `face` it is a face detail of that box (a seam, handle, vent, shelf edge).
- * @param {number[][]} points @param {{bold?:boolean,id?:string,on?:string,face?:'top'|'y'|'x'}} [opts]
+ * `tone` colours a pipe or flow: copper, cold or warm.
+ * @param {number[][]} points @param {{bold?:boolean,id?:string,on?:string,face?:'top'|'y'|'x',tone?:string}} [opts]
  */
 export function line(points, opts = {}) {
   if (!Array.isArray(points) || points.length < 2) throw new TypeError('line: at least two points required');
   const s = { kind: 'line', points: points.map((p) => vec3(p, 'line point')), bold: !!opts.bold };
+  if (opts.tone !== undefined) { if (!LINE_TONES.includes(opts.tone)) throw new TypeError(`line: tone must be one of ${LINE_TONES.join(', ')}`); s.tone = opts.tone; }
   if (opts.on !== undefined) {
     const face = opts.face ?? 'top';
     if (!['top', 'x', 'y'].includes(face)) throw new TypeError('line: face must be top, x or y');
@@ -71,6 +83,31 @@ export function line(points, opts = {}) {
   }
   if (opts.id !== undefined) s.id = String(opts.id);
   return s;
+}
+
+/**
+ * A filled panel on a visible face of a box: a door front, a display, a window, a drawer, a vent plate.
+ * @param {number[][]} corners two opposite corners [x,y,z] lying in the face
+ * @param {{on:string,face:'top'|'y'|'x',material?:string,id?:string}} opts
+ */
+export function panel(corners, opts) {
+  if (!Array.isArray(corners) || corners.length !== 2) throw new TypeError('panel: two opposite corners required');
+  if (!opts || typeof opts.on !== 'string') throw new TypeError('panel: on (box id) required');
+  const face = opts.face ?? 'top';
+  if (!['top', 'x', 'y'].includes(face)) throw new TypeError('panel: face must be top, x or y');
+  const material = opts.material ?? 'plain';
+  if (!MATERIALS.includes(material)) throw new TypeError(`panel: material must be one of ${MATERIALS.join(', ')}`);
+  const s = { kind: 'panel', points: corners.map((p) => vec3(p, 'panel corner')), on: opts.on, face, material };
+  if (opts.id !== undefined) s.id = String(opts.id);
+  return s;
+}
+
+/** The four corners of a panel, in order around the face. */
+export function panelCorners(s) {
+  const [p, q] = s.points;
+  if (s.face === 'top') return [[p[0], p[1], p[2]], [q[0], p[1], p[2]], [q[0], q[1], p[2]], [p[0], q[1], p[2]]];
+  if (s.face === 'x') return [[p[0], p[1], p[2]], [p[0], q[1], p[2]], [p[0], q[1], q[2]], [p[0], p[1], q[2]]];
+  return [[p[0], p[1], p[2]], [q[0], p[1], p[2]], [q[0], p[1], q[2]], [p[0], p[1], q[2]]];
 }
 
 /** @param {number[]} at @param {{r?:number,tone?:'ok'|'ink',face?:'top'|'y'|'x',on?:string,id?:string}} [opts] */
@@ -108,7 +145,12 @@ export function boxCorners(b) {
 
 /** Projected silhouette (convex hexagon) of a box. @returns {number[][]} */
 export function boxOutline(b) {
-  const pts = boxCorners(b).map(project);
+  return hull(boxCorners(b).map(project));
+}
+
+/** Convex hull of 2D points. */
+export function hull(points) {
+  const pts = points.slice();
   pts.sort((a, b2) => a[0] - b2[0] || a[1] - b2[1]);
   const cross = (o, a, c) => (a[0] - o[0]) * (c[1] - o[1]) - (a[1] - o[1]) * (c[0] - o[0]);
   const lower = []; const upper = [];
@@ -122,6 +164,7 @@ export function shapePoints(s) {
   let pts;
   if (s.kind === 'box') pts = boxCorners(s);
   else if (s.kind === 'line') pts = s.points;
+  else if (s.kind === 'panel') pts = panelCorners(s);
   else pts = [s.at];
   const all = pts.map(project);
   if (s.move) for (const p of pts) all.push(project([p[0] + s.move[0], p[1] + s.move[1], p[2] + s.move[2]]));
@@ -153,23 +196,33 @@ export function layoutLabels(labels, bounds, fontSize = FONT_SIZE) {
   return out.map(({ i, ...l }) => l);
 }
 
+/** Token names of each material's three visible faces: top, a (left-facing, lit) and b (right-facing, shaded). */
 const FACE = {
   plain: { top: 'var(--iso-top)', a: 'var(--iso-a)', b: 'var(--iso-b)' },
   ink: { top: 'var(--iso-ink-top)', a: 'var(--iso-ink-a)', b: 'var(--iso-ink-b)' },
+  dark: { top: 'var(--iso-ink-top)', a: 'var(--iso-ink-a)', b: 'var(--iso-ink-b)' },
+  steel: { top: 'var(--mat-steel-top)', a: 'var(--mat-steel-a)', b: 'var(--mat-steel-b)' },
+  white: { top: 'var(--mat-white-top)', a: 'var(--mat-white-a)', b: 'var(--mat-white-b)' },
+  glass: { top: 'var(--mat-glass)', a: 'var(--mat-glass)', b: 'var(--mat-glass)' },
 };
-/** Flat faces using only shared site tokens (safe for preview covers: no gradients). */
-const FLAT = {
-  plain: { top: 'var(--surface)', a: 'var(--surface2)', b: 'var(--line)' },
-  ink: { top: 'var(--line-strong)', a: 'var(--muted)', b: 'var(--fg)' },
-};
+/** Flat faces using only shared site tokens (safe for preview covers: no gradients, no shadows). */
+const FLAT_LIGHT = { top: 'var(--surface)', a: 'var(--surface2)', b: 'var(--line)' };
+const FLAT_DARK = { top: 'var(--line-strong)', a: 'var(--muted)', b: 'var(--fg)' };
+const FLAT = { plain: FLAT_LIGHT, steel: FLAT_LIGHT, white: FLAT_LIGHT, glass: { top: 'var(--line)', a: 'var(--line)', b: 'var(--line)' }, ink: FLAT_DARK, dark: FLAT_DARK };
+const GLASS_OPACITY = 0.32;
+/** Light comes from the upper left: the left-facing face is lit and shadows fall toward +x. */
+const SHADOW = { dx: 0.5, dy: -0.12, max: 34, opacity: 0.2, blur: 1.8 };
+const TONE_STROKE = { copper: 'var(--mat-copper)', cold: 'var(--mat-cold)', warm: 'var(--mat-warm)' };
 const pathOf = (pts) => 'M' + pts.map(([x, y]) => `${r2(x)} ${r2(y)}`).join(' L') + ' Z';
 
 /**
  * Render shapes to SVG in array order.
  * @param {object[]} shapes
- * @param {{labels?:{at:number[],text:string,side:'l'|'r'}[],labelMode?:'hover'|'always',requiredParts?:string[],padding?:number,idPrefix?:string,title?:string,flat?:boolean,fontSize?:number}} [opts]
- * labelMode 'hover' (default): a label and its leader appear, with motion, while its part is hovered, focused or tapped. 'always': every label is drawn.
+ * @param {{labels?:{at:number[],text:string,side?:'l'|'r'}[],labelMode?:'hover'|'always',requiredParts?:string[],padding?:number,idPrefix?:string,title?:string,flat?:boolean,fontSize?:number}} [opts]
+ * labelMode 'hover' (default): a label appears as a chip beside its part, with motion, while the part is hovered, focused or tapped;
+ * no room is reserved for labels, so the object fills the frame. 'always': every label is drawn in a side column.
  * requiredParts: ids of the parts the idea needs; lint L14 checks each is drawn and labelled.
+ * Unless `flat`, the SVG carries its own colour tokens, materials, lighting and soft shadows, so it also works as a standalone file.
  * @returns {{svg:string, model:object}}
  */
 export function renderSvg(shapes, opts = {}) {
@@ -182,14 +235,16 @@ export function renderSvg(shapes, opts = {}) {
   const labelMode = opts.labelMode ?? 'hover';
   if (!['hover', 'always'].includes(labelMode)) throw new TypeError('renderSvg: labelMode must be hover or always');
   if (opts.requiredParts !== undefined && (!Array.isArray(opts.requiredParts) || !opts.requiredParts.every((x) => typeof x === 'string'))) throw new TypeError('renderSvg: requiredParts must be an array of ids');
+  const hover = labelMode === 'hover';
   const fills = new Set(); const strokes = new Set();
   const F = (v) => { fills.add(v); return v; };
   const S = (v) => { strokes.add(v); return v; };
 
   const model = { shapes: shapes.map((s, i) => {
-    if (!s || !['box', 'line', 'dot'].includes(s.kind)) throw new TypeError(`renderSvg: shape ${i} has unknown kind`);
+    if (!s || !['box', 'line', 'dot', 'panel'].includes(s.kind)) throw new TypeError(`renderSvg: shape ${i} has unknown kind`);
     return { ...structuredClone(s), id: s.id ?? `${s.kind}${i}`, drawIndex: i };
   }) };
+  const byId = new Map(model.shapes.map((s) => [s.id, s]));
 
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const s of model.shapes) for (const [x, y] of shapePoints(s)) {
@@ -198,24 +253,53 @@ export function renderSvg(shapes, opts = {}) {
   if (!model.shapes.length) { minX = minY = 0; maxX = maxY = 1; }
   maxY += 4; // ground shadow
   const bounds = { minX, minY, maxX, maxY };
-  model.labels = layoutLabels(opts.labels ?? [], bounds, fontSize);
+  const given = opts.labels ?? [];
+  if (!Array.isArray(given)) throw new TypeError('renderSvg: labels must be an array');
+  if (hover) {
+    // Chips: each label sits just above its anchor, kept inside the drawing, so no side columns are reserved.
+    model.labels = given.map((l, i) => {
+      if (!l || typeof l.text !== 'string') throw new TypeError(`renderSvg: label ${i} needs text`);
+      const at = vec3(l.at, `label ${i} at`);
+      const [x, y] = project(at);
+      const w = textWidth(l.text, fontSize);
+      const lo = minX + 4; const hi = maxX - 4 - w;
+      const tx = hi >= lo ? Math.min(Math.max(x - w / 2, lo), hi) : (minX + maxX - w) / 2;
+      return { text: l.text, side: 'r', at, x, y, tx, ty: y - fontSize * 1.7, chip: true, ...(fontSize !== FONT_SIZE ? { fontSize } : {}) };
+    });
+  } else model.labels = layoutLabels(given, bounds, fontSize);
   let vx0 = minX, vy0 = minY, vx1 = maxX, vy1 = maxY;
   for (const l of model.labels) {
     const b = labelBox(l);
-    vx0 = Math.min(vx0, b.minX, l.x); vx1 = Math.max(vx1, b.maxX, l.x); vy0 = Math.min(vy0, b.minY, l.y); vy1 = Math.max(vy1, b.maxY, l.y);
+    const m = l.chip ? 4 : 0;
+    vx0 = Math.min(vx0, b.minX - m, l.x); vx1 = Math.max(vx1, b.maxX + m, l.x); vy0 = Math.min(vy0, b.minY - m, l.y); vy1 = Math.max(vy1, b.maxY + m, l.y);
   }
   model.labelMode = labelMode;
   if (opts.requiredParts !== undefined) model.requiredParts = [...opts.requiredParts];
-  const hover = labelMode === 'hover';
   const targets = model.labels.map((l) => labelTarget(l, model.shapes)?.id ?? null);
   const nameOf = new Map(targets.map((id, i) => [id, model.labels[i].text]).filter(([id]) => id !== null));
   model.viewBox = [r2(vx0 - padding), r2(vy0 - padding), r2(vx1 - vx0 + 2 * padding), r2(vy1 - vy0 + 2 * padding)];
 
   const defs = []; const body = []; const css = []; model.animations = [];
-  for (const tone of flat ? [] : ['plain', 'ink']) {
-    defs.push(`<linearGradient id="${pre}-${tone}-a" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${FACE[tone].a}"/><stop offset="0.12" stop-color="${FACE[tone].top}" stop-opacity="0.35"/><stop offset="0.3" stop-color="${FACE[tone].a}"/><stop offset="1" stop-color="${FACE[tone].a}"/></linearGradient>`);
-    defs.push(`<linearGradient id="${pre}-${tone}-b" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${FACE[tone].b}"/><stop offset="0.85" stop-color="${FACE[tone].b}"/><stop offset="1" stop-color="${FACE[tone].a}"/></linearGradient>`);
+  const fig = `.${pre}-fig`;
+  if (!flat) {
+    css.push(tokensCssScoped(fig));
+    const used = new Set(model.shapes.filter((s) => s.kind === 'box' || s.kind === 'panel').map((s) => s.material ?? 'plain'));
+    for (const m of [...used].filter((x) => x !== 'glass').sort()) {
+      const f = FACE[m];
+      // Lit left face with a soft specular band; shaded right face that picks up bounce light at its far edge; top fades away from the light.
+      defs.push(`<linearGradient id="${pre}-${m}-a" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${f.a}"/><stop offset="0.12" stop-color="var(--mat-shine)" stop-opacity="0.45"/><stop offset="0.3" stop-color="${f.a}"/><stop offset="1" stop-color="${f.a}"/></linearGradient>`);
+      defs.push(`<linearGradient id="${pre}-${m}-b" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${f.b}"/><stop offset="0.85" stop-color="${f.b}"/><stop offset="1" stop-color="${f.a}"/></linearGradient>`);
+      defs.push(`<linearGradient id="${pre}-${m}-top" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${f.top}"/><stop offset="0.6" stop-color="${f.top}"/><stop offset="1" stop-color="${f.a}"/></linearGradient>`);
+      defs.push(`<linearGradient id="${pre}-${m}-cyl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${f.b}"/><stop offset="0.22" stop-color="${f.a}"/><stop offset="0.36" stop-color="${f.top}"/><stop offset="0.6" stop-color="${f.a}"/><stop offset="1" stop-color="${f.b}"/></linearGradient>`);
+    }
+    if (model.shapes.some((s) => s.kind === 'box')) defs.push(`<filter id="${pre}-soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="${SHADOW.blur}"/></filter>`);
   }
+  const faceFill = (m, face) => {
+    if (flat) return FLAT[m][face];
+    if (m === 'glass') return FACE.glass[face];
+    return `url(#${pre}-${m}-${face})`;
+  };
+  const glassAttr = (m) => (m === 'glass' ? ` fill-opacity="${GLASS_OPACITY}"` : '');
 
   for (const s of model.shapes) {
     // data-part ties a part and its face details together, so hovering either reveals the part's label.
@@ -224,21 +308,53 @@ export function renderSvg(shapes, opts = {}) {
     const attrs = `data-id="${esc(s.id)}"${hover && part !== undefined && nameOf.has(part) ? ` data-part="${esc(part)}"${focus}` : ''}`;
     let inner = '';
     if (s.kind === 'box') {
+      const m = s.material ?? (s.tone === 'ink' ? 'ink' : 'plain');
       const [x, y, z] = s.at; const [w, d, h] = s.size;
       const P = (a, b, c) => project([x + a, y + b, z + c]);
-      const top = [P(0, 0, h), P(w, 0, h), P(w, d, h), P(0, d, h)];
-      const fy = [P(0, d, 0), P(w, d, 0), P(w, d, h), P(0, d, h)];
-      const fx = [P(w, 0, 0), P(w, d, 0), P(w, d, h), P(w, 0, h)];
-      const g = [P(0, 0, 0), P(w, 0, 0), P(w, d, 0), P(0, d, 0)].map(([a, b]) => [a, b + 2]);
-      const rr = Math.max(0, Math.min(s.r, w / 2, d / 2));
-      if (!s.rests && s.at[2] === 0) inner += `<path d="${pathOf(g)}" fill="${F('var(--line)')}" opacity="0.45"/>`;
-      inner += `<path d="${pathOf(fy)}" fill="${F(flat ? FLAT[s.tone].a : `url(#${pre}-${s.tone}-a)`)}" stroke="${S('var(--line-strong)')}" stroke-width="0.6" stroke-linejoin="round"/>`;
-      inner += `<path d="${pathOf(fx)}" fill="${F(flat ? FLAT[s.tone].b : `url(#${pre}-${s.tone}-b)`)}" stroke="${S('var(--line-strong)')}" stroke-width="0.6" stroke-linejoin="round"/>`;
-      inner += `<path d="${pathOf(top)}" fill="${F((flat ? FLAT : FACE)[s.tone].top)}" stroke="${S('var(--line-strong)')}" stroke-width="${r2(0.6 + rr * 0.2)}" stroke-linejoin="round"/>`;
-      const [ex, ey0] = P(w, d, 0); const [, ey1] = P(w, d, h);
-      inner += `<path d="M${r2(ex)} ${r2(ey0)} L${r2(ex)} ${r2(ey1)}" fill="none" stroke="${S((flat ? FLAT : FACE)[s.tone].top)}" stroke-width="${r2(Math.max(0.6, rr * 0.4))}" stroke-linecap="round" opacity="0.5"/>`;
+      const grounded = !s.rests && s.at[2] === 0;
+      const base = s.rests !== undefined ? byId.get(s.rests) : null;
+      if (flat) {
+        const g = [P(0, 0, 0), P(w, 0, 0), P(w, d, 0), P(0, d, 0)].map(([a, b]) => [a, b + 2]);
+        if (grounded) inner += `<path d="${pathOf(g)}" fill="${F('var(--line)')}" opacity="0.45"/>`;
+      } else if (m !== 'glass' && !s.move && (grounded || (base && base.kind === 'box'))) {
+        // Cast shadow: the footprint swept along the light direction, blurred, clipped to the surface it falls on.
+        const k = Math.min(h, SHADOW.max);
+        const foot = [[0, 0], [w, 0], [w, d], [0, d]];
+        const sh = hull(foot.concat(foot.map(([a, b]) => [a + SHADOW.dx * k, b + SHADOW.dy * k])).map(([a, b]) => P(a, b, 0)));
+        let clip = '';
+        if (base) {
+          const [bx, by, bz] = base.at; const [bw, bd, bh] = base.size;
+          const cid = `${pre}-clip-${String(s.id).replace(/[^\w-]/g, '_')}`;
+          defs.push(`<clipPath id="${cid}"><path d="${pathOf([[bx, by], [bx + bw, by], [bx + bw, by + bd], [bx, by + bd]].map(([a, b]) => project([a, b, bz + bh])))}"/></clipPath>`);
+          clip = ` clip-path="url(#${cid})"`;
+        }
+        body.push(`<g class="${pre}-shadow"${clip}><path d="${pathOf(sh)}" fill="${F('var(--mat-shadow)')}" opacity="${SHADOW.opacity}" filter="url(#${pre}-soft)"/></g>`);
+      }
+      if (s.round) {
+        // Upright cylinder: a body shaded around its curve and an elliptical top.
+        const r = w / 2; const rx = r * C * Math.SQRT2; const ry = r * Math.SQRT1_2;
+        const [tx, ty] = P(r, r, h); const [bx, by] = P(r, r, 0);
+        inner += `<path d="M${r2(tx - rx)} ${r2(ty)} L${r2(bx - rx)} ${r2(by)} A${r2(rx)} ${r2(ry)} 0 0 0 ${r2(bx + rx)} ${r2(by)} L${r2(tx + rx)} ${r2(ty)} Z" fill="${F(flat ? FLAT[m].a : m === 'glass' ? FACE.glass.a : `url(#${pre}-${m}-cyl)`)}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="0.6" stroke-linejoin="round"/>`;
+        inner += `<ellipse cx="${r2(tx)}" cy="${r2(ty)}" rx="${r2(rx)}" ry="${r2(ry)}" fill="${F(faceFill(m, 'top'))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="0.8"/>`;
+      } else {
+        const top = [P(0, 0, h), P(w, 0, h), P(w, d, h), P(0, d, h)];
+        const fy = [P(0, d, 0), P(w, d, 0), P(w, d, h), P(0, d, h)];
+        const fx = [P(w, 0, 0), P(w, d, 0), P(w, d, h), P(w, 0, h)];
+        const rr = Math.max(0, Math.min(s.r, w / 2, d / 2));
+        inner += `<path d="${pathOf(fy)}" fill="${F(faceFill(m, 'a'))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="0.6" stroke-linejoin="round"/>`;
+        inner += `<path d="${pathOf(fx)}" fill="${F(faceFill(m, 'b'))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="0.6" stroke-linejoin="round"/>`;
+        inner += `<path d="${pathOf(top)}" fill="${F(faceFill(m, 'top'))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="${r2(0.6 + rr * 0.2)}" stroke-linejoin="round"/>`;
+        const [ex, ey0] = P(w, d, 0); const [, ey1] = P(w, d, h);
+        // Edge highlight where the two side faces meet: the corner catches the light.
+        inner += `<path d="M${r2(ex)} ${r2(ey0)} L${r2(ex)} ${r2(ey1)}" fill="none" stroke="${S(flat ? FLAT[m].top : m === 'glass' ? 'var(--mat-shine)' : 'var(--mat-shine)')}" stroke-width="${r2(Math.max(0.6, rr * 0.4))}" stroke-linecap="round" opacity="0.5"/>`;
+      }
+    } else if (s.kind === 'panel') {
+      const m = s.material ?? 'plain';
+      const face = s.face === 'top' ? 'top' : s.face === 'x' ? 'b' : 'a';
+      inner = `<path d="${pathOf(panelCorners(s).map(project))}" fill="${F(faceFill(m, face))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="0.5" stroke-linejoin="round"/>`;
     } else if (s.kind === 'line') {
-      inner = `<path d="M${s.points.map((p) => project(p).map(r2).join(' ')).join(' L')}" fill="${F('none')}" stroke="${S(s.bold ? 'var(--fg)' : 'var(--line-strong)')}" stroke-width="${s.bold ? 2 : 1}" stroke-linecap="round" stroke-linejoin="round"/>`;
+      const stroke = s.tone && !flat ? TONE_STROKE[s.tone] : s.bold ? 'var(--fg)' : 'var(--line-strong)';
+      inner = `<path d="M${s.points.map((p) => project(p).map(r2).join(' ')).join(' L')}" fill="${F('none')}" stroke="${S(stroke)}" stroke-width="${s.bold ? 2 : s.tone ? 1.4 : 1}" stroke-linecap="round" stroke-linejoin="round"/>`;
     } else {
       const [cx, cy] = project(s.at);
       const fill = F(s.tone === 'ink' ? (flat ? 'var(--fg)' : 'var(--iso-ink)') : 'var(--ok)');
@@ -260,33 +376,35 @@ export function renderSvg(shapes, opts = {}) {
   }
 
   if (hover && model.labels.length) {
-    const fig = `.${pre}-fig`;
     css.push(`${fig} [data-part]{cursor:pointer;outline:none}`);
-    css.push(`${fig} .${pre}-label[data-for]{opacity:0;pointer-events:none;transition:opacity .25s ease}`);
-    css.push(`${fig} .${pre}-label[data-for] .leader{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .35s ease}`);
-    css.push(`${fig} .${pre}-label[data-for] text{transform:translateX(var(--slide));transition:transform .35s ease}`);
-    css.push(`${fig} [data-part] path,${fig} [data-part] circle{transition:stroke .2s ease}`);
+    css.push(`${fig} .${pre}-label[data-for]{opacity:0;pointer-events:none;transform:translateY(5px);transition:opacity .22s ease,transform .3s ease}`);
+    css.push(`${fig} .${pre}-label[data-for] .leader{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .3s ease .08s}`);
+    css.push(`${fig} [data-part] path,${fig} [data-part] ellipse,${fig} [data-part] circle{transition:stroke .2s ease}`);
     for (const id of new Set(targets.filter((t) => t !== null))) {
-      const q = `[data-part="${String(id).replace(/["\\]/g, '\\$&')}"]`;
+      const v = String(id).replace(/["\\]/g, '\\$&');
+      const q = `[data-part="${v}"]`;
       const on = [':hover', ':focus-visible', ':focus'].map((st) => `${fig}:has(${q}${st})`);
-      const lab = `.${pre}-label[data-for="${String(id).replace(/["\\]/g, '\\$&')}"]`;
-      css.push(`${on.map((o) => `${o} ${lab}`).join(',')}{opacity:1}`);
+      const lab = `.${pre}-label[data-for="${v}"]`;
+      css.push(`${on.map((o) => `${o} ${lab}`).join(',')}{opacity:1;transform:none}`);
       css.push(`${on.map((o) => `${o} ${lab} .leader`).join(',')}{stroke-dashoffset:0}`);
-      css.push(`${on.map((o) => `${o} ${lab} text`).join(',')}{transform:none}`);
-      css.push(`${on.map((o) => `${o} ${q} path`).join(',')}{stroke:var(--fg)}`);
+      css.push(`${on.map((o) => `${o} ${q} path,${o} ${q} ellipse`).join(',')}{stroke:var(--fg)}`);
     }
     css.push(`@media (prefers-reduced-motion: reduce){${fig} .${pre}-label[data-for],${fig} .${pre}-label[data-for] *,${fig} [data-part] *{transition:none}}`);
   }
 
   model.labels.forEach((l, li) => {
-    const anchor = l.side === 'l' ? 'end' : 'start';
-    const lx = l.side === 'l' ? l.tx + 3 : l.tx - 3;
-    if (hover && targets[li] !== null) {
-      // Revealed on hover: the leader draws itself (pathLength 1) and the text slides in from the figure side.
-      body.push(`<g class="${pre}-label" data-for="${esc(targets[li])}" style="--slide:${l.side === 'l' ? 6 : -6}px"><line class="leader" pathLength="1" x1="${r2(l.x)}" y1="${r2(l.y)}" x2="${r2(lx)}" y2="${r2(l.ty)}" stroke="${S('var(--muted)')}" stroke-width="0.75"/>` +
-        `<text x="${r2(l.tx)}" y="${r2(l.ty)}" text-anchor="${anchor}" dominant-baseline="middle" font-size="${fontSize}" font-family="system-ui, sans-serif" fill="${F('var(--fg)')}">${esc(l.text)}</text></g>`);
+    if (l.chip) {
+      // A chip above the part: a short leader that draws itself, a plate for legibility over the drawing, and the name.
+      const b = labelBox(l);
+      const cx = Math.min(Math.max(l.x, b.minX + 2), b.maxX - 2);
+      const chip = `<line class="leader" pathLength="1" x1="${r2(l.x)}" y1="${r2(l.y)}" x2="${r2(cx)}" y2="${r2(b.maxY + 2)}" stroke="${S('var(--fg)')}" stroke-width="0.75"/>` +
+        `<rect x="${r2(b.minX - 4)}" y="${r2(b.minY - 2)}" width="${r2(b.maxX - b.minX + 8)}" height="${r2(b.maxY - b.minY + 4)}" rx="3" fill="${F('var(--surface)')}" stroke="${S('var(--line-strong)')}" stroke-width="0.6"/>` +
+        `<text x="${r2(l.tx)}" y="${r2(l.ty)}" text-anchor="start" dominant-baseline="middle" font-size="${fontSize}" font-family="system-ui, sans-serif" fill="${F('var(--fg)')}">${esc(l.text)}</text>`;
+      body.push(targets[li] !== null ? `<g class="${pre}-label" data-for="${esc(targets[li])}">${chip}</g>` : `<g class="${pre}-label">${chip}</g>`);
       return;
     }
+    const anchor = l.side === 'l' ? 'end' : 'start';
+    const lx = l.side === 'l' ? l.tx + 3 : l.tx - 3;
     // Leader is a bare line: no dot or marker at either end. Only author-placed dot() shapes draw round marks.
     body.push(`<g class="${pre}-label"><line class="leader" x1="${r2(l.x)}" y1="${r2(l.y)}" x2="${r2(lx)}" y2="${r2(l.ty)}" stroke="${S('var(--muted)')}" stroke-width="0.75"/>` +
       `<text x="${r2(l.tx)}" y="${r2(l.ty)}" text-anchor="${anchor}" dominant-baseline="middle" font-size="${fontSize}" font-family="system-ui, sans-serif" fill="${F('var(--fg)')}">${esc(l.text)}</text></g>`);
@@ -295,6 +413,7 @@ export function renderSvg(shapes, opts = {}) {
   model.fills = [...fills]; model.strokes = [...strokes];
   const title = typeof opts.title === 'string' ? `<title>${esc(opts.title)}</title>` : '';
   const style = css.length ? `<style>${css.join('')}</style>` : '';
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${model.viewBox.join(' ')}" role="img"${hover ? ` class="${pre}-fig"` : ''}>${title}${defs.length ? `<defs>${defs.join('')}</defs>` : ''}${style}${body.join('')}</svg>`;
+  const cls = hover || !flat ? ` class="${pre}-fig"` : '';
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${model.viewBox.join(' ')}" role="img"${cls}>${title}${defs.length ? `<defs>${defs.join('')}</defs>` : ''}${style}${body.join('')}</svg>`;
   return { svg, model };
 }

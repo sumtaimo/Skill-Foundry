@@ -7,6 +7,8 @@
 - MUST draw the object as full solid volumes (lint `L13-no-solid-body`): boxes whose thinnest side is at least 30% of the longest cover at least 20% of the drawing. Open one side to show the inside; NEVER reduce the object to walls and plates.
 - MUST pass `requiredParts` to `renderSvg` with the id of every part the idea needs (lint `L14-missing-part`); NEVER drop one to pass another check.
 - MUST let every part above the ground rest on or touch another part (lint `L15-floating`).
+- MUST draw the whole object as it stands in real life, outside first: body, door or cover, handle, feet, vents, controls, in their real materials. Then reveal the working parts inside through glass or one open side. NEVER show only the machinery. See [materials](materials.md).
+- MUST keep every labelled part at least 40% visible (lint `L16-hidden-part`).
 - MUST give every labelled part an identifying detail (lint `L11-no-detail`); see [detail](detail.md).
 - MUST put a face detail (`dot` with `on`) in the face plane, inside the face and away from rounded corners (lint `L2-face-detail`).
 - MUST list farther shapes (lower x + y) before nearer ones.

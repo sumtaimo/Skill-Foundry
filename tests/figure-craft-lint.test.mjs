@@ -4,14 +4,14 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { box, dot, line, renderSvg } from '../src/skills/figure-craft/engine/iso.mjs';
+import { box, dot, line, panel, renderSvg } from '../src/skills/figure-craft/engine/iso.mjs';
 import { lint } from '../src/skills/figure-craft/engine/lint.mjs';
 
 function clean() {
   const shapes = [
     box({ at: [0, 0, 0], size: [20, 20, 40], id: 'postA' }),
     box({ at: [60, 0, 0], size: [20, 20, 40], id: 'postB' }),
-    box({ at: [0, 0, 40], size: [80, 20, 10], id: 'beam', rests: 'postA' }),
+    box({ at: [0, 0, 40], size: [80, 20, 10], id: 'beam', rests: 'postA', material: 'steel' }),
     dot([40, 10, 50], { face: 'top', on: 'beam', tone: 'ok' }),
     line([[64, 10, 40], [76, 10, 40]], { on: 'postB', face: 'top', id: 'postB-seam' }),
     line([[80, 4, 10], [80, 16, 10]], { on: 'postB', face: 'x', id: 'postB-band' }),
@@ -23,7 +23,7 @@ function clean() {
     { at: [40, 10, 50], text: 'Beam', side: 'r' },
     { at: [70, 10, 0], text: 'Post B', side: 'r' },
     { at: [5, 45, 5], text: 'Mover', side: 'l' },
-  ], requiredParts: ['beam', 'postB', 'mover'] }).model;
+  ], requiredParts: ['beam', 'postB', 'mover'], labelMode: 'always' }).model;
 }
 const copy = (m) => structuredClone(m);
 const has = (list, id) => list.some((e) => e.rule === id);
@@ -185,18 +185,63 @@ test('L3: label count limit is 5 when always shown and 9 on hover', () => {
   assert.equal(lint(renderSvg([body], { labels }).model).errors.some((e) => /labels \(max/.test(e.message)), false);
 });
 
-test('hover labels: hidden until the part is hovered or focused, with a reduced-motion fallback', () => {
-  const { svg, model } = renderSvg(
-    [box({ at: [0, 0, 0], size: [40, 40, 80], id: 'cab' }), line([[40, 5, 70], [40, 35, 70]], { on: 'cab', face: 'x', id: 'seam' })],
-    { labels: [{ at: [40, 20, 40], text: 'Cabinet', side: 'r' }] });
+test('hover labels: chips hidden until the part is hovered or focused, no side columns, reduced-motion fallback', () => {
+  const shapes = [box({ at: [0, 0, 0], size: [40, 40, 80], id: 'cab' }), line([[40, 5, 70], [40, 35, 70]], { on: 'cab', face: 'x', id: 'seam' })];
+  const labels = [{ at: [40, 20, 40], text: 'Cabinet', side: 'r' }];
+  const { svg, model } = renderSvg(shapes, { labels });
   assert.equal(model.labelMode, 'hover');
   assert.match(svg, /class="fc-fig"/);
   assert.match(svg, /data-id="cab" data-part="cab" tabindex="0" aria-label="Cabinet"/);
   assert.match(svg, /data-id="seam" data-part="cab"/);
-  assert.match(svg, /<g class="fc-label" data-for="cab"/);
+  assert.match(svg, /<g class="fc-label" data-for="cab"><line class="leader"[^>]*\/><rect /);
   assert.match(svg, /\.fc-label\[data-for\]\{opacity:0/);
   assert.match(svg, /:has\(\[data-part="cab"\]:hover\) \.fc-label\[data-for="cab"\]/);
   assert.match(svg, /prefers-reduced-motion: reduce\)\{\.fc-fig \.fc-label/);
-  const always = renderSvg([box({ at: [0, 0, 0], size: [40, 40, 80], id: 'cab' })], { labels: [{ at: [40, 20, 40], text: 'Cabinet', side: 'r' }], labelMode: 'always' }).svg;
-  assert.doesNotMatch(always, /data-for=|fc-fig/);
+  const always = renderSvg(shapes, { labels, labelMode: 'always' });
+  assert.doesNotMatch(always.svg, /data-for=/);
+  assert.ok(model.viewBox[2] < always.model.viewBox[2], 'hover mode reserves no label column, so the object fills more of the frame');
+});
+
+test('materials, light and shadow: tokens inside the svg, gradients per material, soft cast shadow', () => {
+  const { svg, model } = renderSvg([
+    box({ at: [0, 0, 0], size: [80, 80, 4], id: 'ground' }),
+    box({ at: [10, 10, 4], size: [40, 40, 60], material: 'steel', id: 'cab', rests: 'ground' }),
+    panel([[50, 14, 10], [50, 46, 60]], { on: 'cab', face: 'x', material: 'glass', id: 'window' }),
+    box({ at: [56, 56, 4], size: [16, 16, 20], round: true, material: 'dark', id: 'tank', rests: 'ground' }),
+    line([[64, 64, 24], [64, 64, 40]], { tone: 'copper', id: 'pipe' }),
+  ]);
+  assert.match(svg, /\.fc-fig\{[^}]*--mat-steel-top:/, 'standalone svg carries its tokens');
+  assert.match(svg, /id="fc-steel-a"/);
+  assert.match(svg, /id="fc-dark-cyl"/);
+  assert.match(svg, /<g class="fc-shadow" clip-path="url\(#fc-clip-cab\)"><path [^>]*filter="url\(#fc-soft\)"/);
+  assert.match(svg, /<ellipse /, 'round box draws an elliptical top');
+  assert.match(svg, /fill="var\(--mat-glass\)" fill-opacity="0\.32"/);
+  assert.match(svg, /stroke="var\(--mat-copper\)"/);
+  assert.deepEqual(lint(model).errors.filter((e) => e.rule === 'L6-raw-colour'), []);
+  assert.throws(() => box({ at: [0, 0, 0], size: [1, 1, 1], material: 'gold' }), /material/);
+  assert.throws(() => box({ at: [0, 0, 0], size: [2, 1, 1], round: true }), /round/);
+});
+
+test('L16-hidden-part: a labelled part behind a solid is an error, behind glass it is not', () => {
+  const scene = (material) => renderSvg([
+    box({ at: [0, 0, 0], size: [20, 20, 20], id: 'inside' }),
+    dot([10, 10, 20], { on: 'inside' }),
+    box({ at: [-5, 25, 0], size: [60, 6, 60], material, id: 'cover' }),
+    box({ at: [25, -5, 0], size: [6, 30, 60], material, id: 'side' }),
+  ], { labels: [{ at: [10, 10, 10], text: 'Inside' }] }).model;
+  assert.ok(has(lint(scene('steel')).errors, 'L16-hidden-part'));
+  assert.equal(has(lint(scene('glass')).errors, 'L16-hidden-part'), false);
+});
+
+test('L17-one-material: several solids of one material are an error', () => {
+  const mk = (m) => renderSvg([0, 30, 60].map((x, i) => box({ at: [x, 0, 0], size: [20, 20, 20], id: `b${i}`, material: i === 2 ? m : 'plain' }))).model;
+  assert.ok(has(lint(mk('plain')).errors, 'L17-one-material'));
+  assert.equal(has(lint(mk('steel')).errors, 'L17-one-material'), false);
+});
+
+test('L2: a panel must lie in its face', () => {
+  const ok = renderSvg([box({ at: [0, 0, 0], size: [40, 40, 40], id: 'b' }), panel([[40, 5, 5], [40, 35, 35]], { on: 'b', face: 'x' })]).model;
+  assert.equal(has(lint(ok).errors, 'L2-face-detail'), false);
+  const bad = renderSvg([box({ at: [0, 0, 0], size: [40, 40, 40], id: 'b' }), panel([[40, 5, 5], [40, 55, 35]], { on: 'b', face: 'x' })]).model;
+  assert.ok(has(lint(bad).errors, 'L2-face-detail'));
 });

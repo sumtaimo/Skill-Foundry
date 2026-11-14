@@ -16,6 +16,8 @@ Machine-checked by `engine/lint.mjs`:
 11a. R-figure-craft-19: Every labelled part MUST cover at least 3% of the drawing (`L12-part-too-small`).
 11b. R-figure-craft-20: The object MUST be drawn as full solid volumes; thin slabs alone NEVER stand for the object (`L13-no-solid-body`).
 11c. R-figure-craft-21: The parts the idea needs MUST be declared in `requiredParts`, drawn and labelled; a needed part is NEVER dropped to pass another check (`L14-missing-part`).
+11e. R-figure-craft-24: A labelled part MUST stay at least 40% visible; glass or one open side shows the inside (`L16-hidden-part`).
+11f. R-figure-craft-25: Solids MUST have the material of the real thing, at least two in a figure of three or more solids (`L17-one-material`).
 11d. R-figure-craft-22: A part above the ground MUST rest on or touch another part; NEVER float (`L15-floating`).
 
 Checked by the reviewer with the checklist:
@@ -28,3 +30,4 @@ Checked by the reviewer with the checklist:
 17. R-figure-craft-17: Every detail MUST be a real feature of the real part, and the SVG is NEVER edited by hand after the engine rendered it.
 18. R-figure-craft-18: The figure MUST start from the goal the user stated; a missing goal is asked for, NEVER invented.
 19. R-figure-craft-23: Labels and leaders MUST stay hidden until their part is hovered, focused or tapped, then appear with motion; the page MUST name every part in a card so nothing depends on hover.
+20. R-figure-craft-26: The object MUST look like the real thing from outside, in its real materials, with light and shadow from the engine only; NEVER show only the machinery, and NEVER draw a shadow or highlight by hand.

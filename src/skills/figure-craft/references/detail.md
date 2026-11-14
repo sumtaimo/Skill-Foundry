@@ -8,9 +8,11 @@ detail comes from the skill and not from touching up the picture afterwards.
 - MUST make each detail a real feature of the real part: a seam, door edge, handle, hinge line, vent slot, shelf edge, pipe, coil, dial, screen edge, indicator light.
 - MUST attach each detail to its part with `on: '<part id>'` and a visible `face`: `top`, `x` (the right-facing side) or `y` (the left-facing side).
 - MUST keep every point of a detail inside that face (lint `L2-face-detail`).
+- MUST use a `panel` for an area feature (a door front, a display, a window, a drawer front, a vent plate) and a `line` for an edge feature.
+- MUST add the small real features that make the object look real even where no label points: feet, hinges, a kick plate, a control strip, shelf edges, a power cable. These belong to the part they sit on (`on`).
 - MUST use a `dot` only for a point feature that is named in a label or the copy (a light, a sensor, a knob).
 - NEVER add a detail that the real part does not have, and NEVER add lines only to fill space.
-- NEVER draw more than three details on one part; choose the ones that identify it.
+- The lint minimum is one to three details per labelled part; a real appliance or machine usually needs twelve or more details and panels in total to look real.
 
 ## Parts table
 

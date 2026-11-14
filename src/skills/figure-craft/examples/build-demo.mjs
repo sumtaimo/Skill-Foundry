@@ -12,7 +12,7 @@ import { tokensCss } from '../engine/tokens.mjs';
 const TITLE = 'How a CDN edge cache serves a request';
 const FIG_TITLE = 'A request travels from the client to the edge cache, which answers it without asking the origin.';
 /** Label font size in viewBox units, chosen so labels render at 11 CSS px or more on a 390px wide screen. */
-export const DEMO_FONT_SIZE = 16;
+export const DEMO_FONT_SIZE = 12;
 
 /** @param {boolean} animated include the request motion */
 function shapes(animated) {

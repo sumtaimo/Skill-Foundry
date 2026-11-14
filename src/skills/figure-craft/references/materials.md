@@ -1,0 +1,33 @@
+# Materials and light
+
+The engine lights every figure the same way, so any object a user describes comes out in the same
+style: light from the upper left, a lit left-facing side with a soft shine band, a shaded
+right-facing side, a soft shadow on the surface under each solid, and an edge highlight.
+You choose what each solid is made of; the engine does the rest. NEVER draw shadows or highlights yourself.
+
+- MUST give every solid the material of the real thing with `material`:
+
+| Material | Use for |
+|----------|---------|
+| `steel` | appliance bodies and doors, machine housings, metal panels |
+| `white` | enamel, painted or plastic casings, interior liners |
+| `dark` | rubber, black plastic, motors, compressors, screens that are off |
+| `glass` | windows, shelves, covers you must see through; shapes drawn before it stay visible |
+| `plain` | paper, wood, stone, neutral bases and ground plates |
+| `ink` | the one part the story is about, when it needs emphasis |
+
+- MUST use at least two materials in a figure with three or more solids (lint `L17-one-material`).
+- MUST draw round things round: `box({ ..., round: true })` is an upright cylinder (equal width and depth), for tanks, motors, cans, pipes ends, drums.
+- MUST use `panel(corners, { on, face, material })` for a filled area on a face: a door front, a display, a window, a drawer, a vent plate. A panel counts as a face detail.
+- MUST colour pipes and flows with `line(points, { tone })`: `copper` for tubing, `cold` for cold flow, `warm` for heat.
+- MUST show the inside through `glass` or one open side when a part would otherwise be hidden (lint `L16-hidden-part`); a labelled part stays at least 40% visible.
+- NEVER write a colour; materials and tones are tokens, and the SVG carries its own token values so it also works as a standalone file.
+
+Example: a steel cabinet with a glass door, a round dark compressor and a copper pipe.
+
+```js
+box({ at: [10, 10, 4], size: [50, 44, 120], material: 'steel', id: 'cabinet', rests: 'ground' }),
+panel([[60, 14, 30], [60, 50, 120]], { on: 'cabinet', face: 'x', material: 'glass', id: 'door-window' }),
+box({ at: [66, 20, 4], size: [18, 18, 22], round: true, material: 'dark', id: 'compressor', rests: 'ground' }),
+line([[75, 29, 26], [75, 29, 60], [60, 29, 60]], { tone: 'copper', id: 'suction-pipe' }),
+```
