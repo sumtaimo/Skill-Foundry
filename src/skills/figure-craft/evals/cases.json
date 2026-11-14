@@ -1,29 +1,104 @@
 [
   {
-    "id": "cdn-edge-cache-explainer",
-    "prompt": "explain how a CDN edge cache serves a request, interactive",
-    "expect": [
-      { "type": "contains", "value": "renderSvg" },
-      { "type": "contains", "value": "lint" },
-      { "type": "contains", "value": "prefers-reduced-motion" },
-      { "type": "notContains", "value": "<script src=" },
-      { "type": "maxLines", "value": 80 }
-    ]
-  },
-  {
-    "id": "no-raw-colours",
-    "prompt": "Draw a technical illustration of a load balancer in front of three servers.",
-    "expect": [
-      { "type": "contains", "value": "var(--" },
-      { "type": "notContains", "value": "fill=\"#" },
-      { "type": "notContains", "value": "stroke=\"#" }
-    ]
-  },
-  {
     "id": "not-for-charts",
     "prompt": "Make a bar chart of monthly sales.",
     "expect": [
-      { "type": "notContains", "value": "renderSvg" }
+      {
+        "type": "notContains",
+        "value": "renderSvg"
+      }
+    ]
+  },
+  {
+    "id": "refrigerator-cooling",
+    "prompt": "Show my customers how a refrigerator keeps food cold. I want them to see the real fridge in detail, open, with the food and drinks inside.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "var(--"
+      },
+      {
+        "type": "contains",
+        "value": "fc-orbit"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-reduced-motion"
+      },
+      {
+        "type": "notContains",
+        "value": "fill=\"#"
+      },
+      {
+        "type": "notContains",
+        "value": "stroke=\"#"
+      },
+      {
+        "type": "fileExists",
+        "value": "build-figure.mjs"
+      },
+      {
+        "type": "fileExists",
+        "value": "lint-report.json"
+      },
+      {
+        "type": "fileExists",
+        "value": "report.md"
+      }
+    ]
+  },
+  {
+    "id": "kettle-round",
+    "prompt": "Show how an electric kettle boils water. I want to see the real parts of the kettle in detail, open, with the water inside.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "round: true"
+      },
+      {
+        "type": "contains",
+        "value": "mouth: true"
+      },
+      {
+        "type": "contains",
+        "value": "attach"
+      },
+      {
+        "type": "contains",
+        "value": "fc-orbit"
+      },
+      {
+        "type": "contains",
+        "value": "lintStates"
+      },
+      {
+        "type": "contains",
+        "value": "Where it sits"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-reduced-motion"
+      },
+      {
+        "type": "notContains",
+        "value": "fill=\"#"
+      },
+      {
+        "type": "notContains",
+        "value": "stroke=\"#"
+      },
+      {
+        "type": "fileExists",
+        "value": "build-figure.mjs"
+      },
+      {
+        "type": "fileExists",
+        "value": "lint-report.json"
+      },
+      {
+        "type": "fileExists",
+        "value": "report.md"
+      }
     ]
   }
 ]

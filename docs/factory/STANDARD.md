@@ -14,6 +14,7 @@ Every skill lives in `src/skills/<name>/`. `src/skills/_template/` is the starti
 | `CHANGELOG.md` | Version history |
 | `preview.json` | Card metadata for the preview |
 | `preview/cover.svg` | Cover image |
+| `layers/01-intent.md` ... `layers/10-evidence.md` | The ten core layers (section 12) |
 
 Missing files are reported as `chk-required-files`.
 
@@ -31,6 +32,7 @@ version: <semver, e.g. 1.0.0>
 
 - `name` MUST equal the folder name (`chk-name-match`).
 - `name`, `description` and `version` MUST be present; `version` MUST be semver (`chk-frontmatter`).
+- Optional `scope: factory` marks a skill that only runs inside this repository (for example `skill-smith`). Every other skill is portable: other people install it in their own project and start it by stating their goal.
 
 ## 3. Writing a description that triggers correctly
 
@@ -82,12 +84,15 @@ These are the lint problem codes from `src/factory/lint-skills.mjs`:
 | `chk-links` | Relative links in the skill point to existing files |
 | `chk-preview-json` | preview.json has the required fields within limits |
 | `chk-cover-svg` | cover.svg meets the safety and size limits |
+| `chk-layers` | The ten core layer files exist, have numbered steps and are linked from SKILL.md |
+| `chk-portable` | SKILL.md, layers and references name no `src/`, `docs/` or `tests/` repository path (unless `scope: factory`) |
+| `chk-changelog` | Every CHANGELOG heading is `## <semver> - <YYYY-MM-DD>` and the current version has an entry |
 
 Lint output format: `<file>:<line> <code> <message>`. Exit code 0 means no problems.
 
 ## 8. Size and references
 
-SKILL.md MUST be at most 150 lines (`chk-size`). Move background, long tables and edge cases into `references/` and link to them with relative links.
+SKILL.md MUST be at most 150 lines (`chk-size`). SKILL.md is the index of the skill, not the whole book: the step-by-step detail lives in the layer files (section 12), and background, long tables and edge cases live in `references/`. Link to both with relative links.
 
 ## 9. Evals
 
@@ -123,3 +128,41 @@ SKILL.md MUST be at most 150 lines (`chk-size`). Move background, long tables an
 - NEVER contains `<script` or `<foreignObject`.
 - NEVER has `href` or `xlink:href` starting with `http`, `https` or `//`.
 - Every `fill`, `stroke`, `stop-color` and `color` attribute value is `var(--...)`, `currentColor` or `none`.
+
+## 12. Layers (one workflow for every skill)
+
+Every skill follows the same layer template, so an agent learns the structure once. Each layer is a file in `layers/`, written as a detailed chapter: what the agent does at that step, in numbered imperative steps, with the inputs it needs and what it hands to the next layer. The `## Procedure` in SKILL.md lists one step per layer and links to it.
+
+| # | File | The agent answers |
+|---|------|-------------------|
+| 01 | `layers/01-intent.md` | What is asked, for whom, and the one outcome that proves success |
+| 02 | `layers/02-context.md` | What already exists (code, docs, prior output) and must be preserved |
+| 03 | `layers/03-inputs.md` | Which inputs are required, which are optional, and what to do when one is missing |
+| 04 | `layers/04-flow.md` | The ordered work, one action per step |
+| 05 | `layers/05-rules.md` | The MUST / NEVER rules that apply, by id from RULES.json |
+| 06 | `layers/06-states.md` | States, edge cases, errors, empty and loading cases, responsive behaviour |
+| 07 | `layers/07-checks.md` | The checks to run, machine first, then the checklist |
+| 08 | `layers/08-output.md` | The exact files and format produced, and quality bar down to micro detail |
+| 09 | `layers/09-handoff.md` | What the next person or skill receives, and open items |
+| 10 | `layers/10-evidence.md` | The proof recorded: input, output files, check results, assumptions |
+
+- The ten core layers keep these numbers and names in every skill.
+- A skill MAY add layers after 10 (`layers/11-<name>.md`, ...) when it needs more steps; it NEVER removes or renumbers a core layer.
+- Analysis skills (BA, system analysis, QA) write layers as numbered clauses with defined terms, so each clause can be cited.
+- Output skills (UI, figures) state in layer 08 the real files produced; the showcase shows only real recorded output (see `docs/PROJECT.md` section 4).
+- Layer 01 MUST start from the goal the user states and ask when it is missing.
+- Quality and detail MUST come from the skill's own rules, lint and references, NEVER from editing its output by hand.
+- Enforced by `chk-layers` and `chk-portable`. `skill-smith` and `figure-craft` follow this section.
+
+## 13. Live evals (real agent)
+
+Evals that pass only on hand-written answers prove nothing about the skill. Before `ready`:
+
+- Each case in `evals/cases.json` MUST have a recording `evals/live/<case-id>.json` with `prompt`, `agent`, `recordedAt`, `output` and `files`, made by a fresh agent that was given only the skill folder and the case prompt.
+- `node src/factory/live-evals.mjs <name>` MUST print 0 failed. A recording whose prompt differs from the case is stale and fails.
+- Files the agent produced (pages, SVGs) are kept in `evals/live/files/` and UI output is run through `checkPage`.
+- Record new runs with `node src/factory/live-evals.mjs <name> --run` (costs tokens) or by any agent harness that saves the same JSON shape.
+- Live evals run inside this repository, so the agent can read this project's own rules. To see how a skill behaves for someone else, run the portable check: `node src/factory/portable-check.mjs <name> --prompt "<request>"` installs the skill into an empty project outside the repository, has a real agent use it, and reports whether the skill was used, whether this repository's rules leaked into the answer and what was produced. It costs tokens and does not apply to `scope: factory` skills. Add `--record` to save the result as `evals/portable.json`: `tests/factory-portable-gate.test.mjs` then requires a passing, current recording for every `ready` skill that is not `scope: factory`. A recording is stale when the instructions, layers, references, rules or engine of the skill change (the changelog, previews, examples and live recordings do not count). A skill still being fixed may be listed under `portable-pending` in `src/factory/migration.json` until its session records one.
+- Skills working together are checked with recipes (`src/factory/recipes.json`): `node src/factory/recipe-run.mjs <id> --record` installs every skill of the recipe into one empty project and records which skills a real agent used, in order, and its answer. A recording is stale when the prompt or any of its skills changes, and `npm test` requires a passing, current one.
+- A skill that produces files is recorded with `node src/factory/run-skill.mjs <name> --case <id>`: it keeps the files under `runs/<name>/<id>/` and writes the recording with `run` pointing at that folder; `live-evals` scores the reply together with those files.
+- `tests/factory-live-evals.test.mjs` fails for any `ready` skill without passing recordings.

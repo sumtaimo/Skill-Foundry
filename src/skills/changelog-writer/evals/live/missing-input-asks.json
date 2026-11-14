@@ -1,0 +1,8 @@
+{
+  "case": "missing-input-asks",
+  "prompt": "Write a changelog entry.",
+  "agent": "claude",
+  "recordedAt": "2026-11-14",
+  "output": "1. Which skill or project is this entry for? (for example `changelog-writer`)\n2. What is the current version before this change? (say \"we are at X\" if you know it)\n3. What is the release date? (`YYYY-MM-DD`)\n4. What are the merged changes? List each one in your own words.",
+  "files": []
+}

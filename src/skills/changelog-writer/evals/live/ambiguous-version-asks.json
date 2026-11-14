@@ -1,0 +1,8 @@
+{
+  "case": "ambiguous-version-asks",
+  "prompt": "Version 2.3.0 is ready. We added dark mode. Today is 2026-11-14. Write the changelog entry.",
+  "agent": "claude",
+  "recordedAt": "2026-11-14",
+  "output": "Is 2.3.0 the current version (so the entry would be 2.3.0 bumped) or the new version?",
+  "files": []
+}

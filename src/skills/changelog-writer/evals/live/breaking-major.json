@@ -1,0 +1,8 @@
+{
+  "case": "breaking-major",
+  "prompt": "Skill spec-check is at 1.1.0. On 2026-11-20 we renamed the Output section. Write the entry.",
+  "agent": "claude",
+  "recordedAt": "2026-11-14",
+  "output": "```\n## 2.0.0 - 2026-11-20\n\n- Breaking: Rename the Output section.\n```\n\nBump: MAJOR (1.1.0 → 2.0.0). The rename is a breaking change, and the major rule applies above 1.0.0.\n\nMismatches: not checked. spec-check is not in this repository (no `src/skills/spec-check/` folder and no registry entry), so its SKILL.md, CHANGELOG.md and registry entry could not be read. Set each of them to 2.0.0.\n\nQuestions:\n1. Today is 2026-11-14, so 2026-11-20 is a future date. Is 2026-11-20 the release date you want?\n2. Where is spec-check kept? Once I can find it, I can check its CHANGELOG and version.",
+  "files": []
+}

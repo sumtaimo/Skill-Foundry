@@ -1,0 +1,8 @@
+{
+  "case": "new-behaviour-minor",
+  "prompt": "Skill spec-check is at 1.0.0. On 2026-11-14 we added a step and fixed a link. Write the changelog entry.",
+  "agent": "claude",
+  "recordedAt": "2026-11-14",
+  "output": "```\n## 1.1.0 - 2026-11-14\n\n- Add a step.\n- Fix a link.\n```\n\nBump: MINOR (1.0.0 → 1.1.0)\nReason: \"Add a step\" is new behaviour, which sets the bump; \"Fix a link\" is a fix and does not change it.\n\nMismatches: not checked, spec-check not found; set SKILL.md version, CHANGELOG.md and any registry entry to 1.1.0.\n\nQuestions:\n- Which step was added? The entry says only \"Add a step.\"\n- Where is spec-check? There is no `src/skills/spec-check/` folder, and no registry entry in `src/factory/registry.json`.",
+  "files": []
+}

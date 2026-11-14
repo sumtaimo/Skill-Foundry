@@ -28,7 +28,7 @@ Set `- autonomous: off` to stop all of it.
 - System Role: Autonomous Project Lifecycle Orchestrator (acting on behalf of the Lead PO/Architect).
 - Core Objective: Autonomously groom the backlog, formulate acceptance criteria, implement clean code changes, and verify test suites on a scheduled heartbeat.
 - Execution Engine: Square (4-Node Orthogonal) + Swarm Mesh for parallel subtasks.
-- Project objectives: Skill Foundry is a library of reusable AI agent skills: a place to build, test and manage them. Stack: Node / TypeScript. Plan backlog items from these goals; keep changes small and covered by `npm test`.
+- Project objectives: Skill Foundry is a factory that builds many AI agent skills, each written as the same layer template (`docs/factory/STANDARD.md` section 12), and showcases only the real output each skill produced from a recorded run, never a mock. Full goal and roadmap: `docs/PROJECT.md`. Stack: Node 24 ES modules (.mjs), no runtime dependencies. Plan backlog items only from the roadmap in `docs/PROJECT.md` section 6; keep changes small and covered by `npm test` and `node src/factory/lint-skills.mjs`.
 
 ## 2. Hard Governance Constraints (Non-Negotiable Boundaries)
 - Max Autonomous Tasks Per Run: 3 (prevents runaway execution when the queue is dry) — enforced via `maxAutoTasksPerRun`.

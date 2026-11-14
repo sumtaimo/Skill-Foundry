@@ -1,0 +1,186 @@
+[
+  {
+    "id": "new-behaviour-minor",
+    "prompt": "Skill spec-check is at 1.0.0. On 2026-11-14 we added a step and fixed a link. Write the changelog entry.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## 1.1.0 - 2026-11-14"
+      },
+      {
+        "type": "contains",
+        "value": "MINOR"
+      },
+      {
+        "type": "maxLines",
+        "value": 20
+      },
+      {
+        "type": "notContains",
+        "value": "## 1.0.0 - 2026-11-14"
+      }
+    ]
+  },
+  {
+    "id": "breaking-major",
+    "prompt": "Skill spec-check is at 1.1.0. On 2026-11-20 we renamed the Output section. Write the entry.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## 2.0.0 - 2026-11-20"
+      },
+      {
+        "type": "contains",
+        "value": "Breaking:"
+      }
+    ]
+  },
+  {
+    "id": "missing-input-asks",
+    "prompt": "Write a changelog entry.",
+    "expect": [
+      {
+        "type": "notContains",
+        "value": "## 1.0.0"
+      },
+      {
+        "type": "maxLines",
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": "english-request-english-entry",
+    "prompt": "Skill spec-check is at 1.2.0. On 2026-11-14 we added an example for empty input. Write the changelog entry.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## 1.3.0 - 2026-11-14"
+      },
+      {
+        "type": "contains",
+        "value": "- Add"
+      },
+      {
+        "type": "contains",
+        "value": "example"
+      },
+      {
+        "type": "notContains",
+        "value": "ការ"
+      },
+      {
+        "type": "notContains",
+        "value": "បន្ថែម"
+      },
+      {
+        "type": "maxLines",
+        "value": 20
+      }
+    ]
+  },
+  {
+    "id": "no-added-qualifier",
+    "prompt": "Skill spec-check is at 1.2.0. On 2026-11-14 we fixed a link in the references. Write the changelog entry.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## 1.2.1 - 2026-11-14"
+      },
+      {
+        "type": "contains",
+        "value": "- Fix"
+      },
+      {
+        "type": "notContains",
+        "value": "broken"
+      },
+      {
+        "type": "notContains",
+        "value": "Broken"
+      },
+      {
+        "type": "notContains",
+        "value": "dead link"
+      },
+      {
+        "type": "maxLines",
+        "value": 20
+      }
+    ]
+  },
+  {
+    "id": "we-are-at-current-version",
+    "prompt": "We are at version 2.3.0. We added dark mode and fixed a crash on login. Today is 2026-11-14. Write the changelog entry.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## 2.4.0 - 2026-11-14"
+      },
+      {
+        "type": "notContains",
+        "value": "## 2.3.0 - 2026-11-14"
+      },
+      {
+        "type": "notContains",
+        "value": "2.2.0"
+      },
+      {
+        "type": "maxLines",
+        "value": 20
+      }
+    ]
+  },
+  {
+    "id": "ambiguous-version-asks",
+    "prompt": "Version 2.3.0 is ready. We added dark mode. Today is 2026-11-14. Write the changelog entry.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "?"
+      },
+      {
+        "type": "notContains",
+        "value": "## 2.3.0 - 2026-11-14"
+      },
+      {
+        "type": "notContains",
+        "value": "## 2.4.0 - 2026-11-14"
+      },
+      {
+        "type": "notContains",
+        "value": "2.2.0"
+      },
+      {
+        "type": "maxLines",
+        "value": 10
+      }
+    ]
+  },
+  {
+    "id": "zero-major-breaking-minor",
+    "prompt": "Our app is currently 0.9.4. Since then we removed the old export API and added CSV import. Release date 2026-11-15. Please draft the changelog entry.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## 0.10.0 - 2026-11-15"
+      },
+      {
+        "type": "contains",
+        "value": "Breaking:"
+      },
+      {
+        "type": "notContains",
+        "value": "## 1.0.0"
+      },
+      {
+        "type": "notContains",
+        "value": "instead"
+      },
+      {
+        "type": "maxLines",
+        "value": 20
+      }
+    ]
+  }
+]

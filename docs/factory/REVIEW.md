@@ -27,6 +27,7 @@ Copy this list into the review and tick each item. Any unticked item blocks stat
 - [ ] evals/cases.json covers the main path and at least one negative case (`notContains` or `maxLines`)
 - [ ] Each case has a unique id
 - [ ] Evals pass with `runEvals`
+- [ ] Live evals: every case has a real-agent recording in `evals/live/` and `node src/factory/live-evals.mjs <name>` prints 0 failed
 
 ## Preview quality
 - [ ] Tagline is at most 90 characters and states the outcome

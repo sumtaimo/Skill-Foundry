@@ -1,0 +1,1 @@
+Make a skill named test-planner that derives a regression checklist from a change description. Users are QA leads and developers; they ask "what should we retest after this change?" or "give me a regression checklist for this diff"; the output is a numbered Markdown checklist grouped by area; it never invents features that are not in the change description.

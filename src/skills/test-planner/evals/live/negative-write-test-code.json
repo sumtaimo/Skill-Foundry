@@ -1,0 +1,8 @@
+{
+  "case": "negative-write-test-code",
+  "prompt": "Write Jest tests for the promo code validator. The change: promo codes are checked by calling the promotions service.",
+  "agent": "claude",
+  "recordedAt": "2026-11-14",
+  "output": "This skill does not write test code or review code for bugs.\n\n## Regression checklist: promo code check\n\nChange: Promo codes are checked by calling the promotions service.\n\n### promotions service\n1. [ ] Enter a promo code and check the promotions service is called to check it. _promo codes are checked by calling the promotions service_\n\n### Possible impact, not stated\n- Does an order that uses a code show it in order history? The change text does not name it.\n\n### Open questions\n- What is shown when the promotions service cannot be reached? The change text does not say.",
+  "files": []
+}

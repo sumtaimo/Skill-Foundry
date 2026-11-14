@@ -1,0 +1,8 @@
+{
+  "case": "legal-unchanged",
+  "prompt": "tighten this text: By continuing you agree to the Terms of Service.",
+  "agent": "claude",
+  "recordedAt": "2026-11-14",
+  "output": "Rewritten copy:\nBy continuing you agree to the Terms of Service.\n\nWhat changed:\nLegal text is returned unchanged.",
+  "files": []
+}

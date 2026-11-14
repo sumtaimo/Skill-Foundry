@@ -1,5 +1,8 @@
 # AGENTS.md — instructions for any AI working in this folder
 
+> **Project goal first:** read `docs/PROJECT.md` (what Skill Foundry is, the layer standard,
+> the real-output rule, the roadmap). This file covers how the harness runs; that file covers what we build.
+
 This project contains an **Agentic Harness** in `.harness/`. It is a background controller that
 runs AI coding agents (Claude Code, Antigravity, Orca, Gemini, Codex) in a checked loop:
 
@@ -56,6 +59,28 @@ only point here.
   2. **Audit / Investigation Output (`.agent-state/01-audit-and-plan.md`):** Document *Where (`file:line`) -> Current vs. Expected -> Rule & Permissions -> Gap/Root Cause -> System & Beyond-UI Impact -> Smallest Safe Fix Plan -> Validation Checklist*.
   3. **Deterministic Verification:** Never claim `"PASSED"` based on LLM self-assessment—only report `"PASSED"` after the real controller check (`npm test` / linter / typecheck) succeeds and out-of-scope edits are reverted.
   4. **QA & Agent Report Audit (`.agent-state/02-qa-verdict.md`):** Verify `git diff` against acceptance criteria for missing requirements, scope creep, state/reload bugs, and regression risks.
+
+---
+
+## SKILL QUALITY LAW (applies to every AI and every agent in this project)
+
+A skill is accepted only when a **real agent can use it for real work**, not when its files look complete.
+Every agent that creates or changes a skill in `src/skills/` MUST:
+
+1. Follow `src/skills/skill-smith/SKILL.md` and pass every layer in `docs/factory/QUALITY-LAYERS.md`.
+2. Prove it with a **fresh agent** that gets only the skill folder and the case prompt: save each answer to
+   `src/skills/<name>/evals/live/<case-id>.json` and run `node src/factory/live-evals.mjs <name>` until 0 failed.
+3. Re-run routing (`node src/factory/routing-evals.mjs`) after any description change, and add a routing case for every new skill.
+4. Keep UI output from live runs in `evals/live/files/` and check it with `checkPage`.
+5. Fix the skill when a real agent fails; never weaken a case just to pass, and never write a recording by hand.
+6. Never set status `ready` in `src/factory/registry.json` until `npm test` passes (it fails on missing or stale recordings).
+7. Report honestly which results came from a real agent and which from hand-written examples.
+8. **One skill per session.** Change at most one skill (`src/skills/<name>/` and `docs/skills/<name>/`) in a session. Site and factory work is not a skill.
+9. **Respect other agents.** Never edit a skill listed in `src/factory/locks.json`; write suggestions to `docs/factory/notes/` instead. Only its owner unlocks it (`SKILL_OWNER=<name>`).
+10. Run `npm run guard` before every commit. If it prints `WARNING skill-guard`, stop, do not commit, and tell the user.
+11a. **Portable check before `ready`.** A skill that is not `scope: factory` also needs a recording from `node src/factory/portable-check.mjs <name> --prompt "<request>" --record`: a real agent uses the skill in an empty project outside this repository. `npm test` fails when it is missing, failing, or stale because the skill changed. Read the recorded answer yourself, not only the flags.
+12. **Ship skills the same way to every project.** Users add and update skills with `npx github:sumtaimo/Skill-Foundry add <skill> | add --role <ROLE> | check | update` (`src/factory/foundry.mjs`). Keep `roles` in `src/factory/registry.json` correct for every ready skill: the CLI uses them to give a skill to the matching agent roles in a project's agentic harness (`.harness/skills/`). Never break `add`, `check` or `update` for projects that already installed a skill; `tests/factory-foundry-cli.test.mjs` must pass. Pushing to `master` publishes the site on GitHub Pages (`.github/workflows/pages.yml`).
+11. **Never leave work half done.** Finish every task you start, including each gap and open item your own report would list, before you report. An item that stays open must have a real blocker, named with what you need. Work that belongs to another skill goes to a named session (one skill per session), never to a vague "later". A report that lists an open item you could have done yourself is not finished.
 
 ---
 

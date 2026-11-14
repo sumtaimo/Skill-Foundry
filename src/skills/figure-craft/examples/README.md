@@ -1,16 +1,22 @@
 # Examples
 
-## Example: a CDN edge cache explainer
+## The reference figure: a refrigerator
 
-Prompt: "explain how a CDN edge cache serves a request, interactive"
+Prompt: "Show my customers how a refrigerator keeps food cold. I want them to see the real fridge in detail, open, with the food and drinks inside."
 
-Result: [demo.html](demo.html), one self-contained page.
+Result: [demo.html](demo.html), one self-contained page, built by [build-demo.mjs](build-demo.mjs).
 
-- Size: Figure. Idea: the edge cache answers a request without asking the origin when it holds a copy.
-- Object: a ground plate with a client, an edge cache (ink tone) and an origin.
-- Parts: `Client`, `Request`, `Edge cache`, `Origin (skipped)`; the green dot on the edge cache top is the cache hit, named in the caption.
-- Motion story: the request box slides along x from the client to the edge cache; it stops under reduced motion.
-- Lint: 0 errors, 0 warnings.
-- Page: light by default, theme button names the theme it switches to (`Dark theme` / `Light theme`, `aria-pressed` true when dark, including dark from `prefers-color-scheme`), choice remembered in `localStorage` inside try/catch, pause button, no external scripts, fits 390px with labels at 11 CSS px or more.
-- Leaders are plain lines with no anchor dots; the only round mark is the cache-hit `dot()`.
-- Regenerate: `node src/skills/figure-craft/examples/build-demo.mjs` writes `demo.html`, `../preview/example.html` and `../preview/cover.svg` from the engine; `buildDemo()` returns the same strings and the committed files must match it byte for byte.
+This is the detail level every figure aims for, whatever the object is.
+
+- Idea: a refrigerator keeps food cold by moving heat from inside the cabinet to the coil on its back.
+- The whole object, outside first: steel cabinet and freezer, kick plate with vents, feet, hinge cover, rating plate with screws.
+- A cutaway (`open: 'xy'`) shows the inside where it really is: three glass shelves, a crisper drawer, a cold-air vent with its dial, a lamp glow, the evaporator in the freezer.
+- Filled as it is used: milk, juice, bottles, jars, eggs, cheese, yogurt, vegetables, an ice tray, frozen food; bottles in the door bins.
+- Two states: doors open and doors closed (`when`), switched with one button.
+- Orbit: four views. From the back the reader sees the condenser rack with its copper tube and, in the machine bay inside the base (`open: ['-x', '-y']`), the compressor, the drain pan, the pipes and the power cable.
+- Labels are hidden at rest and appear as a chip when a part is hovered, focused or tapped; cards under the figure name every part.
+- Motion story: the cold-air block falls from the vent past the shelves; it stops under reduced motion.
+- About 150 elements in the front view and 95 face details (the floor the lint asks of every figure). `lintStates` reports 0 errors and 0 warnings; the cards name each part, what it does, where it sits and the source of that fact.
+- Regenerate: `node examples/build-demo.mjs` (from the skill folder) writes `demo.html`, `../preview/example.html` and `../preview/cover.svg`; the committed files must match it byte for byte.
+
+Read `build-demo.mjs` before building your own figure: it shows how the layers of a real object are stacked, from the feet up, and how `slots`, `screws` and `repeat` add the small features.
