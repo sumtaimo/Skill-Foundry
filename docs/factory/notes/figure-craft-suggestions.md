@@ -28,3 +28,7 @@ What the picture showed (read by eye, not only by lint):
 4. **No screenshot.** A headless browser call was blocked by a permission prompt; the agent said so honestly and relied on lint. Possible fix: layer 07 already says "if no browser is available, say so"; add that this is the normal case for a user without browser permission.
 
 Re-run with `node src/factory/portable-check.mjs figure-craft --prompt "<request>"`.
+
+## Status (2026-11-14, figure-craft owner session)
+
+All findings above are applied in the skill: the report names the engine functions (layer 08); page-only checklist items are marked; output goes to the current working folder with its path named (SKILL.md step 0, layers 03 and 08; the last portable run wrote there); the browser check is optional and reported honestly (layer 07); round bodies open as round cutaways with lids that lift (`open`, `mouth`, `lid`); outside parts use `attach`/`handle`/`spout` and lint L20.
