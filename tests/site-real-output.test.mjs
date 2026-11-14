@@ -67,7 +67,7 @@ test('a skill without real output gets a visibly labelled concept cover', async 
   const reg = join(fake, 'registry.json');
   writeFileSync(reg, JSON.stringify([{ name: 'copy-tight', version: '0.2.0', status: 'ready' }]));
   const live = join(fake, 'skills', 'copy-tight', 'evals', 'live');
-  for (const f of ['button-name-kept', 'error-message', 'legal-unchanged', 'already-tight', 'length-limit-not-met', 'mixed-legal', 'placeholders-kept']) writeFileSync(join(live, `${f}.json`), '{"prompt":"x","output":""}');
+  for (const f of ['button-name-kept', 'error-message', 'legal-unchanged', 'already-tight', 'length-limit-not-met', 'mixed-legal', 'placeholders-kept', 'error-no-new-step']) writeFileSync(join(live, `${f}.json`), '{"prompt":"x","output":""}');
   const [s] = loadSkills(ROOT, { registryPath: reg, skillsRoot: join(fake, 'skills'), runsRoot: join(fake, 'runs') });
   assert.equal(s.coverKind, 'concept');
   const { renderCard } = await import('../src/site/lib/render.mjs');

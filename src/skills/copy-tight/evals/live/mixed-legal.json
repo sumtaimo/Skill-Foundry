@@ -3,6 +3,6 @@
   "prompt": "shorten this copy: Please click here in order to save all of your changes. By saving you agree to the Privacy Policy.",
   "agent": "claude",
   "recordedAt": "2026-11-14",
-  "output": "Rewritten copy:\nSave all changes.\nBy saving you agree to the Privacy Policy.\n\nWhat changed:\n- Cut filler\n- Active verb first\n- Legal text is returned unchanged.",
+  "output": "Rewritten copy:\nSave all your changes.\nBy saving you agree to the Privacy Policy.\n\nWhat changed:\n- cut filler\n- Legal text is returned unchanged.",
   "files": []
 }
