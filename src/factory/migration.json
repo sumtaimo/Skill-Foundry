@@ -6,8 +6,7 @@
   },
   "portable-pending": {
     "skills": [
-      "changelog-writer",
-      "figure-craft"
+      "changelog-writer"
     ],
     "reason": "changelog-writer is being fixed in its own session after the empty-project check found a wrong heading for 'We are at version X'. That session records the portable check when the fix passes and removes it from this list.",
     "since": "2026-11-14"
