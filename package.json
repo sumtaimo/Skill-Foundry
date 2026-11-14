@@ -1,6 +1,6 @@
 {
   "name": "skill-foundry",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "license": "MIT",
   "type": "module",
@@ -18,5 +18,16 @@
   },
   "bin": {
     "skill-foundry": "src/factory/foundry.mjs"
-  }
+  },
+  "files": [
+    "src/factory/foundry.mjs",
+    "src/factory/registry.json",
+    "src/skills/",
+    "!src/skills/_template/",
+    "!src/skills/skill-smith/",
+    "!src/skills/*/evals/live/",
+    "!src/skills/*/evals/portable.json",
+    "CHANGELOG.md",
+    "README.md"
+  ]
 }

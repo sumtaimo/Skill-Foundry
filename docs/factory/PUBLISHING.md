@@ -58,6 +58,20 @@ site at https://sumtaimo.github.io/Skill-Foundry/. Check the workflow run succee
 Never break `add`, `check`, `update` or `--rules` for projects that already installed a skill
 (`tests/factory-foundry-cli.test.mjs`).
 
+## Versions (slow on purpose)
+
+- Each skill has its own version (frontmatter, CHANGELOG, registry). It stays where it is until TAIMO calls it final (L4).
+- Skill Foundry itself has one version in `package.json` and the root `CHANGELOG.md` (now 0.1.0). Bump it only with
+  TAIMO's approval: PATCH for fixes, MINOR for new commands or skills. Record smaller changes under the current version.
+- After a release merge, tag it: `git tag v<version>` on the merge commit.
+
+## What users receive
+
+`package.json` `files` decides what `npx` downloads: `foundry.mjs`, the registry and the skills that work outside this
+repository. Not shipped: `skill-smith` and `_template` (lab only), eval recordings, `runs/`, `docs/`, `tests/`,
+`.harness/`, `.claude/`. A new skill that is only for this lab gets `scope: factory` and a `!src/skills/<name>/` line.
+Checked by `tests/factory-package.test.mjs`.
+
 ## Downloads (zip)
 
 The site also offers each skill as a zip with a SHA-256 in `checksums.json` (`node src/factory/pack.mjs --all`).
