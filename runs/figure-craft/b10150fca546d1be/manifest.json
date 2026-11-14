@@ -1,0 +1,80 @@
+{
+  "skill": "figure-craft",
+  "version": "1.0.0",
+  "caseId": "refrigerator-cooling",
+  "inputSha256": "949bb654617ca9e77be32133cfbe5164c24f30d462868cfd556165919c599661",
+  "skillSha256": "d15a2365feafc90e7e9f669ccc60555ee65b81701d21aed04d734de892912ae1",
+  "key": "b10150fca546d1be90152b6d8217b2ffe4bbf3558eac8ddd8ab917c4a31a2d94",
+  "startedAt": "2026-11-14T06:26:44.420Z",
+  "finishedAt": "2026-11-14T06:29:01.747Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.26640046,
+  "usage": {
+    "input_tokens": 42,
+    "cache_creation_input_tokens": 119671,
+    "cache_read_input_tokens": 2226608,
+    "output_tokens": 32541,
+    "output_tokens_details": {
+      "thinking_tokens": 10769
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 119671,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 902,
+        "cache_read_input_tokens": 148706,
+        "cache_creation_input_tokens": 1221,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 1221
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [
+    {
+      "path": "build-figure.mjs",
+      "bytes": 21084,
+      "sha256": "9730b709005a16375ac0be7cc899f618f8daf510c66ac8a0c0e9777afc85497b"
+    },
+    {
+      "path": "lint-report.json",
+      "bytes": 37,
+      "sha256": "e0c2924b0cf38903b5cc04c6b7491eb4acbcdfb846f4563bd1fe20d4953aff75"
+    },
+    {
+      "path": "refrigerator.html",
+      "bytes": 632131,
+      "sha256": "22716322c7327a156ccb9b0c27523f8e90562369713accb888fd2aa5e80b19b3"
+    },
+    {
+      "path": "refrigerator.svg",
+      "bytes": 123449,
+      "sha256": "4433bc46ff5ca4f8eff4f599d2dc4fae2f11aa43f10cebce6924404b5a38a2aa"
+    },
+    {
+      "path": "report.md",
+      "bytes": 7230,
+      "sha256": "1a795d76f56abb80be1baf31c74b7d3c07a989d3340b5de59d53082a31d3dd50"
+    }
+  ],
+  "checks": {
+    "expectations": 8,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "The figure is built and lints clean, but it is not release-ready: the browser checks and the second-reader check have not been run.\n\n**Files** (all in `/home/user/Skill-Foundry/runs/figure-craft/b10150fca546d1be/output`):\n- `refrigerator.html`: the page, with an open/closed refrigerator you can turn and hover, nine part cards, a theme button and a pause-motion button. No external scripts.\n- `refrigerator.svg`: the front view with doors open.\n- `build-figure.mjs`: rebuilds the three generated files from the engine and runs lint.\n- `lint-report.json`: errors and warnings.\n- `report.md`: idea sentence, parts table, motion story, checks, open items.\n\n**Checks run**\n- Lint over both states and all eight views: 0 errors, 0 warnings.\n- Two consecutive builds produced identical bytes.\n- No external scripts, no raw colours in the SVG, and the page has a viewport meta.\n- Label text works out to about 12 CSS px at 390px wide. That is a calculation from the geometry, not a measurement.\n- Checklist: answered yes, no or not applicable from the build and the code. Several answers rest on lint or the engine's code rather than on viewing the page.\n\n**Not run**\n- Browser checks: no Chromium was on PATH, and the Python Playwright check needed an approval I didn't request. Light and dark, 390px, reduced motion, console and hover/tap behaviour are all unverified.\n- Second reader: nobody has yet stated the idea back from the figure.\n\n**Open items**\n- The skill's rules say the figure is not released until the browser checks and the second-reader check are done.\n- No specific fridge model was supplied. The proportions and contents are assumptions, and the compressor is drawn larger than to scale. If customers should see a particular model, send its dimensions or photos.\n- The scene geometry follows the skill's reference figure (`examples/build-demo.mjs`), since the subject is the same. The labels, cards, copy, page and build script are my own.\n- `build-figure.mjs` imports the engine from the skill folder by relative path, so it breaks if the output folder moves.\n- The engine header says Node 24; I ran it on Node v22.23.4 without errors.\n- Nothing is committed."
+}
