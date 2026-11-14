@@ -1,0 +1,8 @@
+{
+  "case": "zero-major-breaking-minor",
+  "prompt": "Our app is currently 0.9.4. Since then we removed the old export API and added CSV import. Release date 2026-11-15. Please draft the changelog entry.",
+  "agent": "claude",
+  "recordedAt": "2026-11-14",
+  "output": "```markdown\n## 0.10.0 - 2026-11-15\n\n- Breaking: Remove the old export API.\n- Add CSV import.\n```\n\nBump: MINOR (0.9.4 → 0.10.0). Removing the export API is a breaking change, but below 1.0.0 it bumps MINOR, not MAJOR. CSV import is new behaviour, which is also MINOR.\n\nMismatches: not checked. Your app's version file and CHANGELOG.md were not named or found, so set the app's version file, its CHANGELOG.md and any registry or manifest entry to 0.10.0.\n\nQuestions:\n1. Is 2026-11-15 the release date? It is later than today (2026-11-14), so I used it as given.\n2. Which app CHANGELOG.md should this go into? Paste the entry at the top, above the newest entry.",
+  "files": []
+}

@@ -3,6 +3,6 @@
   "prompt": "Write a changelog entry.",
   "agent": "claude",
   "recordedAt": "2026-11-14",
-  "output": "I need four things before I can write the entry:\n\n1. **Skill or project name:** which `CHANGELOG.md` this is for (for example, `changelog-writer`).\n2. **Current version:** the version before this change. Tell me \"we are at X\" for the current version, or \"bump to X\" for the new one.\n3. **Date:** the release date as `YYYY-MM-DD`.\n4. **List of changes:** each merged change in your own words, with the type if you know it (breaking, new behaviour, or fix).",
+  "output": "1. Which skill or project is this entry for? (for example `changelog-writer`)\n2. What is the current version before this change? (say \"we are at X\" if you know it)\n3. What is the release date? (`YYYY-MM-DD`)\n4. What are the merged changes? List each one in your own words.",
   "files": []
 }

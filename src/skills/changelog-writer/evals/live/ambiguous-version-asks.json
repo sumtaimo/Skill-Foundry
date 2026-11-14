@@ -3,6 +3,6 @@
   "prompt": "Version 2.3.0 is ready. We added dark mode. Today is 2026-11-14. Write the changelog entry.",
   "agent": "claude",
   "recordedAt": "2026-11-14",
-  "output": "Before I write the entry, I need one answer. \"Version 2.3.0 is ready\" can mean two things, and the entry is different for each:\n\n1. Is 2.3.0 the current version? If so, the entry is 2.3.0 bumped for dark mode.\n2. Or is 2.3.0 the new version you want? If so, I check it against the bump rule.",
+  "output": "Is 2.3.0 the current version (so the entry would be 2.3.0 bumped) or the new version?",
   "files": []
 }
