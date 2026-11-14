@@ -7,7 +7,7 @@
 import { renderSvg } from './iso.mjs';
 
 /** One quarter turn: the world +y side comes to face the reader's right, the world -x side their left. */
-const TURN_FACE = { y: 'x', '-x': 'y', x: '-y', '-y': '-x', top: 'top' };
+const TURN_FACE = { y: 'x', '-x': 'y', x: '-y', '-y': '-x', top: 'top', wrap: 'wrap' };
 const turnPoint = ([x, y, z]) => [y, -x, z];
 
 function turnFace(face, k) {
@@ -65,7 +65,7 @@ export function turnShapes(shapes, k) {
     const t = { ...s };
     if (s.face !== undefined && s.on !== undefined) {
       const f = turnFace(s.face, k);
-      if (!['x', 'y', 'top'].includes(f)) continue; // this side now faces away
+      if (!['x', 'y', 'top', 'wrap'].includes(f)) continue; // this side now faces away (a wrap detail is cut to the near half when drawn)
       t.face = f;
     }
     if (s.kind === 'dot' || s.kind === 'disc' || s.kind === 'glow') t.at = turnPointK(s.at, k);
@@ -89,6 +89,16 @@ export function sortShapes(shapes) {
   const before = (a, b) => {
     if (b.inside === a.id) return true;
     if (a.inside === b.id) return false;
+    // A part fixed to the outside of a body (handle, spout) is drawn after the body when it is on the reader's side of it, before it when behind it.
+    const side = (p, q) => (p.at[0] + p.size[0] / 2 + p.at[1] + p.size[1] / 2) - (q.at[0] + q.size[0] / 2 + q.at[1] + q.size[1] / 2);
+    if (a.attach === b.id) return side(a, b) < -1;
+    if (b.attach === a.id) return side(b, a) >= -1;
+    // Contents are seen through their container's opening, so against anything outside it they sort as the container does.
+    if (a.inside !== b.inside) {
+      const outer = (p) => (p.inside !== undefined ? boxes.find((x) => x.id === p.inside) ?? p : p);
+      const ra = outer(a); const rb = outer(b);
+      if ((ra !== a || rb !== b) && ra !== rb) return before(ra, rb);
+    }
     const votes = [0, 1, 2].map((k) => (max(a, k) <= b.at[k] + e ? 1 : max(b, k) <= a.at[k] + e ? -1 : 0));
     const yes = votes.filter((v) => v === 1).length; const no = votes.filter((v) => v === -1).length;
     if (yes && !no) return true;
@@ -189,8 +199,13 @@ export function orbitHtml(views, opts = {}) {
     `r.querySelector('[data-orbit="-1"]').addEventListener('click',function(){turn(-1);});r.querySelector('[data-orbit="1"]').addEventListener('click',function(){turn(1);});` +
     `if(t)t.addEventListener('click',function(){st=(st+1)%names.length;show();});` +
     `r.addEventListener('keydown',function(e){if(e.key==='ArrowLeft'){turn(-1);e.preventDefault();}if(e.key==='ArrowRight'){turn(1);e.preventDefault();}});` +
-    `var x0=null;r.addEventListener('pointerdown',function(e){if(e.target.closest('button'))return;x0=e.clientX;r.classList.add('fc-drag');});` +
-    `window.addEventListener('pointerup',function(e){if(x0===null)return;var d=e.clientX-x0;x0=null;r.classList.remove('fc-drag');if(Math.abs(d)>40)turn(d<0?1:-1);});show();})();`;
+    // Dragging scrubs between two true views: the next view fades in over the current one as the pointer moves, and lets go to snap to it.
+    `var x0=null,nb=null;function cur(){for(var i=0;i<v.length;i++)if(!v[i].hidden&&!v[i].style.position)return v[i];return null;}` +
+    `function clear(){if(nb){nb.hidden=true;nb.removeAttribute('style');nb=null;}var c=cur();if(c)c.style.opacity='';}` +
+    `function find(k){for(var i=0;i<v.length;i++)if(v[i].getAttribute('data-state')===names[st]&&+v[i].getAttribute('data-view')===k)return v[i];return null;}` +
+    `r.addEventListener('pointerdown',function(e){if(e.target.closest('button'))return;x0=e.clientX;r.classList.add('fc-drag');});` +
+    `window.addEventListener('pointermove',function(e){if(x0===null)return;var dx=e.clientX-x0;if(Math.abs(dx)<6)return;var p=Math.min(1,Math.abs(dx)/Math.max(120,r.clientWidth*0.5));var el=find(((n+(dx<0?1:-1))%4+4)%4),c=cur();if(!el||!c)return;if(el!==nb){clear();nb=el;nb.hidden=false;nb.style.cssText='position:absolute;left:0;right:0;top:0;pointer-events:none;animation:none';c=cur();}nb.style.opacity=String(p);if(c)c.style.opacity=String(1-p*0.7);});` +
+    `window.addEventListener('pointerup',function(e){if(x0===null)return;var d=e.clientX-x0;x0=null;r.classList.remove('fc-drag');clear();if(Math.abs(d)>40)turn(d<0?1:-1);});show();})();`;
   return `<div class="fc-orbit" id="${id}" role="group" aria-label="${label}: turn to see each side"><style>${css}</style>${frames}` +
     `<div class="fc-orbit-bar"><button type="button" data-orbit="-1" aria-label="Turn left">&#8592; Turn</button><span data-orbit-state aria-live="polite">View 1 of 4</span><button type="button" data-orbit="1" aria-label="Turn right">Turn &#8594;</button>${stateBtn}</div>` +
     `<script>${js}</script></div>`;

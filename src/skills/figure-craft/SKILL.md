@@ -15,11 +15,13 @@ needs is in this folder, so it works in any project.
 ## When to use
 
 - Use when someone asks for an explanatory diagram, a technical illustration, a "how it works" figure or an interactive explainer.
-- Use when an existing figure must be redrawn so it passes lint L1-L19.
+- Use when an existing figure must be redrawn so it passes lint L1-L20.
 - Do not use for data charts (bars, lines, pies), photos, logos, UI mockups or purely decorative art.
 - Do not use when the idea cannot be stated in one sentence; split it first.
 
 ## Procedure
+
+0. Where the files go: the figure, its page and its build script are the DELIVERABLE the user asked for, not temporary files. Write them in the current working folder (the folder you were started in), even when the runtime suggests a scratch or temporary folder for scratch work, and name the full path of each file in the answer.
 
 Follow the layers in order. Each layer file is the detailed chapter for that step.
 
@@ -40,18 +42,19 @@ Each rule is in `RULES.json`; L-rules are enforced by `engine/lint.mjs`. The ful
 
 - Detail comes from the skill: every labelled part MUST carry a face detail that identifies it (`L11-no-detail`). NEVER hand-edit the SVG after the engine rendered it.
 - Parts MUST be large enough to read (`L12-part-too-small`), joined or spread with a gap (`L10-crowded`), and the moving part MUST be labelled (`L9-moving-unlabelled`).
-- Bigger parts MUST carry more details, up to three (`L11-no-detail`), so the figure is full.
+- Bigger parts MUST carry more details, up to three (`L11-no-detail`), and the whole figure MUST be full: 40 face details, four per labelled part, 120 elements, no copies (`L19-sparse`).
 - The object MUST be full solid volumes (`L13-no-solid-body`) with every part the idea needs (`L14-missing-part`) and nothing floating (`L15-floating`).
 - Solids MUST have real materials (`L17-one-material`) and labelled parts MUST stay visible (`L16-hidden-part`); light and shadow come from the engine only.
 - Inside parts and contents are drawn inside an opened body (`L18-outside-container`); the reader can turn the object to see every side; the figure carries micro detail (`L19-sparse`).
+- A round object is drawn round and opened as a round cutaway (`open` on a round box, `mouth: true`, a lid that lifts); handles, spouts and hinges are fixed to the outside (`L20-attach-outside`); the cards under the figure say where each part sits and where that fact comes from (`R31-card-location`).
 - Labels stay hidden and appear as a chip, with motion, when a part is hovered, focused or tapped; cards under the figure name every part.
 - Every fill and stroke MUST be a token (`L6-raw-colour`).
 
 ## Checks
 
-- `lint(model)` returns no errors; every warning is fixed, or justified in the report.
+- `lintStates(states)` returns no errors and `lintCards(cards, labels)` returns none; every warning is fixed, or justified in the report.
 - Every item in [references/checklist.md](references/checklist.md) is answered yes or no; any no blocks release.
-- The page is opened in a browser when one is available: light, dark, 390px wide, reduced motion, console clean.
+- The page is opened in a browser when one is allowed (optional): light, dark, 390px wide, reduced motion, console clean. Without that permission the report says so; it never claims the browser check passed.
 
 ## Review
 
@@ -59,8 +62,8 @@ Use [references/checklist.md](references/checklist.md). A second reader states t
 
 ## Output
 
-- One self-contained HTML page and one SVG with the figure, tokens inlined, no external scripts.
+- One self-contained HTML page and one SVG with the figure, tokens inlined, no external scripts, written to the current working folder with the full path named in the answer.
 - The build script that produced them from the engine, so the figure can be regenerated.
-- The lint result (errors and warnings) and a short report: idea sentence, parts and their details, motion story, open items.
+- The lint result (errors and warnings) and a short report: idea sentence, parts with their details and where each sits, the engine functions used, motion story, open items.
 
 See [references](references/README.md) and [examples](examples/README.md). The reference figure in `examples/build-demo.mjs` shows the detail level to reach.

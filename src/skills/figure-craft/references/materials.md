@@ -20,7 +20,7 @@ You choose what each solid is made of; the engine does the rest. NEVER draw shad
 
 - MUST use at least two materials in a figure with three or more solids (lint `L17-one-material`).
 - MUST draw round things round: `box({ ..., round: true })` is an upright cylinder (equal width and depth); `round: 'x'` or `'y'` is one lying along that axis, for drums, rollers, motors, bottles on their side.
-- Top edges carry a thin highlight just inside the rim, drawn by the engine, so a solid reads as softly rounded over.
+- Top edges are rounded over by the engine: a lit ring just inside the rim and a lit strip down the sides under it. `edge` sets how much (default follows the size of the part; `edge: 0` for a sharp edge such as a cut plate). Glass has none. NEVER fake it with extra shapes.
 - Upright edges are rounded by the engine (`r`, default 1.5; `r: 0` for a sharp edge such as a sheet of glass or a cut plate). NEVER fake a rounded corner with extra shapes.
 - MUST use `disc(at, { on, face, r, material })` for a round feature on a face: a dial, a knob, a button, a porthole, a lid, a screw head.
 - MAY add `glow(at, { r, inside })` where the real object has a light: a lamp inside a cabinet, a lit display.

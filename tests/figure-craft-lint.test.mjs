@@ -7,6 +7,9 @@ import assert from 'node:assert/strict';
 import { box, dot, line, panel, disc, glow, renderSvg } from '../src/skills/figure-craft/engine/iso.mjs';
 import { lint } from '../src/skills/figure-craft/engine/lint.mjs';
 
+/** n distinct hairlines on the front-left face of a box: padding for tests that are not about detail. */
+const filler = (id, n, x0 = 1) => Array.from({ length: n }, (_, i) => line([[x0 + i * 0.6, 20, 41], [x0 + i * 0.6, 20, 49]], { on: id, face: 'y', id: `${id}-fill-${i}` }));
+
 function clean() {
   const shapes = [
     box({ at: [0, 0, 0], size: [20, 20, 40], id: 'postA' }),
@@ -20,6 +23,7 @@ function clean() {
     line([[80, 4, 42], [80, 16, 42]], { on: 'beam', face: 'x', id: 'beam-end' }),
     ...Array.from({ length: 7 }, (_, i) => line([[4 + i * 10, 20, 46], [8 + i * 10, 20, 46]], { on: 'beam', face: 'y', id: `beam-rivet-${i}` })),
     box({ at: [0, 40, 0], size: [10, 10, 10], id: 'mover', anim: 'slide', move: [20, 0, 0] }),
+    ...filler('beam', 125),
   ];
   return renderSvg(shapes, { labels: [
     { at: [40, 10, 50], text: 'Beam', side: 'r' },
@@ -253,12 +257,24 @@ test('L2: a panel must lie in its face', () => {
   assert.ok(has(lint(bad).errors, 'L2-face-detail'));
 });
 
-test('L19-sparse: a figure with named parts needs at least 12 face details', () => {
+test('L19-sparse: a figure with named parts needs at least 40 face details and 120 elements', () => {
   const shapes = [box({ at: [0, 0, 0], size: [60, 60, 60], id: 'body' }), line([[60, 5, 50], [60, 55, 50]], { on: 'body', face: 'x' })];
   const opts = { labels: [{ at: [30, 30, 30], text: 'Body' }], requiredParts: ['body'] };
-  assert.ok(lint(renderSvg(shapes, opts).model).errors.some((e) => e.rule === 'L19-sparse' && /min 12/.test(e.message)));
-  const rich = shapes.concat(Array.from({ length: 11 }, (_, i) => line([[60, 5, 4 + i * 4], [60, 55, 4 + i * 4]], { on: 'body', face: 'x' })));
-  assert.equal(has(lint(renderSvg(rich, opts).model).errors, 'L19-sparse'), false);
+  const thin = lint(renderSvg(shapes, opts).model).errors.filter((e) => e.rule === 'L19-sparse').map((e) => e.message).join('|');
+  assert.match(thin, /min 40 for 1 solids/);
+  assert.match(thin, /elements in the figure \(min 120/);
+  const dense = shapes.concat(Array.from({ length: 125 }, (_, i) => line([[60, 1 + i * 0.4, 4], [60, 1 + i * 0.4, 56]], { on: 'body', face: 'x', id: `d${i}` })));
+  assert.equal(has(lint(renderSvg(dense, opts).model).errors, 'L19-sparse'), false);
+  const faint = shapes.concat(Array.from({ length: 45 }, (_, i) => line([[60, 1 + i, 4], [60, 1 + i, 56]], { on: 'body', face: 'x', id: `d${i}` })));
+  const f = lint(renderSvg(faint, opts).model).errors.filter((e) => e.rule === 'L19-sparse').map((e) => e.message).join('|');
+  assert.doesNotMatch(f, /face details in the figure/);
+  assert.match(f, /elements in the figure/, 'forty details are not enough elements');
+});
+
+test('L19-sparse: the same detail drawn twice is padding, not a feature', () => {
+  const shapes = [box({ at: [0, 0, 0], size: [60, 60, 60], id: 'body' }), line([[60, 5, 50], [60, 55, 50]], { on: 'body', face: 'x' }), line([[60, 5, 50], [60, 55, 50]], { on: 'body', face: 'x' })];
+  const r = lint(renderSvg(shapes, { labels: [{ at: [30, 30, 30], text: 'Body' }], requiredParts: ['body'] }).model);
+  assert.ok(r.errors.some((e) => e.rule === 'L19-sparse' && /repeats another detail/.test(e.message)));
 });
 
 test('round solids along x or y, discs and glow render and validate', () => {
@@ -285,10 +301,11 @@ test('L19-sparse scales with the object: one detail per solid on average, and no
   const opts = { labels: [{ at: [30, 30, 30], text: 'Body' }], requiredParts: ['body'] };
   const bare = lint(renderSvg([body, ...lines('body', 60, 12), side], opts).model);
   assert.ok(bare.errors.some((e) => e.rule === 'L19-sparse' && /side covers/.test(e.message)));
-  const ok = lint(renderSvg([body, ...lines('body', 60, 12), side, ...lines('side', 110, 2)], opts).model);
-  assert.equal(has(ok.errors, 'L19-sparse'), false);
-  const many = [body, ...lines('body', 60, 12), ...Array.from({ length: 14 }, (_, i) => box({ at: [70 + i * 6, 0, 0], size: [4, 4, 4], material: 'dark', id: `bit-${i}` }))];
-  assert.ok(lint(renderSvg(many, opts).model).errors.some((e) => e.rule === 'L19-sparse' && /min 15 for 15 solids/.test(e.message)));
+  const dense = (id, x, n) => Array.from({ length: n }, (_, i) => line([[x, 1 + i * 0.4, 4], [x, 1 + i * 0.4, 56]], { on: id, face: 'x', id: `${id}-d${i}` }));
+  const ok = lint(renderSvg([body, ...dense('body', 60, 100), side, ...dense('side', 110, 40)], opts).model);
+  assert.equal(has(ok.errors, 'L19-sparse'), false, JSON.stringify(ok.errors));
+  const many = [body, ...dense('body', 60, 50), ...Array.from({ length: 40 }, (_, i) => box({ at: [70 + i * 6, 0, 0], size: [4, 4, 4], material: 'dark', id: `bit-${i}` }))];
+  assert.ok(lint(renderSvg(many, opts).model).errors.some((e) => e.rule === 'L19-sparse' && /min 62 for 41 solids/.test(e.message)));
 });
 
 test('a labelled moving part gets an unseen hit area along its path, and solids get a contact shadow', () => {

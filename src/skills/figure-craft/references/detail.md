@@ -12,12 +12,30 @@ detail comes from the skill and not from touching up the picture afterwards.
 - MUST add the small real features that make the object look real even where no label points: feet, hinges, a kick plate, a control strip, shelf edges, a power cable. These belong to the part they sit on (`on`).
 - MUST use a `dot` only for a point feature that is named in a label or the copy (a light, a sensor, a knob).
 - NEVER add a detail that the real part does not have, and NEVER add lines only to fill space.
-- MUST reach the micro-detail minimum (lint `L19-sparse`): at least twelve face details in the figure, at least three per labelled part on average, and at least one per solid on average, so a bigger object carries more. No solid that covers 4% of the drawing or more may be bare, except glass. Aim well above it: screws at corners, vent slots as rows of short lines, rating plates, hinges, feet, seams, control knobs, cable entries.
+- MUST reach the micro-detail floor (lint `L19-sparse`), so a real object is always full, whatever size it is: at least 40 face details, four per labelled part on average, one and a half per solid on average, and 120 drawn elements (two and a half per solid for a big object). No solid that covers 4% of the drawing or more may be bare, except glass, and a detail drawn twice is an error: padding is not detail. The reference refrigerator has about 150 elements and 95 face details; aim there. Reach the floor with the real small features of each part (the catalogue below), each its own small solid, `panel`, `disc`, `line` or `dot`, never with copies.
 - MUST use the kit from `engine/kit.mjs` for repeated small features: `slots(first, last, count, opts)` for vents, grilles and fins; `screws(corners, opts)` for the four screws of a plate; `repeat(count, make)` for rows of items.
 - MUST read `examples/build-demo.mjs` first: the reference figure shows the detail level to reach.
 - MUST draw a control panel, a display or a keypad as `panel` and `disc` details on the face of the body it belongs to, NEVER as a separate slab standing in front of the body.
 - MUST start a cable or an outside pipe on a face of the body (a back or side face) and run it outside; NEVER let a free line start inside a body or cross through it.
-- MUST detail the back sides too (`face: '-x'` or `'-y'`), because the reader can turn the object. See [orbit](orbit.md).
+- MUST detail the back sides too (`face: '-x'` or `'-y'`), because the reader can turn the object. See [orbit](orbit.md). On a round body use face `wrap` (`ring`, `band`, `studs`), which follows the curved wall.
+
+## Catalogue of real small features
+
+Ask of every part: what small things does the real one have? Draw the ones that apply, each as its own solid or detail.
+
+| Part | Real features |
+|------|---------------|
+| Body, housing | seams where shells meet, a rating plate with screws, vent slots in rows, feet, a rubber foot, a hinge, a latch, bolts or screws at the corners, a rim ring, a weld line, a logo badge |
+| Round body (jug, drum, tank) | rim and base rings, a weld seam, a label band, a gauge or water-level window, rivets, a drain cap, a pouring lip |
+| Lid or cover | rim rings, a seam, a knob with a cap, a vent hole, a hinge, a latch, a seal ring |
+| Handle, grip | grooves across the grip, two fixing bars, a seam down the edge, a thumb rest on top |
+| Spout, nozzle, pipe | a neck and a lip, a dark mouth, a seam, a clamp, a flange with screws |
+| Heating element, coil | concentric or zigzag tubes, a terminal block with screws, a sheath, a thermostat disc |
+| Base, stand, dock | a ring step, a connector with its pins, non-slip feet, a cable guide, indicator light |
+| Controls | a switch with its rocker, a dial with a mark, buttons in a row, a lit indicator, a display with its frame |
+| Door, window | a gasket, a hinge pair, a handle, a glass panel with its frame, a seal line, a lock |
+| Cable, hose | a strain relief where it leaves the body, a plug with pins, a clip, a label tag |
+| Contents (liquid, food, parts) | a surface line or level mark, a label on a pack, a cap on a bottle, steam or bubbles as one named dot or line |
 
 ## Parts table
 

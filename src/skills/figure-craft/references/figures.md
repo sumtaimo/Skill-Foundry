@@ -12,6 +12,7 @@
 - MUST give every labelled part an identifying detail (lint `L11-no-detail`); see [detail](detail.md).
 - MUST put a face detail (`dot` with `on`) in the face plane, inside the face and away from rounded corners (lint `L2-face-detail`).
 - MUST list farther shapes (lower x + y) before nearer ones.
+- MUST draw a round object round and open it as a round cutaway, never as a box (see [orbit](orbit.md)); MUST fix handles, spouts, hinges and knobs to the OUTSIDE of their body with the kit's `handle`, `spout` and `attach` (lint `L20-attach-outside`).
 - NEVER add decorative dots; every dot is named in a label or the copy.
 
 Example:

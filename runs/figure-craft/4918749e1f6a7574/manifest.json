@@ -1,0 +1,54 @@
+{
+  "skill": "figure-craft",
+  "version": "1.0.0",
+  "caseId": "not-for-charts",
+  "inputSha256": "1edbeee2cf564cef9cdb2aa445fd490215cb252416af54c41041606a73d2dfa6",
+  "skillSha256": "29ae6ec1a708c4dc715e35791aeb735bff624ce5d6a5fa95397828a2b64fca78",
+  "key": "4918749e1f6a75746cb1fad1ef185163cf63de28c67a9f033765a2c505874ed8",
+  "startedAt": "2026-11-14T17:00:05.783Z",
+  "finishedAt": "2026-11-14T17:00:16.287Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.00437473,
+  "usage": {
+    "input_tokens": 6,
+    "cache_creation_input_tokens": 13085,
+    "cache_read_input_tokens": 111663,
+    "output_tokens": 1281,
+    "output_tokens_details": {
+      "thinking_tokens": 568
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 13085,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 531,
+        "cache_read_input_tokens": 41974,
+        "cache_creation_input_tokens": 1367,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 1367
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [],
+  "checks": {
+    "expectations": 1,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "I stopped before building anything. This skill doesn't cover the request, so I produced no files.\n\n**Why:** `figure-craft` is for explanatory isometric figures of how a thing works. Its own rules say not to use it for data charts (\"bars, lines, pies\"). Layer 01, step 6 says that when the request is a data chart, state that the skill does not cover it and stop. A bar chart of monthly sales is a data chart.\n\n**Files produced:** none. The output folder `/home/user/Skill-Foundry/runs/figure-craft/4918749e1f6a7574/output` is still empty.\n\n**Checks run:** I read `SKILL.md`, `layers/01-intent.md` and `layers/03-inputs.md`. I did not read the other layer files, since the scope check in 01-intent already ends the run. No build or lint was run.\n\n**Open items:**\n- The skill to use is `dataviz`, which covers bar charts and their palette and layout rules. I can build the chart with it.\n- The request has no sales data. I need the monthly figures (months and values), plus the currency and whether you want a title or axis labels, before I can make a real chart. I won't invent numbers."
+}
