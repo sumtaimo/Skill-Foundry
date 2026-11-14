@@ -52,5 +52,5 @@ Use [references/checklist.md](references/checklist.md). A second reader confirms
 ## Output
 
 1. `Rewritten copy:` the new strings, one per line, in the original order.
-2. `What changed:` at most 5 short bullets naming the kind of change (for example "cut filler", "active voice", "kept the amount").
+2. `What changed:` at most 5 short bullets naming the kind of change (for example "cut filler", "active voice", "kept the amount"), never containing a removed word. Fixed bullets: `- No change needed`, `- Length limit was not met; meaning kept.`
 3. For legal text: the original text unchanged, then `What changed:` followed by `Legal text is returned unchanged.`

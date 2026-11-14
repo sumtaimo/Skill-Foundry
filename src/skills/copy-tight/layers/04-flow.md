@@ -7,5 +7,5 @@
 5. Fit each string to its UI job: a button starts with a verb; an error says what happened and what to do; an empty state says what is missing and the next step.
 6. Compare the rewrite with the original: same meaning, same numbers, same names with the same capitals.
 7. If a cut would change meaning, put the original wording back for that part.
-8. Write the change list: name the kind of change only, and never quote the words you removed.
+8. Write the change list: name the kind of change only, in your own words. A bullet MUST NEVER contain a word you removed, in quotes or not. Wrong: `- Cut filler ("currently", "for you")`. Right: `- Cut filler`.
 9. Return the rewritten copy, then the change list, in the format of layer 08.

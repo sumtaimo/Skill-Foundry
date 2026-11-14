@@ -48,5 +48,105 @@
         "value": "Legal text is returned unchanged."
       }
     ]
+  },
+  {
+    "id": "mixed-legal",
+    "prompt": "shorten this copy: Please click here in order to save all of your changes. By saving you agree to the Privacy Policy.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "By saving you agree to the Privacy Policy."
+      },
+      {
+        "type": "contains",
+        "value": "Legal text is returned unchanged."
+      },
+      {
+        "type": "notContains",
+        "value": "click here"
+      },
+      {
+        "type": "notContains",
+        "value": "in order to"
+      },
+      {
+        "type": "contains",
+        "value": "What changed:"
+      },
+      {
+        "type": "maxLines",
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": "placeholders-kept",
+    "prompt": "tighten this text: Hello {name}, you currently have {{count}} new messages that are waiting for you in your Inbox.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "{name}"
+      },
+      {
+        "type": "contains",
+        "value": "{{count}}"
+      },
+      {
+        "type": "contains",
+        "value": "Inbox"
+      },
+      {
+        "type": "notContains",
+        "value": "currently"
+      },
+      {
+        "type": "notContains",
+        "value": "that are waiting"
+      },
+      {
+        "type": "contains",
+        "value": "What changed:"
+      }
+    ]
+  },
+  {
+    "id": "already-tight",
+    "prompt": "make this plain: Save changes",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "Rewritten copy:\nSave changes"
+      },
+      {
+        "type": "contains",
+        "value": "No change needed"
+      },
+      {
+        "type": "maxLines",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": "length-limit-not-met",
+    "prompt": "shorten this copy to at most 10 characters: Your payment of $1,250.00 was declined by your bank.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "$1,250.00"
+      },
+      {
+        "type": "contains",
+        "value": "declined"
+      },
+      {
+        "type": "contains",
+        "value": "limit was not met"
+      },
+      {
+        "type": "contains",
+        "value": "What changed:"
+      }
+    ]
   }
 ]

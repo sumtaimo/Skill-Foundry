@@ -6,4 +6,4 @@
 4. No copy given: ask for the strings and stop; never produce an empty rewrite.
 5. Placeholders and variables (`{name}`, `%s`, `{{count}}`): keep them exactly, in a position that still reads correctly.
 6. Several strings: rewrite each one, keep the original order, one string per line.
-7. A user length limit that cannot be met without losing meaning: keep the meaning, and say in the change list that the limit was not met.
+7. A user length limit that cannot be met without losing meaning: keep the meaning, and add the fixed bullet `- Length limit was not met; meaning kept.`
