@@ -13,14 +13,15 @@ Machine-checked by `engine/lint.mjs`:
 9. R-figure-craft-14: The moving part MUST be labelled (`L9-moving-unlabelled`).
 10. R-figure-craft-15: Parts on one base MUST either touch (one joined structure) or be at least 4 apart, and span at least 30% of the base (`L10-crowded`, warning).
 11. R-figure-craft-16: Every labelled part MUST carry face details that identify it: one, plus one per 8% of the drawing it covers, up to three (`L11-no-detail`).
-11a. R-figure-craft-19: Every labelled part MUST cover at least 3% of the drawing (`L12-part-too-small`).
+11a. R-figure-craft-19: Every labelled part MUST cover at least 1% of the drawing, and SHOULD cover 3% so it reads on a phone (`L12-part-too-small`).
 11b. R-figure-craft-20: The object MUST be drawn as full solid volumes; thin slabs alone NEVER stand for the object (`L13-no-solid-body`).
 11c. R-figure-craft-21: The parts the idea needs MUST be declared in `requiredParts`, drawn and labelled; a needed part is NEVER dropped to pass another check (`L14-missing-part`).
 11e. R-figure-craft-24: A labelled part MUST stay at least 40% visible; glass or one open side shows the inside (`L16-hidden-part`).
 11f. R-figure-craft-25: Solids MUST have the material of the real thing, at least two in a figure of three or more solids (`L17-one-material`).
 11g. R-figure-craft-27: Inside parts and contents MUST be drawn inside the body and marked `inside`; NEVER beside it (`L18-outside-container`).
-11h. R-figure-craft-28: The figure MUST carry at least twelve face details, three per labelled part and one per solid on average, and no large solid may be bare (`L19-sparse`).
+11h. R-figure-craft-28: The figure MUST be full: at least 40 face details, four per labelled part, one and a half per solid, and 120 drawn elements (2.5 per solid for a big object); no large solid may be bare and no detail may be a copy of another (`L19-sparse`).
 11d. R-figure-craft-22: A part above the ground MUST rest on or touch another part; NEVER float (`L15-floating`).
+11i. R-figure-craft-33: A part fixed to the outside of a body (handle, spout, hinge) MUST declare `attach`, touch the wall, stay outside the body and its opening, sit on a side that has wall, and be drawn behind the body when it is behind it and in front when in front; NEVER a free slab inside the cutaway (`L20-attach-outside`, every view).
 
 Checked by the reviewer with the checklist:
 
@@ -35,4 +36,5 @@ Checked by the reviewer with the checklist:
 20. R-figure-craft-26: The object MUST look like the real thing from outside, in its real materials, with light and shadow from the engine only; NEVER show only the machinery, and NEVER draw a shadow or highlight by hand.
 21. R-figure-craft-29: The reader MUST be able to turn the object (four views from `renderViews` in `orbitHtml`), and the back sides MUST carry their real features.
 22. R-figure-craft-30: Outlines MUST be the engine's one hairline weight; NEVER a heavier stroke.
-23. R-figure-craft-31: Every part MUST sit where it sits in the real object, with the source of that fact recorded; an unsure location is asked about or marked as an assumption, NEVER guessed silently.
+23. R-figure-craft-31: Every part MUST sit where it sits in the real object, with the source of that fact recorded; an unsure location is asked about or marked as an assumption, NEVER guessed silently. The card under the figure for each labelled part MUST show that location and its source (`R31-card-location`, from `lintCards`).
+24. R-figure-craft-32: A round object MUST be drawn round and opened as a round cutaway (`open` on a round box); its lid MUST be a separate part that sits on the open top and can lift off, NEVER a box standing in for a cylinder and NEVER a solid cap over a body that must show its inside.

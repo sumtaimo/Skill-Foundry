@@ -10,6 +10,7 @@ import { box, line, panel, disc, glow, renderSvg } from '../engine/iso.mjs';
 import { renderStates, orbitHtml } from '../engine/orbit.mjs';
 import { lintStates } from '../engine/lint.mjs';
 import { slots, screws, repeat } from '../engine/kit.mjs';
+import { cardsHtml, lintCards } from '../engine/page.mjs';
 import { tokensCss } from '../engine/tokens.mjs';
 
 const TITLE = 'How a refrigerator keeps food cold';
@@ -32,17 +33,18 @@ export const LABELS = [
   { at: [35, -1, 122], text: 'Condenser coil' },
 ];
 
-/** What each part does, for the cards under the figure. */
+/** What each part does and where it really sits (rule R-figure-craft-31), for the cards under the figure. */
+const SRC = 'Common layout of a household fridge-freezer; real models differ in detail.';
 const CARDS = [
-  ['Compressor', 'Squeezes the refrigerant gas and pushes it round the loop. It sits in the machine bay at the bottom; turn the fridge to see it.'],
-  ['Condenser coil', 'The warm coil on the back. The refrigerant gives its heat to the room here.'],
-  ['Evaporator coil', 'The cold coil in the freezer. The refrigerant takes heat out of the air here.'],
-  ['Cold air', 'Chilled air falls from the vent and passes over the food.'],
-  ['Freezer', 'The coldest space, next to the evaporator.'],
-  ['Fresh-food cabinet', 'Insulated walls keep the cold in and the room heat out.'],
-  ['Glass shelf', 'Lets cold air pass round the food and shows what is behind.'],
-  ['Crisper drawer', 'A closed drawer that keeps vegetables from drying out.'],
-  ['Door and bins', 'A rubber seal closes the gap; bins hold bottles and small things.'],
+  { name: 'Compressor', does: 'Squeezes the refrigerant gas and pushes it round the loop.', where: 'In the machine bay at the bottom, behind the kick plate; turn the fridge to see it.', source: SRC },
+  { name: 'Condenser coil', does: 'The warm coil on the back. The refrigerant gives its heat to the room here.', where: 'On the back of the cabinet, from the machine bay up to the freezer.', source: SRC },
+  { name: 'Evaporator coil', does: 'The cold coil in the freezer. The refrigerant takes heat out of the air here.', where: 'On the back wall inside the freezer, behind the ice tray and the frozen food.', source: SRC },
+  { name: 'Cold air', does: 'Chilled air falls from the vent and passes over the food.', where: 'Leaves the vent on the back wall of the fresh-food cabinet and falls over the shelves.', source: SRC },
+  { name: 'Freezer', does: 'The coldest space, next to the evaporator.', where: 'The top compartment, above the fresh-food cabinet, with its own door.', source: SRC },
+  { name: 'Fresh-food cabinet', does: 'Insulated walls keep the cold in and the room heat out.', where: 'The tall compartment under the freezer, above the machine bay.', source: SRC },
+  { name: 'Glass shelf', does: 'Lets cold air pass round the food and shows what is behind.', where: 'Inside the fresh-food cabinet, between the crisper drawer and the top shelf.', source: SRC },
+  { name: 'Crisper drawer', does: 'A closed drawer that keeps vegetables from drying out.', where: 'At the bottom of the fresh-food cabinet, just above the machine bay.', source: SRC },
+  { name: 'Door and bins', does: 'A rubber seal closes the gap; bins hold bottles and small things.', where: 'On the front of both compartments, hinged on the left; the bins sit on its inner face.', source: SRC },
 ];
 
 /** A zigzag coil across a face, as one line. */
@@ -221,7 +223,9 @@ export function demoRender() {
 
 /** Lint result for every state and view of the reference figure. */
 export function demoLint() {
-  return lintStates(demoStates());
+  const r = lintStates(demoStates());
+  r.errors.push(...lintCards(CARDS, LABELS).errors);
+  return r;
 }
 
 /** Demo page html. @param {string} figure orbit markup */
@@ -248,10 +252,6 @@ button:focus-visible{outline:2px solid var(--ok);outline-offset:2px}
 figure{margin:20px 0;padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:14px}
 figcaption{color:var(--muted);font-size:.9rem;margin-top:10px;text-align:center}
 .paused svg *{animation-play-state:paused!important}
-dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1px;margin:0;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
-dl div{background:var(--surface);padding:12px 14px}
-dt{font-weight:600;font-size:.9rem}
-dd{margin:2px 0 0;color:var(--muted);font-size:.9rem}
 @media (max-width:480px){figure{padding:8px}}
 </style>
 </head>
@@ -266,9 +266,7 @@ dd{margin:2px 0 0;color:var(--muted);font-size:.9rem}
 ${figure}
 <figcaption>Hover or tap a part to see its name. Turn it to see every side, and close it to see it as it stands. <button type="button" id="play" aria-pressed="true">Pause motion</button></figcaption>
 </figure>
-<dl>
-${CARDS.map(([name, what]) => `<div><dt>${name}</dt><dd>${what}</dd></div>`).join('\n')}
-</dl>
+${cardsHtml(CARDS)}
 </main>
 <script>
 (function(){

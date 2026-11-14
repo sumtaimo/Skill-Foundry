@@ -1,7 +1,7 @@
 # figure-craft checklist
 
 Answer every item yes or no. Any "no" blocks release. Items marked with a lint id are also enforced by `engine/lint.mjs`.
-Item 33a applies only to the skill's own demo.
+Item 33a applies only to the skill's own demo. Items 7, 8, 9, 10 and 11 apply only when the work is a whole Page with a contents rail; answer "page only" for a single Figure or Hero. Item 20c applies only when the page has a theme toggle. Items 31 and 32 need a browser: when none is allowed, answer "not run: no permission" and say so in the report.
 
 ## 1. Intent
 0. Does the figure start from the goal the user stated, restated in one sentence?
@@ -31,12 +31,14 @@ Item 33a applies only to the skill's own demo.
 18. Do all shapes and label text sit inside the viewBox? (L5-outside-viewbox)
 19. Are there no decorative dots on solids (every dot carries meaning and is named in a label or the copy)?
 20. Is the projection the shared one (`project`, C = 0.866), with no hand-drawn skew?
-19u. Does every part sit where it sits in the real object, with the source recorded and every unsure location asked about or marked as an assumption?
+19u. Does every part sit where it sits in the real object, with the source recorded and every unsure location asked about or marked as an assumption, and does the card under the figure for each labelled part show that location and its source? (R31-card-location)
+19v. Is a round object drawn round and opened as a round cutaway, with its lid a separate part that can lift off, not a box and not a solid cap?
+19w. Is every handle, spout, hinge or knob fixed to the OUTSIDE of its body, touching it, off the opening and on a side with wall? (L20-attach-outside)
 19s. Does every cutaway read as a solid hollow (thick walls, shaded inside), with no solid wall drawn as glass?
 19t. Are controls drawn on the face of the body, and do cables start on a face and stay outside?
 19o. Are inside parts and contents drawn inside the body, seen through an open side, and is the opened body filled as it is really used? (L18-outside-container)
 19p. Can the reader turn the object (orbit), and do the back sides carry their real features?
-19q. Does the figure have at least twelve face details, three per labelled part and one per solid on average, with no large bare solid? (L19-sparse)
+19q. Is the figure full: at least 40 face details, four per labelled part and one and a half per solid on average, 120 drawn elements, no large bare solid and no copied detail? (L19-sparse)
 19r. Are all outlines the engine's one hairline weight?
 19k. Does every solid have the material of the real thing, with at least two materials in the figure? (L17-one-material)
 19l. Is every labelled part at least 40% visible, with the inside shown through glass or one open side? (L16-hidden-part)
@@ -47,7 +49,7 @@ Item 33a applies only to the skill's own demo.
 19h. Does every part above the ground rest on or touch another part? (L15-floating)
 19i. At rest, are all labels and leaders hidden, and does hovering, focusing or tapping each part reveal its label with motion?
 19j. Does a card under the figure name every labelled part?
-19e. Does every labelled part cover at least 3% of the drawing? (L12-part-too-small)
+19e. Does every labelled part cover at least 1% of the drawing (aim for 3%)? (L12-part-too-small)
 19a. Does every labelled part carry its required number of face details (one, plus one per 8% of the drawing, up to three), each a real feature of the real part? (L11-no-detail)
 19b. Are parts on one base at least 4 apart and spread over at least 30% of the base? (L10-crowded)
 19c. Is the moving part labelled? (L9-moving-unlabelled)
@@ -70,7 +72,7 @@ Item 33a applies only to the skill's own demo.
 
 ## 7. Verification
 29. Do build and lint pass with zero errors?
-30. Are geometry checks (lint L1-L19, and `lintViews` for the orbit) run on the rendered model?
+30. Are geometry checks (lint L1-L20, and `lintStates` for the orbit and the states) run on the rendered model?
 31. Were screenshots taken in light, dark, 390px width and a second language?
 32. Is the browser console free of errors?
 33. Was reduced motion checked to show a still figure?

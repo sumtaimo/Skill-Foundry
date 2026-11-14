@@ -5,6 +5,7 @@
  * @governed-by PO_ARCHITECT
  */
 import { tokensCssScoped } from './tokens.mjs';
+import { roundOf, arcPoints, maskOfFaces, runsIn, VISIBLE, circlePoints, visibleRuns, visiblePolygon, facesReader } from './round.mjs';
 
 export const C = 0.866;
 export const LABEL_GAP = 13;
@@ -48,14 +49,28 @@ export const MATERIALS = ['plain', 'ink', 'steel', 'white', 'dark', 'glass', 'bl
 export const LINE_TONES = ['copper', 'cold', 'warm'];
 /** Sides a detail can sit on. `x` and `y` face the reader; `-x` and `-y` are the back sides, seen after turning the object (orbit). */
 export const FACES = ['top', 'x', 'y', '-x', '-y'];
+/** `wrap` is the curved side of an upright round body: lines and panels that follow the wall (rings, bands, windows). */
+export const WRAP = 'wrap';
+const SIDES = [...FACES, WRAP];
 const KINDS = ['box', 'line', 'dot', 'panel', 'disc', 'glow'];
 const backFace = (s) => s.on !== undefined && (s.face === '-x' || s.face === '-y');
+/** A wrap detail with no point on the near half of its body is on the far side in this view, like a back-face detail. */
+const hiddenWrap = (s, byId) => {
+  if (s.on === undefined || s.face !== WRAP) return false;
+  const b = byId.get(s.on);
+  return !!b && b.round === true && !(s.points ?? [s.at]).some((p) => facesReader(b, p));
+};
 
 /**
  * `material` sets the surface (see MATERIALS); `round: true` draws an upright cylinder (width = depth),
  * `round: 'x'` or `'y'` one lying along that axis (the two sides across the axis equal).
  * `when: '<state>'` draws the shape only in that state (for example a door `when: 'open'` and another `when: 'closed'`).
  * `r` rounds the upright edges (default 1.5; 0 for sharp).
+ * `mouth: true` (upright round body) leaves the top open, like a jug or a kettle: put the lid on it as a separate part.
+ * `attach: '<body id>'` says the part is fixed to the OUTSIDE of that body (a handle, a spout, a hinge); lint `L20-attach-outside` checks it.
+ * `edge` sets the rounding of the top edge (default follows the size; 0 for a sharp edge).
+ * A round body can be opened too: each open face removes the 90 degree sector of the wall on that side, so `open: 'xy'`
+ * is a half-section with the inside showing, and a lid that is not a cap can sit on its `mouth`.
  * `open: 'x' | 'y' | 'xy'` (or `'-x'`, `'-y'` for a back side seen after a turn, or an array) removes those sides so the inside shows (walls `wall` thick); shapes with
  * `inside: '<this id>'` are the contents, seen only through the opening. One open side shows little of a deep
  * body; `'xy'` is a cutaway that shows the whole inside.
@@ -81,6 +96,8 @@ export function box(o) {
   }
   if (o.inside !== undefined) s.inside = String(o.inside);
   if (o.when !== undefined) s.when = String(o.when);
+  if (o.attach !== undefined) s.attach = String(o.attach);
+  if (o.edge !== undefined) { if (!isNum(o.edge) || o.edge < 0) throw new TypeError('box: edge must be a number of 0 or more'); s.edge = o.edge; }
   if (o.round !== undefined && o.round !== false) {
     // A cylinder: upright (true or 'z'), or lying along x or y.
     const axis = o.round === true ? 'z' : o.round;
@@ -88,6 +105,15 @@ export function box(o) {
     const [a, b] = axis === 'z' ? [size[0], size[1]] : axis === 'x' ? [size[1], size[2]] : [size[0], size[2]];
     if (a !== b) throw new RangeError('box: a round box needs two equal sides across its axis');
     s.round = axis === 'z' ? true : axis;
+  }
+  if (o.mouth !== undefined && o.mouth !== false) {
+    if (s.round !== true) throw new TypeError('box: mouth (an open top) needs an upright round body');
+    s.mouth = true;
+    s.wall = isNum(o.wall) && o.wall > 0 ? o.wall : 2;
+    if (s.wall * 2 >= s.size[0]) throw new RangeError('box: wall is too thick for this box');
+  }
+  if (s.open !== undefined || s.openBack !== undefined) {
+    if (s.round === 'x' || s.round === 'y') throw new TypeError('box: a cylinder lying on its side cannot be opened; stand it up or use a box');
   }
   if (o.anim !== undefined) s.anim = String(o.anim);
   if (o.move !== undefined) s.move = vec3(o.move, 'box move');
@@ -110,9 +136,10 @@ export function line(points, opts = {}) {
   if (opts.tone !== undefined) { if (!LINE_TONES.includes(opts.tone)) throw new TypeError(`line: tone must be one of ${LINE_TONES.join(', ')}`); s.tone = opts.tone; }
   if (opts.on !== undefined) {
     const face = opts.face ?? 'top';
-    if (!FACES.includes(face)) throw new TypeError('line: face must be top, x, y, -x or -y');
+    if (!SIDES.includes(face)) throw new TypeError('line: face must be top, x, y, -x, -y or wrap');
     s.on = String(opts.on); s.face = face;
   }
+  if (opts.dash) s.dash = true;
   if (opts.id !== undefined) s.id = String(opts.id);
   return s;
 }
@@ -123,10 +150,10 @@ export function line(points, opts = {}) {
  * @param {{on:string,face:'top'|'y'|'x',material?:string,id?:string}} opts
  */
 export function panel(corners, opts) {
-  if (!Array.isArray(corners) || corners.length !== 2) throw new TypeError('panel: two opposite corners required');
   if (!opts || typeof opts.on !== 'string') throw new TypeError('panel: on (box id) required');
   const face = opts.face ?? 'top';
-  if (!FACES.includes(face)) throw new TypeError('panel: face must be top, x, y, -x or -y');
+  if (!SIDES.includes(face)) throw new TypeError('panel: face must be top, x, y, -x, -y or wrap');
+  if (face === WRAP ? !Array.isArray(corners) || corners.length < 3 : !Array.isArray(corners) || corners.length !== 2) throw new TypeError(face === WRAP ? 'panel: a wrap panel needs the points of its outline (at least three)' : 'panel: two opposite corners required');
   const material = opts.material ?? 'plain';
   if (!MATERIALS.includes(material)) throw new TypeError(`panel: material must be one of ${MATERIALS.join(', ')}`);
   const s = { kind: 'panel', points: corners.map((p) => vec3(p, 'panel corner')), on: opts.on, face, material };
@@ -174,8 +201,9 @@ export function glow(at, opts = {}) {
   return s;
 }
 
-/** The four corners of a panel, in order around the face. */
+/** The four corners of a panel, in order around the face (a wrap panel: the points of its outline). */
 export function panelCorners(s) {
+  if (s.face === WRAP) return s.points;
   const [p, q] = s.points;
   if (s.face === 'top') return [[p[0], p[1], p[2]], [q[0], p[1], p[2]], [q[0], q[1], p[2]], [p[0], q[1], p[2]]];
   if (s.face === 'x' || s.face === '-x') return [[p[0], p[1], p[2]], [p[0], q[1], p[2]], [p[0], q[1], q[2]], [p[0], p[1], q[2]]];
@@ -185,7 +213,7 @@ export function panelCorners(s) {
 /** @param {number[]} at @param {{r?:number,tone?:'ok'|'ink',face?:'top'|'y'|'x',on?:string,id?:string}} [opts] */
 export function dot(at, opts = {}) {
   const face = opts.face ?? 'top';
-  if (!FACES.includes(face)) throw new TypeError('dot: face must be top, x, y, -x or -y');
+  if (!SIDES.includes(face)) throw new TypeError('dot: face must be top, x, y, -x, -y or wrap');
   const s = { kind: 'dot', at: vec3(at, 'dot at'), r: isNum(opts.r) ? opts.r : 3, tone: opts.tone === 'ink' ? 'ink' : 'ok', face };
   if (opts.on !== undefined) s.on = String(opts.on);
   if (opts.id !== undefined) s.id = String(opts.id);
@@ -213,7 +241,7 @@ export function labelTarget(label, shapes) {
  * @param {{at:number[],size:number[],open?:string,wall?:number}} b
  */
 export function openingCorners(b) {
-  if (!b || !['x', 'y', 'xy'].includes(b.open)) return null;
+  if (!b || b.round || !['x', 'y', 'xy'].includes(b.open)) return null;
   const [x, y, z] = b.at; const [w, d, h] = b.size; const t = b.wall ?? 2;
   if (b.open === 'x') return [[x + w, y + t, z + t], [x + w, y + d - t, z + t], [x + w, y + d - t, z + h - t], [x + w, y + t, z + h - t]];
   if (b.open === 'y') return [[x + t, y + d, z + t], [x + w - t, y + d, z + t], [x + w - t, y + d, z + h - t], [x + t, y + d, z + h - t]];
@@ -228,9 +256,45 @@ export function boxCorners(b) {
   return out;
 }
 
-/** Projected silhouette (convex hexagon) of a box. @returns {number[][]} */
+/** 3D points round the two ends of a cylinder (upright or lying), for its silhouette. */
+function cylinderRings(b, n = 32) {
+  const [x, y, z] = b.at; const [w, d, h] = b.size;
+  const pts = [];
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2; const c = Math.cos(a); const e = Math.sin(a);
+    if (b.round === 'x') { const r = h / 2; for (const t of [0, w]) pts.push([x + t, y + r + c * r, z + r + e * r]); }
+    else if (b.round === 'y') { const r = h / 2; for (const t of [0, d]) pts.push([x + r + c * r, y + t, z + r + e * r]); }
+    else { const r = w / 2; for (const t of [0, h]) pts.push([x + r + c * r, y + r + e * r, z + t]); }
+  }
+  return pts;
+}
+
+/** Projected silhouette of a box (a hexagon) or of a cylinder (its two ends and the sides between). @returns {number[][]} */
 export function boxOutline(b) {
-  return hull(boxCorners(b).map(project));
+  return hull((b.round ? cylinderRings(b) : boxCorners(b)).map(project));
+}
+
+/**
+ * What the reader sees through the openings of an open body, as projected polygons: for a box its opening, for a round
+ * body the strip of wall that is cut away and the open top (`mouth`). Null when the body is closed.
+ * @param {object} b
+ * @returns {number[][][] | null}
+ */
+export function openingPolys(b) {
+  if (!b) return null;
+  if (b.round === true && (b.open || b.mouth)) {
+    const polys = [];
+    const t = b.wall ?? 2; const { r, z0, z1 } = roundOf(b);
+    const rin = r - t;
+    const top = b.mouth ? z1 : z1 - t;
+    for (const run of runsIn(maskOfFaces((b.open ?? '').split('')), VISIBLE)) {
+      polys.push([...arcPoints(b, run.from, run.to, z0 + t, rin), ...arcPoints(b, run.to, run.from, top, rin)].map(project));
+    }
+    if (b.mouth) polys.push(circlePoints(b, z1, rin).map(project));
+    return polys.length ? polys : null;
+  }
+  const c = openingCorners(b);
+  return c ? [c.map(project)] : null;
 }
 
 /** Convex hull of 2D points. */
@@ -247,7 +311,7 @@ export function hull(points) {
 /** Projected points of any shape, including its moved end position. */
 export function shapePoints(s) {
   let pts;
-  if (s.kind === 'box') pts = boxCorners(s);
+  if (s.kind === 'box') pts = s.round ? cylinderRings(s, 16) : boxCorners(s);
   else if (s.kind === 'line') pts = s.points;
   else if (s.kind === 'panel') pts = panelCorners(s);
   else if (s.kind === 'disc') pts = discPoints(s, 8);
@@ -328,20 +392,31 @@ export function renderSvg(shapes, opts = {}) {
   const S = (v) => { strokes.add(v); return v; };
 
   // Details on the back sides are not drawn in this view; they appear when the object is turned.
+  let allBoxes = [];
   const model = { shapes: shapes.map((s, i) => {
     if (!s || !KINDS.includes(s.kind)) throw new TypeError(`renderSvg: shape ${i} has unknown kind`);
     return { ...structuredClone(s), id: s.id ?? `${s.kind}${i}` };
   }).filter((s) => !backFace(s)).map((s, i) => ({ ...s, drawIndex: i })) };
+  // Wrap details that lie wholly on the far half of their body show after a turn, like back-face details.
+  const hiddenWraps = [];
+  {
+    const ids0 = new Map(model.shapes.map((s) => [s.id, s]));
+    model.shapes = model.shapes.filter((s) => { if (hiddenWrap(s, ids0)) { hiddenWraps.push(s); return false; } return true; }).map((s, i) => ({ ...s, drawIndex: i }));
+  }
   // How many details each solid carries on its back sides (drawn after a turn); lint counts them as detail.
   // Contents of a body that is closed in this view or state are not drawn.
   {
     const ids = new Map(model.shapes.map((s) => [s.id, s]));
-    const shut = (s) => { const h = s.inside ?? ids.get(s.on)?.inside; const c = h !== undefined ? ids.get(h) : null; return !!c && !c.open; };
+    const shut = (s) => { const h = s.inside ?? ids.get(s.on)?.inside; const c = h !== undefined ? ids.get(h) : null; return !!c && !c.open && !c.mouth; };
     model.shut = model.shapes.filter((s) => s.kind === 'box' && shut(s)).map((s) => ({ id: s.id, holder: s.inside }));
+    // A label belongs to the part its anchor is in, even when that part is shut away in this state; it is then dropped, not moved to the body around it.
+    allBoxes = model.shapes.filter((s) => s.kind === 'box');
     model.shapes = model.shapes.filter((s) => !shut(s)).map((s, i) => ({ ...s, drawIndex: i }));
   }
   model.backDetails = {};
+  const drawnIds = new Set(model.shapes.map((s) => s.id));
   for (const s of shapes) if (s && backFace(s)) model.backDetails[s.on] = (model.backDetails[s.on] ?? 0) + 1;
+  for (const s of hiddenWraps) model.backDetails[s.on] = (model.backDetails[s.on] ?? 0) + 1;
   const byId = new Map(model.shapes.map((s) => [s.id, s]));
 
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -375,7 +450,7 @@ export function renderSvg(shapes, opts = {}) {
   }
   model.labelMode = labelMode;
   if (opts.requiredParts !== undefined) model.requiredParts = [...opts.requiredParts];
-  if (hover) model.labels = model.labels.filter((l) => labelTarget(l, model.shapes) !== null); // a part absent from this view or state has no chip
+  if (hover) model.labels = model.labels.filter((l) => { const t = labelTarget(l, allBoxes); return t !== null && drawnIds.has(t.id); }); // a part absent or shut away in this view or state has no chip
   const targets = model.labels.map((l) => labelTarget(l, model.shapes)?.id ?? null);
   const nameOf = new Map(targets.map((id, i) => [id, model.labels[i].text]).filter(([id]) => id !== null));
   model.viewBox = [r2(vx0 - padding), r2(vy0 - padding), r2(vx1 - vx0 + 2 * padding), r2(vy1 - vy0 + 2 * padding)];
@@ -408,6 +483,15 @@ export function renderSvg(shapes, opts = {}) {
   };
   const glassAttr = (m) => (m === 'glass' ? ` fill-opacity="${GLASS_OPACITY}"` : '');
 
+  // How far the top edge is rounded over (0 = sharp): follows the size of the part unless the author sets `edge`.
+  const edgeOf = (s) => {
+    if (flat || s.material === 'glass') return 0;
+    const [ew, ed, eh] = s.size;
+    if (Math.min(ew, ed) < 8 || eh < 4) return 0;
+    const e = s.edge ?? Math.min(2.2, Math.min(ew, ed) * 0.07);
+    return e >= 0.5 ? e : 0;
+  };
+  const ringPath = (outer, innerPts) => `M${outer.map(([a, b]) => `${r2(a)} ${r2(b)}`).join(' L')} Z M${innerPts.map(([a, b]) => `${r2(a)} ${r2(b)}`).join(' L')} Z`;
   for (const s of model.shapes) {
     // data-part ties a part and its face details together, so hovering either reveals the part's label.
     const part = s.kind === 'box' ? s.id : s.on;
@@ -423,16 +507,18 @@ export function renderSvg(shapes, opts = {}) {
       if (flat) {
         const g = [P(0, 0, 0), P(w, 0, 0), P(w, d, 0), P(0, d, 0)].map(([a, b]) => [a, b + 2]);
         if (grounded) inner += `<path d="${pathOf(g)}" fill="${F('var(--line)')}" opacity="0.45"/>`;
-      } else if (m !== 'glass' && !s.move && (grounded || (base && base.kind === 'box'))) {
+      } else if (m !== 'glass' && !s.move && (grounded || (base && base.kind === 'box' && Math.abs(s.at[2] - (base.at[2] + base.size[2])) < 0.01))) {
         // Cast shadow: the footprint swept along the light direction, blurred, clipped to the surface it falls on.
+        // A part held above its base (a lifted lid) casts none on it; a round part casts a round one.
         const k = Math.min(h, SHADOW.max);
-        const foot = [[0, 0], [w, 0], [w, d], [0, d]];
+        const foot = s.round === true ? Array.from({ length: 28 }, (_, i) => [w / 2 + (w / 2) * Math.cos((i / 28) * Math.PI * 2), d / 2 + (d / 2) * Math.sin((i / 28) * Math.PI * 2)]) : [[0, 0], [w, 0], [w, d], [0, d]];
         const sh = hull(foot.concat(foot.map(([a, b]) => [a + SHADOW.dx * k, b + SHADOW.dy * k])).map(([a, b]) => P(a, b, 0)));
         let clip = '';
         if (base) {
           const [bx, by, bz] = base.at; const [bw, bd, bh] = base.size;
           const cid = `${pre}-clip-${String(s.id).replace(/[^\w-]/g, '_')}`;
-          defs.push(`<clipPath id="${cid}"><path d="${pathOf([[bx, by], [bx + bw, by], [bx + bw, by + bd], [bx, by + bd]].map(([a, b]) => project([a, b, bz + bh])))}"/></clipPath>`);
+          const topOf = base.round === true ? Array.from({ length: 36 }, (_, i) => [bx + bw / 2 + (bw / 2) * Math.cos((i / 36) * Math.PI * 2), by + bd / 2 + (bd / 2) * Math.sin((i / 36) * Math.PI * 2)]) : [[bx, by], [bx + bw, by], [bx + bw, by + bd], [bx, by + bd]];
+          defs.push(`<clipPath id="${cid}"><path d="${pathOf(topOf.map(([a, b]) => project([a, b, bz + bh])))}"/></clipPath>`);
           clip = ` clip-path="url(#${cid})"`;
         }
         // Two layers: the long soft cast shadow, and a tight dark one where the solid meets the surface, which is what makes it sit.
@@ -451,11 +537,63 @@ export function renderSvg(shapes, opts = {}) {
         inner += `<path d="${pathOf(hull(ring(0).concat(near)))}" fill="${F(flat ? FLAT[m].a : m === 'glass' ? FACE.glass.a : `url(#${pre}-${m}-lie)`)}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}" stroke-linejoin="round"/>`;
         inner += `<path d="${pathOf(near)}" fill="${F(faceFill(m, s.round === 'x' ? 'b' : 'a'))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}" stroke-linejoin="round"/>`;
       } else if (s.round) {
-        // Upright cylinder: a body shaded around its curve and an elliptical top.
+        // Upright cylinder: a body shaded around its curve and an elliptical top. It can be cut open (each open face removes
+        // a quarter of the wall) and its top can be open (`mouth`), so a kettle, jug or drum shows its real inside.
         const r = w / 2; const rx = r * C * Math.SQRT2; const ry = r * Math.SQRT1_2;
         const [tx, ty] = P(r, r, h); const [bx, by] = P(r, r, 0);
-        inner += `<path d="M${r2(tx - rx)} ${r2(ty)} L${r2(bx - rx)} ${r2(by)} A${r2(rx)} ${r2(ry)} 0 0 0 ${r2(bx + rx)} ${r2(by)} L${r2(tx + rx)} ${r2(ty)} Z" fill="${F(flat ? FLAT[m].a : m === 'glass' ? FACE.glass.a : `url(#${pre}-${m}-cyl)`)}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}" stroke-linejoin="round"/>`;
-        inner += `<ellipse cx="${r2(tx)}" cy="${r2(ty)}" rx="${r2(rx)}" ry="${r2(ry)}" fill="${F(faceFill(m, 'top'))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}"/>`;
+        const stroke = `stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}" stroke-linejoin="round"`;
+        const runs = s.open ? runsIn(maskOfFaces(String(s.open).split('')), VISIBLE) : [];
+        inner += `<path d="M${r2(tx - rx)} ${r2(ty)} L${r2(bx - rx)} ${r2(by)} A${r2(rx)} ${r2(ry)} 0 0 0 ${r2(bx + rx)} ${r2(by)} L${r2(tx + rx)} ${r2(ty)} Z" fill="${F(flat ? FLAT[m].a : m === 'glass' ? FACE.glass.a : `url(#${pre}-${m}-cyl)`)}"${glassAttr(m)} ${stroke}/>`;
+        const ef = edgeOf(s);
+        if (ef) {
+          // A top edge that is rounded over: a lit strip down the side under the rim.
+          const e1 = Math.min(ef * 1.2, h / 3);
+          inner += `<path pointer-events="none" d="M${r2(tx - rx)} ${r2(ty)} L${r2(tx - rx)} ${r2(ty + e1)} A${r2(rx)} ${r2(ry)} 0 0 0 ${r2(tx + rx)} ${r2(ty + e1)} L${r2(tx + rx)} ${r2(ty)} A${r2(rx)} ${r2(ry)} 0 0 1 ${r2(tx - rx)} ${r2(ty)} Z" fill="${F('var(--mat-shine)')}" opacity="0.3"/>`;
+        }
+        inner += `<ellipse cx="${r2(tx)}" cy="${r2(ty)}" rx="${r2(rx)}" ry="${r2(ry)}" fill="${F(faceFill(m, 'top'))}"${glassAttr(m)} ${stroke}/>`;
+        if (ef) {
+          // ... and a lit ring round the top: the rounded-over edge itself.
+          const k = Math.max(0.05, (r - ef) / r); const ex = rx * k; const ey = ry * k;
+          inner += `<path pointer-events="none" fill-rule="evenodd" d="M${r2(tx - rx)} ${r2(ty)} A${r2(rx)} ${r2(ry)} 0 1 0 ${r2(tx + rx)} ${r2(ty)} A${r2(rx)} ${r2(ry)} 0 1 0 ${r2(tx - rx)} ${r2(ty)} Z M${r2(tx - ex)} ${r2(ty)} A${r2(ex)} ${r2(ey)} 0 1 0 ${r2(tx + ex)} ${r2(ty)} A${r2(ex)} ${r2(ey)} 0 1 0 ${r2(tx - ex)} ${r2(ty)} Z" fill="${F('var(--mat-shine)')}" opacity="0.5"/>`;
+        }
+        if (runs.length || s.mouth) {
+          const t = s.wall ?? 2; const rin = r - t; const zf = z + t; const zt = s.mouth ? z + h : z + h - t;
+          const oid = `${pre}-open-${String(s.id).replace(/[^\w-]/g, '_')}`;
+          const polys = openingPolys(s);
+          defs.push(`<clipPath id="${oid}">${polys.map((pl) => `<path d="${pathOf(pl)}"/>`).join('')}</clipPath>`);
+          const sect = F(flat ? 'var(--muted)' : 'var(--mat-section)');
+          const inkBody = m === 'dark' || m === 'ink';
+          const liner = flat ? (inkBody ? FLAT.ink : FLAT.plain) : inkBody ? FACE.dark : FACE.white;
+          // The wall cut away is shown as the cut through it: the floor band and, below, the section of the wall.
+          for (const run of runs) inner += `<path d="${pathOf([...arcPoints(s, run.from, run.to, z, r), ...arcPoints(s, run.to, run.from, z + h, r)].map(project))}" fill="${sect}" ${stroke}/>`;
+          // The inside is lined like the body and sits in shade, so it reads as a hollow, never as glass.
+          const gid = `${pre}-in-${String(s.id).replace(/[^\w-]/g, '_')}`;
+          if (!flat) defs.push(`<linearGradient id="${gid}" gradientUnits="userSpaceOnUse" x1="${r2(tx - rx)}" y1="0" x2="${r2(tx + rx)}" y2="0"><stop offset="0" stop-color="${liner.b}"/><stop offset="1" stop-color="${liner.a}"/></linearGradient>`);
+          const wallFill = flat ? liner.a : `url(#${gid})`;
+          // The inside gets darker toward the floor, so the open top reads as a deep hollow and not as a lid.
+          if (!flat) defs.push(`<linearGradient id="${gid}-deep" gradientUnits="userSpaceOnUse" x1="0" y1="${r2(ty - ry)}" x2="0" y2="${r2(by + ry)}"><stop offset="0" stop-color="var(--mat-shadow)" stop-opacity="0"/><stop offset="1" stop-color="var(--mat-shadow)" stop-opacity="0.55"/></linearGradient>`);
+
+          let g = polys.slice(0, runs.length).map((pl) => `<path d="${pathOf(pl)}" fill="${F(flat ? 'var(--line)' : 'var(--mat-cavity)')}"/>`).join('');
+          if (s.mouth) g += `<path d="${pathOf(polys.at(-1))}" fill="${F(flat ? 'var(--line)' : 'var(--mat-cavity)')}"/>`;
+          // A side that is open but turned away is drawn closed, as for a box: the inside wall is whole.
+          const solid = maskOfFaces(String(s.open ?? '').split('')).map((v) => 1 - v);
+          for (const run of runsIn(solid, [135, 315])) {
+            const wall = [...arcPoints(s, run.from, run.to, zf, rin), ...arcPoints(s, run.to, run.from, zt, rin)].map(project);
+            g += `<path d="${pathOf(wall)}" fill="${F(wallFill)}" ${stroke}/>`;
+            if (!flat) g += `<path class="${pre}-shade" d="${pathOf(wall)}" fill="url(#${gid}-deep)"/>`;
+          }
+          const floor = circlePoints(s, zf, rin).map(project);
+          g += `<path d="${pathOf(floor)}" fill="${F(inkBody ? liner.a : liner.top)}" ${stroke}/>`;
+          if (!flat) g += `<path class="${pre}-shade" d="${pathOf(floor)}" fill="${F('var(--mat-shadow)')}" opacity="0.05"/>`;
+          inner += `<g clip-path="url(#${oid})">${g}</g>`;
+          // The cut faces of the wall at the ends of each opening, seen edge on, in the section tone.
+          for (const run of runs) for (const [on, a] of [[run.cutStart, run.from], [run.cutEnd, run.to]]) {
+            if (!on) continue;
+            const cut = [arcPoints(s, a, a, z, r)[0], arcPoints(s, a, a, z + h, r)[0], arcPoints(s, a, a, z + h, rin)[0], arcPoints(s, a, a, z, rin)[0]].map(project);
+            inner += `<path d="${pathOf(cut)}" fill="${sect}" ${stroke}/>`;
+          }
+          if (s.mouth) inner += `<path d="${pathOf(circlePoints(s, z + h, rin).map(project))}" fill="none" ${stroke}/>`;
+        }
       } else if (!s.open && Math.min(s.r, w / 4, d / 4) >= 0.5) {
         // Rounded upright edges: the top is a rounded rectangle and the two visible sides are one band that
         // turns the front corner, shaded from the lit side to the shaded side with no hard edge.
@@ -466,6 +604,7 @@ export function renderSvg(shapes, opts = {}) {
         inner += `<path d="${pathOf(ring.map(([a, b]) => P(a, b, h)))}" fill="${F(faceFill(m, 'top'))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}" stroke-linejoin="round"/>`;
         // The visible band runs from the left silhouette (normal 135 deg) round the front corner to the right silhouette (-45 deg).
         const band = [...arc(rr, d - rr, 135, 90, 3), ...arc(w - rr, d - rr, 90, 0), ...arc(w - rr, rr, 0, -45, 3)];
+        let fillet = '';
         const lo = band.map(([a, b]) => P(a, b, 0)); const hi = band.map(([a, b]) => P(a, b, h));
         const side = `<path d="${pathOf(lo.concat(hi.slice().reverse()))}" fill="${F(faceFill(m, 'a'))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}" stroke-linejoin="round"/>`;
         let shade = '';
@@ -477,16 +616,21 @@ export function renderSvg(shapes, opts = {}) {
             shade += `<path class="${pre}-shade" d="${pathOf([lo[i], lo[i + 1], hi[i + 1], hi[i]])}" fill="${F(flat ? FLAT[m].b : FACE[m].b)}" opacity="${r2(o)}"/>`;
           }
         }
-        // A thin highlight just inside the top edge: the edge reads as softly rounded over, not as a knife edge.
-        if (!flat && m !== 'glass' && rr - 0.8 >= 0.2 && w > 6 && d > 6) {
-          const rb = rr - 0.8;
-          const arcB = (cx, cy, a0, a1) => Array.from({ length: 6 }, (_, i) => { const t = ((a0 + ((a1 - a0) * i) / 5) * Math.PI) / 180; return [cx + Math.cos(t) * rb, cy + Math.sin(t) * rb]; });
-          const bevel = [...arcB(rr, rr, 180, 270), ...arcB(w - rr, rr, 270, 360), ...arcB(w - rr, d - rr, 0, 90), ...arcB(rr, d - rr, 90, 180)];
-          inner += `<path class="${pre}-bevel" pointer-events="none" d="${pathOf(bevel.map(([a, b]) => P(a, b, h)))}" fill="none" stroke="${S('var(--mat-shine)')}" stroke-width="${HAIR}" opacity="0.9"/>`;
+        // The top edge is rounded over: a lit ring just inside the rim and a lit strip down the sides under it.
+        const ef = edgeOf(s);
+        if (ef) {
+          const rc = Math.max(rr - ef, 0.3);
+          const arcR = (cx, cy, rad, a0, a1, n = 5) => Array.from({ length: n + 1 }, (_, i) => { const t = ((a0 + ((a1 - a0) * i) / n) * Math.PI) / 180; return [cx + Math.cos(t) * rad, cy + Math.sin(t) * rad]; });
+          const e2 = Math.min(ef, w / 2 - rc - 0.2, d / 2 - rc - 0.2);
+          const innerRing = [...arcR(e2 + rc, e2 + rc, rc, 180, 270), ...arcR(w - e2 - rc, e2 + rc, rc, 270, 360), ...arcR(w - e2 - rc, d - e2 - rc, rc, 0, 90), ...arcR(e2 + rc, d - e2 - rc, rc, 90, 180)];
+          inner += `<path class="${pre}-bevel" pointer-events="none" fill-rule="evenodd" d="${ringPath(ring.map(([a, b]) => P(a, b, h)), innerRing.map(([a, b]) => P(a, b, h)))}" fill="${F('var(--mat-shine)')}" opacity="0.5"/>`;
+          const e1 = Math.min(ef * 1.2, h / 3);
+          const loS = band.map(([a, b]) => P(a, b, h - e1)); const hiS = band.map(([a, b]) => P(a, b, h));
+          fillet = `<path pointer-events="none" d="${pathOf(loS.concat(hiS.slice().reverse()))}" fill="${F('var(--mat-shine)')}" opacity="0.3"/>`;
         }
         // Side first, then its shading, then the top over both.
         inner = inner.replace(/^(<path [^>]*\/>)$/, '$1');
-        const topPath = inner; inner = side + shade + topPath;
+        const topPath = inner; inner = side + shade + fillet + topPath;
       } else {
         const top = [P(0, 0, h), P(w, 0, h), P(w, d, h), P(0, d, h)];
         const fy = [P(0, d, 0), P(w, d, 0), P(w, d, h), P(0, d, h)];
@@ -495,6 +639,15 @@ export function renderSvg(shapes, opts = {}) {
         inner += `<path d="${pathOf(fy)}" fill="${F(faceFill(m, 'a'))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}" stroke-linejoin="round"/>`;
         inner += `<path d="${pathOf(fx)}" fill="${F(faceFill(m, 'b'))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}" stroke-linejoin="round"/>`;
         inner += `<path d="${pathOf(top)}" fill="${F(faceFill(m, 'top'))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}" stroke-linejoin="round"/>`;
+        const efS = edgeOf(s);
+        if (efS) {
+          // The top edge is rounded over: a lit ring just inside the rim and a lit strip down both visible sides under it.
+          const e2 = Math.min(efS, w / 2 - 0.5, d / 2 - 0.5); const e1 = Math.min(efS * 1.2, h / 3);
+          const inTop = [P(e2, e2, h), P(w - e2, e2, h), P(w - e2, d - e2, h), P(e2, d - e2, h)];
+          inner += `<path class="${pre}-bevel" pointer-events="none" fill-rule="evenodd" d="${ringPath(top, inTop)}" fill="${F('var(--mat-shine)')}" opacity="0.5"/>`;
+          inner += `<path pointer-events="none" d="${pathOf([P(0, d, h - e1), P(w, d, h - e1), P(w, d, h), P(0, d, h)])}" fill="${F('var(--mat-shine)')}" opacity="0.3"/>`;
+          inner += `<path pointer-events="none" d="${pathOf([P(w, 0, h - e1), P(w, d, h - e1), P(w, d, h), P(w, 0, h)])}" fill="${F('var(--mat-shine)')}" opacity="0.22"/>`;
+        }
         if (s.open) {
           // Open sides: the hole shows the inside faces the viewer can see (floor, back wall, far side wall).
           const t = s.wall ?? 2;
@@ -532,7 +685,9 @@ export function renderSvg(shapes, opts = {}) {
     } else if (s.kind === 'panel') {
       const m = s.material ?? 'plain';
       const face = s.face === 'top' ? 'top' : s.face === 'x' ? 'b' : 'a';
-      inner = `<path d="${pathOf(panelCorners(s).map(project))}" fill="${F(faceFill(m, face))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}" stroke-linejoin="round"/>`;
+      const wrapBody = s.face === WRAP ? byId.get(s.on) : null;
+      const corners = s.face === WRAP ? (wrapBody ? visiblePolygon(wrapBody, s.points) : []) : panelCorners(s);
+      inner = corners.length < 3 ? '' : `<path d="${pathOf(corners.map(project))}" fill="${F(faceFill(m, s.face === WRAP ? 'a' : face))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}" stroke-linejoin="round"/>`;
     } else if (s.kind === 'disc') {
       const m = s.material ?? 'plain';
       const face = s.face === 'top' ? 'top' : s.face === 'x' ? 'b' : 'a';
@@ -542,18 +697,24 @@ export function renderSvg(shapes, opts = {}) {
       inner = flat ? '' : `<ellipse cx="${r2(cx)}" cy="${r2(cy)}" rx="${r2(s.r * 1.2)}" ry="${r2(s.r * 0.85)}" fill="${F('var(--mat-glow)')}" opacity="0.5" filter="url(#${pre}-glow)" pointer-events="none"/>`;
     } else if (s.kind === 'line') {
       const stroke = s.tone && !flat ? TONE_STROKE[s.tone] : s.bold ? 'var(--fg)' : 'var(--line-strong)';
-      inner = `<path d="M${s.points.map((p) => project(p).map(r2).join(' ')).join(' L')}" fill="${F('none')}" stroke="${S(stroke)}" stroke-width="${s.bold ? BOLD : s.tone ? TONE : HAIR}" stroke-linecap="round" stroke-linejoin="round"/>`;
+      const wrapBody = s.face === WRAP ? byId.get(s.on) : null;
+      const runs = s.face === WRAP ? (wrapBody && wrapBody.round === true ? visibleRuns(wrapBody, s.points) : []) : [s.points];
+      const dash = s.dash ? ` stroke-dasharray="${r2(HAIR * 3)} ${r2(HAIR * 3)}"` : '';
+      inner = runs.length ? `<path d="${runs.map((run) => `M${run.map((p) => project(p).map(r2).join(' ')).join(' L')}`).join(' ')}" fill="${F('none')}" stroke="${S(stroke)}" stroke-width="${s.bold ? BOLD : s.tone ? TONE : HAIR}"${dash} stroke-linecap="round" stroke-linejoin="round"/>` : '';
     } else {
       const [cx, cy] = project(s.at);
       const fill = F(s.tone === 'ink' ? (flat ? 'var(--fg)' : 'var(--iso-ink)') : 'var(--ok)');
       // A dot is a unit circle squashed into its face plane: the only circles in the svg are author dots.
-      const [rx, ry] = s.face === 'top' ? [s.r * C * 1.15, s.r * 0.58] : [s.r * 0.6, s.r];
+      const wrapB = s.face === WRAP ? byId.get(s.on) : null;
+      // On a round wall a dot faces the reader more or less squarely, so it is narrower toward the silhouette.
+      const wrapK = wrapB && wrapB.round === true ? Math.max(0.3, Math.cos((Math.atan2(s.at[1] - roundOf(wrapB).cy, s.at[0] - roundOf(wrapB).cx) - Math.PI / 4))) : 1;
+      const [rx, ry] = s.face === 'top' ? [s.r * C * 1.15, s.r * 0.58] : [s.r * 0.6 * wrapK, s.r];
       inner = `<circle class="dot" r="1" transform="translate(${r2(cx)} ${r2(cy)}) scale(${r2(rx)} ${r2(ry)})" fill="${fill}"/>`;
     }
     // Contents of an open box are seen only through its opening.
     const holder = s.inside !== undefined ? s.inside : s.on !== undefined ? byId.get(s.on)?.inside : undefined;
     const holderBox = holder !== undefined ? byId.get(holder) : null;
-    const within = holderBox && holderBox.open ? ` clip-path="url(#${pre}-open-${String(holder).replace(/[^\w-]/g, '_')})"` : '';
+    const within = holderBox && (holderBox.open || holderBox.mouth) ? ` clip-path="url(#${pre}-open-${String(holder).replace(/[^\w-]/g, '_')})"` : '';
     if (within) {
       const last = body.length - 1;
       if (last >= 0 && body[last].startsWith(`<g class="${pre}-shadow"`) && s.kind === 'box') body[last] = `<g${within}>${body[last]}</g>`;

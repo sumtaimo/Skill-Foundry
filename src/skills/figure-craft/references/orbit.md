@@ -20,6 +20,31 @@ box({ at: [50, 30, 62], size: [8, 8, 18], round: true, material: 'green', inside
 box({ at: [70, 20, 3], size: [46, 3, 120], material: 'steel', id: 'door', rests: 'ground' }), // swung open
 ```
 
+## Round bodies: kettle, jug, drum, tank, pot
+
+A round object is a round box, never a box: `box({ at, size: [d, d, h], round: true, material, wall, id })` (width and depth equal).
+
+- MUST open it as a round cutaway with `open`: each open face removes the quarter of the wall on that side. `open: 'xy'` is a half-section (the whole front half; the inside shows fully), `open: 'y'` or `'x'` is a quarter window (the rest of the wall stays, so a handle or spout can stand on a closed side). The engine draws the cut through the wall as a section band, lines the inside like the body, darkens it toward the floor and clips the contents (`inside`) to the opening, exactly as for a box. A side that is open but turned away from the reader is drawn closed, as for a box.
+- MUST give a vessel with an open top `mouth: true`: the top ring is the rim and the contents show through the mouth. The lid is a separate part: `lid(body, { id: 'lid' })` returns the lid for two states, sitting on the mouth when closed and floating `lift` above it on a dashed axis when open, with its rim rings, seam and knob. NEVER draw a lid as a solid cap on a body that must show its inside.
+- MUST put contents inside the circle: a round part (`round: true`) of radius up to the inner wall, or a box that fits the circle (lint `L18-outside-container`).
+- MUST put a detail on the curved wall with face `wrap`, which follows the wall and shows only on the near half: `ring(body, z, { from, to })` for a seam, rim or weld; `band(body, z0, z1, { from, to, material })` for a label, a gauge window, a control strip; `studs(body, z, count)` for rivets or buttons (a `dot`, so name it in a label or the copy); `topRing(body, radius)` for a circle on a top (a heating element, a lid groove). Angles are degrees: 0 is the +x side, 90 the +y side; the reader sees -45 to 135 and the rest after a turn. `surfacePoint(body, angle, z)` gives a point on the wall for a hand-made line (lint `L2-face-detail` checks it is on the wall).
+- MUST fix everything that belongs on the outside to the outside, with the kit: `handle(body, side, { id, z0, z1 })` (two bars into the wall and a grip with grooves), `spout(body, side, { id, z })` (a neck and a lip with a dark mouth), `attach(body, side, { reach, width, z, height, id })` (a hinge, a knob, a foot, a button). `side` is the side of the body: `x`, `y`, `-x`, `-y`. Each part carries `attach`; lint `L20-attach-outside` checks, in every view, that it touches the wall, does not enter the body or the opening, is not on a cut-away side and is drawn on the right side of the body. Parts on `-x` and `-y` are behind the body: list them BEFORE the body. Parts on `x` and `y` come after it. A spout opposite the handle with a quarter window between them is the usual kettle arrangement.
+- Draw the bottom as it is: a base ring or foot plate is a second round box under the body (`rests`), the power cord a line that starts on a face.
+
+```js
+const body = box({ at: [10, 10, 10], size: [44, 44, 60], round: true, mouth: true, open: 'y', wall: 2.5, material: 'steel', id: 'jug', rests: 'base', when: 'open' });
+// the same body closed, for the closed state
+const shut = { ...body, open: undefined, when: 'closed' };
+[ ...spout(body, '-x', { id: 'spout', z: 45 }), body, shut, ...handle(body, 'x', { id: 'handle', z0: 24, z1: 62 }),
+  ring(body, 30, { id: 'weld' }), ...lid(body, { id: 'lid' }) ];
+```
+
+## The orbit: four true views, scrubbed by dragging
+
+The reader turns the object a quarter turn at a time (buttons, arrow keys, swipe). While dragging, the next view fades in over the current one in proportion to the drag, and lets go to snap to it, so the turn feels smooth. It is a cross-fade between four true views, not a continuous rotation.
+
+Why there is no continuous rotation: every view is drawn by the same engine and checked by the same lint (painter order, face details in their face, parts at least 40% visible, hit areas for hover). The engine is built on axis-aligned solids, so a view at 45 degrees would need rotated solids, a new visibility and depth sort, and lint for every angle; a half-correct sort would draw parts in front of what hides them, which the lint could not catch. Four views keep every rule enforced, so the engine does not offer in-between angles.
+
 ## States
 
 - MUST give a part that moves between two positions both of them, with `when`: a door `when: 'open'` swung out and the same door `when: 'closed'` in place. Render with `renderStates(shapes, { states: ['open', 'closed'], ... })`; `orbitHtml` then adds one button that switches them.

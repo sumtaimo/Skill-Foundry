@@ -16,7 +16,7 @@ This is the detail level every figure aims for, whatever the object is.
 - Orbit: four views. From the back the reader sees the condenser rack with its copper tube and, in the machine bay inside the base (`open: ['-x', '-y']`), the compressor, the drain pan, the pipes and the power cable.
 - Labels are hidden at rest and appear as a chip when a part is hovered, focused or tapped; cards under the figure name every part.
 - Motion story: the cold-air block falls from the vent past the shelves; it stops under reduced motion.
-- About 130 shapes in the front view. `lintStates` reports 0 errors and 0 warnings.
+- About 150 elements in the front view and 95 face details (the floor the lint asks of every figure). `lintStates` reports 0 errors and 0 warnings; the cards name each part, what it does, where it sits and the source of that fact.
 - Regenerate: `node examples/build-demo.mjs` (from the skill folder) writes `demo.html`, `../preview/example.html` and `../preview/cover.svg`; the committed files must match it byte for byte.
 
 Read `build-demo.mjs` before building your own figure: it shows how the layers of a real object are stacked, from the feet up, and how `slots`, `screws` and `repeat` add the small features.

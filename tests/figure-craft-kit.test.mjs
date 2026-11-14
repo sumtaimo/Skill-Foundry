@@ -31,7 +31,7 @@ test('repeat: builds and flattens', () => {
 test('helpers give a figure its micro detail: L19-sparse and L17-one-material pass', () => {
   const shapes = [
     box({ at: [0, 0, 0], size: [60, 60, 60], material: 'steel', id: 'body' }),
-    ...slots([[60, 6, 10], [60, 54, 10]], [[60, 6, 50], [60, 54, 50]], 12, { on: 'body', face: 'x' }),
+    ...slots([[60, 6, 10], [60, 54, 10]], [[60, 6, 50], [60, 54, 50]], 125, { on: 'body', face: 'x' }),
     box({ at: [70, 0, 0], size: [10, 10, 10], material: 'dark', id: 'a' }),
     box({ at: [90, 0, 0], size: [10, 10, 10], material: 'plain', id: 'b' }),
   ];

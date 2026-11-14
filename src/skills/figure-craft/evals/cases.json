@@ -46,5 +46,59 @@
         "value": "report.md"
       }
     ]
+  },
+  {
+    "id": "kettle-round",
+    "prompt": "Show how an electric kettle boils water. I want to see the real parts of the kettle in detail, open, with the water inside.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "round: true"
+      },
+      {
+        "type": "contains",
+        "value": "mouth: true"
+      },
+      {
+        "type": "contains",
+        "value": "attach"
+      },
+      {
+        "type": "contains",
+        "value": "fc-orbit"
+      },
+      {
+        "type": "contains",
+        "value": "lintStates"
+      },
+      {
+        "type": "contains",
+        "value": "Where it sits"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-reduced-motion"
+      },
+      {
+        "type": "notContains",
+        "value": "fill=\"#"
+      },
+      {
+        "type": "notContains",
+        "value": "stroke=\"#"
+      },
+      {
+        "type": "fileExists",
+        "value": "build-figure.mjs"
+      },
+      {
+        "type": "fileExists",
+        "value": "lint-report.json"
+      },
+      {
+        "type": "fileExists",
+        "value": "report.md"
+      }
+    ]
   }
 ]

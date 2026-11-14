@@ -16,3 +16,10 @@ The version stays 1.0.0 until the owner calls it final. Changes are listed here 
 - Lint L1 to L19, `lintViews` and `lintStates`.
 - Ten layer files; self-contained; starts from the goal the user states.
 - Reference figure: one refrigerator, drawn whole, that opens, turns and shows its food (`examples/build-demo.mjs`).
+- Round bodies: an upright cylinder can be cut open (`open` removes a quarter of the wall per face, the cut is drawn as a section band, the inside is lined and shaded, contents are clipped to the opening) and can have an open top (`mouth`). Lids sit on the mouth and lift clear (`lid` in the kit); details wrap round the wall (`face: 'wrap'`, `ring`, `band`, `studs`, `topRing`).
+- Outside parts: `attach`, `handle`, `spout` in the kit; lint `L20-attach-outside` (touching, outside the body and its opening, on a side with wall, drawn on the correct side, in every view); `sortShapes` orders attached parts and contents correctly from every side.
+- Rounded top edges: a lit ring and a lit strip under the rim on boxes and cylinders (`edge`); round parts cast round shadows and a lifted part casts none; cylinders outline as cylinders.
+- Orbit: dragging scrubs between the four true views by cross-fade; continuous rotation is not offered and `references/orbit.md` says exactly why.
+- Fullness: lint `L19-sparse` now needs 40 face details, four per labelled part, one and a half per solid and 120 elements, and rejects copied details, so a real object always reaches a high detail level; the reference refrigerator is unchanged at 0 errors and 0 warnings.
+- Page: `cardsHtml` and `lintCards` (`engine/page.mjs`) put what each part does, where it sits and the source of that fact in the cards (R-figure-craft-31, `R31-card-location`).
+- Layers: output goes to the current working folder with its path named; the browser check is optional and the report says honestly when it was not run; the report names the engine functions used; page-only checklist items are marked.

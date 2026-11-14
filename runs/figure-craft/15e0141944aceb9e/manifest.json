@@ -1,0 +1,80 @@
+{
+  "skill": "figure-craft",
+  "version": "1.0.0",
+  "caseId": "refrigerator-cooling",
+  "inputSha256": "949bb654617ca9e77be32133cfbe5164c24f30d462868cfd556165919c599661",
+  "skillSha256": "c33f4a56fed8936e30e3cab99f0664adee7be3a6b905da38668356cfff4255ad",
+  "key": "15e0141944aceb9e50b4a363bbd68bb4efddeff0eaf7af0c2937f61fb86b9fdb",
+  "startedAt": "2026-11-14T17:09:51.961Z",
+  "finishedAt": "2026-11-14T17:11:38.180Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.14932356000000005,
+  "usage": {
+    "input_tokens": 46,
+    "cache_creation_input_tokens": 86114,
+    "cache_read_input_tokens": 2055670,
+    "output_tokens": 26371,
+    "output_tokens_details": {
+      "thinking_tokens": 5430
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 86114,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 793,
+        "cache_read_input_tokens": 115947,
+        "cache_creation_input_tokens": 423,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 423
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [
+    {
+      "path": "build-figure.mjs",
+      "bytes": 21736,
+      "sha256": "a0751955fb5af6063ca32667c3706d3057b0a7b03b4fab6822e104c94131c59b"
+    },
+    {
+      "path": "lint-report.json",
+      "bytes": 37,
+      "sha256": "e0c2924b0cf38903b5cc04c6b7491eb4acbcdfb846f4563bd1fe20d4953aff75"
+    },
+    {
+      "path": "refrigerator.html",
+      "bytes": 807134,
+      "sha256": "bc8ff1588b7ffb89e11189d05f60636902f2c4bb64871d56a9c4fdb71b9b24b4"
+    },
+    {
+      "path": "refrigerator.svg",
+      "bytes": 162700,
+      "sha256": "ef4dcdf99eb0a6b5cb70ec1413f2848d7f44c763e027e40e94795a0bf176a678"
+    },
+    {
+      "path": "report.md",
+      "bytes": 7812,
+      "sha256": "7f2d1f284b819666b19b96b7f51693f0fa381e6268c35be354f122504bd31a7b"
+    }
+  ],
+  "checks": {
+    "expectations": 8,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "The refrigerator figure is built from the figure-craft engine. Lint passes with zero errors and zero warnings, but every part's position is an assumption because no spec or photo of a specific fridge was supplied.\n\n**Files** (all in `/home/user/Skill-Foundry/runs/figure-craft/15e0141944aceb9e/output/`):\n- `refrigerator.html`: the self-contained page. The fridge opens and closes, turns to four views, and shows hover labels, nine part cards, and theme and pause buttons.\n- `refrigerator.svg`: the front view with the doors open, as a standalone file.\n- `build-figure.mjs`: rebuilds the three files. It imports the engine from `../../../../src/skills/figure-craft/engine/`, so it runs in this repository layout only.\n- `lint-report.json`: `{ errors: [], warnings: [] }`.\n- `report.md`: the idea sentence, parts table, motion story, engine functions, checks, and open items.\n\n**Checks run:**\n- `lintStates` over both door states and all four views: 0 errors, 0 warnings. `lintCards` on the nine cards: 0 errors.\n- Two rebuilds gave identical SHA-256 hashes for all three generated files.\n- All 725 `fill` and `stroke` values in the SVG are tokens, `none` or `url(#…)`. No colour literals appear outside the token style block.\n- The HTML has no external scripts or links.\n- The nine required parts match the nine labels and cards one to one.\n\n**Not run:**\n- Browser checks (light and dark, 390px, reduced motion, console, hover). This session has no browser permission, so none are claimed.\n- The second-reader check.\n- The full checklist item by item. The lint covers the geometry rules; the rest needs a browser, a second reader, or a judgement on the real object.\n\n**Open items:**\n1. **Layout is assumed.** The drawing is the common layout of a household fridge-freezer, taken from the skill's reference figure for this same request. Each card is marked \"Assumed\". If the customer has a model, send its spec or a photo so the parts can be checked.\n2. **Scale is not measured.** The compressor and some other parts are drawn larger than real size for legibility.\n3. **Motion is vertical.** The cold-air block falls straight down from the vent. Lint accepts this, but a reviewer may prefer a horizontal move."
+}

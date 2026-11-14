@@ -1,0 +1,80 @@
+{
+  "skill": "figure-craft",
+  "version": "1.0.0",
+  "caseId": "kettle-round",
+  "inputSha256": "ea08e6ff04d46a6da8bde77d45a58c6402eb0681a628cf9994ddfbb30ae1ff4c",
+  "skillSha256": "c33f4a56fed8936e30e3cab99f0664adee7be3a6b905da38668356cfff4255ad",
+  "key": "6802f656e09552875ce590118f0b23b7c3b0a7437d66252f1e51917fe178d8e4",
+  "startedAt": "2026-11-14T17:09:51.942Z",
+  "finishedAt": "2026-11-14T17:20:18.218Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.9321450899999996,
+  "usage": {
+    "input_tokens": 98,
+    "cache_creation_input_tokens": 229373,
+    "cache_read_input_tokens": 8595329,
+    "output_tokens": 137336,
+    "output_tokens_details": {
+      "thinking_tokens": 90865
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 229373,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 834,
+        "cache_read_input_tokens": 258863,
+        "cache_creation_input_tokens": 766,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 766
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [
+    {
+      "path": "build-figure.mjs",
+      "bytes": 21176,
+      "sha256": "5d4d702936bb13b1712abd885311223b93758f8c02ed3a8fbbb814cb4b0fca33"
+    },
+    {
+      "path": "electric-kettle.html",
+      "bytes": 705343,
+      "sha256": "f981a31d1b97e2726980285c7995a147c94b184e36f8c07387459b2f139f7bb1"
+    },
+    {
+      "path": "electric-kettle.svg",
+      "bytes": 109739,
+      "sha256": "a8fafd8465b12f74507648b8489bc75a680dc04b0a70e0d7bbb110da9552510f"
+    },
+    {
+      "path": "lint-report.json",
+      "bytes": 37,
+      "sha256": "e0c2924b0cf38903b5cc04c6b7491eb4acbcdfb846f4563bd1fe20d4953aff75"
+    },
+    {
+      "path": "report.md",
+      "bytes": 12701,
+      "sha256": "2452c4c0447cbaaf8f9a9a8b0897fa260fadad652fa02289d4c2db3b7ab4cbea"
+    }
+  ],
+  "checks": {
+    "expectations": 12,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "The kettle figure is built and lint-clean, but I have not seen it rendered. No browser or rasteriser was available in this session, so please open the page and check that the cutaway, lid, handle and spout read correctly.\n\n**Files** (all in `/home/user/Skill-Foundry/runs/figure-craft/6802f656e0955287/output/`):\n- `electric-kettle.html`: the turnable figure (four views, open and closed states), a hover label per part, and a card per part naming where it sits and its source.\n- `electric-kettle.svg`: the front view, open state, standalone.\n- `build-figure.mjs`: regenerates both files and the lint report.\n- `lint-report.json`: `{ \"errors\": [], \"warnings\": [] }`.\n- `report.md`: idea sentence, parts table with details and locations, engine functions used, checklist answers, open items.\n\n**Checks run**\n- Lint over both states and all four views (L1–L20, and the card-location rule): 0 errors, 0 warnings.\n- Floor counts in the open state: 27 solids, 121 elements (116 drawn plus 5 back details), 87 face details in the front view.\n- Two rebuilds gave identical sha256 hashes for the HTML, SVG and lint report.\n- The HTML has no external scripts or links; the SVG has no raw colour in any fill or stroke.\n- Label targets: each label lands on its intended part in its state (9 labels open, 5 closed).\n\n**Problem I found and fixed:** the skill's `renderStates` gives both states the same label list, so in the closed state Bubble, Water, Heating element and Steam switch would have shown as chips on the jug. Lint did not catch it. I render each state with its own labels through the same engine (`renderViews`) and added a label-target check. A negative test confirmed the check fails on the old shared list.\n\n**Not run:** light and dark, 390px, reduced motion, console, hover and Tab reveal, and a second reader. These are marked \"not run\" in the checklist. Checks on the drawing rest on the lint and geometry only.\n\n**Open items**\n- No kettle model was supplied, so the layout is typical. The steam switch position and the bubble are marked as assumptions on their cards.\n- The lid lifts straight up; real lids hinge at the back, and the hinge is drawn there.\n- The water is glass rather than blue, and sizes are not to scale.\n- The build imports the engine from `../../../../src/skills/figure-craft/engine/`, so it only regenerates where the skill folder sits at that path."
+}

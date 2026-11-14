@@ -1,6 +1,6 @@
 # figure-craft spec
 
-Isometric explanatory figures: one idea, one object, drawn from shared tokens with the iso engine and checked by lint rules L1-L19. The skill's own layers (`src/skills/figure-craft/layers/`) are the procedure; this file is the factory-side spec. Checklist item numbers (C#) refer to `CHECKLIST.md`.
+Isometric explanatory figures: one idea, one object, drawn from shared tokens with the iso engine and checked by lint rules L1-L20. The skill's own layers (`src/skills/figure-craft/layers/`) are the procedure; this file is the factory-side spec. Checklist item numbers (C#) refer to `CHECKLIST.md`.
 
 ## Inputs
 - A one-line prompt naming the idea.
@@ -63,16 +63,20 @@ A second reader restates the idea; warnings fixed or justified.
 | L10-crowded | warning | parts on one base closer than 4, or spanning under 30% of the base |
 | L10 note | | parts that touch are one structure and are not warned |
 | L11-no-detail | error | a labelled part has fewer face details than 1 + one per 8% of the drawing (max 3) |
-| L12-part-too-small | error | a labelled part covers less than 3% of the drawing |
+| L12-part-too-small | error | a labelled part covers less than 1% of the drawing (aim for 3%) |
 | L13-no-solid-body | error | solid volumes cover less than 20% of the drawing |
 | L14-missing-part | error | `requiredParts` missing, or a required part not drawn or not labelled |
 | L15-floating | error | a part above the ground neither rests on nor touches another part |
 | L16-hidden-part | error | a labelled part is less than 40% visible behind later-drawn solids (glass does not hide) |
 | L17-one-material | error | three or more solids all of one material |
 | L18-outside-container | error | a shape marked `inside` reaches outside its container |
-| L19-sparse | error | fewer than 12 face details, or fewer than 3 per labelled part |
+| L19-sparse | error | fewer than 40 face details, 4 per labelled part or 1.5 per solid, fewer than 120 elements (2.5 per solid for a big object), a large bare solid, or a detail drawn twice |
+| L20-attach-outside | error | a part declared `attach` floats, lies inside its body or its opening, sits on a cut-away side, or is drawn on the wrong side of the body (checked in every view) |
+| R31-card-location | error | (`lintCards`) a card lacks what the part does, where it sits in the real object, or the source of that fact |
 
 Showcase: one object, the refrigerator (`examples/build-demo.mjs`), at the detail level of the owner's reference. Version stays 1.0.0 until the owner calls it final.
+
+Round bodies: an upright cylinder opens like a box (each open face removes a quarter of the wall, `'xy'` is a half-section), has an open top (`mouth`), takes a lid that lifts (`lid`), wears details that follow its wall (`face: 'wrap'`: `ring`, `band`, `studs`) and carries handles, spouts and hinges on its outside (`handle`, `spout`, `attach`, lint L20). The orbit keeps four true views and scrubs between them by cross-fade; a continuous rotation is not offered (see `references/orbit.md` for why).
 
 Open and orbit: `open` bodies (`'xy'` is a cutaway), states with `when`, show contents marked `inside`; `renderViews` gives four views a quarter turn apart and `orbitHtml` the turn controls. Style: hairline outlines, near-white palette.
 

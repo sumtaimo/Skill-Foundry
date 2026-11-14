@@ -17,11 +17,13 @@ Detail moved out of `SKILL.md`. Each file lists MUST / NEVER rules with a tiny e
 ## Engine API (summary)
 
 - `engine/tokens.mjs`: `TOKENS = { light, dark }`, `tokensCss()`.
-- `engine/iso.mjs`: `C = 0.866`, `project([x,y,z])`, `box({ at, size, material, round, rests, move })`, `panel(corners, { on, face, material })`, `disc(at, { on, face, r, material })`, `glow(at, { r, inside })`, `line(points, { bold, on, face, tone })`, `dot(at, opts)`, `renderSvg(shapes, { labels, labelMode, requiredParts, padding, flat, fontSize })`, `layoutLabels(labels, bounds, fontSize)`.
-- `engine/lint.mjs`: `lint(model)` returns `{ errors, warnings }` for rules L1 to L19; `lintViews(views)` and `lintStates(states)` for an orbit.
+- `engine/iso.mjs`: `C = 0.866`, `project([x,y,z])`, `box({ at, size, material, round, rests, move })`, `panel(corners, { on, face, material })` (a `wrap` panel takes the points of its outline), `disc(at, { on, face, r, material })`, `glow(at, { r, inside })`, `line(points, { bold, on, face, tone })`, `dot(at, opts)`, `renderSvg(shapes, { labels, labelMode, requiredParts, padding, flat, fontSize })`, `layoutLabels(labels, bounds, fontSize)`.
+- `engine/lint.mjs`: `lint(model)` returns `{ errors, warnings }` for rules L1 to L20; `lintViews(views)` and `lintStates(states)` for an orbit.
 
 - `engine/orbit.mjs`: `renderStates(shapes, opts)`, `renderViews(shapes, opts)`, `orbitHtml(viewsOrStates, { label })`, `turnShapes`, `sortShapes`.
-- `engine/kit.mjs`: `slots`, `screws`, `repeat`.
+- `engine/kit.mjs`: `slots`, `screws`, `repeat`; for round bodies `ring`, `rings`, `band`, `studs`, `topRing`, `surfacePoint`; for parts on the outside `attach`, `handle`, `spout`, `lid`.
+- `engine/page.mjs`: `cardsHtml(cards)` and `lintCards(cards, labels)`: the cards under the figure, each with what the part does, where it sits and the source.
+- `engine/round.mjs`: the geometry of round bodies (used by the engine and lint; `surfacePoint` is re-exported by the kit).
 
 Axes: x runs down-right, y runs down-left, z runs up. Higher x + y is nearer the reader.
 Use `flat: true` for preview covers: it drops gradients, shadows and the embedded tokens and uses only shared site tokens.

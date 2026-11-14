@@ -1,9 +1,10 @@
 /**
- * figure-craft lint: geometry, layout and detail checks L1-L19 on a renderSvg model (or a hand-built one).
+ * figure-craft lint: geometry, layout and detail checks L1-L20 on a renderSvg model (or a hand-built one).
  * Node 24 ESM, stdlib only, zero deps.
  * @governed-by PO_ARCHITECT
  */
-import { boxOutline, shapePoints, labelBox, labelTarget, panelCorners, discPoints, openingCorners, project, LABEL_GAP, MAX_LABELS } from './iso.mjs';
+import { boxOutline, shapePoints, labelBox, labelTarget, panelCorners, discPoints, openingPolys, project, LABEL_GAP, MAX_LABELS } from './iso.mjs';
+import { roundOf, angleIsOpen, distToRect, farToRect, openFaces } from './round.mjs';
 
 const EPS = 1e-6;
 /** L10: minimum gap between sibling parts, and minimum share of the base they span. */
@@ -17,9 +18,18 @@ export const BODY_SHARE = 0.2;
 export const BODY_THICK = 0.3;
 /** L16: share of a labelled part that must stay visible behind later-drawn solids (glass does not hide). */
 export const MIN_VISIBLE = 0.4;
-/** L19: fewest face details in a figure, and per labelled part. */
-export const MIN_DETAILS = 12;
-export const DETAILS_PER_PART = 3;
+/**
+ * L19: how full a figure must be. Real objects carry hundreds of small features; the reference figure has about 150
+ * elements and 95 face details. A figure needs at least MIN_DETAILS face details, DETAILS_PER_PART per labelled part and
+ * DETAILS_PER_SOLID per solid, and MIN_ELEMENTS drawn elements (more for a bigger object: ELEMENTS_PER_SOLID per solid).
+ */
+export const MIN_DETAILS = 40;
+export const DETAILS_PER_PART = 4;
+export const DETAILS_PER_SOLID = 1.5;
+export const MIN_ELEMENTS = 120;
+export const ELEMENTS_PER_SOLID = 2.5;
+/** L20: an attached part may touch or sink into the wall by this much, and no more. */
+export const ATTACH_GAP = 0.6;
 /** L19: a solid covering this share of the drawing must carry at least one face detail. */
 export const BARE_SHARE = 0.04;
 
@@ -55,6 +65,15 @@ function faceProblem(d, b, corners = true) {
   if (corners) for (const cu of [u0, u1]) for (const cv of [v0, v1]) {
     if (Math.hypot(u - cu, v - cv) < r) return `within r=${r} of a rounded corner`;
   }
+  return null;
+}
+
+/** A wrap detail must lie on the curved wall of an upright round body. @returns {string|null} problem */
+function wrapProblem(pt, b) {
+  if (b.round !== true) return 'a wrap detail needs an upright round body';
+  const { cx, cy, r, z0, z1 } = roundOf(b);
+  if (Math.abs(Math.hypot(pt[0] - cx, pt[1] - cy) - r) > 0.25) return `not on the wall of the cylinder (radius ${r}); use surfacePoint(body, angle, z)`;
+  if (pt[2] < z0 - EPS || pt[2] > z1 + EPS) return 'outside the height of the cylinder';
   return null;
 }
 
@@ -94,14 +113,14 @@ export function lint(model) {
     if (!(d.kind === 'line' || d.kind === 'panel' || d.kind === 'disc') || d.on === undefined) continue;
     const b = byId.get(d.on);
     if (!b || b.kind !== 'box') { err('L2-face-detail', `${d.id} lies on unknown box ${d.on}`); continue; }
-    const p = (d.kind === 'panel' ? panelCorners(d) : d.kind === 'disc' ? discPoints(d, 4) : d.points).map((pt) => faceProblem({ at: pt, face: d.face }, b, false)).find(Boolean);
+    const p = (d.kind === 'panel' ? panelCorners(d) : d.kind === 'disc' ? discPoints(d, 4) : d.points).map((pt) => (d.face === 'wrap' ? wrapProblem(pt, b) : faceProblem({ at: pt, face: d.face }, b, false))).find(Boolean);
     if (p) err('L2-face-detail', `${d.id} on ${d.on}: ${p}`);
   }
   for (const d of shapes) {
     if (d.kind !== 'dot' || d.on === undefined) continue;
     const b = byId.get(d.on);
     if (!b || b.kind !== 'box') { err('L2-face-detail', `${d.id} lies on unknown box ${d.on}`); continue; }
-    const p = faceProblem(d, b);
+    const p = d.face === 'wrap' ? wrapProblem(d.at, b) : faceProblem(d, b);
     if (p) err('L2-face-detail', `${d.id} on ${d.on}: ${p}`);
   }
 
@@ -246,7 +265,7 @@ export function lint(model) {
     const x0 = Math.min(...px), x1 = Math.max(...px), y0 = Math.min(...py), y1 = Math.max(...py);
     // Contents of an open box are seen through its opening only; the box itself does not hide them.
     const holder = b.inside !== undefined ? byId.get(b.inside) : null;
-    const hole = holder && holder.open ? openingCorners(holder).map(project) : null;
+    const holes = holder && (holder.open || holder.mouth) ? openingPolys(holder) : null;
     // Things standing on a part (food on a shelf) are not counted as hiding it.
     const over = boxes.filter((o) => o !== b && o !== holder && o.rests !== b.id && o.drawIndex > b.drawIndex && o.material !== 'glass').map((o) => boxOutline(o));
     let total = 0; let seen = 0;
@@ -254,9 +273,9 @@ export function lint(model) {
       const pt = [x0 + ((i + 0.5) / 14) * (x1 - x0), y0 + ((j + 0.5) / 14) * (y1 - y0)];
       if (!inPoly(pt, poly)) continue;
       total++;
-      if ((!hole || inPoly(pt, hole)) && !over.some((o) => inPoly(pt, o))) seen++;
+      if ((!holes || holes.some((hl) => inPoly(pt, hl))) && !over.some((o) => inPoly(pt, o))) seen++;
     }
-    if (holder && !holder.open) err('L16-hidden-part', `"${l.text}" (${id}) is inside ${holder.id}, which has no open side; give ${holder.id} open: 'xy' (a cutaway), 'x' or 'y'`);
+    if (holder && !holder.open && !holder.mouth) err('L16-hidden-part', `"${l.text}" (${id}) is inside ${holder.id}, which has no open side; give ${holder.id} open: 'xy' (a cutaway), 'x' or 'y'`);
     else if (total && seen / total < MIN_VISIBLE - EPS) err('L16-hidden-part', `"${l.text}" (${id}) is ${Math.round((seen / total) * 100)}% visible (min ${MIN_VISIBLE * 100}%); move it toward the opening, open the side in front of it, or make the cover glass`);
   }
 
@@ -272,6 +291,12 @@ export function lint(model) {
     if (!c || c.kind !== 'box') { err('L18-outside-container', `${s.id} is inside unknown box ${s.inside}`); continue; }
     const pts = s.kind === 'box' ? [s.at, [s.at[0] + s.size[0], s.at[1] + s.size[1], s.at[2] + s.size[2]]] : s.points ?? [s.at];
     if (pts.some((p) => [0, 1, 2].some((k) => p[k] < c.at[k] - EPS || p[k] > c.at[k] + c.size[k] + EPS))) err('L18-outside-container', `${s.id} is declared inside ${c.id} but reaches outside it`);
+    else if (c.round === true) {
+      // A round container is not its bounding square: the contents must fit the circle.
+      const { cx, cy, r } = roundOf(c);
+      const reach = s.kind === 'box' ? (s.round === true ? Math.hypot(s.at[0] + s.size[0] / 2 - cx, s.at[1] + s.size[1] / 2 - cy) + s.size[0] / 2 : farToRect(cx, cy, s.at[0], s.at[0] + s.size[0], s.at[1], s.at[1] + s.size[1])) : Math.max(...pts.map((p) => Math.hypot(p[0] - cx, p[1] - cy)));
+      if (reach > r + 0.05) err('L18-outside-container', `${s.id} is declared inside ${c.id} but reaches outside its round wall (${Math.round(reach * 10) / 10} from the axis, radius ${r})`);
+    }
   }
 
   // L19 micro detail: enough small real features for the size of the figure, and no large bare solid
@@ -280,13 +305,66 @@ export function lint(model) {
     const count = (id) => shapes.filter((x) => x.kind !== 'box' && x.on === id).length + (back[id] ?? 0);
     const labelled = [...named.keys()].filter((id) => !byId.get(id).move).length;
     const solids = boxes.filter((x) => !x.move).length;
-    // At least 12, three per labelled part, and one per solid on average: a bigger object needs more.
-    const need = Math.max(MIN_DETAILS, DETAILS_PER_PART * labelled, solids);
-    const have = shapes.filter((x) => x.kind !== 'box' && x.on !== undefined).length + Object.values(back).reduce((p, q) => p + q, 0);
-    if (have < need) err('L19-sparse', `${have} face details in the figure (min ${need} for ${solids} solids and ${labelled} labelled parts); add the small real features of each part: seams, handles, vents, screws, feet, controls, edges`);
+    // A real object is full: a floor for every figure, more for each labelled part, and more again for a bigger object.
+    const need = Math.max(MIN_DETAILS, DETAILS_PER_PART * labelled, Math.ceil(DETAILS_PER_SOLID * solids));
+    const backTotal = Object.values(back).reduce((p, q) => p + q, 0);
+    const have = shapes.filter((x) => x.kind !== 'box' && x.on !== undefined).length + backTotal;
+    if (have < need) err('L19-sparse', `${have} face details in the figure (min ${need} for ${solids} solids and ${labelled} labelled parts); add the small real features of each part: seams, handles, vents, screws, feet, controls, edges, rings, labels, rivets (engine/kit.mjs makes rows of them in one call)`);
+    const elements = shapes.length + backTotal;
+    const needEl = Math.max(MIN_ELEMENTS, Math.ceil(ELEMENTS_PER_SOLID * solids));
+    if (elements < needEl) err('L19-sparse', `${elements} elements in the figure (min ${needEl} for ${solids} solids); the object is not full yet: draw its smaller real parts as solids (feet, knobs, hinges, bands, buttons) and give each its detail`);
     for (const x of boxes) {
       if (x.move || x.material === 'glass' || kids.has(x.id) && x.at[2] === 0 && x.size[2] <= 4) continue; // glass and flat ground plates stay plain
       if (share(x) >= BARE_SHARE - EPS && count(x.id) === 0) err('L19-sparse', `${x.id} covers ${Math.round(share(x) * 100)}% of the drawing and has no face detail; a large surface of a real object is never bare`);
+    }
+    // The same detail drawn twice adds nothing: it is padding, not a feature.
+    const seen = new Set();
+    for (const x of shapes) {
+      if (x.kind === 'box' || x.on === undefined) continue;
+      const key = JSON.stringify([x.kind, x.on, x.face, x.points ?? x.at, x.r ?? 0]);
+      if (seen.has(key)) err('L19-sparse', `${x.id} repeats another detail on ${x.on}; a detail is a different real feature, never a copy`);
+      seen.add(key);
+    }
+  }
+
+  // L20 a part attached to the outside of a body (handle, spout, hinge) touches it, stays outside it and sits on a wall
+  for (const s of boxes) {
+    if (s.attach === undefined) continue;
+    const body = byId.get(s.attach);
+    if (!body || body.kind !== 'box') { err('L20-attach-outside', `${s.id} is attached to unknown body ${s.attach}`); continue; }
+    const t = body.wall ?? 2;
+    const [sx0, sy0, sz0] = s.at; const sx1 = sx0 + s.size[0]; const sy1 = sy0 + s.size[1]; const sz1 = sz0 + s.size[2];
+    const bx1 = body.at[0] + body.size[0]; const by1 = body.at[1] + body.size[1]; const bz1 = body.at[2] + body.size[2];
+    const gap3 = Math.hypot(Math.max(body.at[0] - sx1, sx0 - bx1, 0), Math.max(body.at[1] - sy1, sy0 - by1, 0), Math.max(body.at[2] - sz1, sz0 - bz1, 0));
+    // A part of the same fitting that touches (a grip joined to its bars) is held by the fitting, so it need not touch the wall itself.
+    const held = boxes.some((o) => o !== s && o.attach === s.attach && Math.hypot(Math.max(o.at[0] - sx1, sx0 - (o.at[0] + o.size[0]), 0), Math.max(o.at[1] - sy1, sy0 - (o.at[1] + o.size[1]), 0), Math.max(o.at[2] - sz1, sz0 - (o.at[2] + o.size[2]), 0)) <= ATTACH_GAP);
+    const zOver = Math.min(sz1, bz1) - Math.max(sz0, body.at[2]);
+    let inside = false; let onOpen = null; let facing = 0;
+    if (body.round === true) {
+      const { cx, cy, r, z0, z1 } = roundOf(body);
+      const dmin = distToRect(cx, cy, sx0, sx1, sy0, sy1);
+      const reachesWall = dmin <= r + ATTACH_GAP && zOver > 0;
+      const onTop = Math.abs(sz0 - z1) <= ATTACH_GAP || Math.abs(sz1 - z0) <= ATTACH_GAP;
+      if (!reachesWall && !(onTop && dmin <= r) && !held) err('L20-attach-outside', `${s.id} floats: it does not touch the wall of ${body.id} (${Math.round(dmin * 10) / 10} from the axis, wall at ${r})`);
+      const top = body.mouth ? z1 : z1 - t;
+      inside = dmin < r - t - 0.01 && Math.min(sz1, top) - Math.max(sz0, z0 + t) > 0.01;
+      const nearest = [Math.min(Math.max(cx, sx0), sx1), Math.min(Math.max(cy, sy0), sy1)];
+      if (dmin > 0 && !onTop && angleIsOpen(body, (Math.atan2(nearest[1] - cy, nearest[0] - cx) * 180) / Math.PI)) onOpen = 'the wall is cut away there';
+      facing = (sx0 + sx1) / 2 + (sy0 + sy1) / 2 - cx - cy;
+    } else {
+      if (gap3 > ATTACH_GAP && !held) err('L20-attach-outside', `${s.id} floats: it is ${Math.round(gap3 * 10) / 10} from ${body.id}; touch the outside of its wall`);
+      inside = Math.min(sx1, bx1 - t) - Math.max(sx0, body.at[0] + t) > 0.01 && Math.min(sy1, by1 - t) - Math.max(sy0, body.at[1] + t) > 0.01 && Math.min(sz1, bz1 - t) - Math.max(sz0, body.at[2] + t) > 0.01;
+      const open = openFaces(body).length ? [...(body.open ?? ''), ...(body.openBack ?? [])] : [];
+      const face = Math.abs(sx0 - bx1) <= ATTACH_GAP ? 'x' : Math.abs(sx1 - body.at[0]) <= ATTACH_GAP ? '-x' : Math.abs(sy0 - by1) <= ATTACH_GAP ? 'y' : Math.abs(sy1 - body.at[1]) <= ATTACH_GAP ? '-y' : null;
+      if (face && open.includes(face)) onOpen = `its ${face} side is open`;
+      facing = (sx0 + sx1) / 2 + (sy0 + sy1) / 2 - (body.at[0] + bx1) / 2 - (body.at[1] + by1) / 2;
+    }
+    if (inside) err('L20-attach-outside', `${s.id} lies inside ${body.id}, not on its outside: a handle, spout or hinge stays outside the wall (sink it no deeper than the wall, ${t})`);
+    if (onOpen) err('L20-attach-outside', `${s.id} is attached to ${body.id} where there is no wall (${onOpen}); move it to a side that stays closed`);
+    // Painter order: a part behind the body is drawn before it, a part in front is drawn after it.
+    if (Math.abs(facing) > 1) {
+      if (facing < 0 && s.drawIndex > body.drawIndex) err('L20-attach-outside', `${s.id} is behind ${body.id} but drawn after it, so it shows over the opening; draw it before ${body.id}`);
+      if (facing > 0 && s.drawIndex < body.drawIndex) err('L20-attach-outside', `${s.id} is in front of ${body.id} but drawn before it, so the body hides it; draw it after ${body.id}`);
     }
   }
 
@@ -299,7 +377,7 @@ export function lint(model) {
 }
 
 /** Rules that must hold from every side when the figure can be turned. */
-const EVERY_VIEW = ['L2-face-detail', 'L5-outside-viewbox', 'L6-raw-colour', 'L7-motion-no-reduced', 'L15-floating', 'L18-outside-container'];
+const EVERY_VIEW = ['L2-face-detail', 'L5-outside-viewbox', 'L6-raw-colour', 'L7-motion-no-reduced', 'L15-floating', 'L18-outside-container', 'L20-attach-outside'];
 const partOf = (e) => /\(([^)]+)\) is (?:\d+% visible|inside)/.exec(e.message)?.[1];
 
 /**
