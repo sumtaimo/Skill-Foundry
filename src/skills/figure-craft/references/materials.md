@@ -27,7 +27,7 @@ You choose what each solid is made of; the engine does the rest. NEVER draw shad
 - MUST use `panel(corners, { on, face, material })` for a filled area on a face: a door front, a display, a window, a drawer, a vent plate. A panel counts as a face detail.
 - MUST colour pipes and flows with `line(points, { tone })`: `copper` for tubing, `cold` for cold flow, `warm` for heat.
 - MUST show the inside through `glass` or one open side when a part would otherwise be hidden (lint `L16-hidden-part`); a labelled part stays at least 40% visible.
-- NEVER set a stroke width or draw a heavier outline; the engine uses one hairline weight. Use `bold` only for a real dark feature such as a handle or a cable.
+- NEVER set a stroke width or draw a heavier outline; the engine uses one hairline weight and scales it to the size of the drawing, so a small object and a large one look the same on screen. Use `bold` only for a real dark feature such as a handle or a cable.
 - NEVER write a colour; materials and tones are tokens, and the SVG carries its own token values so it also works as a standalone file.
 
 Example: a steel cabinet with a glass door, a round dark compressor and a copper pipe.
