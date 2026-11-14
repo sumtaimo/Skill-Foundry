@@ -9,7 +9,7 @@ const KEYS = ['bg', 'surface', 'surface2', 'line', 'lineStrong', 'fg', 'muted', 
   'isoTop', 'isoA', 'isoB', 'isoInk', 'isoInkTop', 'isoInkA', 'isoInkB',
   'matSteelTop', 'matSteelA', 'matSteelB', 'matWhiteTop', 'matWhiteA', 'matWhiteB',
   ...TINTS.flatMap((t) => [`mat${t}Top`, `mat${t}A`, `mat${t}B`]),
-  'matCavity', 'matGlow', 'matGlass', 'matCopper', 'matCold', 'matWarm', 'matShadow', 'matShine'];
+  'matCavity', 'matSection', 'matGlow', 'matGlass', 'matCopper', 'matCold', 'matWarm', 'matShadow', 'matShine'];
 
 // Modern, quiet palette: near-white surfaces, low contrast between faces, hairline grey outlines.
 export const TOKENS = Object.freeze({
@@ -20,7 +20,7 @@ export const TOKENS = Object.freeze({
     matSteelTop: '#f8f9fa', matSteelA: '#e5e9ec', matSteelB: '#c8ced4', matWhiteTop: '#ffffff', matWhiteA: '#f6f6f4', matWhiteB: '#e1e1de',
     matBlueTop: '#e2eef8', matBlueA: '#cfe2f3', matBlueB: '#a3c3e0', matRedTop: '#fae1da', matRedA: '#f4cdc2', matRedB: '#e09f8e',
     matGreenTop: '#e0f1e3', matGreenA: '#cde6d2', matGreenB: '#9fc8a8', matAmberTop: '#fbf0d6', matAmberA: '#f5e3b8', matAmberB: '#debf78',
-    matCavity: '#d3d6d9', matGlow: '#fff3cf', matGlass: '#bcdaea', matCopper: '#c98f63', matCold: '#4f9fd3', matWarm: '#df7655', matShadow: '#1a1a19', matShine: '#ffffff',
+    matCavity: '#d3d6d9', matSection: '#aeb4bb', matGlow: '#fff3cf', matGlass: '#bcdaea', matCopper: '#c98f63', matCold: '#4f9fd3', matWarm: '#df7655', matShadow: '#1a1a19', matShine: '#ffffff',
   }),
   dark: Object.freeze({
     bg: '#141413', surface: '#1d1d1c', surface2: '#262625', line: '#383836', lineStrong: '#7a7a76',
@@ -29,7 +29,7 @@ export const TOKENS = Object.freeze({
     matSteelTop: '#5b6066', matSteelA: '#4a4f54', matSteelB: '#3a3e42', matWhiteTop: '#4c4c4a', matWhiteA: '#414140', matWhiteB: '#343433',
     matBlueTop: '#3f5a73', matBlueA: '#334b61', matBlueB: '#283c4e', matRedTop: '#7a4a40', matRedA: '#663d35', matRedB: '#52312a',
     matGreenTop: '#3f6549', matGreenA: '#33543c', matGreenB: '#284330', matAmberTop: '#7a6534', matAmberA: '#66542b', matAmberB: '#524322',
-    matCavity: '#1b1c1d', matGlow: '#ffe6a3', matGlass: '#6fa3bb', matCopper: '#d7935c', matCold: '#62b3e6', matWarm: '#ec8560', matShadow: '#000000', matShine: '#8d9399',
+    matCavity: '#1b1c1d', matSection: '#7d848c', matGlow: '#ffe6a3', matGlass: '#6fa3bb', matCopper: '#d7935c', matCold: '#62b3e6', matWarm: '#ec8560', matShadow: '#000000', matShine: '#8d9399',
   }),
 });
 

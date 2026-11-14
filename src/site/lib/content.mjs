@@ -112,7 +112,8 @@ export function loadSkills(root, opts = {}) {
         files: listFiles(dir).sort(),
         example: !!run || existsSync(previewExample),
         exampleSrc: run ? run.htmlPath : existsSync(previewExample) ? previewExample : null,
-        run: run ? { key: run.key, files: run.files } : null, // a recorded real run; null means the cover and example are the skill's own demo
+        // reference: the recorded output is byte for byte the figure the skill ships as its example
+        run: run ? { key: run.key, files: run.files, reference: existsSync(previewExample) && readFileSync(run.htmlPath).equals(readFileSync(previewExample)) } : null, // a recorded real run; null means the cover and example are the skill's own demo
         zipBytes: 0, // size of the packed zip; buildSite fills it after packAll
       };
     })

@@ -118,3 +118,15 @@ test('lintViews: a part hidden from the front passes when another side shows it'
   assert.ok(has(lint(renderSvg(sc, { labels: lab }).model).errors, 'L16-hidden-part'));
   assert.equal(has(lintViews(renderViews(sc, { labels: lab })).errors, 'L16-hidden-part'), false);
 });
+
+test('a cutaway reads as a solid hollow: section band through the walls, inside lined like the body and shaded', () => {
+  const steel = renderSvg([box({ at: [0, 0, 0], size: [60, 60, 80], material: 'steel', id: 'body', open: 'xy', wall: 4 })]).svg;
+  assert.match(steel, /fill="var\(--mat-section\)"/, 'the cut through the walls is drawn');
+  assert.match(steel, /class="fc-shade" d="[^"]+" fill="var\(--mat-shadow\)" opacity="0\.1"/, 'the inside sits in shade');
+  assert.match(steel, /fill="var\(--mat-white-b\)"/, 'a light body has a light liner');
+  const dark = renderSvg([box({ at: [0, 0, 0], size: [60, 60, 30], material: 'dark', id: 'bay', open: 'xy', wall: 3 })]).svg;
+  assert.match(dark, /fill="var\(--iso-ink-b\)"/, 'a dark body is dark inside');
+  assert.doesNotMatch(dark, /fill="var\(--mat-white-b\)"/);
+  const one = renderSvg([box({ at: [0, 0, 0], size: [60, 60, 80], material: 'steel', id: 'body', open: 'y', wall: 4 })]).svg;
+  assert.doesNotMatch(one, /--mat-section\)"/, 'one open side keeps its frame in the body material');
+});

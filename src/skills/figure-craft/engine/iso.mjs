@@ -500,17 +500,26 @@ export function renderSvg(shapes, opts = {}) {
           const floor = [Q(x0, y0, z0), Q(xe, y0, z0), Q(xe, ye, z0), Q(x0, ye, z0)];
           const wallY = [Q(x0, y0, z0), Q(xe, y0, z0), Q(xe, y0, z1), Q(x0, y0, z1)]; // the wall at the low-y side, facing the reader's left
           const wallX = [Q(x0, y0, z0), Q(x0, ye, z0), Q(x0, ye, z1), Q(x0, y0, z1)]; // the wall at the low-x side, facing the reader's right
-          const liner = flat ? FLAT.plain : FACE.white;
+          // The inside is lined like the body (a dark body is dark inside) and sits in shade, so it reads as a hollow, never as glass.
+          const inkBody = m === 'dark' || m === 'ink';
+          const liner = flat ? (inkBody ? FLAT.ink : FLAT.plain) : inkBody ? FACE.dark : FACE.white;
           const edge = `stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}" stroke-linejoin="round"`;
+          const shade = (pts, o) => (flat ? '' : `<path class="${pre}-shade" d="${pathOf(pts)}" fill="${F('var(--mat-shadow)')}" opacity="${o}"/>`);
+          // A cutaway shows the cut through the walls as a solid band in a section tone.
+          if (s.open === 'xy') {
+            const sect = F(flat ? 'var(--muted)' : 'var(--mat-section)');
+            inner += `<path d="${pathOf(fy)}" fill="${sect}" ${edge}/><path d="${pathOf(fx)}" fill="${sect}" ${edge}/>`;
+          }
           inner += `<g clip-path="url(#${oid})"><path d="${pathOf(hole)}" fill="${F(flat ? 'var(--line)' : 'var(--mat-cavity)')}"/>` +
-            `<path d="${pathOf(wallY)}" fill="${F(liner.a)}" ${edge}/>` +
-            `<path d="${pathOf(wallX)}" fill="${F(liner.b)}" ${edge}/>` +
-            `<path d="${pathOf(floor)}" fill="${F(liner.top)}" ${edge}/></g>` +
+            `<path d="${pathOf(wallY)}" fill="${F(liner.a)}" ${edge}/>${shade(wallY, 0.06)}` +
+            `<path d="${pathOf(wallX)}" fill="${F(liner.b)}" ${edge}/>${shade(wallX, 0.1)}` +
+            `<path d="${pathOf(floor)}" fill="${F(inkBody ? liner.a : liner.top)}" ${edge}/>${shade(floor, 0.05)}</g>` +
             `<path d="${pathOf(hole)}" fill="${F('none')}" ${edge}/>`;
         }
         const [ex, ey0] = P(w, d, 0); const [, ey1] = P(w, d, h);
         // Edge highlight where the two side faces meet: the corner catches the light.
-        inner += `<path d="M${r2(ex)} ${r2(ey0)} L${r2(ex)} ${r2(ey1)}" fill="none" stroke="${S(flat ? FLAT[m].top : m === 'glass' ? 'var(--mat-shine)' : 'var(--mat-shine)')}" stroke-width="${HAIR}" stroke-linecap="round" opacity="0.7"/>`;
+        // No highlight on the front corner of a cutaway: that corner has been cut away.
+        if (s.open !== 'xy') inner += `<path d="M${r2(ex)} ${r2(ey0)} L${r2(ex)} ${r2(ey1)}" fill="none" stroke="${S(flat ? FLAT[m].top : m === 'glass' ? 'var(--mat-shine)' : 'var(--mat-shine)')}" stroke-width="${HAIR}" stroke-linecap="round" opacity="0.7"/>`;
       }
     } else if (s.kind === 'panel') {
       const m = s.material ?? 'plain';
@@ -522,7 +531,7 @@ export function renderSvg(shapes, opts = {}) {
       inner = `<path d="${pathOf(discPoints(s).map(project))}" fill="${F(faceFill(m, face))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}" stroke-linejoin="round"/>`;
     } else if (s.kind === 'glow') {
       const [cx, cy] = project(s.at);
-      inner = flat ? '' : `<ellipse cx="${r2(cx)}" cy="${r2(cy)}" rx="${r2(s.r * 1.2)}" ry="${r2(s.r * 0.85)}" fill="${F('var(--mat-glow)')}" opacity="0.7" filter="url(#${pre}-glow)" pointer-events="none"/>`;
+      inner = flat ? '' : `<ellipse cx="${r2(cx)}" cy="${r2(cy)}" rx="${r2(s.r * 1.2)}" ry="${r2(s.r * 0.85)}" fill="${F('var(--mat-glow)')}" opacity="0.5" filter="url(#${pre}-glow)" pointer-events="none"/>`;
     } else if (s.kind === 'line') {
       const stroke = s.tone && !flat ? TONE_STROKE[s.tone] : s.bold ? 'var(--fg)' : 'var(--line-strong)';
       inner = `<path d="M${s.points.map((p) => project(p).map(r2).join(' ')).join(' L')}" fill="${F('none')}" stroke="${S(stroke)}" stroke-width="${s.bold ? 1.3 : s.tone ? 1.1 : HAIR}" stroke-linecap="round" stroke-linejoin="round"/>`;

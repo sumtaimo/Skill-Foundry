@@ -315,8 +315,8 @@ ${s.example ? '' : cover(s, 'get-cover')}
 <ul class="outputs" lang="en">${s.outputs.map((o) => `<li>${esc(o)}</li>`).join('')}</ul>
 ${t('skill.files', 'h3')}
 <ul class="files" lang="en">${s.files.map((f) => `<li><code>${esc(s.name)}/${esc(f)}</code></li>`).join('')}</ul>
-${s.example ? `${t(s.run ? 'run.title' : 'skill.example', 'h3')}
-${s.run ? `${t('run.note', 'p', 'class="run-note"')}
+${s.example ? `${t(s.run ? (s.run.reference ? 'ref.title' : 'run.title') : 'skill.example', 'h3')}
+${s.run ? `${t(s.run.reference ? 'ref.note' : 'run.note', 'p', 'class="run-note"')}
 <p class="run-facts" data-run="${esc(s.run.key)}" lang="en"><code>${esc(s.name)} ${esc(s.version)}</code> <code>run ${esc(s.run.key)}</code> ${s.run.files.map((f) => `<code>${esc(f)}</code>`).join(' ')}</p>` : ''}
 ${t('example.note', 'p')}
 <iframe class="example" sandbox="allow-scripts" src="example.html" title="${esc(s.title)} example"></iframe>

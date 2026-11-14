@@ -15,6 +15,8 @@ detail comes from the skill and not from touching up the picture afterwards.
 - MUST reach the micro-detail minimum (lint `L19-sparse`): at least twelve face details in the figure, at least three per labelled part on average, and at least one per solid on average, so a bigger object carries more. No solid that covers 4% of the drawing or more may be bare, except glass. Aim well above it: screws at corners, vent slots as rows of short lines, rating plates, hinges, feet, seams, control knobs, cable entries.
 - MUST use the kit from `engine/kit.mjs` for repeated small features: `slots(first, last, count, opts)` for vents, grilles and fins; `screws(corners, opts)` for the four screws of a plate; `repeat(count, make)` for rows of items.
 - MUST read `examples/build-demo.mjs` first: the reference figure shows the detail level to reach.
+- MUST draw a control panel, a display or a keypad as `panel` and `disc` details on the face of the body it belongs to, NEVER as a separate slab standing in front of the body.
+- MUST start a cable or an outside pipe on a face of the body (a back or side face) and run it outside; NEVER let a free line start inside a body or cross through it.
 - MUST detail the back sides too (`face: '-x'` or `'-y'`), because the reader can turn the object. See [orbit](orbit.md).
 
 ## Parts table
