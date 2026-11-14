@@ -40,11 +40,15 @@ export function turnShapes(shapes, k) {
     const t = { ...s, at: [Math.min(a[0], b[0]), Math.min(a[1], b[1]), z], size: [Math.abs(a[0] - b[0]), Math.abs(a[1] - b[1]), h] };
     if (s.move) t.move = turnPointK(s.move, k);
     if (s.round === 'x' || s.round === 'y') t.round = k % 2 ? (s.round === 'x' ? 'y' : 'x') : s.round;
-    if (s.open) {
-      // Each open side turns with the body; a side that now faces away is closed.
-      const faces = [...s.open].map((f) => turnFace(f, k)).filter((f) => f === 'x' || f === 'y').sort().join('');
-      if (faces) t.open = faces;
-      else { delete t.open; delete t.wall; closed.add(s.id); }
+    if (s.open || s.openBack) {
+      // Each open side turns with the body: one that faces the reader shows the inside, one that faces away is shut.
+      const turned = [...(s.open ?? ''), ...(s.openBack ?? [])].map((f) => turnFace(f, k));
+      const front = ['x', 'y'].filter((f) => turned.includes(f)).join('');
+      const back = ['-x', '-y'].filter((f) => turned.includes(f));
+      delete t.open; delete t.openBack;
+      if (front) t.open = front;
+      if (back.length) t.openBack = back;
+      if (!front) closed.add(s.id);
     }
     out.push(t);
   }

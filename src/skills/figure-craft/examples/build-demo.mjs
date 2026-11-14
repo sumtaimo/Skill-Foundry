@@ -21,20 +21,20 @@ export const REQUIRED_PARTS = ['fridge', 'freezer', 'door', 'shelf-2', 'crisper'
 
 /** Label anchors sit inside the part they name. */
 export const LABELS = [
-  { at: [69, 30, 60], text: 'Fresh-food cabinet' },
-  { at: [69, 30, 140], text: 'Freezer' },
-  { at: [1.5, 100, 60], text: 'Door and bins' },
-  { at: [62, 48, 69], text: 'Glass shelf' },
-  { at: [62, 52, 34], text: 'Crisper drawer' },
-  { at: [35, 4, 133], text: 'Evaporator coil' },
-  { at: [36, 11, 103], text: 'Cold air' },
-  { at: [21, -13, 10], text: 'Compressor' },
-  { at: [35, -1, 100], text: 'Condenser coil' },
+  { at: [69, 30, 74], text: 'Fresh-food cabinet' },
+  { at: [69, 30, 154], text: 'Freezer' },
+  { at: [1.5, 100, 74], text: 'Door and bins' },
+  { at: [62, 48, 83], text: 'Glass shelf' },
+  { at: [62, 52, 48], text: 'Crisper drawer' },
+  { at: [35, 4, 147], text: 'Evaporator coil' },
+  { at: [36, 11, 117], text: 'Cold air' },
+  { at: [18, 14, 13], text: 'Compressor' },
+  { at: [35, -1, 114], text: 'Condenser coil' },
 ];
 
 /** What each part does, for the cards under the figure. */
 const CARDS = [
-  ['Compressor', 'Squeezes the refrigerant gas and pushes it round the loop. It sits low at the back.'],
+  ['Compressor', 'Squeezes the refrigerant gas and pushes it round the loop. It sits in the machine bay at the bottom; turn the fridge to see it.'],
   ['Condenser coil', 'The warm coil on the back. The refrigerant gives its heat to the room here.'],
   ['Evaporator coil', 'The cold coil in the freezer. The refrigerant takes heat out of the air here.'],
   ['Cold air', 'Chilled air falls from the vent and passes over the food.'],
@@ -58,7 +58,7 @@ function coil(a, b, turns, fixed) {
 function shapes() {
   const FR = 'fridge'; const FZ = 'freezer';
   const on = (id, n) => ({ inside: FR, rests: id, id: n });
-  return [
+  const scene = [
     // Feet
     ...[[4, 4], [60, 4], [4, 50], [60, 50]].map(([x, y], i) => box({ at: [x, y, 0], size: [6, 6, 3], round: true, material: 'dark', id: `foot-${i}` })),
 
@@ -67,18 +67,20 @@ function shapes() {
     line(coil([10, 46], [60, 144], 10, (u, v) => [u, -2, v]), { on: 'condenser', face: '-y', tone: 'copper', id: 'condenser-tube' }),
     ...slots([[8, -2, 60], [62, -2, 60]], [[8, -2, 130], [62, -2, 130]], 8, { on: 'condenser', face: '-y', id: 'condenser-wire' }),
     ...screws([[6, -2, 40], [64, -2, 150]], { on: 'condenser', face: '-y', id: 'condenser-screw' }),
-    box({ at: [10, -24, 0], size: [22, 22, 20], round: true, material: 'dark', id: 'compressor' }),
-    disc([21, -13, 20], { on: 'compressor', face: 'top', r: 5, material: 'steel', id: 'compressor-cap' }),
-    disc([21, -13, 20], { on: 'compressor', face: 'top', r: 1.6, material: 'dark', id: 'compressor-terminal' }),
-    line([[14, -13, 20], [28, -13, 20]], { on: 'compressor', face: 'top', id: 'compressor-weld' }),
-    line([[26, -8, 20], [26, -8, 34], [26, -3, 34], [26, -3, 46]], { tone: 'copper', id: 'discharge-pipe' }),
-    line([[16, -8, 20], [16, -8, 30], [50, -3, 30], [50, -3, 46]], { tone: 'cold', id: 'suction-pipe' }),
-    line([[34, -20, 6], [48, -26, 0], [62, -26, 0]], { bold: true, id: 'power-cable' }),
 
-    // Base with the kick plate
-    box({ at: [0, 0, 3], size: [70, 60, 8], material: 'dark', id: 'base' }),
-    ...slots([[10, 60, 5], [60, 60, 5]], [[10, 60, 9], [60, 60, 9]], 3, { on: 'base', face: 'y', id: 'kick-vent' }),
-    ...slots([[70, 8, 5], [70, 52, 5]], [[70, 8, 9], [70, 52, 9]], 3, { on: 'base', face: 'x', id: 'side-vent' }),
+    // Base: the kick plate in front, the machine bay behind it (open at the back, seen after a turn)
+    line([[26, 14, 21], [26, -3, 21], [26, -3, 60]], { tone: 'copper', id: 'discharge-pipe' }),
+    line([[14, 14, 21], [14, -5, 21], [14, -5, 46], [50, -3, 46], [50, -3, 60]], { tone: 'cold', id: 'suction-pipe' }),
+    line([[34, 0, 6], [48, -8, 0], [62, -8, 0]], { bold: true, id: 'power-cable' }),
+    box({ at: [0, 0, 3], size: [70, 60, 22], material: 'dark', id: 'base', open: ['-x', '-y'], wall: 2 }),
+    ...slots([[10, 60, 8], [60, 60, 8]], [[10, 60, 20], [60, 60, 20]], 5, { on: 'base', face: 'y', id: 'kick-vent' }),
+    ...slots([[70, 8, 8], [70, 52, 8]], [[70, 8, 20], [70, 52, 20]], 5, { on: 'base', face: 'x', id: 'side-vent' }),
+    box({ at: [40, 6, 5], size: [24, 18, 4], material: 'white', inside: 'base', id: 'drain-pan' }),
+    line([[42, 24, 9], [62, 24, 9]], { on: 'drain-pan', face: 'y', id: 'drain-pan-rim' }),
+    box({ at: [8, 4, 5], size: [20, 20, 16], round: true, material: 'dark', inside: 'base', id: 'compressor' }),
+    disc([18, 14, 21], { on: 'compressor', face: 'top', r: 5, material: 'steel', id: 'compressor-cap' }),
+    disc([18, 14, 21], { on: 'compressor', face: 'top', r: 1.6, material: 'dark', id: 'compressor-terminal' }),
+    line([[11, 14, 21], [25, 14, 21]], { on: 'compressor', face: 'top', id: 'compressor-weld' }),
 
     // Fresh-food cabinet, open at the front
     box({ at: [0, 0, 11], size: [70, 60, 108], material: 'steel', id: FR, rests: 'base', open: 'xy', wall: 3, when: 'open' }),
@@ -188,6 +190,19 @@ function shapes() {
     box({ at: [0, 60, 119], size: [70, 3, 48], material: 'steel', id: 'freezer-door', rests: 'door', when: 'closed' }),
     line([[8, 63, 126], [8, 63, 150]], { on: 'freezer-door', face: 'y', bold: true, id: 'freezer-handle', when: 'closed' }),
   ];
+  // The scene above is laid out with the cabinet starting at z = 11; the machine bay makes the base taller,
+  // so everything above the base moves up by LIFT.
+  return scene.map((sh) => (GROUND.test(sh.id ?? '') || GROUND.test(sh.on ?? '') || GROUND.test(sh.inside ?? '') ? sh : raise(sh)));
+}
+
+const LIFT = 14;
+const GROUND = /^(foot|base|kick-vent|side-vent|drain-pan|compressor|discharge-pipe|suction-pipe|power-cable)/;
+const up = (p) => [p[0], p[1], p[2] + LIFT];
+function raise(sh) {
+  const t = { ...sh };
+  if (t.at) t.at = up(t.at);
+  if (t.points) t.points = t.points.map(up);
+  return t;
 }
 
 const OPTS = { labels: LABELS, requiredParts: REQUIRED_PARTS, title: FIG_TITLE, states: ['open', 'closed'] };

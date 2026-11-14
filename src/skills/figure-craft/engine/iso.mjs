@@ -55,7 +55,8 @@ const backFace = (s) => s.on !== undefined && (s.face === '-x' || s.face === '-y
  * `material` sets the surface (see MATERIALS); `round: true` draws an upright cylinder (width = depth),
  * `round: 'x'` or `'y'` one lying along that axis (the two sides across the axis equal).
  * `when: '<state>'` draws the shape only in that state (for example a door `when: 'open'` and another `when: 'closed'`).
- * `open: 'x' | 'y' | 'xy'` removes those visible sides so the inside shows (walls `wall` thick); shapes with
+ * `r` rounds the upright edges (default 1.5; 0 for sharp).
+ * `open: 'x' | 'y' | 'xy'` (or `'-x'`, `'-y'` for a back side seen after a turn, or an array) removes those sides so the inside shows (walls `wall` thick); shapes with
  * `inside: '<this id>'` are the contents, seen only through the opening. One open side shows little of a deep
  * body; `'xy'` is a cutaway that shows the whole inside.
  * @param {{at:number[],size:number[],material?:string,round?:boolean,tone?:string,r?:number,anim?:string,move?:number[],delay?:number,rests?:string,id?:string}} o
@@ -66,10 +67,15 @@ export function box(o) {
   if (size.some((n) => n <= 0)) throw new RangeError('box: size must be positive');
   const material = o.material ?? (o.tone === 'ink' ? 'ink' : 'plain');
   if (!MATERIALS.includes(material)) throw new TypeError(`box: material must be one of ${MATERIALS.join(', ')}`);
-  const s = { kind: 'box', at: vec3(o.at, 'box at'), size, tone: material === 'ink' || material === 'dark' ? 'ink' : 'plain', material, r: isNum(o.r) ? o.r : 3 };
+  const s = { kind: 'box', at: vec3(o.at, 'box at'), size, tone: material === 'ink' || material === 'dark' ? 'ink' : 'plain', material, r: isNum(o.r) && o.r >= 0 ? o.r : 1.5 };
   if (o.open !== undefined) {
-    if (!['x', 'y', 'xy'].includes(o.open)) throw new TypeError('box: open must be x, y or xy (the visible sides that are open)');
-    s.open = o.open;
+    // Sides facing the reader (x, y) show the inside now; back sides (-x, -y) show it after the object is turned.
+    const faces = Array.isArray(o.open) ? o.open : o.open === 'xy' ? ['x', 'y'] : [o.open];
+    if (!faces.length || !faces.every((f) => ['x', 'y', '-x', '-y'].includes(f))) throw new TypeError('box: open must be x, y, xy, -x, -y or an array of those sides');
+    const front = ['x', 'y'].filter((f) => faces.includes(f)).join('');
+    const back = ['-x', '-y'].filter((f) => faces.includes(f));
+    if (front) s.open = front;
+    if (back.length) s.openBack = back;
     s.wall = isNum(o.wall) && o.wall > 0 ? o.wall : 2;
     if (s.wall * 2 >= Math.min(...size)) throw new RangeError('box: wall is too thick for this box');
   }
@@ -445,6 +451,30 @@ export function renderSvg(shapes, opts = {}) {
         const [tx, ty] = P(r, r, h); const [bx, by] = P(r, r, 0);
         inner += `<path d="M${r2(tx - rx)} ${r2(ty)} L${r2(bx - rx)} ${r2(by)} A${r2(rx)} ${r2(ry)} 0 0 0 ${r2(bx + rx)} ${r2(by)} L${r2(tx + rx)} ${r2(ty)} Z" fill="${F(flat ? FLAT[m].a : m === 'glass' ? FACE.glass.a : `url(#${pre}-${m}-cyl)`)}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}" stroke-linejoin="round"/>`;
         inner += `<ellipse cx="${r2(tx)}" cy="${r2(ty)}" rx="${r2(rx)}" ry="${r2(ry)}" fill="${F(faceFill(m, 'top'))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}"/>`;
+      } else if (!s.open && Math.min(s.r, w / 4, d / 4) >= 0.5) {
+        // Rounded upright edges: the top is a rounded rectangle and the two visible sides are one band that
+        // turns the front corner, shaded from the lit side to the shaded side with no hard edge.
+        const rr = Math.min(s.r, w / 4, d / 4);
+        const arc = (cx, cy, a0, a1, n = 5) => Array.from({ length: n + 1 }, (_, i) => { const a = ((a0 + ((a1 - a0) * i) / n) * Math.PI) / 180; return [cx + Math.cos(a) * rr, cy + Math.sin(a) * rr, a0 + ((a1 - a0) * i) / n]; });
+        // Outline of the footprint, counter-clockwise by outward-normal angle, starting at the far corner.
+        const ring = [...arc(rr, rr, 180, 270), ...arc(w - rr, rr, 270, 360), ...arc(w - rr, d - rr, 0, 90), ...arc(rr, d - rr, 90, 180)];
+        inner += `<path d="${pathOf(ring.map(([a, b]) => P(a, b, h)))}" fill="${F(faceFill(m, 'top'))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}" stroke-linejoin="round"/>`;
+        // The visible band runs from the left silhouette (normal 135 deg) round the front corner to the right silhouette (-45 deg).
+        const band = [...arc(rr, d - rr, 135, 90, 3), ...arc(w - rr, d - rr, 90, 0), ...arc(w - rr, rr, 0, -45, 3)];
+        const lo = band.map(([a, b]) => P(a, b, 0)); const hi = band.map(([a, b]) => P(a, b, h));
+        const side = `<path d="${pathOf(lo.concat(hi.slice().reverse()))}" fill="${F(faceFill(m, 'a'))}"${glassAttr(m)} stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}" stroke-linejoin="round"/>`;
+        let shade = '';
+        if (m !== 'glass') {
+          for (let i = 0; i < band.length - 1; i++) {
+            const mid = (band[i][2] + band[i + 1][2]) / 2;
+            if (mid >= 90) continue;
+            const o = Math.min(1, (90 - mid) / 90);
+            shade += `<path class="${pre}-shade" d="${pathOf([lo[i], lo[i + 1], hi[i + 1], hi[i]])}" fill="${F(flat ? FLAT[m].b : FACE[m].b)}" opacity="${r2(o)}"/>`;
+          }
+        }
+        // Side first, then its shading, then the top over both.
+        inner = inner.replace(/^(<path [^>]*\/>)$/, '$1');
+        const topPath = inner; inner = side + shade + topPath;
       } else {
         const top = [P(0, 0, h), P(w, 0, h), P(w, d, h), P(0, d, h)];
         const fy = [P(0, d, 0), P(w, d, 0), P(w, d, h), P(0, d, h)];
@@ -526,6 +556,7 @@ export function renderSvg(shapes, opts = {}) {
     css.push(`${fig} .${pre}-label[data-for]{opacity:0;pointer-events:none;transform:translateY(5px);transition:opacity .22s ease,transform .3s ease}`);
     css.push(`${fig} .${pre}-label[data-for] .leader{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .3s ease .08s}`);
     css.push(`${fig} [data-part] path,${fig} [data-part] ellipse,${fig} [data-part] circle{transition:stroke .2s ease}`);
+    css.push(`${fig} .${pre}-shade{stroke:none!important}`);
     for (const id of new Set(targets.filter((t) => t !== null))) {
       const v = String(id).replace(/["\\]/g, '\\$&');
       const q = `[data-part="${v}"]`;

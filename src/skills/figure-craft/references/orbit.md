@@ -6,6 +6,7 @@ Real objects have an inside and a back. The engine can open an object and let th
 
 - MUST draw working parts and contents where they are in the real object. A part that is inside the real object is drawn inside the body, NEVER beside it.
 - MUST open the body to show them: `box({ ..., open: 'xy', wall })` is a cutaway that removes both visible sides and shows the whole inside. `open: 'x'` or `'y'` removes one side only; through one side of a deep body the reader sees the floor and one wall but little else, so use it for shallow bodies.
+- MUST put a part that sits in a bay at the back or underneath (a compressor, a motor, a pump) inside the body too, and open that bay on its back sides: `open: ['-x', '-y']`. It is shut from the front and shows when the reader turns the object.
 - MUST mark everything in the body with `inside: '<body id>'`; it is then seen only through the opening (lint `L18-outside-container`, `L16-hidden-part`).
 - MUST draw a hinged door that belongs to the open side as a thin box swung out at a right angle from the hinge edge, with its handle and seal.
 - MUST fill a container the way it is really used: shelves, drawers and the things kept in it (bottles as round boxes, cartons and boxes, produce), in `blue`, `red`, `green`, `amber` or `glass`. Contents are what make it look lived in.
