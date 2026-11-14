@@ -43,7 +43,7 @@ export async function installSkill(name, { projectRoot, skillsRoot, registryPath
     if (!force) throw new Error(`target ${target} already exists (use --force)`);
     await rm(target, { recursive: true, force: true });
   }
-  await cp(src, target, { recursive: true, filter: (f) => !/[\\/]evals[\\/](live|portable\.json)$/.test(f) });
+  await cp(src, target, { recursive: true, filter: (f) => !/[\\/]evals$/.test(f) });
   return listRel(target);
 }
 

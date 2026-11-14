@@ -68,7 +68,7 @@ Never break `add`, `check`, `update` or `--rules` for projects that already inst
 ## What users receive
 
 `package.json` `files` decides what `npx` downloads: `foundry.mjs`, the registry and the skills that work outside this
-repository. Not shipped: `skill-smith` and `_template` (lab only), eval recordings, `runs/`, `docs/`, `tests/`,
+repository. Not shipped: `skill-smith` and `_template` (lab only), evals (test prompts and recordings), `runs/`, `docs/`, `tests/`,
 `.harness/`, `.claude/`. A new skill that is only for this lab gets `scope: factory` and a `!src/skills/<name>/` line.
 Checked by `tests/factory-package.test.mjs`.
 
