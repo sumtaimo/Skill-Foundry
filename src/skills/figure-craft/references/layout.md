@@ -5,7 +5,10 @@
 - MUST place labels in a left or right column (`side: 'l' | 'r'`), at least 13 apart (lint `L3-label-overlap`).
 - MUST keep every shape and label inside the viewBox (lint `L5-outside-viewbox`); `renderSvg` sizes it for you.
 - NEVER route a leader line across another solid (lint `L4-leader-crosses-solid`); move the label to the other side instead.
-- NEVER use more than five labels in one Figure.
+- Labels are hidden at rest and revealed with motion when their part is hovered, focused or tapped (`labelMode: 'hover'`, the default). Use `labelMode: 'always'` only for a static, printed figure.
+- NEVER use more than nine labels on hover, or five when always shown (lint `L3-label-overlap`).
+- MUST put each label's anchor (`at`) inside the part it names, so the engine can tie the label to the part.
+- MUST name every labelled part in a card under the figure, so the page works without hover.
 - MUST make every labelled part cover at least 3% of the drawing (lint `L12-part-too-small`); enlarge small real parts and say so in the report.
 - MUST either join parts (touching, one structure) or leave at least 4 between parts on one base, and let the parts span at least 30% of the base (lint `L10-crowded`).
 - MUST label the moving part (lint `L9-moving-unlabelled`).

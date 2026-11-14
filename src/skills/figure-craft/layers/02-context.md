@@ -6,5 +6,6 @@
 4. Note any theme the host page already has. The figure still takes all its colours from `engine/tokens.mjs`; never copy host colours into the SVG.
 5. Find out how the real object works before drawing it: read what the user supplied, then what the project contains. Record each fact you will draw and where it came from.
 6. Mark every fact you could not confirm as an assumption. Never draw an invented part.
+7. Write the required parts list: every part the idea sentence cannot be understood without, each with an id. Do this before any drawing decision. This list becomes `requiredParts` and is never shortened to make a check pass; if a part will not fit, split the figure or go back to the user.
 
-Hand to layer 03: output location, languages, the confirmed facts and the assumptions.
+Hand to layer 03: output location, languages, the confirmed facts, the assumptions and the required parts list.

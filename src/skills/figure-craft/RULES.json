@@ -1,7 +1,7 @@
 [
   {"id": "R-figure-craft-1", "text": "Supports MUST be drawn before what rests on them, and a part sitting on another MUST declare rests.", "check": "L1-painter-order"},
   {"id": "R-figure-craft-2", "text": "Face details MUST lie in their face plane, inside the face, away from rounded corners.", "check": "L2-face-detail"},
-  {"id": "R-figure-craft-3", "text": "Labels MUST sit in side columns at least 13 apart and NEVER overlap.", "check": "L3-label-overlap"},
+  {"id": "R-figure-craft-3", "text": "Labels MUST sit in side columns at least 13 apart, NEVER overlap, and number at most 9 when revealed on hover or 5 when always shown.", "check": "L3-label-overlap"},
   {"id": "R-figure-craft-4", "text": "Leader lines NEVER cross another solid without a written justification.", "check": "L4-leader-crosses-solid"},
   {"id": "R-figure-craft-5", "text": "Shapes and label text MUST stay inside the viewBox.", "check": "L5-outside-viewbox"},
   {"id": "R-figure-craft-6", "text": "Every fill and stroke MUST be var(--...), none or url(#...); NEVER a raw colour.", "check": "L6-raw-colour"},
@@ -17,5 +17,9 @@
   {"id": "R-figure-craft-16", "text": "Every labelled part MUST carry face details that identify it: one, plus one per 8% of the drawing it covers, up to three.", "check": "L11-no-detail"},
   {"id": "R-figure-craft-17", "text": "Every detail MUST be a real feature of the real part, and the SVG is NEVER edited by hand after the engine rendered it.", "checklist": "Each detail in the parts table names a real feature, and the SVG equals the build script output."},
   {"id": "R-figure-craft-18", "text": "The figure MUST start from the goal the user stated; a missing goal is asked for, NEVER invented.", "checklist": "The report quotes the user's request and the idea sentence derived from it."},
-  {"id": "R-figure-craft-19", "text": "Every labelled part MUST cover at least 3% of the drawing so it can be read.", "check": "L12-part-too-small"}
+  {"id": "R-figure-craft-19", "text": "Every labelled part MUST cover at least 3% of the drawing so it can be read.", "check": "L12-part-too-small"},
+  {"id": "R-figure-craft-20", "text": "The object MUST be drawn as full solid volumes; thin slabs alone NEVER stand for the object.", "check": "L13-no-solid-body"},
+  {"id": "R-figure-craft-21", "text": "The parts the idea needs MUST be declared in requiredParts, drawn and labelled; a needed part is NEVER dropped to pass another check.", "check": "L14-missing-part"},
+  {"id": "R-figure-craft-22", "text": "A part above the ground MUST rest on or touch another part; NEVER float.", "check": "L15-floating"},
+  {"id": "R-figure-craft-23", "text": "Labels and leaders MUST stay hidden until their part is hovered, focused or tapped, then appear with motion; the page MUST name every part in a card so nothing depends on hover.", "checklist": "At rest the figure shows no labels or leaders; hovering or focusing each part reveals its label; every part has a card."}
 ]

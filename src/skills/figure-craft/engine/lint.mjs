@@ -1,9 +1,9 @@
 /**
- * figure-craft lint: geometry, layout and detail checks L1-L12 on a renderSvg model (or a hand-built one).
+ * figure-craft lint: geometry, layout and detail checks L1-L15 on a renderSvg model (or a hand-built one).
  * Node 24 ESM, stdlib only, zero deps.
  * @governed-by PO_ARCHITECT
  */
-import { boxOutline, shapePoints, labelBox, LABEL_GAP } from './iso.mjs';
+import { boxOutline, shapePoints, labelBox, labelTarget, LABEL_GAP, MAX_LABELS } from './iso.mjs';
 
 const EPS = 1e-6;
 /** L10: minimum gap between sibling parts, and minimum share of the base they span. */
@@ -12,6 +12,9 @@ export const MIN_BASE_USE = 0.3;
 /** L12: a labelled part covers at least this share of the drawing. L11: one more detail per DETAIL_STEP of the drawing, up to 3. */
 export const MIN_PART_SHARE = 0.03;
 export const DETAIL_STEP = 0.08;
+/** L13: solid volumes (thinnest side at least BODY_THICK of the longest) together cover at least BODY_SHARE of the drawing. */
+export const BODY_SHARE = 0.2;
+export const BODY_THICK = 0.3;
 
 const polyArea = (p) => Math.abs(p.reduce((s, [x, y], i) => { const [a, b] = p[(i + 1) % p.length]; return s + x * b - a * y; }, 0)) / 2;
 
@@ -103,6 +106,10 @@ export function lint(model) {
     if (A.minX < B.maxX && B.minX < A.maxX && A.minY < B.maxY && B.minY < A.maxY) err('L3-label-overlap', `labels "${a.text}" and "${b.text}" overlap`);
   }
 
+  // L3 also: label count (in hover mode one label shows at a time, so more are allowed)
+  const maxLabels = MAX_LABELS[model.labelMode === 'hover' ? 'hover' : 'always'];
+  if (labels.length > maxLabels) err('L3-label-overlap', `${labels.length} labels (max ${maxLabels}); split the figure or group small parts`);
+
   // L4 leader crosses solid (warning)
   const outlines = boxes.map((b) => ({ id: b.id, poly: boxOutline(b) }));
   for (const l of labels) {
@@ -145,12 +152,9 @@ export function lint(model) {
   }
 
   // Which box a label names: the smallest box whose volume holds the label's 3D anchor.
-  const holds = (b, p) => [0, 1, 2].every((k) => p[k] >= b.at[k] - EPS && p[k] <= b.at[k] + b.size[k] + EPS);
-  const vol = (b) => b.size[0] * b.size[1] * b.size[2];
   const named = new Map();
   for (const l of labels) {
-    if (!Array.isArray(l.at)) continue;
-    const b = boxes.filter((x) => holds(x, l.at)).sort((p, q) => vol(p) - vol(q))[0];
+    const b = labelTarget(l, boxes);
     if (b) named.set(b.id, l);
   }
 
@@ -200,6 +204,28 @@ export function lint(model) {
     const b = byId.get(id);
     if (b.move) continue;
     if (share(b) < MIN_PART_SHARE - EPS) err('L12-part-too-small', `"${l.text}" (${id}) covers ${Math.round(share(b) * 1000) / 10}% of the drawing (min ${MIN_PART_SHARE * 100}%); make it larger or shrink the rest`);
+  }
+
+  // L13 the object is drawn as full solid volumes, not only thin slabs
+  if (boxes.length) {
+    const thick = (b) => Math.min(...b.size) / Math.max(...b.size);
+    const solid = boxes.filter((b) => thick(b) >= BODY_THICK - EPS).reduce((sum, b) => sum + share(b), 0);
+    if (solid < BODY_SHARE - EPS) err('L13-no-solid-body', `solid volumes cover ${Math.round(solid * 100)}% of the drawing (min ${BODY_SHARE * 100}%): draw the object as full volumes (thinnest side at least ${BODY_THICK * 100}% of the longest); thin slabs alone do not read as the object`);
+  }
+
+  // L14 completeness: the parts the idea needs are declared, drawn and labelled
+  if (!Array.isArray(model.requiredParts) || model.requiredParts.length === 0) err('L14-missing-part', 'requiredParts is not declared; list the ids of the parts the idea needs before building');
+  else for (const id of model.requiredParts) {
+    const b = byId.get(id);
+    if (!b || b.kind !== 'box') err('L14-missing-part', `required part ${id} is not drawn; never drop a part the idea needs to pass another check`);
+    else if (!named.has(id)) err('L14-missing-part', `required part ${id} has no label`);
+  }
+
+  // L15 nothing floats: a part above the ground declares rests or touches another part
+  const touch = (a, b) => [0, 1, 2].every((k) => a.at[k] <= b.at[k] + b.size[k] + EPS && b.at[k] <= a.at[k] + a.size[k] + EPS);
+  for (const s of boxes) {
+    if (s.at[2] <= EPS || s.rests !== undefined || s.move) continue;
+    if (!boxes.some((b) => b !== s && touch(s, b))) err('L15-floating', `${s.id} floats: it does not rest on or touch any other part`);
   }
 
   return { errors, warnings };

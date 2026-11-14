@@ -4,6 +4,9 @@
 - MUST use the shared projection `project` with `C = 0.866`; NEVER hand-skew shapes.
 - MUST list supports before what rests on them and set `rests` (lint `L1-painter-order`).
 - MUST draw a real appliance, machine or device as itself, with its real parts; a metaphor is only for abstract ideas.
+- MUST draw the object as full solid volumes (lint `L13-no-solid-body`): boxes whose thinnest side is at least 30% of the longest cover at least 20% of the drawing. Open one side to show the inside; NEVER reduce the object to walls and plates.
+- MUST pass `requiredParts` to `renderSvg` with the id of every part the idea needs (lint `L14-missing-part`); NEVER drop one to pass another check.
+- MUST let every part above the ground rest on or touch another part (lint `L15-floating`).
 - MUST give every labelled part an identifying detail (lint `L11-no-detail`); see [detail](detail.md).
 - MUST put a face detail (`dot` with `on`) in the face plane, inside the face and away from rounded corners (lint `L2-face-detail`).
 - MUST list farther shapes (lower x + y) before nearer ones.

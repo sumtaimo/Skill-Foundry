@@ -4,7 +4,9 @@
 2. Phone: at 390px wide the page has a 16px gutter, no horizontal scroll, and label text at 11 CSS px or more. Raise `fontSize` if not.
 3. Reduced motion: the figure is still and the still frame explains the idea alone.
 4. JavaScript off: the figure and copy are complete; only the theme and pause buttons do nothing.
-5. More than five parts: do not shrink labels. Split into several figures, or group small parts under one label.
+5. More than nine parts: do not shrink labels. Split into several figures, or group small parts under one label.
+5a. Hover is not available (touch screen, keyboard, print): each labelled part can be focused with Tab or a tap and shows its label the same way; the cards under the figure name every part, so nothing is lost when no label shows.
+5b. A check fails because a required part is too small or crowded: resize or move parts, enlarge the drawing, or split the figure. Never remove the part.
 6. Long label text: shorten the words. If two labels still collide, move one to the other side column.
 7. A leader that would cross a solid: move the label to the other side, or move the anchor to a visible face.
 8. A part hidden behind a taller part: put the taller part farther from the reader (lower x + y), or lower it.

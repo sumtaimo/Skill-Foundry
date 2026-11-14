@@ -23,7 +23,7 @@ function clean() {
     { at: [40, 10, 50], text: 'Beam', side: 'r' },
     { at: [70, 10, 0], text: 'Post B', side: 'r' },
     { at: [5, 45, 5], text: 'Mover', side: 'l' },
-  ] }).model;
+  ], requiredParts: ['beam', 'postB', 'mover'] }).model;
 }
 const copy = (m) => structuredClone(m);
 const has = (list, id) => list.some((e) => e.rule === id);
@@ -152,4 +152,51 @@ test('L12-part-too-small: a tiny labelled part is an error', () => {
   const shapes = [box({ at: [0, 0, 0], size: [200, 200, 4], id: 'ground' }), box({ at: [10, 10, 4], size: [4, 4, 4], id: 'tiny', rests: 'ground' }), dot([12, 12, 8], { on: 'tiny', r: 0.5 })];
   const r = lint(renderSvg(shapes, { labels: [{ at: [12, 12, 8], text: 'Tiny', side: 'r' }] }).model);
   assert.ok(has(r.errors, 'L12-part-too-small'));
+});
+
+test('L13-no-solid-body: thin slabs alone are an error', () => {
+  const slabs = [box({ at: [0, 0, 0], size: [60, 60, 2], id: 'floor' }), box({ at: [0, 0, 2], size: [60, 3, 120], id: 'wall', rests: 'floor' })];
+  assert.ok(has(lint(renderSvg(slabs).model).errors, 'L13-no-solid-body'));
+  const full = [box({ at: [0, 0, 0], size: [60, 60, 120], id: 'cabinet' })];
+  assert.equal(has(lint(renderSvg(full).model).errors, 'L13-no-solid-body'), false);
+});
+
+test('L14-missing-part: required parts must be declared, drawn and labelled', () => {
+  const shapes = [box({ at: [0, 0, 0], size: [40, 40, 40], id: 'body' })];
+  const labels = [{ at: [20, 20, 20], text: 'Body', side: 'r' }];
+  assert.ok(lint(renderSvg(shapes, { labels }).model).errors.some((e) => e.rule === 'L14-missing-part' && /not declared/.test(e.message)));
+  assert.ok(lint(renderSvg(shapes, { labels, requiredParts: ['body', 'coil'] }).model).errors.some((e) => /coil is not drawn/.test(e.message)));
+  assert.ok(lint(renderSvg(shapes, { requiredParts: ['body'] }).model).errors.some((e) => /body has no label/.test(e.message)));
+  assert.equal(has(lint(renderSvg(shapes, { labels, requiredParts: ['body'] }).model).errors, 'L14-missing-part'), false);
+});
+
+test('L15-floating: a part in the air that touches nothing is an error', () => {
+  const g = box({ at: [0, 0, 0], size: [60, 60, 40], id: 'body' });
+  const floating = lint(renderSvg([g, box({ at: [10, 10, 70], size: [20, 20, 4], id: 'shelf' })]).model);
+  assert.ok(has(floating.errors, 'L15-floating'));
+  const attached = lint(renderSvg([g, box({ at: [10, 10, 40], size: [20, 20, 4], id: 'shelf', rests: 'body' })]).model);
+  assert.equal(has(attached.errors, 'L15-floating'), false);
+});
+
+test('L3: label count limit is 5 when always shown and 9 on hover', () => {
+  const body = box({ at: [0, 0, 0], size: [100, 100, 100], id: 'body' });
+  const labels = Array.from({ length: 6 }, (_, i) => ({ at: [50, 50, 10 + i * 15], text: `P${i}`, side: i % 2 ? 'l' : 'r' }));
+  assert.ok(lint(renderSvg([body], { labels, labelMode: 'always' }).model).errors.some((e) => /6 labels \(max 5\)/.test(e.message)));
+  assert.equal(lint(renderSvg([body], { labels }).model).errors.some((e) => /labels \(max/.test(e.message)), false);
+});
+
+test('hover labels: hidden until the part is hovered or focused, with a reduced-motion fallback', () => {
+  const { svg, model } = renderSvg(
+    [box({ at: [0, 0, 0], size: [40, 40, 80], id: 'cab' }), line([[40, 5, 70], [40, 35, 70]], { on: 'cab', face: 'x', id: 'seam' })],
+    { labels: [{ at: [40, 20, 40], text: 'Cabinet', side: 'r' }] });
+  assert.equal(model.labelMode, 'hover');
+  assert.match(svg, /class="fc-fig"/);
+  assert.match(svg, /data-id="cab" data-part="cab" tabindex="0" aria-label="Cabinet"/);
+  assert.match(svg, /data-id="seam" data-part="cab"/);
+  assert.match(svg, /<g class="fc-label" data-for="cab"/);
+  assert.match(svg, /\.fc-label\[data-for\]\{opacity:0/);
+  assert.match(svg, /:has\(\[data-part="cab"\]:hover\) \.fc-label\[data-for="cab"\]/);
+  assert.match(svg, /prefers-reduced-motion: reduce\)\{\.fc-fig \.fc-label/);
+  const always = renderSvg([box({ at: [0, 0, 0], size: [40, 40, 80], id: 'cab' })], { labels: [{ at: [40, 20, 40], text: 'Cabinet', side: 'r' }], labelMode: 'always' }).svg;
+  assert.doesNotMatch(always, /data-for=|fc-fig/);
 });

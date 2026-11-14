@@ -1,20 +1,20 @@
 ---
 name: figure-craft
 description: Draws a detailed isometric figure that explains how a thing works, from the goal the user states, with a token palette, a shared iso engine and a geometry, layout and detail lint. Use for any request for an explanatory diagram, technical illustration or interactive explainer of an object or system. Do not use for data charts, photos, logos, UI mockups or decorative art.
-version: 1.2.0
+version: 1.3.0
 ---
 
 # figure-craft
 
-Turns "explain how X works" into one labelled isometric object with identifying details on every
-named part and one motion story. The figure is rendered by `engine/iso.mjs`, coloured only by
+Turns "explain how X works" into one full isometric object with identifying details on every
+named part, labels that appear on hover and one motion story. The figure is rendered by `engine/iso.mjs`, coloured only by
 `engine/tokens.mjs` and checked by `engine/lint.mjs`. The skill is self-contained: everything it
 needs is in this folder, so it works in any project.
 
 ## When to use
 
 - Use when someone asks for an explanatory diagram, a technical illustration, a "how it works" figure or an interactive explainer.
-- Use when an existing figure must be redrawn so it passes lint L1-L12.
+- Use when an existing figure must be redrawn so it passes lint L1-L15.
 - Do not use for data charts (bars, lines, pies), photos, logos, UI mockups or purely decorative art.
 - Do not use when the idea cannot be stated in one sentence; split it first.
 
@@ -40,6 +40,8 @@ Each rule is in `RULES.json`; L-rules are enforced by `engine/lint.mjs`. The ful
 - Detail comes from the skill: every labelled part MUST carry a face detail that identifies it (`L11-no-detail`). NEVER hand-edit the SVG after the engine rendered it.
 - Parts MUST be large enough to read (`L12-part-too-small`), joined or spread with a gap (`L10-crowded`), and the moving part MUST be labelled (`L9-moving-unlabelled`).
 - Bigger parts MUST carry more details, up to three (`L11-no-detail`), so the figure is full.
+- The object MUST be full solid volumes (`L13-no-solid-body`) with every part the idea needs (`L14-missing-part`) and nothing floating (`L15-floating`).
+- Labels and leaders stay hidden and appear with motion when a part is hovered, focused or tapped; cards under the figure name every part.
 - Every fill and stroke MUST be a token (`L6-raw-colour`).
 
 ## Checks
