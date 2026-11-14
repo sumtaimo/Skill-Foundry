@@ -9,6 +9,6 @@
   "leakedRepoRules": false,
   "touchedRepo": [],
   "produced": 0,
-  "cost": 0.004912000000000001,
-  "answer": "```\n# Changelog\n\n## 2.4.0 - 2026-11-14\n\n- Add dark mode.\n- Fix a crash on login.\n```\n\nBump: MINOR (2.3.0 → 2.4.0)\nDark mode is new behaviour, so it sets the bump. The login crash fix is a PATCH and does not change it.\n\nMismatches: not checked. No CHANGELOG.md, SKILL.md or manifest exists in /tmp/portable-hD8ClZ, so this entry starts a new CHANGELOG.md. Set the version to 2.4.0 in SKILL.md frontmatter, CHANGELOG.md and any registry entry."
+  "cost": 0.006446370000000001,
+  "answer": "```\n## 2.4.0 - 2026-11-14\n\n- Add dark mode.\n- Fix a crash on login.\n```\n\nBump: MINOR (2.3.0 → 2.4.0)\nReason: dark mode is new behaviour, which sets the bump; the login crash is a fix and gets a PATCH-level bullet.\n\nMismatches: not checked, no project or skill was named and the working folder has no CHANGELOG.md; set the version to 2.4.0 in the project's version files and in CHANGELOG.md.\n\n- Which project or skill is this entry for?\n- Which CHANGELOG.md should it go in, and which version files should I check?"
 }
