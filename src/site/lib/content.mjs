@@ -6,6 +6,8 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { sanitizeSvg } from './svg.mjs';
 import { scoreLive } from '../../factory/live-evals.mjs';
+import { loadProof, docFigure } from './proof.mjs';
+import { DICTS } from './i18n.mjs';
 
 /** Agent roles a skill may declare; they match .harness/roles/. */
 export const ROLES = ['PO_ARCHITECT', 'BA_ANALYST', 'DEV_ENGINEER', 'QA_AUDITOR'];
@@ -110,6 +112,13 @@ export function loadSkills(root, opts = {}) {
       const roles = Array.isArray(r.roles) ? r.roles.map(String) : [];
       for (const role of roles) if (!ROLES.includes(role)) throw new Error(`loadSkills: ${r.name} has unknown role ${role}`);
       const md = read('SKILL.md');
+      // What the showcase shows, in order of strength: a recorded figure run, else the real answer of a fresh agent
+      // drawn as a document, else the hand-drawn preview cover, which is then labelled as a concept.
+      const proof = loadProof(dir, { showcase: typeof r.showcase === 'string' ? r.showcase : undefined });
+      const coverKind = run?.svg ? 'run' : proof ? 'proof' : 'concept';
+      const coverSvg = coverKind === 'run' ? run.svg
+        : coverKind === 'proof' ? sanitizeSvg(docFigure(proof, { askLabel: DICTS.en['answer.asked'], moreLabel: DICTS.en['answer.more'] }))
+        : sanitizeSvg(read('preview/cover.svg'));
       return {
         name: r.name,
         roles,
@@ -119,10 +128,12 @@ export function loadSkills(root, opts = {}) {
         status: r.status,
         title: String(preview.title ?? r.name),
         tagline: String(preview.tagline ?? ''),
-        prompt: run?.input || String(preview.prompt ?? ''),
+        prompt: run?.input || proof?.prompt || String(preview.prompt ?? ''),
         outputs: Array.isArray(preview.outputs) ? preview.outputs.map(String) : [],
         tags: Array.isArray(preview.tags) ? preview.tags.map(String) : [],
-        coverSvg: run?.svg ?? sanitizeSvg(read('preview/cover.svg')),
+        coverSvg,
+        coverKind,
+        proof,
         procedure: parseProcedure(md),
         rules: { total: rules.length, machine, checklist },
         changelog: existsSync(join(dir, 'CHANGELOG.md')) ? read('CHANGELOG.md').replace(/\r\n?/g, '\n') : '',
