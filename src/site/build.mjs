@@ -13,7 +13,7 @@ import vm from 'node:vm';
 import { packAll } from '../factory/pack.mjs';
 import { loadSkills } from './lib/content.mjs';
 import { DICTS } from './lib/i18n.mjs';
-import { renderIndex, renderSkillPage, zipName } from './lib/render.mjs';
+import { renderIndex, renderSkillPage, zipName, installOneLiner } from './lib/render.mjs';
 
 const HERE = fileURLToPath(import.meta.url);
 const REPO_ROOT = resolve(dirname(HERE), '..', '..');
@@ -45,7 +45,7 @@ export async function buildSite({ root = REPO_ROOT, out = join(REPO_ROOT, 'dist'
   const skills = loadSkills(root);
   const drafts = registry.filter((r) => r && r.status !== 'ready').map((r) => r.name);
 
-  for (const p of ['index.html', 'skills', 'assets', 'downloads']) await rm(join(out, p), { recursive: true, force: true });
+  for (const p of ['index.html', 'skills', 'assets', 'downloads', 'skills.json', 'llms.txt']) await rm(join(out, p), { recursive: true, force: true });
   await mkdir(join(out, 'assets'), { recursive: true });
 
   const checksums = await packAll({ skillsRoot, outDir: join(out, 'downloads') });
@@ -68,7 +68,7 @@ export async function buildSite({ root = REPO_ROOT, out = join(REPO_ROOT, 'dist'
   }
   for (const s of skills) s.zipBytes = checksums[zipName(s)].bytes;
   const pages = ['index.html'];
-  await writeFile(join(out, 'index.html'), renderIndex(skills, { drafts, allBytes: checksums['all-skills.zip']?.bytes }));
+  await writeFile(join(out, 'index.html'), renderIndex(skills, { drafts, allBytes: checksums['all-skills.zip']?.bytes, checksums }));
   for (const s of skills) {
     const dl = checksums[zipName(s)];
     const dir = join(out, 'skills', s.name);
@@ -77,7 +77,45 @@ export async function buildSite({ root = REPO_ROOT, out = join(REPO_ROOT, 'dist'
     pages.push(`skills/${s.name}/index.html`);
     if (s.example) await copyFile(s.exampleSrc, join(dir, 'example.html'));
   }
+  await writeFile(join(out, 'skills.json'), JSON.stringify(agentIndex(skills, checksums), null, 2) + '\n');
+  await writeFile(join(out, 'llms.txt'), llmsTxt(skills, checksums));
   return { pages, skills: skills.length, downloads };
+}
+
+/** Machine index for agents: every ready skill with what an agent needs to choose, fetch and verify it. Paths are relative to the site root. */
+export function agentIndex(skills, checksums) {
+  return {
+    name: 'Skill Foundry',
+    install: 'Replace {base} in installCommand with the URL of the folder this file was fetched from (ending in /), run it in the project root, then restart the agent. The command stops if the SHA-256 does not match.',
+    skills: skills.map((s) => ({
+      name: s.name,
+      title: s.title,
+      version: s.version,
+      description: s.description,
+      roles: s.roles,
+      tags: s.tags,
+      prompt: s.prompt,
+      outputs: s.outputs,
+      page: `skills/${s.name}/index.html`,
+      zip: `downloads/${zipName(s)}`,
+      sha256: checksums[zipName(s)].sha256,
+      bytes: checksums[zipName(s)].bytes,
+      installCommand: installOneLiner(s, checksums[zipName(s)].sha256, `{base}downloads/${zipName(s)}`),
+      liveEvals: s.live ? { passed: s.live.passed, total: s.live.total } : null,
+    })),
+  };
+}
+
+/** Plain-text index (llms.txt convention): one block per ready skill. */
+export function llmsTxt(skills, checksums) {
+  const lines = ['# Skill Foundry', '', '> Reusable AI agent skills. Each is a folder to unzip into .claude/skills/. Paths are relative to this file. In each install command, replace {base} with the URL of the folder this file came from (ending in /) and run it in the project root; it stops if the SHA-256 does not match.', '', '## Skills', ''];
+  for (const s of skills) {
+    lines.push(`- [${s.name} ${s.version}](skills/${s.name}/index.html): ${s.description}`);
+    lines.push(`  install: ${installOneLiner(s, checksums[zipName(s)].sha256, `{base}downloads/${zipName(s)}`)}`);
+    lines.push(`  roles: ${s.roles.join(', ') || '-'}; zip: downloads/${zipName(s)}; sha256: ${checksums[zipName(s)].sha256}; real-agent evals: ${s.live ? `${s.live.passed}/${s.live.total}` : 'not yet'}`);
+  }
+  lines.push('', '## Machine index', '', '- [skills.json](skills.json)', '');
+  return lines.join('\n');
 }
 
 /** Removes the three allowed token blocks from css. */

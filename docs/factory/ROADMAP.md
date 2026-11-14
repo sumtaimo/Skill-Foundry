@@ -6,8 +6,12 @@ The project roadmap is in `docs/PROJECT.md` section 6. This file lists skills.
 
 | Skill | Purpose |
 |-------|---------|
-| skill-smith | Build a new skill as ten layers, portable, with a recorded real run |
-| figure-craft | Draw detailed isometric explanatory figures from a stated goal |
+| skill-smith | Build a new skill as ten layers, portable, proven by a real agent |
+| figure-craft | Draw any object the user describes as a detailed isometric figure that opens, turns and labels on hover |
+| changelog-writer | Turn a list of changes into a CHANGELOG entry with the correct semver bump |
+| copy-tight | Rewrite UI copy to be short and plain without changing meaning (0.2.0) |
+
+`changelog-writer` and `copy-tight` do not have the ten layer files yet; they are listed in `src/factory/migration.json` and each is migrated in its own session.
 
 ## Candidates (not built)
 
@@ -17,6 +21,4 @@ The project roadmap is in `docs/PROJECT.md` section 6. This file lists skills.
 | test-planner | analysis | Derive a regression checklist from a change description |
 | ui-polish | output | Run a final pixel pass on a finished UI |
 | a11y-audit | analysis | Check a page against accessibility basics and list fixes |
-| copy-tight | output | Rewrite copy to be short and plain |
-| changelog-writer | output | Turn a list of changes into a CHANGELOG entry |
 | svg-cover | output | Create a cover.svg that meets the factory preview limits |

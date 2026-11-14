@@ -1,0 +1,8 @@
+{
+  "case": "breaking-major",
+  "prompt": "Skill spec-check is at 1.1.0. On 2026-11-20 we renamed the Output section. Write the entry.",
+  "agent": "claude",
+  "recordedAt": "2026-11-14",
+  "output": "Here is the entry for spec-check:\n\n```markdown\n## 2.0.0 - 2026-11-20\n\n- Breaking: Rename the Output section, so anything that looks for the old section name no longer matches.\n```\n\n**Version bump:** MAJOR, from 1.1.0 to 2.0.0. The skill's reference table says renaming a required section is a breaking change, and any breaking change means a MAJOR bump.\n\n**Version check:** not done. There is no `src/skills/spec-check/` folder in this repository, and spec-check is not in `src/factory/registry.json`. So I couldn't read its `CHANGELOG.md` or check that the version matches. Once the skill exists, these files need to say version `2.0.0`:\n- `src/skills/spec-check/SKILL.md` (the `version:` line at the top)\n- `src/factory/registry.json` (the spec-check entry)\n\nPut the new entry above the older ones in `CHANGELOG.md` and leave the older entries as they are.\n\nTwo things to confirm:\n1. **The new name:** you didn't say what the section is called now, so I left it out. If you tell me, I'll add it, for example \"Rename the Output section to Report\".\n2. **The date:** 2026-11-20 is later than today (2026-11-14). I used your date as given. Please confirm it's the release date you want.",
+  "files": []
+}

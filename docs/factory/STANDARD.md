@@ -86,6 +86,7 @@ These are the lint problem codes from `src/factory/lint-skills.mjs`:
 | `chk-cover-svg` | cover.svg meets the safety and size limits |
 | `chk-layers` | The ten core layer files exist, have numbered steps and are linked from SKILL.md |
 | `chk-portable` | SKILL.md, layers and references name no `src/`, `docs/` or `tests/` repository path (unless `scope: factory`) |
+| `chk-changelog` | Every CHANGELOG heading is `## <semver> - <YYYY-MM-DD>` and the current version has an entry |
 
 Lint output format: `<file>:<line> <code> <message>`. Exit code 0 means no problems.
 
@@ -152,3 +153,13 @@ Every skill follows the same layer template, so an agent learns the structure on
 - Layer 01 MUST start from the goal the user states and ask when it is missing.
 - Quality and detail MUST come from the skill's own rules, lint and references, NEVER from editing its output by hand.
 - Enforced by `chk-layers` and `chk-portable`. `skill-smith` and `figure-craft` follow this section.
+
+## 13. Live evals (real agent)
+
+Evals that pass only on hand-written answers prove nothing about the skill. Before `ready`:
+
+- Each case in `evals/cases.json` MUST have a recording `evals/live/<case-id>.json` with `prompt`, `agent`, `recordedAt`, `output` and `files`, made by a fresh agent that was given only the skill folder and the case prompt.
+- `node src/factory/live-evals.mjs <name>` MUST print 0 failed. A recording whose prompt differs from the case is stale and fails.
+- Files the agent produced (pages, SVGs) are kept in `evals/live/files/` and UI output is run through `checkPage`.
+- Record new runs with `node src/factory/live-evals.mjs <name> --run` (costs tokens) or by any agent harness that saves the same JSON shape.
+- `tests/factory-live-evals.test.mjs` fails for any `ready` skill without passing recordings.

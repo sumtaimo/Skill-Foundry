@@ -1,0 +1,8 @@
+{
+  "case": "button-name-kept",
+  "prompt": "make this plain: Click here in order to proceed to Checkout",
+  "agent": "claude-code subagent (fresh context, skill folder only)",
+  "recordedAt": "2026-11-14",
+  "output": "Rewritten copy:\nGo to Checkout\n\nWhat changed:\n- cut filler\n- started with a verb\n- kept the product term \"Checkout\" with its capital letter",
+  "files": []
+}
