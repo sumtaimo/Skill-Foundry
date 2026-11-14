@@ -19,7 +19,8 @@ const HERE = fileURLToPath(import.meta.url);
 const REPO_ROOT = resolve(dirname(HERE), '..', '..');
 
 /** Words that only exist in this repository's own rules; an answer containing one leaked them. */
-export const REPO_MARKERS = /TAIMO|lessons\.md|CLAUDE\.md|AGENTS\.md|docs\/PROJECT|skill-guard|\bL\d{1,2}\b rule|Skill Foundry repo/i;
+// AGENTS.md and CLAUDE.md are not markers: a user's project legitimately has them (`add --rules` writes AGENTS.md there).
+export const REPO_MARKERS = /TAIMO|lessons\.md|docs\/PROJECT|skill-guard|\bL\d{1,2}\b rule|Skill Foundry repo/i;
 
 /**
  * Read a `claude -p --output-format stream-json --verbose` transcript.
@@ -34,7 +35,7 @@ export function parseStream(stdout, skill) {
     if (e.type === 'assistant') for (const b of e.message?.content ?? []) if (b.type === 'tool_use') tools.push({ name: b.name, input: JSON.stringify(b.input) });
     if (e.type === 'result') { final = String(e.result ?? ''); cost = typeof e.total_cost_usd === 'number' ? e.total_cost_usd : null; }
   }
-  const usedSkill = tools.some((t) => (t.name === 'Skill' && t.input.includes(skill)) || (t.name === 'Read' && t.input.includes(`.claude/skills/${skill}`)));
+  const usedSkill = tools.some((t) => (t.name === 'Skill' && t.input.includes(skill)) || ((t.name === 'Read' || t.name === 'Bash') && t.input.includes(`.claude/skills/${skill}`)));  // reading the skill with `cat` counts too
   const touchedRepo = tools.filter((t) => t.input.includes(REPO_ROOT)).map((t) => t.name);
   return { tools, final, cost, usedSkill, touchedRepo };
 }
