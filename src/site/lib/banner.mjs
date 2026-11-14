@@ -10,6 +10,10 @@ import { wrap } from './proof.mjs';
 const x = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 export const BANNER_W = 1280;
 export const BANNER_H = 640;
+/** The left column ends before the cover panel (x 680). Widths are estimated with wide fallback fonts in mind
+ * (bold sans about 0.68 em a character, monospace 0.62 em), because the PNG is made on a machine without our fonts. */
+export const TEXT_MAX = 560;
+export const fitSize = (text, max, perEm, width = TEXT_MAX) => Math.max(10, Math.min(max, Math.floor(width / (String(text).length * perEm))));
 
 const LIGHT = '--bg:#f9f9f8;--surface:#ffffff;--surface2:#f2f2f0;--line:#e8e8e5;--line-strong:#d4d4d0;--fg:#1d1d1b;--muted:#6f6f6b;--faint:#9c9c97';
 const DARK = '--bg:#141413;--surface:#1b1b1a;--surface2:#222220;--line:#2c2c2a;--line-strong:#3a3a37;--fg:#ecebe7;--muted:#a3a29d;--faint:#75746f';
@@ -30,12 +34,13 @@ function placeCover(coverSvg, bx, by, bw, bh) {
 export function bannerSvg(s, { standalone = false } = {}) {
   const W = BANNER_W; const H = BANNER_H; const L = 72;
   const name = String(s.title || s.name);
-  const goal = wrap(String(s.tagline), 36).slice(0, 3);
+  const goal = wrap(String(s.tagline), 30).slice(0, 3);
   const cmd = s.factoryOnly ? 'Works inside the Skill Foundry repository' : `npx github:sumtaimo/Skill-Foundry add ${s.name}`;
   const live = s.live && s.live.total ? `Tested by a real agent: ${s.live.passed} of ${s.live.total} cases pass` : '';
   const real = s.coverKind === 'concept' ? 'Concept drawing, not real output' : 'Real output from an agent';
-  const nameSize = name.length > 16 ? 58 : 68;
-  const cmdW = Math.min(560, 26 + cmd.length * 10.4);
+  const nameSize = fitSize(name, 68, 0.68);
+  const cmdSize = fitSize(cmd, 17, 0.62, TEXT_MAX - 36);
+  const cmdW = Math.ceil(36 + cmd.length * cmdSize * 0.62);
   const style = `<style>${standalone ? `.sf-banner{${LIGHT}}@media (prefers-color-scheme:dark){.sf-banner{${DARK}}}` : ''}` +
     `.sf-banner .bn-t{font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;fill:var(--fg)}` +
     `.sf-banner .bn-m{font-family:'JetBrains Mono',ui-monospace,monospace}</style>`;
@@ -50,9 +55,9 @@ export function bannerSvg(s, { standalone = false } = {}) {
     `<text x="${L}" y="${180}" class="bn-t" font-size="${nameSize}" font-weight="650">${x(name)}</text>` +
     `<rect x="${L}" y="206" width="${String(s.version).length * 11 + 34}" height="32" rx="16" fill="var(--surface)" stroke="var(--line-strong)"/>` +
     `<text x="${L + 17}" y="228" class="bn-m" font-size="17" fill="var(--fg)">${x(s.version)}</text>` +
-    goal.map((g, i) => `<text x="${L}" y="${300 + i * 40}" class="bn-t" font-size="30" fill="var(--fg)">${x(g)}</text>`).join('') +
+    goal.map((g, i) => `<text x="${L}" y="${300 + i * 38}" class="bn-t" font-size="28" fill="var(--fg)">${x(g)}</text>`).join('') +
     (live ? `<path d="M${L} ${448} l6 6 l12 -14" fill="none" stroke="var(--fg)" stroke-width="2.4"/><text x="${L + 28}" y="${454}" class="bn-t" font-size="19" fill="var(--muted)">${x(live)}</text>` : '') +
     `<rect x="${L}" y="502" width="${cmdW}" height="56" rx="12" fill="var(--fg)"/>` +
-    `<text x="${L + 18}" y="537" class="bn-m" font-size="17" fill="var(--bg)">${x(cmd)}</text>` +
+    `<text x="${L + 18}" y="537" class="bn-m" font-size="${cmdSize}" fill="var(--bg)">${x(cmd)}</text>` +
     `</svg>`;
 }
