@@ -37,6 +37,7 @@ Follow the layers in order. Each layer file is the detailed chapter for that ste
 - R-copy-tight-5: Legal text MUST NEVER be rewritten; it is returned with the fixed note.
 - R-copy-tight-6: The output MUST contain the rewritten copy and the change list.
 - R-copy-tight-7: The change list MUST NEVER quote removed words.
+- R-copy-tight-8: The rewrite MUST NEVER add a new action, promise or fact that the original does not state (for example a next step such as "Try again" that the source never gave).
 
 See `RULES.json` for the check or checklist item behind each rule.
 

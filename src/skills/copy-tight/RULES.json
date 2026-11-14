@@ -33,5 +33,10 @@
     "id": "R-copy-tight-7",
     "text": "The change list MUST NEVER quote removed words.",
     "checklist": "Reviewer confirms no change bullet quotes a removed phrase."
+  },
+  {
+    "id": "R-copy-tight-8",
+    "text": "The rewrite MUST NEVER add a new action, promise or fact that the original does not state (for example a next step such as \"Try again\" that the source never gave).",
+    "checklist": "Reviewer confirms the rewrite adds no action, promise or fact that the original does not state."
   }
 ]

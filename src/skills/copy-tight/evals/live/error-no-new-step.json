@@ -1,0 +1,8 @@
+{
+  "case": "error-no-new-step",
+  "prompt": "shorten this copy: An unexpected error has occurred while attempting to save your changes.",
+  "agent": "claude",
+  "recordedAt": "2026-11-14",
+  "output": "Rewritten copy:\nWe couldn't save your changes.\n\nWhat changed:\n- Cut filler\n- Plain words\n- Active voice",
+  "files": []
+}

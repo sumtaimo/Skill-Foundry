@@ -148,5 +148,47 @@
         "value": "What changed:"
       }
     ]
+  },
+  {
+    "id": "error-no-new-step",
+    "prompt": "shorten this copy: An unexpected error has occurred while attempting to save your changes.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "What changed:"
+      },
+      {
+        "type": "notContains",
+        "value": "Try again"
+      },
+      {
+        "type": "notContains",
+        "value": "try again"
+      },
+      {
+        "type": "notContains",
+        "value": "Retry"
+      },
+      {
+        "type": "notContains",
+        "value": "retry"
+      },
+      {
+        "type": "notContains",
+        "value": "Please"
+      },
+      {
+        "type": "notContains",
+        "value": "support"
+      },
+      {
+        "type": "notContains",
+        "value": "attempting"
+      },
+      {
+        "type": "maxLines",
+        "value": 10
+      }
+    ]
   }
 ]
