@@ -3,6 +3,6 @@
   "prompt": "shorten this copy to at most 10 characters: Your payment of $1,250.00 was declined by your bank.",
   "agent": "claude",
   "recordedAt": "2026-11-14",
-  "output": "Rewritten copy:\nBank declined your $1,250.00 payment.\n\nWhat changed:\n- Active voice\n- Cut filler\n- Kept the amount\n- Length limit was not met; meaning kept.",
+  "output": "Rewritten copy:\nBank declined $1,250.00\n\nWhat changed:\n- Active voice\n- Cut filler words\n- Kept the amount\n- Length limit was not met; meaning kept.",
   "files": []
 }
