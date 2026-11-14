@@ -1,0 +1,52 @@
+[
+  {
+    "id": "error-message",
+    "prompt": "shorten this copy: We were unable to process your payment of $49.00 at this time. Please try again later.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "$49.00"
+      },
+      {
+        "type": "contains",
+        "value": "What changed:"
+      },
+      {
+        "type": "notContains",
+        "value": "at this time"
+      },
+      {
+        "type": "maxLines",
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": "button-name-kept",
+    "prompt": "make this plain: Click here in order to proceed to Checkout",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "Checkout"
+      },
+      {
+        "type": "notContains",
+        "value": "Click here"
+      }
+    ]
+  },
+  {
+    "id": "legal-unchanged",
+    "prompt": "tighten this text: By continuing you agree to the Terms of Service.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "By continuing you agree to the Terms of Service."
+      },
+      {
+        "type": "contains",
+        "value": "Legal text is returned unchanged."
+      }
+    ]
+  }
+]
