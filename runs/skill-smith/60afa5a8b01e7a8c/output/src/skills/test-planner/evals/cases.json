@@ -1,0 +1,40 @@
+[
+  {
+    "id": "checkout-promo-description",
+    "prompt": "What should we retest after this change? Change: Checkout now has a promo code field on the cart review step. Codes are checked by calling the promotions service. A valid code lowers the order total before tax. An invalid code shows \"This code is not valid.\" Orders store the code that was applied.",
+    "expect": [
+      { "type": "contains", "value": "1. [ ]" },
+      { "type": "contains", "value": "### " },
+      { "type": "contains", "value": "Open questions" },
+      { "type": "notContains", "value": "describe(" },
+      { "type": "maxLines", "value": 80 }
+    ]
+  },
+  {
+    "id": "cart-limit-diff",
+    "prompt": "Give me a regression checklist for this diff:\n\n-const MAX_ITEMS = 50;\n+const MAX_ITEMS = 20;\n+if (cart.items.length >= MAX_ITEMS) showMessage(\"Your cart is full\");",
+    "expect": [
+      { "type": "contains", "value": "1. [ ]" },
+      { "type": "contains", "value": "Your cart is full" },
+      { "type": "notContains", "value": "expect(" },
+      { "type": "maxLines", "value": 60 }
+    ]
+  },
+  {
+    "id": "negative-write-test-code",
+    "prompt": "Write Jest tests for the promo code validator. The change: promo codes are checked by calling the promotions service.",
+    "expect": [
+      { "type": "notContains", "value": "expect(" },
+      { "type": "notContains", "value": "describe(" },
+      { "type": "notContains", "value": "it(" }
+    ]
+  },
+  {
+    "id": "no-change-text",
+    "prompt": "What should we retest after this change?",
+    "expect": [
+      { "type": "notContains", "value": "1. [ ]" },
+      { "type": "contains", "value": "change" }
+    ]
+  }
+]

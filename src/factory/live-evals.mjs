@@ -36,7 +36,7 @@ export function scoreLive(skillDir) {
   const byPrompt = new Map(cases.map((c) => [c.prompt, rec[c.id]?.prompt === c.prompt ? rec[c.id] : undefined]));
   const r = runEvals(skillDir, (prompt) => {
     const x = byPrompt.get(prompt);
-    return x ? { text: x.output + runText(x), files: x.files ?? [] } : { text: '' };
+    return x ? { text: x.output + runText(x), files: x.files ?? [], reply: x.output } : { text: '' };
   });
   const missing = cases.filter((c) => !rec[c.id]).map((c) => c.id);
   const stale = cases.filter((c) => rec[c.id] && rec[c.id].prompt !== c.prompt).map((c) => c.id);

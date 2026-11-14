@@ -61,3 +61,13 @@ test('runText: a recording that points at a run adds the text of the files the a
   assert.equal(runText({ run: '../etc' }), '', 'only runs/<skill>/<hex id> is read');
   assert.equal(runText({ run: 'runs/none/0000000000000000' }), '');
 });
+
+test('scoreLive: maxLines counts the agent reply only, not the files of a recorded run', () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'live-'));
+  mkdirSync(path.join(dir, 'evals', 'live'), { recursive: true });
+  writeFileSync(path.join(dir, 'evals', 'cases.json'), JSON.stringify([{ id: 'a', prompt: 'p1', expect: [{ type: 'maxLines', value: 2 }] }]));
+  writeFileSync(path.join(dir, 'evals', 'live', 'a.json'), JSON.stringify({ prompt: 'p1', output: 'one\ntwo' }));
+  assert.equal(scoreLive(dir).failed, 0);
+  writeFileSync(path.join(dir, 'evals', 'live', 'a.json'), JSON.stringify({ prompt: 'p1', output: 'one\ntwo\nthree' }));
+  assert.equal(scoreLive(dir).failed, 1);
+});

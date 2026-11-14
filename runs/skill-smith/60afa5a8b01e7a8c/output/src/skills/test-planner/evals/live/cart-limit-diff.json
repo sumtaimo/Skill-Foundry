@@ -1,0 +1,8 @@
+{
+  "case": "cart-limit-diff",
+  "prompt": "Give me a regression checklist for this diff:\n\n-const MAX_ITEMS = 50;\n+const MAX_ITEMS = 20;\n+if (cart.items.length >= MAX_ITEMS) showMessage(\"Your cart is full\");",
+  "agent": "claude (fresh general-purpose subagent, skill folder and case prompt only)",
+  "recordedAt": "2026-11-14",
+  "output": "## Regression checklist: cart item limit\n\nChange: The cart item limit `MAX_ITEMS` drops from 50 to 20, and a \"Your cart is full\" message now shows when the cart holds 20 or more items.\n\n### MAX_ITEMS\n1. [ ] Check the cart item limit is 20, not 50, by adding items until the limit is reached. _const MAX_ITEMS = 20;_\n2. [ ] Check the old 50-item limit no longer applies to the cart. _const MAX_ITEMS = 50;_\n\n### cart.items\n3. [ ] Add items to a cart holding 19 and check no \"Your cart is full\" message appears. _if (cart.items.length >= MAX_ITEMS)_\n4. [ ] Add the 20th item and check the \"Your cart is full\" message appears. _if (cart.items.length >= MAX_ITEMS)_\n\n### showMessage(\"Your cart is full\")\n5. [ ] Check the message text reads exactly \"Your cart is full\". _showMessage(\"Your cart is full\")_\n\n### Possible impact, not stated\n- Does checkout or the cart total change for carts that hold more than 20 items? The change text does not name it.\n- Do carts saved before this change with more than 20 items still load and behave as before? The change text does not name it.\n\n### Open questions\n- Does the cart stop accepting items at 20, or only show the message? The diff shows only the message.\n- Are carts that already hold 21 to 50 items left as they are, or reduced to 20? The change text does not say.",
+  "files": []
+}

@@ -1,0 +1,180 @@
+{
+  "skill": "skill-smith",
+  "version": "1.0.0",
+  "caseId": "new-skill-report",
+  "inputSha256": "055f330e36fa710f46971009b420bba69b77b58eb641b39177a52a18694eed92",
+  "skillSha256": "617d535fe09de0af20472c2a046c1f1c14a8bb10afd9d1c25761842a2ef8e5a7",
+  "key": "60afa5a8b01e7a8c51097b6545ece20f3db2b43cffc228f6ea1840c8eac82023",
+  "startedAt": "2026-11-14T12:04:04.396Z",
+  "finishedAt": "2026-11-14T12:08:16.668Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.21869055999999998,
+  "usage": {
+    "input_tokens": 58,
+    "cache_creation_input_tokens": 97179,
+    "cache_read_input_tokens": 2519473,
+    "output_tokens": 49960,
+    "output_tokens_details": {
+      "thinking_tokens": 24767
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 97179,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 867,
+        "cache_read_input_tokens": 126616,
+        "cache_creation_input_tokens": 819,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 819
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [
+    {
+      "path": "EVIDENCE.md",
+      "bytes": 5724,
+      "sha256": "b9850ccc076c9c05a98a2bb0a20893ce26d9bc0c1ea14c08440576b5cb25a71a"
+    },
+    {
+      "path": "dist/test-planner-0.1.0.zip",
+      "bytes": 16218,
+      "sha256": "431d2456296044be2743185edf1f0516f318aacf4a655844a37e77fb61c4a257"
+    },
+    {
+      "path": "registry-entry.proposed.json",
+      "bytes": 280,
+      "sha256": "f0f509c93deb375ddb15f93e944370aa02886bc222cae937bee4ae6ebf10f760"
+    },
+    {
+      "path": "src/skills/test-planner/CHANGELOG.md",
+      "bytes": 316,
+      "sha256": "b2f938fcbf5d9688ef010cb32d7be8166271e5286ca899ed168785ebce96045a"
+    },
+    {
+      "path": "src/skills/test-planner/RULES.json",
+      "bytes": 2226,
+      "sha256": "ecff4ad6125ed6a54ac5a1b4524348c4749a9f60c9fb4b70a0d4f02e3bcd12b8"
+    },
+    {
+      "path": "src/skills/test-planner/SKILL.md",
+      "bytes": 4458,
+      "sha256": "9a4f7b088375ad7f029bde3df9b689701eca7faaa0bbdfca558b645846830c56"
+    },
+    {
+      "path": "src/skills/test-planner/evals/cases.json",
+      "bytes": 1670,
+      "sha256": "25b741e47a7e130b50e7b4bffd57f0bec186451c28f68a1f13b4652643a19b82"
+    },
+    {
+      "path": "src/skills/test-planner/evals/live/cart-limit-diff.json",
+      "bytes": 1708,
+      "sha256": "41cf7a1117d57e3f30effb06538cc6efd26e3c5a22fc9fcfc174b2bc0c554bc8"
+    },
+    {
+      "path": "src/skills/test-planner/evals/live/checkout-promo-description.json",
+      "bytes": 2720,
+      "sha256": "4a06b3745c328d9da120ab56265bd531d65afd709c865a4af02ed5b5b1fe3912"
+    },
+    {
+      "path": "src/skills/test-planner/evals/live/negative-write-test-code.json",
+      "bytes": 911,
+      "sha256": "276bd2a173e69d437649380653271f8c6683bda04548601e338ac6b67ff99b97"
+    },
+    {
+      "path": "src/skills/test-planner/evals/live/no-change-text.json",
+      "bytes": 371,
+      "sha256": "62bad587f9aa4e3a9f33ddfbafbf9f9f3e548173068e1ec5486fe056d490522d"
+    },
+    {
+      "path": "src/skills/test-planner/examples/README.md",
+      "bytes": 3105,
+      "sha256": "fc0689a3a21504b320c2f7210f84fa24e8c1e2c18f14eae9097a112276a562a5"
+    },
+    {
+      "path": "src/skills/test-planner/layers/01-intent.md",
+      "bytes": 1323,
+      "sha256": "7c5691db1cfee3d2a1db6f7b9b4b9e7c268d520aa21b3b1d30b69f6db80a27f9"
+    },
+    {
+      "path": "src/skills/test-planner/layers/02-context.md",
+      "bytes": 710,
+      "sha256": "6d7e462804b02ae5c71052712534bc10697192f40637ae7106f53949af016dfc"
+    },
+    {
+      "path": "src/skills/test-planner/layers/03-inputs.md",
+      "bytes": 788,
+      "sha256": "be01821de7c63c4fac752f020b7657ea37036a44860ce557fe5f5404c309b3ab"
+    },
+    {
+      "path": "src/skills/test-planner/layers/04-flow.md",
+      "bytes": 1547,
+      "sha256": "bb97bc774485069d6e3c80576e3e6c7b18678e4defc83e0368acb95054f0e476"
+    },
+    {
+      "path": "src/skills/test-planner/layers/05-rules.md",
+      "bytes": 896,
+      "sha256": "740499c262005fe7c8971bd44e0d15444ee5fe53b515fcb2e1bfb28aca725894"
+    },
+    {
+      "path": "src/skills/test-planner/layers/06-states.md",
+      "bytes": 1429,
+      "sha256": "f1790f0f2eeb26668f2a9b81b783a63bad57517f9d540338b730c89113188c83"
+    },
+    {
+      "path": "src/skills/test-planner/layers/07-checks.md",
+      "bytes": 1002,
+      "sha256": "1105696f9740feae392adf32df47d584c3078e02a1cc3242fc6c96867e76350c"
+    },
+    {
+      "path": "src/skills/test-planner/layers/08-output.md",
+      "bytes": 1023,
+      "sha256": "7f346e5a9a5edba3cc54cee46501c8003f274fffaf9d5702ce8e5a288fd4d89e"
+    },
+    {
+      "path": "src/skills/test-planner/layers/09-handoff.md",
+      "bytes": 405,
+      "sha256": "90f9da5103ca3029cf1a7757f3b29063d4ac6d97ce3fb83e057cc11de6fcbac0"
+    },
+    {
+      "path": "src/skills/test-planner/layers/10-evidence.md",
+      "bytes": 511,
+      "sha256": "ea09d9e166590a31479b1e8af52158626b926e515da50ead102daa22ab28fa96"
+    },
+    {
+      "path": "src/skills/test-planner/preview.json",
+      "bytes": 412,
+      "sha256": "f24fe92686ac1590ea0e9885ecd15b53bcdc6627998e4e7c1d52e2e637cd3581"
+    },
+    {
+      "path": "src/skills/test-planner/preview/cover.svg",
+      "bytes": 1361,
+      "sha256": "0b0f6ba74c2d52a4f9b26a69eb03ec7055c3634c748d2b0fc0775a73ecee65bc"
+    },
+    {
+      "path": "src/skills/test-planner/references/README.md",
+      "bytes": 1766,
+      "sha256": "5b817db805158d522600aa5464d2144987ae4cbce9ce0f4425f04ece7ff30337"
+    }
+  ],
+  "checks": {
+    "expectations": 4,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "The `test-planner` skill (v0.1.0) is built, linted, and recorded. Everything is in the output folder; nothing in the repository was edited.\n\n**Files produced** (all under `runs/skill-smith/60afa5a8b01e7a8c/output/`)\n- `src/skills/test-planner/`: `SKILL.md` (65 lines), `RULES.json` (R-test-planner-1 to 12), `CHANGELOG.md`, `preview.json`, `preview/cover.svg`, the ten core layers, `references/README.md`, `examples/README.md`, `evals/cases.json` (4 cases) and `evals/live/` (4 recordings).\n- `dist/test-planner-0.1.0.zip`, packed with the factory's own packer (sha256 `431d2456…c257`).\n- `registry-entry.proposed.json` (status `draft`).\n- `EVIDENCE.md`: the full record, including the review answers.\n\n**Checks**\n- Factory linter (`lint-skills`): no problems.\n- Live evals: 4 passed, 0 failed. Each recording comes from a fresh agent given only the skill folder and the case prompt. The checkout and cart-limit replies cite a source phrase for every item and list the unnamed adjacent areas as questions. The negative case refused to write test code, and the no-change-text case asked for the change.\n- Repository `npm test`, `npm run guard`, `run-skill.mjs`, and `routing-evals.mjs` were not run. They write into the repo or only cover registered `ready` skills.\n- The cover was not checked visually in light and dark themes.\n\n**Open items**\n- The skill is in the output folder, not `src/skills/`. Moving it, adding the registry entry, and writing `runs/` and `dist/` into the repo are owner decisions.\n- The registry proposal's `roles` (BA_ANALYST, QA_AUDITOR) are my guess; confirm or change them.\n- The `EVIDENCE.md` review is my own self-check, not an independent review. The owner should confirm it before status `ready`.\n- `skill-smith`'s own eval case for this prompt expects the skill inside the repository, so it will only pass after the folder is moved there."
+}

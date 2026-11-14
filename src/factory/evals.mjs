@@ -7,7 +7,8 @@ import { join } from 'node:path';
 
 /**
  * @param {string} skillDir
- * @param {(prompt:string)=>{text:string,files?:string[]}} produce
+ * @param {(prompt:string)=>{text:string,files?:string[],reply?:string}} produce
+ *   `reply` is the agent's own answer; maxLines counts it when given, so produced files never count as reply lines.
  */
 export function runEvals(skillDir, produce) {
   if (typeof skillDir !== 'string' || !skillDir) throw new TypeError('runEvals: skillDir required');
@@ -25,7 +26,7 @@ export function runEvals(skillDir, produce) {
       } else if (e.type === 'notContains') {
         if (text.includes(e.value)) failures.push(`unexpected text: ${e.value}`);
       } else if (e.type === 'maxLines') {
-        const n = text.split('\n').length;
+        const n = (typeof out.reply === 'string' ? out.reply : text).split('\n').length;
         if (n > e.value) failures.push(`too many lines: ${n} > ${e.value}`);
       } else if (e.type === 'fileExists') {
         if (!files.includes(e.value)) failures.push(`missing file: ${e.value}`);
