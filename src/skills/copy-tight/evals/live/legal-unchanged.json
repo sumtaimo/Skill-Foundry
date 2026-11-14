@@ -1,8 +1,8 @@
 {
   "case": "legal-unchanged",
   "prompt": "tighten this text: By continuing you agree to the Terms of Service.",
-  "agent": "claude-code subagent (fresh context, skill folder only)",
+  "agent": "claude",
   "recordedAt": "2026-11-14",
-  "output": "Rewritten copy:\nBy continuing you agree to the Terms of Service.\n\nWhat changed:\n- Legal text is returned unchanged.",
+  "output": "Rewritten copy:\nBy continuing you agree to the Terms of Service.\n\nWhat changed:\nLegal text is returned unchanged.",
   "files": []
 }

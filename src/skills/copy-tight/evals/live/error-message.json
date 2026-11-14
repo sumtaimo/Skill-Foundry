@@ -1,8 +1,8 @@
 {
   "case": "error-message",
   "prompt": "shorten this copy: We were unable to process your payment of $49.00 at this time. Please try again later.",
-  "agent": "claude-code subagent (fresh context, skill folder only)",
+  "agent": "claude",
   "recordedAt": "2026-11-14",
-  "output": "Rewritten copy:\nWe couldn't process your $49.00 payment. Please try again later.\n\nWhat changed:\n- cut filler\n- shorter phrasing\n- kept the amount",
+  "output": "Rewritten copy:\nCouldn't process your $49.00 payment. Try again later.\n\nWhat changed:\n- Cut filler\n- Active voice\n- Kept the amount",
   "files": []
 }

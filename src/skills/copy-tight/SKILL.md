@@ -17,15 +17,18 @@ while numbers, names, product terms and legal text stay exactly as they were.
 
 ## Procedure
 
-1. Read the copy and list every number, name, product term and legal phrase in it.
-2. Copy each listed item exactly, keeping its spelling and capital letters ("Checkout" stays "Checkout").
-3. If the copy is legal text, return it unchanged, write the fixed note `Legal text is returned unchanged.` and stop.
-4. Cut filler words, passive voice and repeats; prefer common words and active verbs.
-5. Keep each string at its UI job: buttons start with a verb, errors say what happened and what to do.
-6. Compare the rewrite to the original: same meaning, same numbers, same names with the same capitals.
-7. If a cut would change meaning, keep the original wording for that part.
-8. Write the change list: name the kind of change only, and never quote the words you removed.
-9. Return the rewritten copy, then the change list.
+Follow the layers in order. Each layer file is the detailed chapter for that step.
+
+1. Intent: find the goal and the copy to rewrite. [layers/01-intent.md](layers/01-intent.md)
+2. Context: list every number, name, product term and legal phrase. [layers/02-context.md](layers/02-context.md)
+3. Inputs: what is required and what to do when it is missing. [layers/03-inputs.md](layers/03-inputs.md)
+4. Flow: cut, plain words, fit the UI job, compare. [layers/04-flow.md](layers/04-flow.md)
+5. Rules: the MUST / NEVER rules by id. [layers/05-rules.md](layers/05-rules.md)
+6. States: legal, mixed, already tight, placeholders. [layers/06-states.md](layers/06-states.md)
+7. Checks: numbers, names, filler, legal, change list. [layers/07-checks.md](layers/07-checks.md)
+8. Output: the exact answer format. [layers/08-output.md](layers/08-output.md)
+9. Handoff: what the user receives and open items. [layers/09-handoff.md](layers/09-handoff.md)
+10. Evidence: what to keep as proof. [layers/10-evidence.md](layers/10-evidence.md)
 
 ## Rules
 
@@ -39,12 +42,12 @@ See `RULES.json` for the check or checklist item behind each rule.
 
 ## Checks
 
-- `node src/factory/lint-skills.mjs copy-tight` prints no problems.
-- `node src/factory/live-evals.mjs copy-tight` prints 0 failed on real-agent recordings.
+- Every number and name in the input appears unchanged in the output, with the same capital letters.
+- Every item in [references/checklist.md](references/checklist.md) is answered yes; any no blocks the answer.
 
 ## Review
 
-Use `docs/factory/REVIEW.md`; the filled checklist is in `docs/skills/copy-tight/CHECKLIST.md`.
+Use [references/checklist.md](references/checklist.md). A second reader confirms the rewrite means the same as the original.
 
 ## Output
 
