@@ -1,0 +1,14 @@
+{
+  "skill": "test-planner",
+  "prompt": "We changed our checkout so promo codes now apply before shipping is calculated, and we added a limit of 5 promo codes per order. What should we retest?",
+  "recordedAt": "2026-11-14",
+  "agent": "claude -p in an empty project outside the repository",
+  "skillSha": "36793f9bf3c70cc34e8532ae767574c81e394a23d928a6895f8cec31d5afd9dc",
+  "exit": 0,
+  "usedSkill": true,
+  "leakedRepoRules": false,
+  "touchedRepo": [],
+  "produced": 0,
+  "cost": 0.00567077,
+  "answer": "## Regression checklist: promo codes before shipping, 5-code limit\n\nChange: Checkout now applies promo codes before shipping is calculated, and an order accepts at most 5 promo codes.\n\n### checkout\n1. [ ] Apply a valid promo code during checkout and check the order total uses the code before shipping is added. _promo codes now apply before shipping is calculated_\n2. [ ] Check shipping is no longer calculated before promo codes are applied. _previously shipping was calculated first_\n\n### promo codes\n3. [ ] Add 5 promo codes to one order and check each one applies. _added a limit of 5 promo codes per order_\n4. [ ] Enter a sixth promo code on the same order and check it is refused. _added a limit of 5 promo codes per order_\n\n### Possible impact, not stated\n- Does the cart page show a total that includes shipping, and does it now differ from checkout? The change text does not name the cart page.\n- Do the order confirmation and order history show the discounted total? The change text does not name them.\n- Does any other checkout route, such as an express or saved-payment flow, apply codes in the new order? The change text does not name them.\n\n### Open questions\n- What message does the customer see when a sixth code is refused?\n- Does the limit count codes that were removed from the order, or only codes currently applied?\n- When a code is removed after shipping was calculated, does shipping recalculate?\n\nThis checklist is from the change description only. I did not have a diff, so I could not confirm which files or functions changed."
+}
