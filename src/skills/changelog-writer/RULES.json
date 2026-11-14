@@ -1,0 +1,11 @@
+[
+  { "id": "R-changelog-writer-1", "text": "The heading MUST be `## <semver> - <YYYY-MM-DD>`.", "checklist": "Heading in every example matches the format exactly" },
+  { "id": "R-changelog-writer-2", "text": "The bump MUST follow the change types: breaking is MAJOR, new behaviour is MINOR, fix is PATCH.", "checklist": "Each example names the right bump for its changes" },
+  { "id": "R-changelog-writer-3", "text": "Each bullet MUST hold one idea and start with a verb.", "checklist": "No bullet joins two changes or starts with a noun" },
+  { "id": "R-changelog-writer-4", "text": "Existing entries MUST NEVER be edited or reordered.", "checklist": "Examples show old entries untouched below the new one" },
+  { "id": "R-changelog-writer-5", "text": "The version MUST match the frontmatter and the registry.", "checklist": "Procedure step 8 reports a mismatch instead of hiding it" },
+  { "id": "R-changelog-writer-6", "text": "The skill NEVER invents a change, version or date; unknowns are asked.", "checklist": "Reviewer confirms every fact in examples comes from the input" },
+  { "id": "R-changelog-writer-7", "text": "The skill folder contains every required file.", "check": "chk-required-files" },
+  { "id": "R-changelog-writer-8", "text": "SKILL.md has valid frontmatter, matching name and stays within 150 lines.", "check": "chk-frontmatter" },
+  { "id": "R-changelog-writer-9", "text": "Preview and cover meet the factory limits.", "check": "chk-cover-svg" }
+]

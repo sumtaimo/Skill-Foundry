@@ -1,0 +1,7 @@
+{
+  "title": "changelog-writer",
+  "tagline": "Turn merged changes into a correct CHANGELOG entry and semver bump.",
+  "prompt": "Skill spec-check is at 1.0.0. We added a step and fixed a link. Write the changelog entry for 2026-11-14.",
+  "outputs": ["One CHANGELOG entry", "Chosen version bump with reason", "Version mismatch list"],
+  "tags": ["changelog", "semver", "release"]
+}

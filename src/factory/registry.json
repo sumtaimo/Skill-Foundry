@@ -10,5 +10,11 @@
     "version": "1.0.0",
     "purpose": "Draws isometric explanatory figures with tokens, a shared iso engine and geometry lint L1 to L8.",
     "status": "ready"
+  },
+  {
+    "name": "changelog-writer",
+    "version": "1.0.0",
+    "purpose": "Turns merged changes into a CHANGELOG entry with the correct semver bump.",
+    "status": "ready"
   }
 ]
