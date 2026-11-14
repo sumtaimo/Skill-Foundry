@@ -11,3 +11,7 @@
 - Read "we are at X", "is at X" and "currently X" as the current version, so the heading is X bumped; never invent a previous version; ask one question when the version is ambiguous ("version X is ready").
 - Write the entry even when the target changelog is unclear, and ask where to paste it; still ask for the target and current version when neither is given.
 - Add eval cases `we-are-at-current-version` and `ambiguous-version-asks`.
+- Below 1.0.0, bump a breaking change as MINOR (`0.9.4` → `0.10.0`); move to `1.0.0` only when the user asks (owner decision, 2026-11-14).
+- Forbid linking two changes or adding a replacement hint such as "use X instead" that the input does not state.
+- State the `Breaking:` marker and the output parts in SKILL.md, not only in the layers.
+- Add eval case `zero-major-breaking-minor`.

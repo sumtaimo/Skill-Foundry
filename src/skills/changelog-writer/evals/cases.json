@@ -156,5 +156,31 @@
         "value": 10
       }
     ]
+  },
+  {
+    "id": "zero-major-breaking-minor",
+    "prompt": "Our app is currently 0.9.4. Since then we removed the old export API and added CSV import. Release date 2026-11-15. Please draft the changelog entry.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## 0.10.0 - 2026-11-15"
+      },
+      {
+        "type": "contains",
+        "value": "Breaking:"
+      },
+      {
+        "type": "notContains",
+        "value": "## 1.0.0"
+      },
+      {
+        "type": "notContains",
+        "value": "instead"
+      },
+      {
+        "type": "maxLines",
+        "value": 20
+      }
+    ]
   }
 ]

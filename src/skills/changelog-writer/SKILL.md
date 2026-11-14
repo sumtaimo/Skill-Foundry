@@ -34,13 +34,13 @@ Follow the layers in order. Each layer file is the detailed chapter for that ste
 ## Rules
 
 - R-changelog-writer-1: The heading MUST be `## <semver> - <YYYY-MM-DD>`.
-- R-changelog-writer-2: The bump MUST follow the change types (breaking, new behaviour, fix).
-- R-changelog-writer-3: Each bullet MUST hold one idea and start with a verb.
+- R-changelog-writer-2: The bump MUST follow the change types (breaking, new behaviour, fix); below 1.0.0 a breaking change is MINOR (`0.9.4` → `0.10.0`).
+- R-changelog-writer-3: Each bullet MUST hold one idea and start with a verb. Breaking changes come first and each starts with `Breaking:` (also below 1.0.0).
 - R-changelog-writer-4: Existing entries MUST NEVER be edited or reordered.
 - R-changelog-writer-5: The version MUST match the frontmatter and any registry or manifest entry.
 - R-changelog-writer-6: The skill NEVER invents a change, version or date. "We are at X" means X is the current version and the heading is X bumped; a previous version is never invented; an ambiguous version ("version X is ready") is asked.
 - R-changelog-writer-10: The entry and reply MUST be in the language of the request (English request, English entry).
-- R-changelog-writer-11: A bullet NEVER adds a fact or qualifier the input does not contain ("fixed a link" stays "Fix a link", not "Fix a broken link").
+- R-changelog-writer-11: A bullet NEVER adds a fact or qualifier the input does not contain ("fixed a link" stays "Fix a link", not "Fix a broken link"), and never links two changes or adds a replacement or migration hint ("use X instead") the input does not state.
 
 See `RULES.json` for the check or checklist item behind each rule.
 
@@ -56,4 +56,9 @@ The maintainer compares the entry with the changes they merged and with the work
 
 ## Output
 
-One CHANGELOG entry in markdown, the chosen bump with its reason, and a list of version mismatches (or "none").
+Always these parts, in this order (details in [layers/08-output.md](layers/08-output.md)):
+
+1. The entry in a markdown code block: `## <new version> - <YYYY-MM-DD>`, a blank line, then the bullets.
+2. `Bump: MAJOR|MINOR|PATCH (<old> → <new>)` and a one-line reason.
+3. `Mismatches: none`, or the files that must show the new version, or the files that could not be checked.
+4. Questions, only when needed.

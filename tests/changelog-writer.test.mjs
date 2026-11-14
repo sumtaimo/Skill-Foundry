@@ -19,6 +19,7 @@ const answers = {
   'english-request-english-entry': '## 1.3.0 - 2026-11-14\n\n- Add an example for empty input.\n\nBump: MINOR, an example is new behaviour.',
   'we-are-at-current-version': '## 2.4.0 - 2026-11-14\n\n- Add dark mode.\n- Fix a crash on login.\n\nBump: MINOR (2.3.0 → 2.4.0).',
   'ambiguous-version-asks': 'Is 2.3.0 the current version (the entry would be 2.4.0) or the new version?',
+  'zero-major-breaking-minor': '## 0.10.0 - 2026-11-15\n\n- Breaking: Remove the old export API.\n- Add CSV import.\n\nBump: MINOR (0.9.4 → 0.10.0), breaking below 1.0.0.',
   'no-added-qualifier': '## 1.2.1 - 2026-11-14\n\n- Fix a link in the references.\n\nBump: PATCH, a link fix is a fix.',
 };
 
@@ -44,6 +45,11 @@ test('changelog-writer evals reject a current version used as the heading or an 
   const r = runEvals(DIR, () => ({ text: '## 2.3.0 - 2026-11-14\n\n- Add dark mode.\n\nBump: MINOR (2.2.0 → 2.3.0).' }));
   assert.equal(r.results.find((x) => x.id === 'we-are-at-current-version').ok, false);
   assert.equal(r.results.find((x) => x.id === 'ambiguous-version-asks').ok, false);
+});
+
+test('changelog-writer evals reject 1.0.0 for a breaking change below 1.0.0', () => {
+  const r = runEvals(DIR, () => ({ text: '## 1.0.0 - 2026-11-15\n\n- Breaking: Remove the old export API.' }));
+  assert.equal(r.results.find((x) => x.id === 'zero-major-breaking-minor').ok, false);
 });
 
 test('changelog-writer version matches CHANGELOG and registry', () => {
