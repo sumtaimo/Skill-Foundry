@@ -3,12 +3,12 @@
   "prompt": "Our error toast says: 'An unexpected error has occurred while attempting to save your changes.' Please make it plain and short.",
   "recordedAt": "2026-11-14",
   "agent": "claude -p in an empty project outside the repository",
-  "skillSha": "2fa87328d2aa175bc28a7ae3e43f7f2e7b3b4036b2637546e4b0007073d2f6a5",
+  "skillSha": "7b71695c3ffa6eb7813a417a73cb9834b2648a600df5ab631a6b99f2b854f5c5",
   "exit": 0,
   "usedSkill": true,
   "leakedRepoRules": false,
   "touchedRepo": [],
   "produced": 0,
-  "cost": 0.00560666,
-  "answer": "Rewritten copy:\nWe couldn't save your changes.\n\nWhat changed:\n- Cut filler\n- Plain words\n- Kept the meaning\n\nI couldn't find the toast in this checkout. The repo only contains `AGENTS.md` and `.claude/`, and a search for the string found only the copy-tight skill's own example. If you point me at the app's source, I'll swap the string in and check where else it appears."
+  "cost": 0.00425981,
+  "answer": "Rewritten copy:\nWe couldn't save your changes.\n\nWhat changed:\n- Cut filler\n- Plainer words\n- Kept the meaning: saving failed"
 }
