@@ -4,6 +4,8 @@
  * @governed-by PO_ARCHITECT
  */
 import { readFile, writeFile, mkdir, rm, readdir, copyFile, mkdtemp } from 'node:fs/promises';
+import { bannerSvg } from './lib/banner.mjs';
+import { sanitizeSvg as sanitizeBanner } from './lib/svg.mjs';
 import { readFileSync } from 'node:fs';
 import { join, resolve, dirname, relative, sep, posix } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -73,7 +75,8 @@ export async function buildSite({ root = REPO_ROOT, out = join(REPO_ROOT, 'dist'
     const dl = checksums[zipName(s)];
     const dir = join(out, 'skills', s.name);
     await mkdir(dir, { recursive: true });
-    await writeFile(join(dir, 'index.html'), renderSkillPage(s, { download: dl }));
+    await writeFile(join(dir, 'banner.svg'), sanitizeBanner(bannerSvg(s, { standalone: true })));
+    await writeFile(join(dir, 'index.html'), renderSkillPage(s, { download: dl, siteUrl: process.env.SITE_URL }));
     pages.push(`skills/${s.name}/index.html`);
     if (s.example) await copyFile(s.exampleSrc, join(dir, 'example.html'));
   }
