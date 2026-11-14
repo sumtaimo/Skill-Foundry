@@ -1,0 +1,8 @@
+{
+  "case": "we-are-at-current-version",
+  "prompt": "We are at version 2.3.0. We added dark mode and fixed a crash on login. Today is 2026-11-14. Write the changelog entry.",
+  "agent": "claude",
+  "recordedAt": "2026-11-14",
+  "output": "```markdown\n## 2.4.0 - 2026-11-14\n\n- Add dark mode.\n- Fix a crash on login.\n```\n\nBump: MINOR (2.3.0 → 2.4.0). Dark mode is new behaviour, so it sets the bump. The login crash fix is a patch and goes under it.\n\nMismatches: not checked. The project or skill name was not given, so no version file could be read. Set the version in every version file, `CHANGELOG.md` and any registry entry to 2.4.0.\n\nQuestion: Which skill or project is this entry for? Then I can check its version files and tell you where to paste the entry.",
+  "files": []
+}
