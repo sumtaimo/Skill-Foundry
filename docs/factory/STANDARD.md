@@ -162,5 +162,6 @@ Evals that pass only on hand-written answers prove nothing about the skill. Befo
 - `node src/factory/live-evals.mjs <name>` MUST print 0 failed. A recording whose prompt differs from the case is stale and fails.
 - Files the agent produced (pages, SVGs) are kept in `evals/live/files/` and UI output is run through `checkPage`.
 - Record new runs with `node src/factory/live-evals.mjs <name> --run` (costs tokens) or by any agent harness that saves the same JSON shape.
+- Live evals run inside this repository, so the agent can read this project's own rules. To see how a skill behaves for someone else, run the portable check: `node src/factory/portable-check.mjs <name> --prompt "<request>"` installs the skill into an empty project outside the repository, has a real agent use it, and reports whether the skill was used, whether this repository's rules leaked into the answer and what was produced. It costs tokens and does not apply to `scope: factory` skills.
 - A skill that produces files is recorded with `node src/factory/run-skill.mjs <name> --case <id>`: it keeps the files under `runs/<name>/<id>/` and writes the recording with `run` pointing at that folder; `live-evals` scores the reply together with those files.
 - `tests/factory-live-evals.test.mjs` fails for any `ready` skill without passing recordings.
