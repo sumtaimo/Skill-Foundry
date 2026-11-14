@@ -46,7 +46,8 @@ const total = (h) => sha(Object.entries(h).map(([f, x]) => `${f}:${x}`).join('\n
 /** @param {{root?:string}} [o] */
 export function catalog({ root = REPO } = {}) {
   const reg = JSON.parse(readFileSync(join(root, 'src', 'factory', 'registry.json'), 'utf8'));
-  return reg.filter((r) => r.status === 'ready').map((r) => {
+  // A shipped package holds only the skills that work outside this repository; skip any that are not there.
+  return reg.filter((r) => r.status === 'ready' && existsSync(join(root, 'src', 'skills', r.name, 'SKILL.md'))).map((r) => {
     const md = readFileSync(join(root, 'src', 'skills', r.name, 'SKILL.md'), 'utf8');
     const description = /^description:\s*(.+)$/m.exec(md)?.[1].trim() ?? '';
     return { name: r.name, version: String(r.version), roles: r.roles ?? [], scope: /^scope:\s*factory/m.test(md) ? 'factory' : 'portable', description, dir: join(root, 'src', 'skills', r.name) };

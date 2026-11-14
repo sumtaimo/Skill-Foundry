@@ -27,3 +27,11 @@ jobs:
           node "$GITHUB_WORKSPACE/src/factory/foundry.mjs" add --role QA_AUDITOR
           node "$GITHUB_WORKSPACE/src/factory/foundry.mjs" check
           test -f .claude/skills/test-planner/SKILL.md && test -f AGENTS.md && grep -q "autoApply: true" .harness/skills/test-planner/SKILL.md && grep -q "Edit(.claude/skills" .claude/settings.json
+      - name: Install from the packed package, exactly what npx downloads
+        shell: bash
+        run: |
+          npm pack --pack-destination "$RUNNER_TEMP" >/dev/null
+          mkdir "$RUNNER_TEMP/pkgproj" && cd "$RUNNER_TEMP/pkgproj"
+          npx -y --package "$(ls "$RUNNER_TEMP"/skill-foundry-*.tgz)" skill-foundry add --all
+          npx -y --package "$(ls "$RUNNER_TEMP"/skill-foundry-*.tgz)" skill-foundry check
+          test ! -e .claude/skills/skill-smith && test ! -e .claude/skills/copy-tight/evals/portable.json
