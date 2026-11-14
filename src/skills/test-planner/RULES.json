@@ -1,0 +1,72 @@
+[
+  {
+    "id": "R-test-planner-1",
+    "text": "Every item MUST come from the change text; NEVER add a feature, screen, field or area the change text does not name.",
+    "checklist": "Each item's source phrase appears in the change text or the diff."
+  },
+  {
+    "id": "R-test-planner-2",
+    "text": "Every item MUST end with an italic source phrase copied from the change text.",
+    "checklist": "Each item ends with an italic source phrase that is a copy of words in the change text."
+  },
+  {
+    "id": "R-test-planner-3",
+    "text": "The output MUST be one numbered Markdown checklist with [ ] boxes, numbered 1 to N across all areas.",
+    "checklist": "The output is one numbered list with [ ] boxes, numbered 1 to N with no restart at each heading."
+  },
+  {
+    "id": "R-test-planner-4",
+    "text": "The output MUST group items under area headings that use the change text's own names; for a diff, the name the changed lines share, never one heading per identifier.",
+    "checklist": "Every area heading is a name the change text uses; for a diff it is the shared name in the changed lines, not an identifier such as MAX_ITEMS."
+  },
+  {
+    "id": "R-test-planner-5",
+    "text": "NEVER write test code, scripts or test data.",
+    "checklist": "The output contains no code, script or test data."
+  },
+  {
+    "id": "R-test-planner-6",
+    "text": "Adjacent areas the change text does not name MUST go under Possible impact, not stated, as questions, NEVER as items.",
+    "checklist": "Every area the change text does not name appears only under Possible impact, not stated, as a question."
+  },
+  {
+    "id": "R-test-planner-7",
+    "text": "With no change text, the skill MUST ask for it and NEVER produce a checklist.",
+    "checklist": "With no change text, the reply asks for it and contains no checklist item."
+  },
+  {
+    "id": "R-test-planner-8",
+    "text": "The skill MUST have the ten core layers, each linked from SKILL.md.",
+    "check": "chk-layers"
+  },
+  {
+    "id": "R-test-planner-9",
+    "text": "The skill MUST be self-contained; NEVER name a repository path in SKILL.md, layers or references.",
+    "check": "chk-portable"
+  },
+  {
+    "id": "R-test-planner-10",
+    "text": "SKILL.md MUST stay within 150 lines.",
+    "check": "chk-size"
+  },
+  {
+    "id": "R-test-planner-11",
+    "text": "SKILL.md MUST have frontmatter with name, description and semver version.",
+    "check": "chk-frontmatter"
+  },
+  {
+    "id": "R-test-planner-12",
+    "text": "Every relative link MUST point to a file inside the skill folder.",
+    "check": "chk-links"
+  },
+  {
+    "id": "R-test-planner-13",
+    "text": "A request for test code or a bug review MUST be declined with the exact sentence \"This skill does not write test code or review code for bugs.\"; the checklist follows only when a change text is present.",
+    "checklist": "A test-code or bug-review request gets the exact decline sentence and no code; a checklist follows only if a change text was given."
+  },
+  {
+    "id": "R-test-planner-14",
+    "text": "An item about removed behaviour MUST say what no longer happens, using the words \"no longer\".",
+    "checklist": "Every item about removed behaviour contains the words \"no longer\"."
+  }
+]

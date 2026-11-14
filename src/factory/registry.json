@@ -39,5 +39,15 @@
       "BA_ANALYST",
       "DEV_ENGINEER"
     ]
+  },
+  {
+    "name": "test-planner",
+    "version": "1.0.0",
+    "purpose": "Derives a numbered regression checklist, grouped by area, from a change description or diff; never adds features the change does not name.",
+    "status": "ready",
+    "roles": [
+      "BA_ANALYST",
+      "QA_AUDITOR"
+    ]
   }
 ]
