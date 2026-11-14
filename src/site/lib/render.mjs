@@ -38,6 +38,9 @@ export function formatBytes(bytes) {
 
 /** Zip file name; build may set skill.zip to the file packAll actually wrote. */
 export const zipName = (s) => (typeof s.zip === 'string' && s.zip ? s.zip : `${s.name}-${s.version}.zip`);
+/** One command for any project: installs the skill, keeps it up to date with `check` / `update`, registers it in an agentic harness. */
+export const npxCommand = (arg) => `npx github:sumtaimo/Skill-Foundry ${arg}`;
+const npxBox = (arg) => `${t('install.npx', 'p')}<div class="codebox"><pre><code class="npx-cmd">${esc(npxCommand(arg))}</code></pre>${copyButton(npxCommand(arg))}</div>`;
 export const installCommand = (s) => `unzip ${zipName(s)} -d .claude/skills/`;
 
 /**
@@ -322,6 +325,9 @@ ${t('install.title', 'h2', 'id="install-title"')}
 <ol class="steps">
 ${steps('install.s', 3)}
 </ol>
+${npxBox('add <skill>')}
+<div class="codebox"><pre><code class="npx-cmd">${esc(npxCommand('add --role QA_AUDITOR'))}\n${esc(npxCommand('check'))}\n${esc(npxCommand('update'))}</code></pre></div>
+${t('install.npx.more', 'p')}
 ${t('install.cmd', 'p')}
 ${Number.isFinite(opts.allBytes) && opts.allBytes > 0 ? `<p>${allLink(opts.allBytes)}</p>` : ''}
 <p class="meta"><a href="downloads/checksums.json">${t('download.checksums')}</a></p>
@@ -484,6 +490,7 @@ ${t('install.s1', 'li')}
 ${t('install.s2', 'li')}
 ${t('install.s3', 'li')}
 </ol>
+${s.factoryOnly ? '' : npxBox(`add ${s.name}`)}
 ${t('install.cmd', 'p')}
 <div class="codebox"><pre><code class="install-cmd">${esc(installCommand(s))}</code></pre>${installButton(s, dl.sha256)}</div>
 </section>`);
