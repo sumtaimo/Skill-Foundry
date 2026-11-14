@@ -29,6 +29,9 @@ test('add --role installs every portable skill for that role and registers it in
     const h = readFileSync(join(p, '.harness', 'skills', n, 'SKILL.md'), 'utf8');
     assert.match(h, /roles: \[.*"QA_AUDITOR".*\]/);
   }
+  const q = mkdtempSync(join(tmpdir(), 'sf-one-')); process.chdir(q);
+  try { main(['add', 'copy-tight'], () => {}); } finally { process.chdir(cwd); }
+  assert.ok(existsSync(join(q, '.claude', 'skills', 'copy-tight', '.foundry.json')), 'add <name> installs that skill');
   assert.throws(() => addSkill('skill-smith', { project: p }), /only works inside/);
 });
 
