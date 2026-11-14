@@ -13,7 +13,7 @@ import { join, resolve, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
-import { installSkill } from './install.mjs';
+import { addSkill, writeRules } from './foundry.mjs';
 
 const HERE = fileURLToPath(import.meta.url);
 const REPO_ROOT = resolve(dirname(HERE), '..', '..');
@@ -95,13 +95,16 @@ export async function portableCheck(skill, prompt, { out, engine = 'claude', tim
   const root = out ? resolve(out) : mkdtempSync(join(tmpdir(), 'portable-'));
   if (root.startsWith(REPO_ROOT)) throw new Error('portableCheck: the empty project must be outside the repository');
   mkdirSync(root, { recursive: true });
-  const installed = await installSkill(skill, { projectRoot: root, force: true });
+  // Install the way a user does (`npx github:sumtaimo/Skill-Foundry add <skill> --rules`), so the check covers that real path.
+  addSkill(skill, { project: root, force: true });
+  writeRules({ project: root });
+  const installed = { length: readdirSync(join(root, '.claude', 'skills', skill)).length };
   const r = spawnSync(engine, ['-p', '--output-format', 'stream-json', '--verbose', '--allowedTools', 'Read', 'Write', 'Edit', 'Glob', 'Grep', 'Skill', 'Bash(node:*)', 'Bash(ls:*)'],
     { cwd: root, input: prompt, encoding: 'utf8', timeout: timeoutMs, maxBuffer: 1 << 28 });
   if (r.error) throw r.error;
   const s = parseStream(r.stdout, skill);
   writeFileSync(join(root, '.portable-check.jsonl'), r.stdout);
-  return { skill, prompt, project: root, installedFiles: installed.length, exit: r.status, usedSkill: s.usedSkill, leakedRepoRules: REPO_MARKERS.test(s.final), touchedRepo: s.touchedRepo, produced: listProduced(root).filter((f) => f !== '.portable-check.jsonl'), cost: s.cost, answer: s.final };
+  return { skill, prompt, project: root, installedFiles: installed.length, exit: r.status, usedSkill: s.usedSkill, leakedRepoRules: REPO_MARKERS.test(s.final), touchedRepo: s.touchedRepo, produced: listProduced(root).filter((f) => f !== '.portable-check.jsonl' && f !== 'AGENTS.md'), cost: s.cost, answer: s.final };
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === HERE) {
