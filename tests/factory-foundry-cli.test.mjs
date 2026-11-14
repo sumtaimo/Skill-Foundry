@@ -78,3 +78,17 @@ test('the harness really injects an installed skill into a worker of the matchin
   assert.deepEqual(matchSkills({ prompt: 'unrelated task' }, 'QA_AUDITOR', { 'test-planner': skill }).chosen.map((x) => x.name), ['test-planner']);
   assert.equal(matchSkills({ prompt: 'x' }, 'DEV_ENGINEER', { 'test-planner': skill }).chosen.length, 0, 'other roles do not get it');
 });
+
+test('--rules writes one managed block in AGENTS.md, keeps the user text, and refreshes in place', async () => {
+  const { writeRules } = await import('../src/factory/foundry.mjs');
+  const p = mkdtempSync(join(tmpdir(), 'sf-rules-'));
+  writeFileSync(join(p, 'AGENTS.md'), '# My project\n\nMy own rule.\n');
+  addSkill('test-planner', { project: p });
+  writeRules({ project: p });
+  addSkill('copy-tight', { project: p });
+  writeRules({ project: p });
+  const md = readFileSync(join(p, 'AGENTS.md'), 'utf8');
+  assert.ok(md.startsWith('# My project\n\nMy own rule.\n'), 'user text kept');
+  assert.equal(md.match(/skill-foundry:begin/g).length, 1, 'one block, refreshed in place');
+  assert.match(md, /\*\*test-planner\*\*/); assert.match(md, /\*\*copy-tight\*\*/);
+});
