@@ -24,6 +24,23 @@ step-by-step layers, and showcases **the real output each skill produces**, neve
 - **Analysis skills (BA, system analysis, QA)**: written with legal precision: defined terms, numbered clauses, no ambiguity. Their output is drawn as the real working objects: documents, forms, folders, flow diagrams.
 - `figure-craft` is the existing drawing engine (isometric SVG, tokens, geometry lint L1-L8); output skills reuse it instead of drawing by hand.
 
+## 3a. Each skill: goal and purpose
+
+Read the row of the skill you work on before you change it. The owner set these goals.
+
+| Skill | Goal | What "done" means | Notes for agents |
+|---|---|---|---|
+| `skill-smith` | Build a new skill the factory way | The new skill has the ten layers, is self-contained, passes lint, has live evals recorded by a fresh agent and a routing case | `scope: factory`. Version stays 1.0.0 until the owner calls it final |
+| `figure-craft` | Draw any object the user describes as a full, lit isometric figure that the reader can open, turn and hover | 0 lint errors in every state and view; the object looks like the real thing from outside, shows its real inside, and carries micro detail | Showcases ONE object, the refrigerator (`examples/build-demo.mjs`). Quality comes from the engine and rules, never from editing output. A reuse check on a second object lives in `docs/skills/figure-craft/verify/`, outside the showcase. Locked in `src/factory/locks.json` for its owner session |
+| `changelog-writer` | Turn merged changes into one CHANGELOG entry with the correct semver bump | Live evals pass with a fresh agent | Layers pending (`src/factory/migration.json`) |
+| `copy-tight` | Rewrite UI copy short and plain without changing meaning, numbers, names or legal text | Live evals pass with a fresh agent | Layers pending (`src/factory/migration.json`) |
+
+Rules that apply to every skill (the full text is in `AGENTS.md`, SKILL QUALITY LAW, and `.harness/memory/lessons.md`):
+
+- A skill is accepted only when a fresh real agent, given only the skill folder, does the work: live evals (`node src/factory/live-evals.mjs <name>`), routing evals (`node src/factory/routing-evals.mjs`), and for a skill that produces files a recorded run (`node src/factory/run-skill.mjs <name> --case <id>`).
+- One skill per session; never a locked skill; `npm run guard` before every commit.
+- Every skill follows the ten layers (`docs/factory/STANDARD.md` section 12) and `docs/factory/QUALITY-LAYERS.md`.
+
 ## 4. Showcase rules (real output, low token cost)
 
 1. The site shows a skill's newest recorded real run that passed and matches the current version: its figure as the cover, its prompt, and its page in a frame. [built] A skill with no such run (today: `skill-smith`) still appears with its own cover; requiring a run for every skill is [planned].
@@ -39,7 +56,7 @@ step-by-step layers, and showcases **the real output each skill produces**, neve
 | `docs/factory/STANDARD.md` | The skill standard, including the layer template (section 12) |
 | `src/skills/_template/` | Starting folder for a new skill, with all layer files |
 | `src/skills/<name>/` | Shipped skills: `skill-smith` (builds skills), `figure-craft` (isometric figures) |
-| `src/factory/` | lint, evals, pack, install, `registry.json` |
+| `src/factory/` | lint, evals, live evals, routing evals, run recorder, skill guard, pack, install, `registry.json`, `locks.json`, `migration.json` |
 | `src/site/` | Showcase site generator (`npm run dev`) |
 | `tests/` | `npm test` (node --test) |
 | `.harness/` | Agent harness; locked unless TAIMO approves in chat |

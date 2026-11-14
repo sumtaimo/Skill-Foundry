@@ -1,0 +1,8 @@
+{
+  "case": "no-external-cover-links",
+  "prompt": "Draw the cover for the changelog-writer skill.",
+  "agent": "claude-code subagent (fresh context, skill folder only)",
+  "recordedAt": "2026-11-14",
+  "output": "I drew a cover for changelog-writer that follows step 6 of skill-smith: a changelog page with a highlighted version heading, three bulleted entries and an upward arrow for the version bump.\n\n```svg\n<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 360\" role=\"img\" aria-label=\"changelog-writer cover\">\n  <rect x=\"0\" y=\"0\" width=\"640\" height=\"360\" fill=\"var(--cover-bg)\"/>\n  <rect x=\"200\" y=\"50\" width=\"240\" height=\"260\" rx=\"10\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"6\"/>\n  <rect x=\"230\" y=\"85\" width=\"110\" height=\"18\" rx=\"4\" fill=\"var(--cover-accent)\"/>\n  <circle cx=\"240\" cy=\"140\" r=\"7\" fill=\"var(--cover-accent)\"/>\n  <rect x=\"260\" y=\"134\" width=\"150\" height=\"12\" rx=\"4\" fill=\"currentColor\"/>\n  <circle cx=\"240\" cy=\"180\" r=\"7\" fill=\"var(--cover-accent)\"/>\n  <rect x=\"260\" y=\"174\" width=\"120\" height=\"12\" rx=\"4\" fill=\"currentColor\"/>\n  <circle cx=\"240\" cy=\"220\" r=\"7\" fill=\"var(--cover-accent)\"/>\n  <rect x=\"260\" y=\"214\" width=\"135\" height=\"12\" rx=\"4\" fill=\"currentColor\"/>\n  <path d=\"M470 250 L470 130 M445 155 L470 130 L495 155\" fill=\"none\" stroke=\"var(--cover-accent)\" stroke-width=\"8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n</svg>\n```",
+  "files": []
+}

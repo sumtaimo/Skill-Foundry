@@ -214,3 +214,13 @@ Removed keys (old layout): `index.p2`, `card.download`, `skill.try`, `skill.does
 - Skill-sourced content is never translated: `preview.json` title, tagline, prompt, outputs and tags; procedure steps; changelog text; file names.
 - Every element that holds such content has `lang="en"`.
 - Site interface text always comes from DICTS (`src/site/lib/i18n.mjs`).
+
+## 3. Finding and installing skills (agents and people)
+
+**A person or an agent can find the right skill by task or role, and install it with one verified command.**
+
+- Roles: each registry entry has `roles` from the harness roles (`PO_ARCHITECT`, `BA_ANALYST`, `DEV_ENGINEER`, `QA_AUDITOR`, see `.harness/roles/`). Plates and skill pages list them.
+- Finder above the grid: `<input id="find" type="search">` with a visible label, one `.rolechip` per role in use plus "All roles", a live `.find-count` ("{n} of {t} skills shown") and an empty state `.find-none`. Filtering runs in `site.js` over each plate's `data-text` and `data-roles`; no network.
+- Real-agent line on plates and skill pages: "Tested by a real agent: P of T cases pass" from `evals/live/` recordings scored by `scoreLive`, or "Not yet tested by a real agent". Never invented.
+- Install command: buttons carry `data-install-zip` and the SHA-256. Over http(s), `site.js` builds `mkdir -p .claude/skills && curl … && shasum -a 256 -c - && unzip … && rm …` from the page address; from a file the button copies the plain `unzip` command. A wrong checksum stops the install.
+- Machine index for agents, linked in "For agents": `skills.json` (name, title, version, description, roles, tags, prompt, outputs, page, zip, sha256, bytes, liveEvals) and `llms.txt` (one line per skill with zip, sha256 and real-agent result). Paths are relative to the site root.

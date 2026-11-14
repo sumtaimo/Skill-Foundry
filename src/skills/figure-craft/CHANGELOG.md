@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.0 - unreleased
+## 1.0.0 - 2026-11-14
 
 The version stays 1.0.0 until the owner calls it final. Changes are listed here as they land.
 

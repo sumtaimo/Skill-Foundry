@@ -1,10 +1,11 @@
 # Changelog
 
-## 1.0.0 - unreleased
+## 1.0.0 - 2026-11-14
 
 The version stays 1.0.0 until the owner calls it final. Changes are listed here as they land.
 
 - Ten-step procedure from interview to report, as ten layer files; rules mapped to the factory linter.
 - New skills are written as layers, start from the user's goal, are self-contained and need a recorded real run.
+- Live eval step: each case is run by a fresh agent and recorded before review.
 - `scope: factory`: this skill itself runs inside the Skill Foundry repository.
 - Versions of new skills stay at their first number until the owner calls a version final.

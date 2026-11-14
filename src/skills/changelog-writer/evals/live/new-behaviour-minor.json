@@ -1,0 +1,8 @@
+{
+  "case": "new-behaviour-minor",
+  "prompt": "Skill spec-check is at 1.0.0. On 2026-11-14 we added a step and fixed a link. Write the changelog entry.",
+  "agent": "claude",
+  "recordedAt": "2026-11-14",
+  "output": "## 1.1.0 - 2026-11-14\n\n- Add a step to the procedure.\n- Fix a link.\n\nBump: MINOR (1.0.0 → 1.1.0). Adding a step is new behaviour, fixing a link is a fix, and neither change is breaking.\n\nMismatches: I couldn't check them. There is no `src/skills/spec-check/` folder and no `spec-check` entry in `src/factory/registry.json` in this repository. So I couldn't read its existing `CHANGELOG.md`, its SKILL.md frontmatter or its registry version. When you add this entry above the older ones, also set these to `1.1.0`:\n- `version:` in `src/skills/spec-check/SKILL.md`\n- the `spec-check` entry in `src/factory/registry.json`\n\nThe bullets only say what you told me. If you tell me what the new step does and which link you fixed (for example, \"Add a step that lists open questions\"), I'll make them more specific.",
+  "files": []
+}

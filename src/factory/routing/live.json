@@ -1,0 +1,24 @@
+{
+  "agent": "claude -p (fresh context, saw only skill names and descriptions)",
+  "recordedAt": "2026-11-14",
+  "descriptions": {
+    "skill-smith": "Build a new Skill Foundry skill from the template, as ten layers, portable for other people, so it passes the factory linter, evals and review and has a recorded real run. Use when asked for a new skill or to turn a repeated workflow into a skill. Do not use for a typo fix in an existing skill.",
+    "figure-craft": "Draws a detailed isometric figure that explains how a thing works, from the goal the user states, with a token palette, a shared iso engine and a geometry, layout and detail lint. Use for any request for an explanatory diagram, technical illustration or interactive explainer of an object or system. Do not use for data charts, photos, logos, UI mockups or decorative art.",
+    "changelog-writer": "Turns a list of merged changes into one CHANGELOG.md entry in the Skill Foundry format. Use when asked to write a changelog entry, release notes or a version bump note for a skill. Do not use for commit messages, long-form docs or marketing copy; use copy-tight for wording.",
+    "copy-tight": "Rewrites UI copy (buttons, labels, errors, empty states, tooltips) to be short and plain without changing meaning. Use when asked to \"shorten this copy\", \"make this plain\", \"tighten this text\" or when a UI string is too wordy. Do not use for long-form docs, blog posts, translation or changelog entries; use changelog-writer for those."
+  },
+  "answers": {
+    "r1": "copy-tight",
+    "r2": "changelog-writer",
+    "r3": "figure-craft",
+    "r4": "skill-smith",
+    "r5": "none",
+    "r6": "none",
+    "r7": "none",
+    "r8": "figure-craft",
+    "r9": "copy-tight",
+    "r10": "none",
+    "r11": "none",
+    "r12": "skill-smith"
+  }
+}

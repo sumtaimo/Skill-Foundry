@@ -38,7 +38,8 @@ See `RULES.json`. Every rule maps to a linter check or a reviewer checklist item
 ## Checks
 
 - `node src/factory/lint-skills.mjs <name>` prints no problems.
-- `node src/factory/run-skill.mjs <name> --case <id>` records a real run with status `pass`.
+- `node src/factory/live-evals.mjs <name>` prints 0 failed, on recordings made by a fresh agent.
+- `node src/factory/run-skill.mjs <name> --case <id>` records a real run with status `pass` for a skill that produces files.
 
 ## Review
 

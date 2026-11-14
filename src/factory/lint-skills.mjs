@@ -12,7 +12,7 @@ export const REPO_ROOT = resolve(dirname(HERE), '..', '..');
 
 export const CHECK_IDS = [
   'chk-required-files', 'chk-frontmatter', 'chk-name-match', 'chk-size', 'chk-rules-mapped',
-  'chk-check-tested', 'chk-links', 'chk-preview-json', 'chk-cover-svg', 'chk-layers', 'chk-portable',
+  'chk-check-tested', 'chk-links', 'chk-preview-json', 'chk-cover-svg', 'chk-layers', 'chk-portable', 'chk-changelog',
 ];
 
 /** The ten core layers every skill has (docs/factory/STANDARD.md section 12). */
@@ -101,6 +101,14 @@ export async function lintSkill(skillDir, { testsDir } = {}) {
         if (fm.scope) scope = fm.scope;
         if (fm.scope && !['portable', 'factory'].includes(fm.scope)) add('SKILL.md', 1, 'chk-frontmatter', `scope ${fm.scope} must be portable or factory`);
         if (fm.name && fm.name !== name) add('SKILL.md', 1, 'chk-name-match', `name ${fm.name} does not equal folder ${name}`);
+        const log = await readText(join(dir, 'CHANGELOG.md'));
+        if (log !== null) {
+          const heads = log.split('\n').map((l, i) => [l, i + 1]).filter(([l]) => /^##\s/.test(l));
+          for (const [l, ln] of heads) {
+            if (!/^## \d+\.\d+\.\d+\S* - \d{4}-\d{2}-\d{2}$/.test(l.trim())) add('CHANGELOG.md', ln, 'chk-changelog', `heading "${l.trim()}" must be ## <semver> - <YYYY-MM-DD>`);
+          }
+          if (fm.version && !heads.some(([l]) => l.startsWith(`## ${fm.version} `))) add('CHANGELOG.md', 1, 'chk-changelog', `no CHANGELOG entry for version ${fm.version}`);
+        }
       }
     }
     for (const s of SECTIONS) {
@@ -108,8 +116,13 @@ export async function lintSkill(skillDir, { testsDir } = {}) {
     }
   }
 
+  // Skills built before the layer standard are listed in src/factory/migration.json until each is migrated.
+  let pending = [];
+  try { pending = JSON.parse(await readFile(join(REPO_ROOT, 'src', 'factory', 'migration.json'), 'utf8'))['layers-pending']?.skills ?? []; } catch { pending = []; }
+  const layered = !(pending.includes(name) && resolve(dir) === resolve(join(REPO_ROOT, 'src', 'skills', name)));
+
   // Layers: the ten core layer files exist, are not empty and are linked from SKILL.md
-  for (const l of CORE_LAYERS) {
+  for (const l of layered ? CORE_LAYERS : []) {
     const rel = `layers/${l}.md`;
     const text = await readText(join(dir, rel));
     if (text === null) add(rel, 1, 'chk-layers', `missing core layer ${rel}`);
@@ -118,7 +131,7 @@ export async function lintSkill(skillDir, { testsDir } = {}) {
   }
 
   // Portable: a skill other people install must not depend on this repository's folders
-  if (scope !== 'factory') {
+  if (scope !== 'factory' && layered) {
     for (const file of await listFiles(dir)) {
       const rel = relative(dir, file).split(sep).join('/');
       if (!(rel === 'SKILL.md' || rel.startsWith('layers/') || rel.startsWith('references/')) || !rel.endsWith('.md')) continue;
