@@ -28,6 +28,7 @@ test('add --role installs every portable skill for that role and registers it in
     assert.ok(existsSync(join(p, '.claude', 'skills', n, 'SKILL.md')), n);
     const h = readFileSync(join(p, '.harness', 'skills', n, 'SKILL.md'), 'utf8');
     assert.match(h, /roles: \[.*"QA_AUDITOR".*\]/);
+    assert.match(h, /autoApply: true/, 'the harness only injects a skill that is autoApply or keyword-matched');
   }
   const q = mkdtempSync(join(tmpdir(), 'sf-one-')); process.chdir(q);
   try { main(['add', 'copy-tight'], () => {}); } finally { process.chdir(cwd); }
@@ -65,4 +66,29 @@ test('the site shows the npx command on the landing and every skill page', async
   for (const s of catalog().filter((x) => x.scope !== 'factory')) {
     assert.match(readFileSync(join(out, 'skills', s.name, 'index.html'), 'utf8'), new RegExp(`npx github:sumtaimo/Skill-Foundry add ${s.name}<`));
   }
+});
+
+test('the harness really injects an installed skill into a worker of the matching role', async () => {
+  const { matchSkills } = await import('../.harness/lib/governance.mjs');
+  const p = mkdtempSync(join(tmpdir(), 'sf-inj-')); mkdirSync(join(p, '.harness', 'skills'), { recursive: true });
+  addSkill('test-planner', { project: p });
+  const raw = readFileSync(join(p, '.harness', 'skills', 'test-planner', 'SKILL.md'), 'utf8');
+  const meta = (k) => new RegExp(`^${k}: (.*)$`, 'm').exec(raw)[1];
+  const skill = { name: 'test-planner', roles: JSON.parse(meta('roles')), keywords: JSON.parse(meta('keywords')), autoApply: meta('autoApply') === 'true' };
+  assert.deepEqual(matchSkills({ prompt: 'unrelated task' }, 'QA_AUDITOR', { 'test-planner': skill }).chosen.map((x) => x.name), ['test-planner']);
+  assert.equal(matchSkills({ prompt: 'x' }, 'DEV_ENGINEER', { 'test-planner': skill }).chosen.length, 0, 'other roles do not get it');
+});
+
+test('--rules writes one managed block in AGENTS.md, keeps the user text, and refreshes in place', async () => {
+  const { writeRules } = await import('../src/factory/foundry.mjs');
+  const p = mkdtempSync(join(tmpdir(), 'sf-rules-'));
+  writeFileSync(join(p, 'AGENTS.md'), '# My project\n\nMy own rule.\n');
+  addSkill('test-planner', { project: p });
+  writeRules({ project: p });
+  addSkill('copy-tight', { project: p });
+  writeRules({ project: p });
+  const md = readFileSync(join(p, 'AGENTS.md'), 'utf8');
+  assert.ok(md.startsWith('# My project\n\nMy own rule.\n'), 'user text kept');
+  assert.equal(md.match(/skill-foundry:begin/g).length, 1, 'one block, refreshed in place');
+  assert.match(md, /\*\*test-planner\*\*/); assert.match(md, /\*\*copy-tight\*\*/);
 });
