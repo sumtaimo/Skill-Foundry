@@ -54,8 +54,11 @@ function harnessPointer(project, s) {
   const file = join(dir, s.name, 'SKILL.md');
   if (existsSync(file) && !readFileSync(file, 'utf8').includes(MARK)) return null; // the project's own skill wins
   mkdirSync(dirname(file), { recursive: true });
-  writeFileSync(file, `---\nname: ${s.name}\ndescription: ${s.description}\nroles: ${JSON.stringify(s.roles)}\nallowedTools: ["Read", "Edit", "Write"]\nkeywords: []\nautoApply: false\n${MARK} ${s.version}\n---\n` +
-    `# ${s.name}\n\nFollow the full skill in \`.claude/skills/${s.name}/SKILL.md\` and its layers. Start from the goal the user states.\n`);
+  // The harness injects a skill into a worker only when its role matches AND (autoApply OR a keyword is in the prompt),
+  // so the pointer sets autoApply: true. The pointer is a few lines; the full skill is read on demand.
+  const tags = (() => { try { return JSON.parse(readFileSync(join(s.dir, 'preview.json'), 'utf8')).tags ?? []; } catch { return []; } })();
+  writeFileSync(file, `---\nname: ${s.name}\ndescription: ${s.description}\nroles: ${JSON.stringify(s.roles)}\nallowedTools: ["Read", "Edit", "Write"]\nkeywords: ${JSON.stringify(tags)}\nautoApply: true\n${MARK} ${s.version}\n---\n` +
+    `# ${s.name}\n\nWhen the task matches this skill (${s.description.split('. ')[0]}.), read \`.claude/skills/${s.name}/SKILL.md\` and follow it with its layers, starting from the goal the user states. When the task does not match, ignore this skill.\n`);
   return relative(project, file).split(sep).join('/');
 }
 
