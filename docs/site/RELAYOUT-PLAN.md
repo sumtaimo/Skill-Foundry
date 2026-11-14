@@ -70,11 +70,11 @@ screen is about finding. Mobile: one column, search full width, role chips wrap,
 | Agent / file | Purpose set? | What it says today |
 |---|---|---|
 | Project goal (`.harness/charter.md`) | Yes | "A library of reusable AI agent skills: build, test and manage them" |
-| `PO_ARCHITECT` / orchestrator | Generic only | "Product Owner … governs scope, acceptance criteria and backlog priority" |
-| `BA_ANALYST` / `lead-ba` (owns `docs/**`) | Generic only | "Investigates requirements … writes specs and acceptance criteria" |
-| `DEV_ENGINEER` / `lead-dev` (owns `src/**`) | Generic only | "Implements scoped code changes" |
-| `QA_AUDITOR` / `lead-qa` (owns `tests/**`) | Generic only | "Writes and runs tests; audits deliverables" |
-| Backlog (`.harness/backlog.json`) | No | Empty, `project` field blank |
+| `PO_ARCHITECT` / orchestrator | Yes (2026-11-14) | "Product Owner … governs scope, acceptance criteria and backlog priority" |
+| `BA_ANALYST` / `lead-ba` (owns `docs/**`) | Yes (2026-11-14) | "Investigates requirements … writes specs and acceptance criteria" |
+| `DEV_ENGINEER` / `lead-dev` (owns `src/**`) | Yes (2026-11-14) | "Implements scoped code changes" |
+| `QA_AUDITOR` / `lead-qa` (owns `tests/**`) | Yes (2026-11-14) | "Writes and runs tests; audits deliverables" |
+| Backlog (`.harness/backlog.json`) | Partly | `project` set to Skill Foundry; no tasks yet |
 | User profile (`.harness/memory/profile.md`) | No | 7 items still "(fill me)" |
 | Skill rules for every agent (`AGENTS.md`, lessons L1-L7) | Yes | Quality law, real-agent proof, one skill per session, locks |
 
