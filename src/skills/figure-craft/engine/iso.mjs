@@ -83,6 +83,21 @@ export function dot(at, opts = {}) {
   return s;
 }
 
+/** Most labels a figure may carry: all visible at once, or revealed one at a time on hover. */
+export const MAX_LABELS = { always: 5, hover: 9 };
+
+/**
+ * The box a label names: the smallest box whose volume holds the label's 3D anchor, or null.
+ * @param {{at:number[]}} label @param {object[]} shapes
+ */
+export function labelTarget(label, shapes) {
+  if (!label || !Array.isArray(label.at)) return null;
+  const e = 1e-6;
+  const holds = (b) => [0, 1, 2].every((k) => label.at[k] >= b.at[k] - e && label.at[k] <= b.at[k] + b.size[k] + e);
+  const vol = (b) => b.size[0] * b.size[1] * b.size[2];
+  return shapes.filter((x) => x.kind === 'box' && holds(x)).sort((p, q) => vol(p) - vol(q))[0] ?? null;
+}
+
 /** The 8 corners of a box. @param {{at:number[],size:number[]}} b */
 export function boxCorners(b) {
   const [x, y, z] = b.at; const [w, d, h] = b.size;
@@ -152,7 +167,9 @@ const pathOf = (pts) => 'M' + pts.map(([x, y]) => `${r2(x)} ${r2(y)}`).join(' L'
 /**
  * Render shapes to SVG in array order.
  * @param {object[]} shapes
- * @param {{labels?:{at:number[],text:string,side:'l'|'r'}[],padding?:number,idPrefix?:string,title?:string,flat?:boolean,fontSize?:number}} [opts]
+ * @param {{labels?:{at:number[],text:string,side:'l'|'r'}[],labelMode?:'hover'|'always',requiredParts?:string[],padding?:number,idPrefix?:string,title?:string,flat?:boolean,fontSize?:number}} [opts]
+ * labelMode 'hover' (default): a label and its leader appear, with motion, while its part is hovered, focused or tapped. 'always': every label is drawn.
+ * requiredParts: ids of the parts the idea needs; lint L14 checks each is drawn and labelled.
  * @returns {{svg:string, model:object}}
  */
 export function renderSvg(shapes, opts = {}) {
@@ -162,6 +179,9 @@ export function renderSvg(shapes, opts = {}) {
   const flat = opts.flat === true;
   if (opts.fontSize !== undefined && (!isNum(opts.fontSize) || opts.fontSize <= 0)) throw new TypeError('renderSvg: fontSize must be a positive number');
   const fontSize = opts.fontSize ?? FONT_SIZE;
+  const labelMode = opts.labelMode ?? 'hover';
+  if (!['hover', 'always'].includes(labelMode)) throw new TypeError('renderSvg: labelMode must be hover or always');
+  if (opts.requiredParts !== undefined && (!Array.isArray(opts.requiredParts) || !opts.requiredParts.every((x) => typeof x === 'string'))) throw new TypeError('renderSvg: requiredParts must be an array of ids');
   const fills = new Set(); const strokes = new Set();
   const F = (v) => { fills.add(v); return v; };
   const S = (v) => { strokes.add(v); return v; };
@@ -184,6 +204,11 @@ export function renderSvg(shapes, opts = {}) {
     const b = labelBox(l);
     vx0 = Math.min(vx0, b.minX, l.x); vx1 = Math.max(vx1, b.maxX, l.x); vy0 = Math.min(vy0, b.minY, l.y); vy1 = Math.max(vy1, b.maxY, l.y);
   }
+  model.labelMode = labelMode;
+  if (opts.requiredParts !== undefined) model.requiredParts = [...opts.requiredParts];
+  const hover = labelMode === 'hover';
+  const targets = model.labels.map((l) => labelTarget(l, model.shapes)?.id ?? null);
+  const nameOf = new Map(targets.map((id, i) => [id, model.labels[i].text]).filter(([id]) => id !== null));
   model.viewBox = [r2(vx0 - padding), r2(vy0 - padding), r2(vx1 - vx0 + 2 * padding), r2(vy1 - vy0 + 2 * padding)];
 
   const defs = []; const body = []; const css = []; model.animations = [];
@@ -193,7 +218,10 @@ export function renderSvg(shapes, opts = {}) {
   }
 
   for (const s of model.shapes) {
-    const attrs = `data-id="${esc(s.id)}"`;
+    // data-part ties a part and its face details together, so hovering either reveals the part's label.
+    const part = s.kind === 'box' ? s.id : s.on;
+    const focus = hover && s.kind === 'box' && nameOf.has(s.id) ? ` tabindex="0" aria-label="${esc(nameOf.get(s.id))}"` : '';
+    const attrs = `data-id="${esc(s.id)}"${hover && part !== undefined && nameOf.has(part) ? ` data-part="${esc(part)}"${focus}` : ''}`;
     let inner = '';
     if (s.kind === 'box') {
       const [x, y, z] = s.at; const [w, d, h] = s.size;
@@ -231,17 +259,42 @@ export function renderSvg(shapes, opts = {}) {
     } else body.push(`<g ${attrs}>${inner}</g>`);
   }
 
-  for (const l of model.labels) {
+  if (hover && model.labels.length) {
+    const fig = `.${pre}-fig`;
+    css.push(`${fig} [data-part]{cursor:pointer;outline:none}`);
+    css.push(`${fig} .${pre}-label[data-for]{opacity:0;pointer-events:none;transition:opacity .25s ease}`);
+    css.push(`${fig} .${pre}-label[data-for] .leader{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .35s ease}`);
+    css.push(`${fig} .${pre}-label[data-for] text{transform:translateX(var(--slide));transition:transform .35s ease}`);
+    css.push(`${fig} [data-part] path,${fig} [data-part] circle{transition:stroke .2s ease}`);
+    for (const id of new Set(targets.filter((t) => t !== null))) {
+      const q = `[data-part="${String(id).replace(/["\\]/g, '\\$&')}"]`;
+      const on = [':hover', ':focus-visible', ':focus'].map((st) => `${fig}:has(${q}${st})`);
+      const lab = `.${pre}-label[data-for="${String(id).replace(/["\\]/g, '\\$&')}"]`;
+      css.push(`${on.map((o) => `${o} ${lab}`).join(',')}{opacity:1}`);
+      css.push(`${on.map((o) => `${o} ${lab} .leader`).join(',')}{stroke-dashoffset:0}`);
+      css.push(`${on.map((o) => `${o} ${lab} text`).join(',')}{transform:none}`);
+      css.push(`${on.map((o) => `${o} ${q} path`).join(',')}{stroke:var(--fg)}`);
+    }
+    css.push(`@media (prefers-reduced-motion: reduce){${fig} .${pre}-label[data-for],${fig} .${pre}-label[data-for] *,${fig} [data-part] *{transition:none}}`);
+  }
+
+  model.labels.forEach((l, li) => {
     const anchor = l.side === 'l' ? 'end' : 'start';
     const lx = l.side === 'l' ? l.tx + 3 : l.tx - 3;
+    if (hover && targets[li] !== null) {
+      // Revealed on hover: the leader draws itself (pathLength 1) and the text slides in from the figure side.
+      body.push(`<g class="${pre}-label" data-for="${esc(targets[li])}" style="--slide:${l.side === 'l' ? 6 : -6}px"><line class="leader" pathLength="1" x1="${r2(l.x)}" y1="${r2(l.y)}" x2="${r2(lx)}" y2="${r2(l.ty)}" stroke="${S('var(--muted)')}" stroke-width="0.75"/>` +
+        `<text x="${r2(l.tx)}" y="${r2(l.ty)}" text-anchor="${anchor}" dominant-baseline="middle" font-size="${fontSize}" font-family="system-ui, sans-serif" fill="${F('var(--fg)')}">${esc(l.text)}</text></g>`);
+      return;
+    }
     // Leader is a bare line: no dot or marker at either end. Only author-placed dot() shapes draw round marks.
     body.push(`<g class="${pre}-label"><line class="leader" x1="${r2(l.x)}" y1="${r2(l.y)}" x2="${r2(lx)}" y2="${r2(l.ty)}" stroke="${S('var(--muted)')}" stroke-width="0.75"/>` +
       `<text x="${r2(l.tx)}" y="${r2(l.ty)}" text-anchor="${anchor}" dominant-baseline="middle" font-size="${fontSize}" font-family="system-ui, sans-serif" fill="${F('var(--fg)')}">${esc(l.text)}</text></g>`);
-  }
+  });
 
   model.fills = [...fills]; model.strokes = [...strokes];
   const title = typeof opts.title === 'string' ? `<title>${esc(opts.title)}</title>` : '';
   const style = css.length ? `<style>${css.join('')}</style>` : '';
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${model.viewBox.join(' ')}" role="img">${title}${defs.length ? `<defs>${defs.join('')}</defs>` : ''}${style}${body.join('')}</svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${model.viewBox.join(' ')}" role="img"${hover ? ` class="${pre}-fig"` : ''}>${title}${defs.length ? `<defs>${defs.join('')}</defs>` : ''}${style}${body.join('')}</svg>`;
   return { svg, model };
 }

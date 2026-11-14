@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.0 - 2026-11-14
+
+- Labels and leaders are hidden at rest and appear with motion when a part is hovered, focused or tapped (`labelMode: 'hover'`, the default; `'always'` for static figures). Up to nine labels on hover.
+- Lint `L13-no-solid-body`: the object is drawn as full solid volumes, not thin slabs.
+- Lint `L14-missing-part`: `requiredParts` declared, drawn and labelled; a needed part is never dropped.
+- Lint `L15-floating`: a part above the ground rests on or touches another part.
+- Demo updated: hover labels, a vent on the edge cache, `requiredParts`.
+
 ## 1.2.0 - 2026-11-14
 
 - Lint `L12-part-too-small`: every labelled part covers at least 3% of the drawing.

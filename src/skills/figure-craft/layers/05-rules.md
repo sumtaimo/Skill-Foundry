@@ -4,7 +4,7 @@ Machine-checked by `engine/lint.mjs`:
 
 1. R-figure-craft-1: Supports MUST be drawn before what rests on them, and a part sitting on another MUST declare `rests` (`L1-painter-order`).
 2. R-figure-craft-2: Face details MUST lie in their face plane and inside the face; dots stay away from rounded corners (`L2-face-detail`).
-3. R-figure-craft-3: Labels MUST sit in side columns at least 13 apart and NEVER overlap (`L3-label-overlap`).
+3. R-figure-craft-3: Labels MUST sit in side columns at least 13 apart, NEVER overlap, and number at most 9 on hover or 5 when always shown (`L3-label-overlap`).
 4. R-figure-craft-4: Leader lines NEVER cross another solid without a written justification (`L4-leader-crosses-solid`, warning).
 5. R-figure-craft-5: Shapes and label text MUST stay inside the viewBox (`L5-outside-viewbox`).
 6. R-figure-craft-6: Every fill and stroke MUST be `var(--...)`, `none` or `url(#...)`; NEVER a raw colour (`L6-raw-colour`).
@@ -14,6 +14,9 @@ Machine-checked by `engine/lint.mjs`:
 10. R-figure-craft-15: Parts on one base MUST either touch (one joined structure) or be at least 4 apart, and span at least 30% of the base (`L10-crowded`, warning).
 11. R-figure-craft-16: Every labelled part MUST carry face details that identify it: one, plus one per 8% of the drawing it covers, up to three (`L11-no-detail`).
 11a. R-figure-craft-19: Every labelled part MUST cover at least 3% of the drawing (`L12-part-too-small`).
+11b. R-figure-craft-20: The object MUST be drawn as full solid volumes; thin slabs alone NEVER stand for the object (`L13-no-solid-body`).
+11c. R-figure-craft-21: The parts the idea needs MUST be declared in `requiredParts`, drawn and labelled; a needed part is NEVER dropped to pass another check (`L14-missing-part`).
+11d. R-figure-craft-22: A part above the ground MUST rest on or touch another part; NEVER float (`L15-floating`).
 
 Checked by the reviewer with the checklist:
 
@@ -24,3 +27,4 @@ Checked by the reviewer with the checklist:
 16. R-figure-craft-13: Dots MUST carry meaning and be named in a label or the copy; NEVER decorate solids.
 17. R-figure-craft-17: Every detail MUST be a real feature of the real part, and the SVG is NEVER edited by hand after the engine rendered it.
 18. R-figure-craft-18: The figure MUST start from the goal the user stated; a missing goal is asked for, NEVER invented.
+19. R-figure-craft-23: Labels and leaders MUST stay hidden until their part is hovered, focused or tapped, then appear with motion; the page MUST name every part in a card so nothing depends on hover.

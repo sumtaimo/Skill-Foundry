@@ -29,6 +29,7 @@ function shapes(animated) {
     line([[152, 18, 44], [152, 42, 44]], { on: 'origin', face: 'x', id: 'origin-bay-1' }), // drive bays
     line([[152, 18, 34], [152, 42, 34]], { on: 'origin', face: 'x', id: 'origin-bay-2' }),
     line([[152, 18, 24], [152, 42, 24]], { on: 'origin', face: 'x', id: 'origin-bay-3' }),
+    line([[96, 20, 30], [96, 40, 30]], { on: 'edge', face: 'x', id: 'edge-vent' }), // vent slot
     dot([80, 30, 40], { face: 'top', on: 'edge', tone: 'ok' }),
   ];
 }
@@ -36,7 +37,7 @@ function shapes(animated) {
 const LABELS = {
   client: { at: [17, 31, 20], text: 'Client', side: 'l' },
   request: { at: [34, 30, 12], text: 'Request', side: 'l' },
-  edge: { at: [80, 30, 50], text: 'Edge cache', side: 'r' },
+  edge: { at: [80, 30, 40], text: 'Edge cache', side: 'r' },
   origin: { at: [140, 30, 56], text: 'Origin (skipped)', side: 'r' },
 };
 
@@ -80,11 +81,12 @@ dd{margin:0;font-weight:600}
 <p>The edge cache sits close to the reader. When it already holds a copy, it answers at once and the origin is never asked.</p>
 <figure id="fig">
 ${svg}
-<figcaption>The request moves along one axis to the edge cache. The green light means a cache hit.</figcaption>
+<figcaption>The request moves along one axis to the edge cache. The green light means a cache hit. Hover or tap a part to see its name.</figcaption>
 <div class="controls"><button type="button" id="play" aria-pressed="true">Pause motion</button></div>
 </figure>
 <dl>
 <div><dt>Client</dt><dd>Sends the request</dd></div>
+<div><dt>Request</dt><dd>Travels to the nearest copy</dd></div>
 <div><dt>Edge cache</dt><dd>Holds a nearby copy</dd></div>
 <div><dt>Origin</dt><dd>Only asked on a miss</dd></div>
 </dl>
@@ -113,6 +115,7 @@ export function demoRender() {
   return renderSvg(shapes(true), {
     labels: [LABELS.client, LABELS.request, LABELS.edge, LABELS.origin],
     title: FIG_TITLE,
+    requiredParts: ['client', 'request', 'edge', 'origin'],
     fontSize: DEMO_FONT_SIZE,
   });
 }

@@ -15,8 +15,8 @@ Detail moved out of `SKILL.md`. Each file lists MUST / NEVER rules with a tiny e
 ## Engine API (summary)
 
 - `engine/tokens.mjs`: `TOKENS = { light, dark }`, `tokensCss()`.
-- `engine/iso.mjs`: `C = 0.866`, `project([x,y,z])`, `box(...)`, `line(points, { bold, on, face })`, `dot(at, opts)`, `renderSvg(shapes, { labels, padding, flat, fontSize })`, `layoutLabels(labels, bounds, fontSize)`.
-- `engine/lint.mjs`: `lint(model)` returns `{ errors, warnings }` for rules L1 to L12.
+- `engine/iso.mjs`: `C = 0.866`, `project([x,y,z])`, `box(...)`, `line(points, { bold, on, face })`, `dot(at, opts)`, `renderSvg(shapes, { labels, labelMode, requiredParts, padding, flat, fontSize })`, `layoutLabels(labels, bounds, fontSize)`.
+- `engine/lint.mjs`: `lint(model)` returns `{ errors, warnings }` for rules L1 to L15.
 
 Axes: x runs down-right, y runs down-left, z runs up. Higher x + y is nearer the reader.
 Use `flat: true` for preview covers: it drops gradients and uses only shared site tokens.
