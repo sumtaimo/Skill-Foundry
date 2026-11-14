@@ -1,7 +1,7 @@
 {
   "title": "figure-craft",
   "tagline": "Any object you describe, drawn full and lit, with real materials and labels on hover.",
-  "prompt": "explain how a CDN edge cache serves a request, interactive",
+  "prompt": "Show my customers how a refrigerator keeps food cold. I want them to see the real fridge in detail, open, with the food and drinks inside.",
   "outputs": [
     "Self-contained HTML page: an object you can open, turn and hover, plus the SVG",
     "Lint result for L1 to L19",

@@ -22,9 +22,9 @@ function listFiles(dir, prefix = '') {
 /**
  * The newest recorded real run of a skill at this version that passed its checks, or null.
  * Runs are written by src/factory/run-skill.mjs. Only real, passing, current-version output is shown.
- * @param {string} runsRoot @param {string} name @param {string} version
+ * @param {string} runsRoot @param {string} name @param {string} version @param {string} [caseId] only runs of this eval case
  */
-export function latestRun(runsRoot, name, version) {
+export function latestRun(runsRoot, name, version, caseId) {
   const dir = join(runsRoot, name);
   if (!existsSync(dir)) return null;
   const runs = [];
@@ -33,6 +33,7 @@ export function latestRun(runsRoot, name, version) {
     if (!e.isDirectory() || !existsSync(mp)) continue;
     const m = JSON.parse(readFileSync(mp, 'utf8'));
     if (m.status !== 'pass' || String(m.version) !== String(version) || !Array.isArray(m.files)) continue;
+    if (caseId && m.caseId !== caseId) continue; // the registry pins the one case this skill showcases
     runs.push({ m, runDir: join(dir, e.name) });
   }
   runs.sort((a, b) => (a.m.finishedAt < b.m.finishedAt ? 1 : a.m.finishedAt > b.m.finishedAt ? -1 : 0));
@@ -93,7 +94,7 @@ export function loadSkills(root, opts = {}) {
       if (!Array.isArray(rules)) throw new Error(`loadSkills: RULES.json of ${r.name} must be an array`);
       const machine = rules.filter((x) => x && x.check).length;
       const checklist = rules.filter((x) => x && x.checklist && !x.check).length;
-      const run = latestRun(runsRoot, r.name, String(r.version));
+      const run = latestRun(runsRoot, r.name, String(r.version), typeof r.showcase === 'string' ? r.showcase : undefined);
       const previewExample = join(dir, 'preview', 'example.html');
       return {
         name: r.name,

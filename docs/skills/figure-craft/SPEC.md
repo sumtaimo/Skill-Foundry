@@ -72,7 +72,9 @@ A second reader restates the idea; warnings fixed or justified.
 | L18-outside-container | error | a shape marked `inside` reaches outside its container |
 | L19-sparse | error | fewer than 12 face details, or fewer than 3 per labelled part |
 
-Open and orbit: `open` bodies show contents marked `inside`; `renderViews` gives four views a quarter turn apart and `orbitHtml` the turn controls. Style: hairline outlines, near-white palette.
+Showcase: one object, the refrigerator (`examples/build-demo.mjs`), at the detail level of the owner's reference. Version stays 1.0.0 until the owner calls it final.
+
+Open and orbit: `open` bodies (`'xy'` is a cutaway), states with `when`, show contents marked `inside`; `renderViews` gives four views a quarter turn apart and `orbitHtml` the turn controls. Style: hairline outlines, near-white palette.
 
 Materials and light: `steel`, `white`, `dark`, `glass`, `plain`, `ink`; round solids; panels; pipe tones. One light direction with soft cast shadows, from the engine only.
 

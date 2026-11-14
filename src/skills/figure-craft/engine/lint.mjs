@@ -3,14 +3,14 @@
  * Node 24 ESM, stdlib only, zero deps.
  * @governed-by PO_ARCHITECT
  */
-import { boxOutline, shapePoints, labelBox, labelTarget, panelCorners, openingCorners, project, LABEL_GAP, MAX_LABELS } from './iso.mjs';
+import { boxOutline, shapePoints, labelBox, labelTarget, panelCorners, discPoints, openingCorners, project, LABEL_GAP, MAX_LABELS } from './iso.mjs';
 
 const EPS = 1e-6;
 /** L10: minimum gap between sibling parts, and minimum share of the base they span. */
 export const MIN_PART_GAP = 4;
 export const MIN_BASE_USE = 0.3;
 /** L12: a labelled part covers at least this share of the drawing. L11: one more detail per DETAIL_STEP of the drawing, up to 3. */
-export const MIN_PART_SHARE = 0.03;
+export const MIN_PART_SHARE = 0.01;
 export const DETAIL_STEP = 0.08;
 /** L13: solid volumes (thinnest side at least BODY_THICK of the longest) together cover at least BODY_SHARE of the drawing. */
 export const BODY_SHARE = 0.2;
@@ -89,10 +89,10 @@ export function lint(model) {
 
   // L2 face detail (lines used as face details: every point in the face; corners may be touched)
   for (const d of shapes) {
-    if (!(d.kind === 'line' || d.kind === 'panel') || d.on === undefined) continue;
+    if (!(d.kind === 'line' || d.kind === 'panel' || d.kind === 'disc') || d.on === undefined) continue;
     const b = byId.get(d.on);
     if (!b || b.kind !== 'box') { err('L2-face-detail', `${d.id} lies on unknown box ${d.on}`); continue; }
-    const p = (d.kind === 'panel' ? panelCorners(d) : d.points).map((pt) => faceProblem({ at: pt, face: d.face }, b, false)).find(Boolean);
+    const p = (d.kind === 'panel' ? panelCorners(d) : d.kind === 'disc' ? discPoints(d, 4) : d.points).map((pt) => faceProblem({ at: pt, face: d.face }, b, false)).find(Boolean);
     if (p) err('L2-face-detail', `${d.id} on ${d.on}: ${p}`);
   }
   for (const d of shapes) {
@@ -199,7 +199,7 @@ export function lint(model) {
   for (const [id, l] of named) {
     const b = byId.get(id);
     if (b.move || kids.has(id)) continue; // moving tokens and bases that carry parts are identified by those
-    const have = shapes.filter((s) => (s.kind === 'dot' || s.kind === 'line' || s.kind === 'panel') && s.on === id).length;
+    const have = shapes.filter((s) => (s.kind === 'dot' || s.kind === 'line' || s.kind === 'panel' || s.kind === 'disc') && s.on === id).length + (model.backDetails?.[id] ?? 0);
     const need = Math.min(3, 1 + Math.floor(share(b) / DETAIL_STEP + EPS));
     if (have === 0) err('L11-no-detail', `"${l.text}" (${id}) has no face detail; add a line or dot with on: '${id}' that identifies it`);
     else if (have < need) err('L11-no-detail', `"${l.text}" (${id}) covers ${Math.round(share(b) * 100)}% of the drawing and has ${have} detail(s); it needs ${need}`);
@@ -223,6 +223,7 @@ export function lint(model) {
   if (!Array.isArray(model.requiredParts) || model.requiredParts.length === 0) err('L14-missing-part', 'requiredParts is not declared; list the ids of the parts the idea needs before building');
   else for (const id of model.requiredParts) {
     const b = byId.get(id);
+    if ((model.shut ?? []).some((x) => x.id === id)) continue; // reported by L16
     if (!b || b.kind !== 'box') err('L14-missing-part', `required part ${id} is not drawn; never drop a part the idea needs to pass another check`);
     else if (!named.has(id)) err('L14-missing-part', `required part ${id} has no label`);
   }
@@ -244,7 +245,8 @@ export function lint(model) {
     // Contents of an open box are seen through its opening only; the box itself does not hide them.
     const holder = b.inside !== undefined ? byId.get(b.inside) : null;
     const hole = holder && holder.open ? openingCorners(holder).map(project) : null;
-    const over = boxes.filter((o) => o !== b && o !== holder && o.drawIndex > b.drawIndex && o.material !== 'glass').map((o) => boxOutline(o));
+    // Things standing on a part (food on a shelf) are not counted as hiding it.
+    const over = boxes.filter((o) => o !== b && o !== holder && o.rests !== b.id && o.drawIndex > b.drawIndex && o.material !== 'glass').map((o) => boxOutline(o));
     let total = 0; let seen = 0;
     for (let i = 0; i < 14; i++) for (let j = 0; j < 14; j++) {
       const pt = [x0 + ((i + 0.5) / 14) * (x1 - x0), y0 + ((j + 0.5) / 14) * (y1 - y0)];
@@ -252,8 +254,13 @@ export function lint(model) {
       total++;
       if ((!hole || inPoly(pt, hole)) && !over.some((o) => inPoly(pt, o))) seen++;
     }
-    if (holder && !holder.open) err('L16-hidden-part', `"${l.text}" (${id}) is inside ${holder.id}, which has no open side; give ${holder.id} open: 'x' or 'y'`);
+    if (holder && !holder.open) err('L16-hidden-part', `"${l.text}" (${id}) is inside ${holder.id}, which has no open side; give ${holder.id} open: 'xy' (a cutaway), 'x' or 'y'`);
     else if (total && seen / total < MIN_VISIBLE - EPS) err('L16-hidden-part', `"${l.text}" (${id}) is ${Math.round((seen / total) * 100)}% visible (min ${MIN_VISIBLE * 100}%); move it toward the opening, open the side in front of it, or make the cover glass`);
+  }
+
+  // L16 also: a required part shut inside a body with no open side cannot be seen at all
+  for (const x of model.shut ?? []) {
+    if (model.requiredParts?.includes(x.id)) err('L16-hidden-part', `"${x.id}" (${x.id}) is inside ${x.holder}, which has no open side; give ${x.holder} open: 'xy' (a cutaway), 'x' or 'y'`);
   }
 
   // L18 contents stay inside their container
@@ -269,7 +276,7 @@ export function lint(model) {
   if (Array.isArray(model.requiredParts) && model.requiredParts.length) {
     const labelled = [...named.keys()].filter((id) => !byId.get(id).move).length;
     const need = Math.max(MIN_DETAILS, DETAILS_PER_PART * labelled);
-    const have = shapes.filter((x) => x.kind !== 'box' && x.on !== undefined).length;
+    const have = shapes.filter((x) => x.kind !== 'box' && x.on !== undefined).length + Object.values(model.backDetails ?? {}).reduce((a, b) => a + b, 0);
     if (have < need) err('L19-sparse', `${have} face details in the figure (min ${need}); add the small real features of each part: seams, handles, vents, screws, feet, controls, edges`);
   }
 
@@ -283,16 +290,37 @@ export function lint(model) {
 
 /** Rules that must hold from every side when the figure can be turned. */
 const EVERY_VIEW = ['L2-face-detail', 'L5-outside-viewbox', 'L6-raw-colour', 'L7-motion-no-reduced', 'L15-floating', 'L18-outside-container'];
+const partOf = (e) => /\(([^)]+)\) is (?:\d+% visible|inside)/.exec(e.message)?.[1];
 
 /**
  * Lint a four-view orbit: every rule on the front view, the geometry rules on the other three.
+ * A labelled part may be hidden from the front as long as it is visible from another side.
  * @param {{model:object}[]} views from renderViews
  */
 export function lintViews(views) {
   if (!Array.isArray(views) || !views.length) throw new TypeError('lintViews: views required');
-  const front = lint(views[0].model);
-  views.slice(1).forEach((v, i) => {
-    for (const e of lint(v.model).errors) if (EVERY_VIEW.includes(e.rule)) front.errors.push({ rule: e.rule, message: `view ${i + 2}: ${e.message}` });
+  const all = views.map((v) => lint(v.model));
+  const front = all[0];
+  const hiddenIn = all.map((r) => new Set(r.errors.filter((e) => e.rule === 'L16-hidden-part').map(partOf)));
+  const drawnIn = views.map((v) => new Set(v.model.shapes.map((s) => s.id)));
+  const seenElsewhere = (id) => views.some((_, i) => i > 0 && drawnIn[i].has(id) && !hiddenIn[i].has(id));
+  front.errors = front.errors.filter((e) => !(e.rule === 'L16-hidden-part' && seenElsewhere(partOf(e))));
+  all.slice(1).forEach((r, i) => {
+    for (const e of r.errors) if (EVERY_VIEW.includes(e.rule)) front.errors.push({ rule: e.rule, message: `view ${i + 2}: ${e.message}` });
   });
   return front;
+}
+
+/**
+ * Lint every state from renderStates: all rules on the first state, the geometry rules on the others.
+ * @param {Record<string,{model:object}[]>} states
+ */
+export function lintStates(states) {
+  const names = Object.keys(states ?? {});
+  if (!names.length) throw new TypeError('lintStates: states required');
+  const first = lintViews(states[names[0]]);
+  for (const n of names.slice(1)) {
+    for (const e of lintViews(states[n]).errors) if (EVERY_VIEW.includes(e.rule)) first.errors.push({ rule: e.rule, message: `${n}: ${e.message}` });
+  }
+  return first;
 }

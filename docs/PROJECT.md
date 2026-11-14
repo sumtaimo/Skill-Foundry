@@ -55,6 +55,8 @@ step-by-step layers, and showcases **the real output each skill produces**, neve
 
 ## 7. Rules for every agent
 
+- Skill versions stay at 1.0.0 until TAIMO calls a version final. Record changes under the current version; never bump it yourself.
+- figure-craft showcases one object only, the refrigerator, at the detail level of TAIMO's reference figure. The registry field `showcase` pins that case for the site.
 - Quality and detail come from the skill (rules, lint, references). When output is weak, fix the skill and run again; never touch up the output.
 - Every skill is for other people too: it starts from the goal its user states and is self-contained in its folder.
 - Investigate code, docs and tests yourself; ask TAIMO only for business rules, scope, UX decisions or approvals.

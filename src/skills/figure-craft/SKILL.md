@@ -1,7 +1,7 @@
 ---
 name: figure-craft
 description: Draws a detailed isometric figure that explains how a thing works, from the goal the user states, with a token palette, a shared iso engine and a geometry, layout and detail lint. Use for any request for an explanatory diagram, technical illustration or interactive explainer of an object or system. Do not use for data charts, photos, logos, UI mockups or decorative art.
-version: 1.5.0
+version: 1.0.0
 ---
 
 # figure-craft
@@ -63,4 +63,4 @@ Use [references/checklist.md](references/checklist.md). A second reader states t
 - The build script that produced them from the engine, so the figure can be regenerated.
 - The lint result (errors and warnings) and a short report: idea sentence, parts and their details, motion story, open items.
 
-See [references](references/README.md) and [examples](examples/README.md).
+See [references](references/README.md) and [examples](examples/README.md). The reference figure in `examples/build-demo.mjs` shows the detail level to reach.

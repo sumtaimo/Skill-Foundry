@@ -19,7 +19,9 @@ You choose what each solid is made of; the engine does the rest. NEVER draw shad
 | `blue`, `red`, `green`, `amber` | contents and small objects: bottles, cartons, food, cans, tools |
 
 - MUST use at least two materials in a figure with three or more solids (lint `L17-one-material`).
-- MUST draw round things round: `box({ ..., round: true })` is an upright cylinder (equal width and depth), for tanks, motors, cans, pipes ends, drums.
+- MUST draw round things round: `box({ ..., round: true })` is an upright cylinder (equal width and depth); `round: 'x'` or `'y'` is one lying along that axis, for drums, rollers, motors, bottles on their side.
+- MUST use `disc(at, { on, face, r, material })` for a round feature on a face: a dial, a knob, a button, a porthole, a lid, a screw head.
+- MAY add `glow(at, { r, inside })` where the real object has a light: a lamp inside a cabinet, a lit display.
 - MUST use `panel(corners, { on, face, material })` for a filled area on a face: a door front, a display, a window, a drawer, a vent plate. A panel counts as a face detail.
 - MUST colour pipes and flows with `line(points, { tone })`: `copper` for tubing, `cold` for cold flow, `warm` for heat.
 - MUST show the inside through `glass` or one open side when a part would otherwise be hidden (lint `L16-hidden-part`); a labelled part stays at least 40% visible.

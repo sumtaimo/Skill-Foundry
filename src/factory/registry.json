@@ -1,14 +1,15 @@
 [
   {
     "name": "skill-smith",
-    "version": "1.1.0",
+    "version": "1.0.0",
     "purpose": "Guides an agent through building a new skill that passes the factory linter, evals and review.",
     "status": "ready"
   },
   {
     "name": "figure-craft",
-    "version": "1.5.0",
-    "purpose": "Draws detailed isometric explanatory figures from a stated goal, with tokens, a shared iso engine and real materials and light, and an orbit, and lint L1 to L19.",
-    "status": "ready"
+    "version": "1.0.0",
+    "purpose": "Draws any object the user describes as a full, lit isometric figure the reader can open, turn and hover, checked by lint L1 to L19.",
+    "status": "ready",
+    "showcase": "refrigerator-cooling"
   }
 ]

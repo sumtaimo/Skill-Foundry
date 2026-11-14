@@ -1,58 +1,215 @@
 /**
- * figure-craft demo builder: produces the CDN edge cache demo page and the preview cover from the engine only.
- * Run directly to write examples/demo.html, preview/example.html and preview/cover.svg.
- * Node 24 ESM, stdlib only, zero deps.
+ * figure-craft reference figure: one refrigerator, drawn whole, that the reader can open, turn and hover.
+ * This is the detail level every figure aims for. Run directly to write examples/demo.html,
+ * preview/example.html and preview/cover.svg. Node 24 ESM, stdlib only, zero deps.
  * @governed-by PO_ARCHITECT
  */
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { box, dot, line, panel, renderSvg } from '../engine/iso.mjs';
+import { box, line, panel, disc, glow, renderSvg } from '../engine/iso.mjs';
+import { renderStates, orbitHtml } from '../engine/orbit.mjs';
+import { lintStates } from '../engine/lint.mjs';
+import { slots, screws, repeat } from '../engine/kit.mjs';
 import { tokensCss } from '../engine/tokens.mjs';
 
-const TITLE = 'How a CDN edge cache serves a request';
-const FIG_TITLE = 'A request travels from the client to the edge cache, which answers it without asking the origin.';
-/** Label font size in viewBox units, chosen so labels render at 11 CSS px or more on a 390px wide screen. */
-export const DEMO_FONT_SIZE = 12;
+const TITLE = 'How a refrigerator keeps food cold';
+const FIG_TITLE = 'A refrigerator with its doors open: cold air falls from the vent over the food on the shelves.';
+const IDEA = 'A refrigerator keeps food cold by moving heat from inside the cabinet to the coil on its back.';
 
-/** @param {boolean} animated include the request motion */
-function shapes(animated) {
-  if (typeof animated !== 'boolean') throw new TypeError('shapes: animated must be boolean');
-  const request = { at: [30, 26, 4], size: [8, 8, 8], id: 'request', rests: 'ground' };
-  if (animated) Object.assign(request, { move: [26, 0, 0], delay: 0 });
+/** The parts the idea needs. Never shortened to make a check pass. */
+export const REQUIRED_PARTS = ['fridge', 'freezer', 'door', 'shelf-2', 'crisper', 'evaporator', 'cold-air', 'compressor', 'condenser'];
+
+/** Label anchors sit inside the part they name. */
+export const LABELS = [
+  { at: [69, 30, 60], text: 'Fresh-food cabinet' },
+  { at: [69, 30, 140], text: 'Freezer' },
+  { at: [1.5, 100, 60], text: 'Door and bins' },
+  { at: [62, 48, 69], text: 'Glass shelf' },
+  { at: [62, 52, 34], text: 'Crisper drawer' },
+  { at: [35, 4, 133], text: 'Evaporator coil' },
+  { at: [36, 11, 103], text: 'Cold air' },
+  { at: [21, -13, 10], text: 'Compressor' },
+  { at: [35, -1, 100], text: 'Condenser coil' },
+];
+
+/** What each part does, for the cards under the figure. */
+const CARDS = [
+  ['Compressor', 'Squeezes the refrigerant gas and pushes it round the loop. It sits low at the back.'],
+  ['Condenser coil', 'The warm coil on the back. The refrigerant gives its heat to the room here.'],
+  ['Evaporator coil', 'The cold coil in the freezer. The refrigerant takes heat out of the air here.'],
+  ['Cold air', 'Chilled air falls from the vent and passes over the food.'],
+  ['Freezer', 'The coldest space, next to the evaporator.'],
+  ['Fresh-food cabinet', 'Insulated walls keep the cold in and the room heat out.'],
+  ['Glass shelf', 'Lets cold air pass round the food and shows what is behind.'],
+  ['Crisper drawer', 'A closed drawer that keeps vegetables from drying out.'],
+  ['Door and bins', 'A rubber seal closes the gap; bins hold bottles and small things.'],
+];
+
+/** A zigzag coil across a face, as one line. */
+function coil(a, b, turns, fixed) {
+  const pts = [];
+  for (let i = 0; i <= turns; i++) {
+    const u = a[0] + ((b[0] - a[0]) * i) / turns;
+    pts.push(fixed(u, i % 2 ? b[1] : a[1]), fixed(u + (i < turns ? 0 : 0), i % 2 ? a[1] : b[1]));
+  }
+  return pts;
+}
+
+function shapes() {
+  const FR = 'fridge'; const FZ = 'freezer';
+  const on = (id, n) => ({ inside: FR, rests: id, id: n });
   return [
-    box({ at: [0, 0, 0], size: [160, 60, 4], r: 4, id: 'ground' }),
-    box({ at: [8, 22, 4], size: [18, 18, 16], id: 'client', rests: 'ground' }),
-    panel([[26, 24, 9], [26, 38, 18]], { on: 'client', face: 'x', material: 'dark', id: 'client-screen' }), // screen facing the request
-    line([[26, 25, 7], [26, 37, 7]], { on: 'client', face: 'x', id: 'client-stand' }),
-    line([[10, 40, 8], [24, 40, 8]], { on: 'client', face: 'y', id: 'client-vent' }),
-    box(request),
-    box({ at: [64, 14, 4], size: [32, 32, 36], tone: 'ink', id: 'edge', rests: 'ground' }),
-    box({ at: [128, 14, 4], size: [24, 32, 52], id: 'origin', rests: 'ground' }),
-    line([[152, 18, 44], [152, 42, 44]], { on: 'origin', face: 'x', id: 'origin-bay-1' }), // drive bays
-    line([[152, 18, 34], [152, 42, 34]], { on: 'origin', face: 'x', id: 'origin-bay-2' }),
-    line([[152, 18, 24], [152, 42, 24]], { on: 'origin', face: 'x', id: 'origin-bay-3' }),
-    line([[152, 18, 14], [152, 42, 14]], { on: 'origin', face: 'x', id: 'origin-bay-4' }),
-    panel([[132, 46, 44], [140, 46, 50]], { on: 'origin', face: 'y', material: 'dark', id: 'origin-display' }),
-    line([[132, 46, 12], [148, 46, 12]], { on: 'origin', face: 'y', id: 'origin-vent' }),
-    line([[96, 20, 30], [96, 40, 30]], { on: 'edge', face: 'x', id: 'edge-vent' }), // vent slot
-    line([[96, 20, 26], [96, 40, 26]], { on: 'edge', face: 'x', id: 'edge-vent-2' }),
-    line([[96, 20, 22], [96, 40, 22]], { on: 'edge', face: 'x', id: 'edge-vent-3' }),
-    panel([[68, 46, 30], [80, 46, 36]], { on: 'edge', face: 'y', material: 'steel', id: 'edge-badge' }), // status plate
-    line([[68, 46, 10], [92, 46, 10]], { on: 'edge', face: 'y', id: 'edge-seam' }),
-    dot([80, 30, 40], { face: 'top', on: 'edge', tone: 'ok' }),
+    // Feet
+    ...[[4, 4], [60, 4], [4, 50], [60, 50]].map(([x, y], i) => box({ at: [x, y, 0], size: [6, 6, 3], round: true, material: 'dark', id: `foot-${i}` })),
+
+    // Back: condenser rack, compressor, pipes, cable (seen after a turn)
+    box({ at: [6, -2, 40], size: [58, 2, 110], material: 'dark', id: 'condenser' }),
+    line(coil([10, 46], [60, 144], 10, (u, v) => [u, -2, v]), { on: 'condenser', face: '-y', tone: 'copper', id: 'condenser-tube' }),
+    ...slots([[8, -2, 60], [62, -2, 60]], [[8, -2, 130], [62, -2, 130]], 8, { on: 'condenser', face: '-y', id: 'condenser-wire' }),
+    ...screws([[6, -2, 40], [64, -2, 150]], { on: 'condenser', face: '-y', id: 'condenser-screw' }),
+    box({ at: [10, -24, 0], size: [22, 22, 20], round: true, material: 'dark', id: 'compressor' }),
+    disc([21, -13, 20], { on: 'compressor', face: 'top', r: 5, material: 'steel', id: 'compressor-cap' }),
+    disc([21, -13, 20], { on: 'compressor', face: 'top', r: 1.6, material: 'dark', id: 'compressor-terminal' }),
+    line([[14, -13, 20], [28, -13, 20]], { on: 'compressor', face: 'top', id: 'compressor-weld' }),
+    line([[26, -8, 20], [26, -8, 34], [26, -3, 34], [26, -3, 46]], { tone: 'copper', id: 'discharge-pipe' }),
+    line([[16, -8, 20], [16, -8, 30], [50, -3, 30], [50, -3, 46]], { tone: 'cold', id: 'suction-pipe' }),
+    line([[34, -20, 6], [48, -26, 0], [62, -26, 0]], { bold: true, id: 'power-cable' }),
+
+    // Base with the kick plate
+    box({ at: [0, 0, 3], size: [70, 60, 8], material: 'dark', id: 'base' }),
+    ...slots([[10, 60, 5], [60, 60, 5]], [[10, 60, 9], [60, 60, 9]], 3, { on: 'base', face: 'y', id: 'kick-vent' }),
+    ...slots([[70, 8, 5], [70, 52, 5]], [[70, 8, 9], [70, 52, 9]], 3, { on: 'base', face: 'x', id: 'side-vent' }),
+
+    // Fresh-food cabinet, open at the front
+    box({ at: [0, 0, 11], size: [70, 60, 108], material: 'steel', id: FR, rests: 'base', open: 'xy', wall: 3, when: 'open' }),
+    box({ at: [0, 0, 11], size: [70, 60, 108], material: 'steel', id: FR, rests: 'base', when: 'closed' }),
+    line([[70, 56, 11], [70, 56, 119]], { on: FR, face: 'x', id: 'fridge-side-seam', when: 'closed' }),
+    panel([[0, 30, 20], [0, 46, 30]], { on: FR, face: '-x', material: 'white', id: 'rating-plate' }),
+    ...screws([[0, 30, 20], [0, 46, 30]], { on: FR, face: '-x', inset: 1.5, r: 0.6, id: 'rating-screw' }),
+    ...slots([[0, 32, 23], [0, 44, 23]], [[0, 32, 27], [0, 44, 27]], 3, { on: FR, face: '-x', id: 'rating-text' }),
+    line([[0, 4, 11], [0, 4, 119]], { on: FR, face: '-x', id: 'fridge-seam' }),
+    ...slots([[10, 0, 16], [60, 0, 16]], [[10, 0, 34], [60, 0, 34]], 5, { on: FR, face: '-y', id: 'back-vent' }),
+    glow([35, 24, 108], { r: 20, inside: FR, id: 'lamp-glow' }),
+
+    // Cold-air vent on the back wall, with the temperature dial
+    box({ at: [18, 3, 98], size: [34, 2, 14], material: 'white', inside: FR, id: 'vent' }),
+    ...slots([[21, 5, 101], [41, 5, 101]], [[21, 5, 109], [41, 5, 109]], 5, { on: 'vent', face: 'y', id: 'vent-slot' }),
+    disc([47, 5, 105], { on: 'vent', face: 'y', r: 3, material: 'steel', id: 'dial' }),
+    line([[47, 5, 105], [47, 5, 107.5]], { on: 'vent', face: 'y', bold: true, id: 'dial-mark' }),
+    box({ at: [33, 8, 100], size: [6, 6, 6], material: 'blue', inside: FR, move: [0, 0, -34], anim: 'fall', id: 'cold-air' }),
+
+    // Crisper drawer with vegetables
+    box({ at: [10, 16, 15], size: [14, 12, 10], material: 'green', inside: FR, id: 'lettuce' }),
+    box({ at: [30, 18, 15], size: [8, 8, 8], round: true, material: 'red', inside: FR, id: 'tomato-1' }),
+    box({ at: [42, 18, 15], size: [8, 8, 8], round: true, material: 'red', inside: FR, id: 'tomato-2' }),
+    box({ at: [30, 32, 15], size: [22, 6, 6], round: 'x', material: 'amber', inside: FR, id: 'carrots' }),
+    box({ at: [5, 10, 14], size: [60, 44, 22], material: 'glass', inside: FR, id: 'crisper' }),
+    line([[20, 54, 30], [50, 54, 30]], { on: 'crisper', face: 'y', bold: true, id: 'crisper-handle' }),
+    line([[7, 54, 16], [63, 54, 16]], { on: 'crisper', face: 'y', id: 'crisper-rail' }),
+    line([[7, 12, 36], [63, 12, 36]], { on: 'crisper', face: 'top', id: 'crisper-lid' }),
+
+    // Shelf 1
+    box({ at: [3, 3, 44], size: [64, 50, 1.5], material: 'glass', inside: FR, id: 'shelf-1' }),
+    line([[4, 53, 45.5], [66, 53, 45.5]], { on: 'shelf-1', face: 'top', id: 'shelf-1-trim' }),
+    box({ at: [8, 8, 45.5], size: [10, 10, 20], material: 'blue', ...on('shelf-1', 'milk') }),
+    panel([[9, 18, 52], [17, 18, 60]], { on: 'milk', face: 'y', material: 'white', id: 'milk-label' }),
+    box({ at: [24, 8, 45.5], size: [8, 8, 22], round: true, material: 'amber', ...on('shelf-1', 'juice') }),
+    disc([28, 12, 67.5], { on: 'juice', face: 'top', r: 2, material: 'white', id: 'juice-cap' }),
+    box({ at: [38, 10, 45.5], size: [10, 10, 12], round: true, material: 'green', ...on('shelf-1', 'pickles') }),
+    disc([43, 15, 57.5], { on: 'pickles', face: 'top', r: 4, material: 'steel', id: 'pickles-lid' }),
+    box({ at: [52, 8, 45.5], size: [12, 10, 8], material: 'red', ...on('shelf-1', 'leftovers') }),
+    box({ at: [12, 30, 45.5], size: [12, 8, 5], material: 'amber', ...on('shelf-1', 'butter') }),
+    box({ at: [32, 28, 45.5], size: [14, 14, 7], round: true, material: 'white', ...on('shelf-1', 'bowl') }),
+    disc([39, 35, 52.5], { on: 'bowl', face: 'top', r: 5, material: 'green', id: 'salad' }),
+
+    // Shelf 2
+    box({ at: [3, 3, 68], size: [64, 50, 1.5], material: 'glass', inside: FR, id: 'shelf-2' }),
+    line([[4, 53, 69.5], [66, 53, 69.5]], { on: 'shelf-2', face: 'top', id: 'shelf-2-trim' }),
+    line([[4, 4, 69.5], [66, 4, 69.5]], { on: 'shelf-2', face: 'top', id: 'shelf-2-back' }),
+    ...repeat(3, (i) => [
+      box({ at: [8 + i * 10, 8, 69.5], size: [6, 6, 20], round: true, material: 'green', ...on('shelf-2', `bottle-${i}`) }),
+      disc([11 + i * 10, 11, 89.5], { on: `bottle-${i}`, face: 'top', r: 1.5, material: 'steel', id: `bottle-cap-${i}` }),
+    ]),
+    box({ at: [44, 10, 69.5], size: [16, 12, 10], material: 'blue', ...on('shelf-2', 'container') }),
+    line([[45, 22, 77.5], [59, 22, 77.5]], { on: 'container', face: 'y', id: 'container-lid' }),
+    box({ at: [10, 30, 69.5], size: [20, 10, 6], material: 'amber', ...on('shelf-2', 'eggs') }),
+    ...repeat(4, (i) => disc([13 + i * 4.6, 35, 75.5], { on: 'eggs', face: 'top', r: 1.7, material: 'white', id: `egg-${i}` })),
+    box({ at: [44, 30, 69.5], size: [8, 8, 11], round: true, material: 'red', ...on('shelf-2', 'jam') }),
+    disc([48, 34, 80.5], { on: 'jam', face: 'top', r: 3.2, material: 'steel', id: 'jam-lid' }),
+
+    // Shelf 3
+    box({ at: [3, 3, 92], size: [64, 50, 1.5], material: 'glass', inside: FR, id: 'shelf-3' }),
+    line([[4, 53, 93.5], [66, 53, 93.5]], { on: 'shelf-3', face: 'top', id: 'shelf-3-trim' }),
+    box({ at: [54, 10, 93.5], size: [8, 8, 18], round: true, material: 'blue', ...on('shelf-3', 'water') }),
+    disc([58, 14, 111.5], { on: 'water', face: 'top', r: 1.8, material: 'white', id: 'water-cap' }),
+    box({ at: [10, 30, 93.5], size: [12, 10, 6], material: 'amber', ...on('shelf-3', 'cheese') }),
+    ...repeat(3, (i) => box({ at: [30 + i * 10, 32, 93.5], size: [6, 6, 7], round: true, material: 'white', ...on('shelf-3', `yogurt-${i}`) })),
+
+    // Freezer, open at the front
+    box({ at: [0, 0, 119], size: [70, 60, 48], material: 'steel', id: FZ, rests: FR, open: 'xy', wall: 3, when: 'open' }),
+    box({ at: [0, 0, 119], size: [70, 60, 48], material: 'steel', id: FZ, rests: FR, when: 'closed' }),
+    line([[70, 56, 119], [70, 56, 167]], { on: FZ, face: 'x', id: 'freezer-side-seam', when: 'closed' }),
+    line([[0, 4, 119], [0, 4, 167]], { on: FZ, face: '-x', id: 'freezer-seam' }),
+    line([[4, 30, 167], [66, 30, 167]], { on: FZ, face: 'top', id: 'top-rib' }),
+    panel([[2, 52, 167], [12, 60, 167]], { on: FZ, face: 'top', material: 'dark', id: 'hinge-cover' }),
+    line([[0, 4, 167], [70, 4, 167]], { on: FZ, face: 'top', id: 'top-seam' }),
+    box({ at: [6, 3, 123], size: [58, 2, 20], material: 'steel', inside: FZ, id: 'evaporator' }),
+    line(coil([10, 126], [60, 140], 8, (u, v) => [u, 5, v]), { on: 'evaporator', face: 'y', tone: 'cold', id: 'evaporator-tube' }),
+    ...slots([[8, 5, 124], [8, 5, 142]], [[62, 5, 124], [62, 5, 142]], 7, { on: 'evaporator', face: 'y', id: 'evaporator-fin' }),
+    box({ at: [8, 30, 122], size: [18, 10, 4], material: 'white', inside: FZ, id: 'ice-tray' }),
+    ...slots([[11, 31, 126], [11, 39, 126]], [[23, 31, 126], [23, 39, 126]], 4, { on: 'ice-tray', face: 'top', id: 'ice-cell' }),
+    box({ at: [34, 34, 122], size: [22, 14, 7], material: 'blue', inside: FZ, id: 'frozen-box' }),
+    panel([[36, 48, 123.5], [54, 48, 127.5]], { on: 'frozen-box', face: 'y', material: 'white', id: 'frozen-label' }),
+    box({ at: [12, 46, 122], size: [10, 10, 8], round: true, material: 'amber', inside: FZ, id: 'ice-cream' }),
+    disc([17, 51, 130], { on: 'ice-cream', face: 'top', r: 4, material: 'white', id: 'ice-cream-lid' }),
+
+    // Doors swung open on their hinges, showing the liner, the seal and the bins
+    box({ at: [0, 60, 11], size: [3, 68, 108], material: 'steel', id: 'door', when: 'open' }),
+    panel([[3, 64, 15], [3, 124, 115]], { on: 'door', face: 'x', material: 'white', id: 'door-liner', when: 'open' }),
+    line([[3, 62, 13], [3, 126, 13], [3, 126, 117], [3, 62, 117], [3, 62, 13]], { on: 'door', face: 'x', bold: true, id: 'door-seal', when: 'open' }),
+    line([[0, 120, 40], [0, 120, 92]], { on: 'door', face: '-x', bold: true, id: 'door-handle-out', when: 'open' }),
+    ...repeat(3, (i) => [
+      box({ at: [3, 70, 26 + i * 30], size: [8, 50, 6], material: 'white', id: `bin-${i}`, when: 'open' }),
+      line([[11, 72, 30 + i * 30], [11, 118, 30 + i * 30]], { on: `bin-${i}`, face: 'x', id: `bin-rail-${i}`, when: 'open' }),
+      ...repeat(3, (j) => box({ at: [4, 74 + j * 14, 32 + i * 30], size: [6, 6, 14 + ((i + j) % 2) * 4], round: true, material: ['green', 'amber', 'blue'][(i + j) % 3], rests: `bin-${i}`, id: `bin-${i}-item-${j}`, when: 'open' })),
+    ]),
+    box({ at: [0, 60, 119], size: [3, 68, 48], material: 'steel', id: 'freezer-door', rests: 'door', when: 'open' }),
+    panel([[3, 64, 123], [3, 124, 163]], { on: 'freezer-door', face: 'x', material: 'white', id: 'freezer-liner', when: 'open' }),
+    line([[3, 62, 121], [3, 126, 121], [3, 126, 165], [3, 62, 165], [3, 62, 121]], { on: 'freezer-door', face: 'x', bold: true, id: 'freezer-seal', when: 'open' }),
+    box({ at: [3, 70, 130], size: [8, 50, 6], material: 'white', id: 'freezer-bin', when: 'open' }),
+
+    // The same doors closed
+    box({ at: [0, 60, 11], size: [70, 3, 108], material: 'steel', id: 'door', when: 'closed' }),
+    line([[8, 63, 48], [8, 63, 100]], { on: 'door', face: 'y', bold: true, id: 'door-handle', when: 'closed' }),
+    panel([[40, 63, 96], [62, 63, 110]], { on: 'door', face: 'y', material: 'dark', id: 'display', when: 'closed' }),
+    disc([46, 63, 103], { on: 'door', face: 'y', r: 2, material: 'steel', id: 'display-knob-1', when: 'closed' }),
+    disc([56, 63, 103], { on: 'door', face: 'y', r: 2, material: 'steel', id: 'display-knob-2', when: 'closed' }),
+    panel([[30, 63, 20], [40, 63, 24]], { on: 'door', face: 'y', material: 'white', id: 'badge', when: 'closed' }),
+    box({ at: [0, 60, 119], size: [70, 3, 48], material: 'steel', id: 'freezer-door', rests: 'door', when: 'closed' }),
+    line([[8, 63, 126], [8, 63, 150]], { on: 'freezer-door', face: 'y', bold: true, id: 'freezer-handle', when: 'closed' }),
   ];
 }
 
-const LABELS = {
-  client: { at: [17, 31, 20], text: 'Client', side: 'l' },
-  request: { at: [34, 30, 12], text: 'Request', side: 'l' },
-  edge: { at: [80, 30, 40], text: 'Edge cache', side: 'r' },
-  origin: { at: [140, 30, 56], text: 'Origin (skipped)', side: 'r' },
-};
+const OPTS = { labels: LABELS, requiredParts: REQUIRED_PARTS, title: FIG_TITLE, states: ['open', 'closed'] };
 
-/** Demo page html for a rendered svg. @param {string} svg */
-function page(svg) {
-  if (typeof svg !== 'string' || !svg.startsWith('<svg')) throw new TypeError('page: svg string required');
+/** Both states, four views each: what the page shows and what lint checks. */
+export function demoStates() {
+  return renderStates(shapes(), OPTS);
+}
+
+/** The front view with the doors open: `{ svg, model }`. */
+export function demoRender() {
+  return demoStates().open[0];
+}
+
+/** Lint result for every state and view of the reference figure. */
+export function demoLint() {
+  return lintStates(demoStates());
+}
+
+/** Demo page html. @param {string} figure orbit markup */
+function page(figure) {
+  if (typeof figure !== 'string' || !figure.startsWith('<div class="fc-orbit"')) throw new TypeError('page: orbit markup required');
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -63,21 +220,21 @@ function page(svg) {
 <style>
 ${tokensCss()}*{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
-main{max-width:720px;margin:0 auto;padding:24px 16px 48px}
+main{max-width:760px;margin:0 auto;padding:24px 16px 48px}
 header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-h1{font-size:1.5rem;line-height:1.25;margin:0}
-.kicker{color:var(--muted);font-size:.85rem;margin:0 0 4px;letter-spacing:.04em}
-button{font:inherit;font-size:.9rem;color:var(--fg);background:var(--surface);border:1px solid var(--line-strong);border-radius:8px;padding:6px 12px;cursor:pointer}
+h1{font-size:1.4rem;line-height:1.25;margin:0;font-weight:600}
+.kicker{color:var(--muted);font-size:.8rem;margin:0 0 4px;letter-spacing:.06em}
+button{font:inherit;font-size:.85rem;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer}
+button:hover{border-color:var(--line-strong)}
 button:focus-visible{outline:2px solid var(--ok);outline-offset:2px}
-figure{margin:24px 0;padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:12px}
-figure svg{display:block;width:100%;max-width:560px;height:auto;margin:0 auto}
-figcaption{color:var(--muted);font-size:.9rem;margin-top:8px}
-.controls{display:flex;gap:8px;margin-top:12px}
+.lede{color:var(--muted);max-width:60ch}
+figure{margin:20px 0;padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+figcaption{color:var(--muted);font-size:.9rem;margin-top:10px;text-align:center}
 .paused svg *{animation-play-state:paused!important}
-dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:0}
-dl div{background:var(--surface2);border-radius:10px;padding:12px}
-dt{color:var(--muted);font-size:.8rem}
-dd{margin:0;font-weight:600}
+dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1px;margin:0;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+dl div{background:var(--surface);padding:12px 14px}
+dt{font-weight:600;font-size:.9rem}
+dd{margin:2px 0 0;color:var(--muted);font-size:.9rem}
 @media (max-width:480px){figure{padding:8px}}
 </style>
 </head>
@@ -87,17 +244,13 @@ dd{margin:0;font-weight:600}
 <div><p class="kicker">FIGURE</p><h1>${TITLE}</h1></div>
 <button type="button" id="theme" aria-pressed="false">Dark theme</button>
 </header>
-<p>The edge cache sits close to the reader. When it already holds a copy, it answers at once and the origin is never asked.</p>
+<p class="lede">${IDEA}</p>
 <figure id="fig">
-${svg}
-<figcaption>The request moves along one axis to the edge cache. The green light means a cache hit. Hover or tap a part to see its name.</figcaption>
-<div class="controls"><button type="button" id="play" aria-pressed="true">Pause motion</button></div>
+${figure}
+<figcaption>Hover or tap a part to see its name. Turn it to see every side, and close it to see it as it stands. <button type="button" id="play" aria-pressed="true">Pause motion</button></figcaption>
 </figure>
 <dl>
-<div><dt>Client</dt><dd>Sends the request</dd></div>
-<div><dt>Request</dt><dd>Travels to the nearest copy</dd></div>
-<div><dt>Edge cache</dt><dd>Holds a nearby copy</dd></div>
-<div><dt>Origin</dt><dd>Only asked on a miss</dd></div>
+${CARDS.map(([name, what]) => `<div><dt>${name}</dt><dd>${what}</dd></div>`).join('\n')}
 </dl>
 </main>
 <script>
@@ -119,30 +272,17 @@ ${svg}
 `;
 }
 
-/** The animated demo figure: `{ svg, model }`, the model is what lint checks. */
-export function demoRender() {
-  return renderSvg(shapes(true), {
-    labels: [LABELS.client, LABELS.request, LABELS.edge, LABELS.origin],
-    title: FIG_TITLE,
-    requiredParts: ['client', 'request', 'edge', 'origin'],
-    fontSize: DEMO_FONT_SIZE,
-  });
-}
-
 /**
  * Build the demo page and the preview cover from the engine.
  * @returns {{demoHtml:string, coverSvg:string}}
  */
 export function buildDemo() {
-  const demo = demoRender();
-  const cover = renderSvg(shapes(false), {
-    labels: [LABELS.client, LABELS.edge, LABELS.origin],
-    padding: 16,
-    idPrefix: 'cv',
-    flat: true,
-  });
-  const coverSvg = cover.svg.replace('role="img">', 'role="img" aria-label="figure-craft cover: isometric CDN edge cache">') + '\n';
-  return { demoHtml: page(demo.svg), coverSvg };
+  const states = demoStates();
+  // The cover is the refrigerator as it stands, doors closed, in flat site tokens.
+  const outside = shapes().filter((s) => s.when !== 'open' && s.inside === undefined && s.kind !== 'glow' && !(s.on && /^(vent|milk|juice|pickles|bowl|bottle|container|eggs|jam|water|ice|frozen|shelf|crisper|evaporator)/.test(s.on)));
+  const cover = renderSvg(outside, { padding: 16, idPrefix: 'cv', flat: true, labelMode: 'always' });
+  const coverSvg = cover.svg.replace('role="img">', 'role="img" aria-label="figure-craft cover: a refrigerator">') + '\n';
+  return { demoHtml: page(orbitHtml(states, { label: 'Refrigerator', stateLabels: { open: 'Open it', closed: 'Close it' } })), coverSvg };
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
