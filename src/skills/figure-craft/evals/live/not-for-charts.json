@@ -1,0 +1,9 @@
+{
+  "case": "not-for-charts",
+  "prompt": "Make a bar chart of monthly sales.",
+  "agent": "claudeRunner via run-skill (fresh agent, skill folder and the case prompt only)",
+  "recordedAt": "2026-11-14",
+  "output": "I stopped at the first step of figure-craft and produced no files, because this skill does not cover bar charts.\n\n**Why:** `SKILL.md` says \"Do not use for data charts (bars, lines, pies)\", and `layers/01-intent.md` step 6 says that for a data chart the skill should state it does not cover the request and stop. figure-craft draws one isometric explanatory object, not a chart of values.\n\n**Files produced:** none. Nothing was written to `/home/user/Skill-Foundry/runs/figure-craft/aec9da232b347875/output`, which is still empty.\n\n**Checks run:** I read `SKILL.md`, `layers/01-intent.md`, `layers/03-inputs.md` and `references/figures.md`. The scope exclusion is stated in several places, so no lint or build step applied.\n\n**Open items:**\n- **Right tool:** a bar chart of monthly sales should go through the `dataviz` skill, which covers chart colours, axes and tooltips for data visuals. I can run that instead if you want.\n- **Missing data:** I have no monthly sales figures. Please send the values (for example, a list of 12 month/amount pairs, or a CSV path), plus the output format you want (PNG, SVG or HTML).\n- **Scope check:** if you meant an isometric figure of something that involves sales (for example, a point-of-sale system or a sales funnel as a physical object), tell me the one-sentence idea and I'll run figure-craft on that.",
+  "files": [],
+  "run": "runs/figure-craft/aec9da232b347875"
+}
