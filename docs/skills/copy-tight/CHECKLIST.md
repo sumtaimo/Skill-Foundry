@@ -6,6 +6,11 @@ Review against `docs/factory/REVIEW.md`. Status: ready at 0.2.0.
 - 0.1.0 was built by a real agent using skill-smith. Its own evals passed 3 of 3 on its hand-written examples.
 - Real-agent live evals on 0.1.0: 0 of 3. Found: "Checkout" lowercased (rule R-copy-tight-4 broken), change list quoted removed words, no fixed legal note.
 - 0.2.0 fixed the skill (not the cases). Real-agent live evals: 3 of 3.
+- 0.2.0 migrated to the ten-layer standard (layers 01-10, references/checklist.md, no repository paths). Removed from src/factory/migration.json, so chk-layers and chk-portable now apply. Re-recorded with fresh real agents (`claude -p`, 2026-11-14): 3 of 3. Description unchanged; routing 12 of 12.
+
+## Layers
+- [x] Ten core layers with numbered steps, linked from SKILL.md (chk-layers)
+- [x] Self-contained: no src/, docs/ or tests/ paths in SKILL.md, layers or references (chk-portable)
 
 ## Clarity
 - [x] Procedure numbered, imperative, one action per step

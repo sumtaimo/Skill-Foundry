@@ -1,8 +1,7 @@
 {
   "layers-pending": {
     "skills": [
-      "changelog-writer",
-      "copy-tight"
+      "changelog-writer"
     ],
     "reason": "Built before the layer standard (docs/factory/STANDARD.md section 12). chk-layers and chk-portable are not applied to them until each is migrated in its own session (one skill per session).",
     "since": "2026-11-14"
