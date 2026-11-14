@@ -1,0 +1,60 @@
+{
+  "skill": "skill-smith",
+  "version": "1.0.0",
+  "caseId": "duplicate-proposes-extend",
+  "inputSha256": "96a3e7b2a08ea3110c5d0c2c51c1caea531124e20f548c6b8b1a5a51b571749e",
+  "skillSha256": "607db17b3cfbd15660aeb7a331e35760262e86fb221ec41a16524006385819bc",
+  "key": "a0efcd666f38c8a35e76c72931a7f76b186364c4993aee3a726898f32746ca53",
+  "startedAt": "2026-11-14T12:15:14.542Z",
+  "finishedAt": "2026-11-14T12:15:56.707Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.018628699999999998,
+  "usage": {
+    "input_tokens": 30,
+    "cache_creation_input_tokens": 35847,
+    "cache_read_input_tokens": 775780,
+    "output_tokens": 7397,
+    "output_tokens_details": {
+      "thinking_tokens": 2318
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 35847,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 515,
+        "cache_read_input_tokens": 65721,
+        "cache_creation_input_tokens": 382,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 382
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [
+    {
+      "path": "proposal-extend-copy-tight.md",
+      "bytes": 2545,
+      "sha256": "8ef116741a59bf0d23bd587dcb232317c75a8738b8f97a92b82f6086fb73d2f0"
+    }
+  ],
+  "checks": {
+    "expectations": 3,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "I did not build a new skill. The skill-smith procedure says to stop when a request overlaps an existing skill, and this one does: `copy-tight` (v0.2.0, status `ready`) already rewrites UI copy to be short and plain. Instead I wrote a proposal to extend it.\n\n**Files produced**\n- `/home/user/Skill-Foundry/runs/skill-smith/a0efcd666f38c8a3/output/proposal-extend-copy-tight.md` (35 lines): the overlap, the checks, a recommendation to extend `copy-tight` rather than add a second UI-copy skill, and open questions for you.\n\n**Checks run**\n- `node src/factory/lint-skills.mjs copy-tight`: \"lint-skills: no problems\". This was a read-only run.\n- I did not run live evals, routing evals, `npm test` or `npm run guard`. The 3-of-3 live-eval result I cite comes from `docs/skills/copy-tight/CHECKLIST.md`, not from a run I did.\n\n**Open items**\n- You need to say whether `copy-tight` already handles your strings. If it doesn't, send one or two examples it rewrites badly.\n- If the gap is a kind of UI copy it excludes (onboarding, help text, notifications), that is the part to extend. Extending it is a separate session, since the skill is not locked but the factory owner decides when it changes.\n- I changed nothing in the repository. No skill folder, registry entry, package or recorded run was created, because the skill procedure's later layers apply only once a new skill is approved."
+}
