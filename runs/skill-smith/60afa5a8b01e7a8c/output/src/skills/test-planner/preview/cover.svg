@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="test-planner cover">
+  <rect x="0" y="0" width="640" height="360" fill="var(--cover-bg)"/>
+  <rect x="120" y="50" width="400" height="260" rx="10" fill="var(--cover-surface)" stroke="var(--cover-line)" stroke-width="2"/>
+  <rect x="150" y="84" width="200" height="12" rx="6" fill="var(--cover-ink)"/>
+  <rect x="150" y="122" width="22" height="22" rx="4" fill="none" stroke="var(--cover-accent)" stroke-width="3"/>
+  <path d="M154 133 L160 139 L170 127" fill="none" stroke="currentColor" stroke-width="3"/>
+  <rect x="186" y="128" width="250" height="10" rx="5" fill="var(--cover-line)"/>
+  <rect x="150" y="162" width="22" height="22" rx="4" fill="none" stroke="var(--cover-accent)" stroke-width="3"/>
+  <path d="M154 173 L160 179 L170 167" fill="none" stroke="currentColor" stroke-width="3"/>
+  <rect x="186" y="168" width="210" height="10" rx="5" fill="var(--cover-line)"/>
+  <rect x="150" y="202" width="22" height="22" rx="4" fill="none" stroke="var(--cover-accent)" stroke-width="3"/>
+  <rect x="186" y="208" width="240" height="10" rx="5" fill="var(--cover-line)"/>
+  <rect x="150" y="242" width="22" height="22" rx="4" fill="none" stroke="var(--cover-accent)" stroke-width="3"/>
+  <rect x="186" y="248" width="180" height="10" rx="5" fill="var(--cover-line)"/>
+</svg>

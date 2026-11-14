@@ -1,0 +1,8 @@
+{
+  "case": "negative-write-test-code",
+  "prompt": "Write Jest tests for the promo code validator. The change: promo codes are checked by calling the promotions service.",
+  "agent": "claude (fresh general-purpose subagent, skill folder and case prompt only)",
+  "recordedAt": "2026-11-14",
+  "output": "This skill doesn't write test code. Its scope excludes requests for Jest tests, test automation or test data, so I haven't written the Jest tests for the promo code validator and haven't created or edited any files.\n\nI can produce a regression checklist for the change instead: what to retest after promo codes start being checked by calling the promotions service. It would only cover areas and behaviour named in your change text. If you paste the full change description or diff, I'll build it. For the Jest tests themselves, you'll need a regular coding request outside this skill.",
+  "files": []
+}
