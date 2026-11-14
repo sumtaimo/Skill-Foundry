@@ -1,8 +1,8 @@
 {
   "case": "missing-input-asks",
   "prompt": "Write a changelog entry.",
-  "agent": "claude-code subagent (fresh context, skill folder only)",
+  "agent": "claude",
   "recordedAt": "2026-11-14",
-  "output": "I can write it, but I need four things from you first. I won't guess any of them:\n\n1. **Skill name**: which skill is the entry for? (e.g. `changelog-writer`)\n2. **Current version**: the version the skill has now (e.g. `1.0.0`)\n3. **Date**: the release date, in YYYY-MM-DD form\n4. **List of changes**: what was merged, one line per change\n\nOnce I have these, I'll read the skill's `CHANGELOG.md` and leave the existing entries as they are. I'll sort each change into breaking, new behaviour or fix, and pick the version bump (MAJOR, MINOR or PATCH). Then I'll give you the entry, the bump with a one-line reason, and any place where SKILL.md or the registry shows a different version.",
+  "output": "I can write the entry, but I need four things first. I won't guess any of them:\n\n1. **Skill name:** which skill in `src/skills/` is this entry for?\n2. **Current version:** the version the skill has now (for example `1.0.0`).\n3. **Today's date:** in `YYYY-MM-DD` format.\n4. **List of changes:** each change that was merged since the last entry.\n\nOnce I have these, I'll:\n- read that skill's `CHANGELOG.md` and leave its existing entries as they are,\n- label each change as breaking, new behaviour or a fix, and pick the version bump from that (MAJOR, MINOR or PATCH),\n- write the new entry with the heading `## <version> - <YYYY-MM-DD>` at the top, one bullet per change starting with a verb, and breaking changes first marked `Breaking:`,\n- check that the new version matches the skill's `SKILL.md` header and its entry in `src/factory/registry.json`, and tell you which file to fix if they don't.",
   "files": []
 }
