@@ -135,6 +135,7 @@ export function loadSkills(root, opts = {}) {
         tags: Array.isArray(preview.tags) ? preview.tags.map(String) : [],
         coverSvg,
         coverKind,
+        factoryOnly: /^scope:\s*factory/m.test(md),
         proof,
         procedure: parseProcedure(md),
         rules: { total: rules.length, machine, checklist },
