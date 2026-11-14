@@ -14,5 +14,6 @@ Quality bar, checked before handing over:
 7. Parts do not hide each other; each has clear space around it, and no labelled part is too small to read.
 7a. The figure is full: every labelled part shows all the details its size calls for, and the page lists every labelled part in a card with what it does.
 8. At rest the figure is clean: no labels and no leader lines. Hovering, focusing or tapping a part reveals its label with motion, in a side column, with the leader ending on that part.
-8a. The object reads as the real thing at a glance: a full body, every required part present, nothing floating.
+8a. The object reads as the real thing at a glance: its whole outside in real materials, a full body, every required part present and visible, nothing floating, lit and shadowed by the engine.
+8b. The object fills the frame; no empty margins are left for labels.
 9. The figure is the engine's output, byte for byte. Nothing was drawn or adjusted by hand.

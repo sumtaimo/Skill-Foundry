@@ -1,6 +1,6 @@
 # figure-craft spec
 
-Isometric explanatory figures: one idea, one object, drawn from shared tokens with the iso engine and checked by lint rules L1-L15. The skill's own layers (`src/skills/figure-craft/layers/`) are the procedure; this file is the factory-side spec. Checklist item numbers (C#) refer to `CHECKLIST.md`.
+Isometric explanatory figures: one idea, one object, drawn from shared tokens with the iso engine and checked by lint rules L1-L17. The skill's own layers (`src/skills/figure-craft/layers/`) are the procedure; this file is the factory-side spec. Checklist item numbers (C#) refer to `CHECKLIST.md`.
 
 ## Inputs
 - A one-line prompt naming the idea.
@@ -67,5 +67,9 @@ A second reader restates the idea; warnings fixed or justified.
 | L13-no-solid-body | error | solid volumes cover less than 20% of the drawing |
 | L14-missing-part | error | `requiredParts` missing, or a required part not drawn or not labelled |
 | L15-floating | error | a part above the ground neither rests on nor touches another part |
+| L16-hidden-part | error | a labelled part is less than 40% visible behind later-drawn solids (glass does not hide) |
+| L17-one-material | error | three or more solids all of one material |
 
-Labels: hidden at rest; revealed with motion on hover, focus or tap (`labelMode: 'hover'`, default). Up to 9 labels on hover, 5 when always shown.
+Materials and light: `steel`, `white`, `dark`, `glass`, `plain`, `ink`; round solids; panels; pipe tones. One light direction with soft cast shadows, from the engine only.
+
+Labels: chips beside the part; hidden at rest; revealed with motion on hover, focus or tap (`labelMode: 'hover'`, default). Up to 9 labels on hover, 5 when always shown.

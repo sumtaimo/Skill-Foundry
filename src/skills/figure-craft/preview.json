@@ -1,10 +1,10 @@
 {
   "title": "figure-craft",
-  "tagline": "Detailed isometric figures from a stated goal, checked by a geometry and detail lint.",
+  "tagline": "Any object you describe, drawn full and lit, with real materials and labels on hover.",
   "prompt": "explain how a CDN edge cache serves a request, interactive",
   "outputs": [
     "Self-contained HTML page and SVG figure with labels on hover",
-    "Lint result for L1 to L15",
+    "Lint result for L1 to L17",
     "Checklist outcome",
     "Short report"
   ],

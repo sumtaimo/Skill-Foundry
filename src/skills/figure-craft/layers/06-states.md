@@ -8,8 +8,8 @@
 5a. Hover is not available (touch screen, keyboard, print): each labelled part can be focused with Tab or a tap and shows its label the same way; the cards under the figure name every part, so nothing is lost when no label shows.
 5b. A check fails because a required part is too small or crowded: resize or move parts, enlarge the drawing, or split the figure. Never remove the part.
 6. Long label text: shorten the words. If two labels still collide, move one to the other side column.
-7. A leader that would cross a solid: move the label to the other side, or move the anchor to a visible face.
-8. A part hidden behind a taller part: put the taller part farther from the reader (lower x + y), or lower it.
+7. A chip that would cover the part it names: move the label's anchor higher inside the part, or lower the font size while keeping 11 CSS px at 390px.
+8. A part hidden behind another: put the taller one farther from the reader (lower x + y), open that side, or make the cover `glass`.
 9. A detail on a hidden face: faces `top`, `x` and `y` are the visible ones. Move the detail to a visible face.
 10. An unknown subject: do not improvise parts. Go back to layer 03, step 8.
 11. A request that changes after the build: change the shapes in the build script and run it again. Never patch the SVG.

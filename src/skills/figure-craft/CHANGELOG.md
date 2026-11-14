@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.4.0 - 2026-11-14
+
+- Materials: `steel`, `white`, `dark`, `glass`, `plain`, `ink`; round solids (`round: true`); filled `panel` details; pipe and flow tones `copper`, `cold`, `warm`.
+- Light: one light direction, shine band, shaded side, soft cast shadows, edge highlights; the SVG carries its own tokens and works standalone.
+- Labels are chips beside the part, revealed on hover, focus or tap; no side columns, so the object fills the frame.
+- Lint `L16-hidden-part` (a labelled part stays 40% visible) and `L17-one-material`.
+- `references/materials.md`; the object is drawn outside first, then opened to show the inside.
+
 ## 1.3.0 - 2026-11-14
 
 - Labels and leaders are hidden at rest and appear with motion when a part is hovered, focused or tapped (`labelMode: 'hover'`, the default; `'always'` for static figures). Up to nine labels on hover.

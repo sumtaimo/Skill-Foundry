@@ -21,5 +21,8 @@
   {"id": "R-figure-craft-20", "text": "The object MUST be drawn as full solid volumes; thin slabs alone NEVER stand for the object.", "check": "L13-no-solid-body"},
   {"id": "R-figure-craft-21", "text": "The parts the idea needs MUST be declared in requiredParts, drawn and labelled; a needed part is NEVER dropped to pass another check.", "check": "L14-missing-part"},
   {"id": "R-figure-craft-22", "text": "A part above the ground MUST rest on or touch another part; NEVER float.", "check": "L15-floating"},
-  {"id": "R-figure-craft-23", "text": "Labels and leaders MUST stay hidden until their part is hovered, focused or tapped, then appear with motion; the page MUST name every part in a card so nothing depends on hover.", "checklist": "At rest the figure shows no labels or leaders; hovering or focusing each part reveals its label; every part has a card."}
+  {"id": "R-figure-craft-23", "text": "Labels and leaders MUST stay hidden until their part is hovered, focused or tapped, then appear with motion; the page MUST name every part in a card so nothing depends on hover.", "checklist": "At rest the figure shows no labels or leaders; hovering or focusing each part reveals its label; every part has a card."},
+  {"id": "R-figure-craft-24", "text": "A labelled part MUST stay at least 40% visible; glass or one open side shows the inside.", "check": "L16-hidden-part"},
+  {"id": "R-figure-craft-25", "text": "Solids MUST have the material of the real thing, at least two in a figure of three or more solids.", "check": "L17-one-material"},
+  {"id": "R-figure-craft-26", "text": "The object MUST look like the real thing from outside, in its real materials, with light and shadow from the engine only; NEVER show only the machinery, and NEVER draw a shadow or highlight by hand.", "checklist": "The outside of the object is recognisable, and the SVG has no hand-drawn shadow or highlight."}
 ]

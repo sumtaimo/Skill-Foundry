@@ -1,9 +1,9 @@
 /**
- * figure-craft lint: geometry, layout and detail checks L1-L15 on a renderSvg model (or a hand-built one).
+ * figure-craft lint: geometry, layout and detail checks L1-L17 on a renderSvg model (or a hand-built one).
  * Node 24 ESM, stdlib only, zero deps.
  * @governed-by PO_ARCHITECT
  */
-import { boxOutline, shapePoints, labelBox, labelTarget, LABEL_GAP, MAX_LABELS } from './iso.mjs';
+import { boxOutline, shapePoints, labelBox, labelTarget, panelCorners, LABEL_GAP, MAX_LABELS } from './iso.mjs';
 
 const EPS = 1e-6;
 /** L10: minimum gap between sibling parts, and minimum share of the base they span. */
@@ -15,6 +15,8 @@ export const DETAIL_STEP = 0.08;
 /** L13: solid volumes (thinnest side at least BODY_THICK of the longest) together cover at least BODY_SHARE of the drawing. */
 export const BODY_SHARE = 0.2;
 export const BODY_THICK = 0.3;
+/** L16: share of a labelled part that must stay visible behind later-drawn solids (glass does not hide). */
+export const MIN_VISIBLE = 0.4;
 
 const polyArea = (p) => Math.abs(p.reduce((s, [x, y], i) => { const [a, b] = p[(i + 1) % p.length]; return s + x * b - a * y; }, 0)) / 2;
 
@@ -84,10 +86,10 @@ export function lint(model) {
 
   // L2 face detail (lines used as face details: every point in the face; corners may be touched)
   for (const d of shapes) {
-    if (d.kind !== 'line' || d.on === undefined) continue;
+    if (!(d.kind === 'line' || d.kind === 'panel') || d.on === undefined) continue;
     const b = byId.get(d.on);
     if (!b || b.kind !== 'box') { err('L2-face-detail', `${d.id} lies on unknown box ${d.on}`); continue; }
-    const p = d.points.map((pt) => faceProblem({ at: pt, face: d.face }, b, false)).find(Boolean);
+    const p = (d.kind === 'panel' ? panelCorners(d) : d.points).map((pt) => faceProblem({ at: pt, face: d.face }, b, false)).find(Boolean);
     if (p) err('L2-face-detail', `${d.id} on ${d.on}: ${p}`);
   }
   for (const d of shapes) {
@@ -98,8 +100,9 @@ export function lint(model) {
     if (p) err('L2-face-detail', `${d.id} on ${d.on}: ${p}`);
   }
 
-  // L3 label overlap
-  for (let i = 0; i < labels.length; i++) for (let j = i + 1; j < labels.length; j++) {
+  // L3 label overlap (labels revealed on hover show one at a time, so they cannot collide)
+  const hoverMode = model.labelMode === 'hover';
+  for (let i = 0; i < labels.length && !hoverMode; i++) for (let j = i + 1; j < labels.length; j++) {
     const a = labels[i]; const b = labels[j];
     if (a.side === b.side && Math.abs(a.ty - b.ty) < LABEL_GAP - EPS) { err('L3-label-overlap', `labels "${a.text}" and "${b.text}" are closer than ${LABEL_GAP}`); continue; }
     const A = labelBox(a); const B = labelBox(b);
@@ -112,7 +115,7 @@ export function lint(model) {
 
   // L4 leader crosses solid (warning)
   const outlines = boxes.map((b) => ({ id: b.id, poly: boxOutline(b) }));
-  for (const l of labels) {
+  for (const l of hoverMode ? [] : labels) {
     const a = [l.x, l.y]; const t = [l.tx, l.ty];
     for (const o of outlines) {
       if (inPoly(a, o.poly)) continue; // the box the label points at
@@ -193,7 +196,7 @@ export function lint(model) {
   for (const [id, l] of named) {
     const b = byId.get(id);
     if (b.move || kids.has(id)) continue; // moving tokens and bases that carry parts are identified by those
-    const have = shapes.filter((s) => (s.kind === 'dot' || s.kind === 'line') && s.on === id).length;
+    const have = shapes.filter((s) => (s.kind === 'dot' || s.kind === 'line' || s.kind === 'panel') && s.on === id).length;
     const need = Math.min(3, 1 + Math.floor(share(b) / DETAIL_STEP + EPS));
     if (have === 0) err('L11-no-detail', `"${l.text}" (${id}) has no face detail; add a line or dot with on: '${id}' that identifies it`);
     else if (have < need) err('L11-no-detail', `"${l.text}" (${id}) covers ${Math.round(share(b) * 100)}% of the drawing and has ${have} detail(s); it needs ${need}`);
@@ -226,6 +229,29 @@ export function lint(model) {
   for (const s of boxes) {
     if (s.at[2] <= EPS || s.rests !== undefined || s.move) continue;
     if (!boxes.some((b) => b !== s && touch(s, b))) err('L15-floating', `${s.id} floats: it does not rest on or touch any other part`);
+  }
+
+  // L16 a labelled part stays visible: later-drawn solids (not glass) may hide at most 1 - MIN_VISIBLE of it
+  for (const [id, l] of named) {
+    const b = byId.get(id);
+    if (b.move) continue;
+    const poly = boxOutline(b);
+    const px = poly.map((p) => p[0]); const py = poly.map((p) => p[1]);
+    const x0 = Math.min(...px), x1 = Math.max(...px), y0 = Math.min(...py), y1 = Math.max(...py);
+    const over = boxes.filter((o) => o !== b && o.drawIndex > b.drawIndex && o.material !== 'glass').map((o) => boxOutline(o));
+    let total = 0; let seen = 0;
+    for (let i = 0; i < 14; i++) for (let j = 0; j < 14; j++) {
+      const pt = [x0 + ((i + 0.5) / 14) * (x1 - x0), y0 + ((j + 0.5) / 14) * (y1 - y0)];
+      if (!inPoly(pt, poly)) continue;
+      total++;
+      if (!over.some((o) => inPoly(pt, o))) seen++;
+    }
+    if (total && seen / total < MIN_VISIBLE - EPS) err('L16-hidden-part', `"${l.text}" (${id}) is ${Math.round((seen / total) * 100)}% visible (min ${MIN_VISIBLE * 100}%); move it, open the side in front of it, or make the cover glass`);
+  }
+
+  // L17 materials: a figure with several solids uses more than one material, as real objects do
+  if (boxes.length >= 3 && new Set(boxes.map((b) => b.material ?? (b.tone === 'ink' ? 'ink' : 'plain'))).size < 2) {
+    err('L17-one-material', 'every solid has the same material; give each part the material of the real thing (steel, white, dark, glass, plain)');
   }
 
   return { errors, warnings };
