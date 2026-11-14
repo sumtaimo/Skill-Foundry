@@ -41,4 +41,4 @@ Review against `docs/factory/REVIEW.md`. Status: ready. Migrated to the ten-laye
 ## Release
 - [x] `node src/factory/lint-skills.mjs changelog-writer` exits 0
 - [x] Version 1.0.0 matches SKILL.md, CHANGELOG and registry
-- [x] Packed: `changelog-writer-1.0.0.zip`, sha256 `61b22a4ca4602da9f7d8de3f199a5bdf8e5628cfce753fed3cb7014a792eac65`
+- [x] Packed: `changelog-writer-1.0.0.zip`, sha256 `ed6ad69a38edcfde0a274287cd4874cfe0dc708c6345a1a96ce9f12916bdd71b`
