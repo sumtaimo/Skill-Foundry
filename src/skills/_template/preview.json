@@ -1,0 +1,7 @@
+{
+  "title": "Skill title",
+  "tagline": "One short line on what the skill gives you.",
+  "prompt": "Example prompt a user would type.",
+  "outputs": ["Describe the main output"],
+  "tags": ["placeholder"]
+}

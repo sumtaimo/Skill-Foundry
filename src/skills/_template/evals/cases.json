@@ -1,0 +1,10 @@
+[
+  {
+    "id": "case-1",
+    "prompt": "Placeholder prompt that should trigger this skill.",
+    "expect": [
+      { "type": "contains", "value": "## Output" },
+      { "type": "maxLines", "value": 150 }
+    ]
+  }
+]

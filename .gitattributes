@@ -1,0 +1,6 @@
+# agentic-harness: keep its files LF on every OS (its scripts parse them; CRLF from core.autocrlf would break that)
+.harness/** text eol=lf
+.claude/** text eol=lf
+AGENTS.md text eol=lf
+CLAUDE.md text eol=lf
+GEMINI.md text eol=lf

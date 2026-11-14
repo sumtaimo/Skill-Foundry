@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="skill-smith cover">
+  <rect x="0" y="0" width="640" height="360" fill="var(--cover-bg)"/>
+  <rect x="200" y="200" width="240" height="40" rx="6" fill="var(--cover-accent)"/>
+  <rect x="290" y="240" width="60" height="50" fill="var(--cover-accent)"/>
+  <path d="M250 80 L330 160 L310 180 L230 100 Z" fill="none" stroke="currentColor" stroke-width="6"/>
+</svg>

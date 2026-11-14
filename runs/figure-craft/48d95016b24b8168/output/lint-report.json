@@ -1,0 +1,40 @@
+{
+  "figure": "figure-craft: CDN edge cache",
+  "idea": "A request travels from the client to the edge cache, which answers it without asking the origin.",
+  "viewBox": [
+    -143.09,
+    -17,
+    453.94,
+    143
+  ],
+  "parity": {
+    "demoSvgMatchesEngineRender": true
+  },
+  "labelPxAt390": 11.98,
+  "labelPxOk": true,
+  "errors": [],
+  "warnings": [],
+  "animations": [
+    {
+      "id": "request",
+      "reducedFallback": true
+    }
+  ],
+  "fills": [
+    "var(--line)",
+    "url(#fc-plain-a)",
+    "url(#fc-plain-b)",
+    "var(--iso-top)",
+    "url(#fc-ink-a)",
+    "url(#fc-ink-b)",
+    "var(--iso-ink-top)",
+    "var(--ok)",
+    "var(--fg)"
+  ],
+  "strokes": [
+    "var(--line-strong)",
+    "var(--iso-top)",
+    "var(--iso-ink-top)",
+    "var(--muted)"
+  ]
+}
