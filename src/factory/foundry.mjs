@@ -36,7 +36,9 @@ function files(dir, base = dir) {
   }
   return out.sort();
 }
-const hashes = (dir) => Object.fromEntries(files(dir).map((f) => [f, sha(readFileSync(join(dir, f)))]));
+// Our own proof (agent recordings of the eval cases) is not part of what users install: it would only tempt their agents to read answers.
+const SHIPPED = (f) => !/^evals\/(live\/|portable\.json$)/.test(f);
+const hashes = (dir) => Object.fromEntries(files(dir).filter(SHIPPED).map((f) => [f, sha(readFileSync(join(dir, f)))]));
 const total = (h) => sha(Object.entries(h).map(([f, x]) => `${f}:${x}`).join('\n'));
 
 /** @param {{root?:string}} [o] */

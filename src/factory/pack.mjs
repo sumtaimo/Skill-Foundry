@@ -20,6 +20,8 @@ async function collect(dir, prefix) {
     if (EXCLUDE.has(e.name)) continue;
     const p = join(dir, e.name);
     const rel = `${prefix}/${e.name}`;
+    // Our own proof (agent recordings of the eval cases) is not shipped: it would only tempt a user's agent to read answers.
+    if (/^[^/]+\/evals\/(live|portable\.json)$/.test(rel)) continue;
     if (e.isDirectory()) out.push(...(await collect(p, rel)));
     else if (e.isFile()) out.push({ path: rel, data: await readFile(p) });
   }
