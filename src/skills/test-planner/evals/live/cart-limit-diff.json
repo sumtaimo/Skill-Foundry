@@ -1,0 +1,8 @@
+{
+  "case": "cart-limit-diff",
+  "prompt": "Give me a regression checklist for this diff:\n\n-const MAX_ITEMS = 50;\n+const MAX_ITEMS = 20;\n+if (cart.items.length >= MAX_ITEMS) showMessage(\"Your cart is full\");",
+  "agent": "claude",
+  "recordedAt": "2026-11-14",
+  "output": "## Regression checklist: cart item limit\n\nChange: The cart item limit drops from 50 to 20, and \"Your cart is full\" shows when the cart reaches the limit.\n\n### cart\n1. [ ] Check the cart item limit is 20, not 50. _MAX_ITEMS = 20_\n2. [ ] Add items until the cart holds 19 and check \"Your cart is full\" does not appear. _cart.items.length >= MAX_ITEMS_\n3. [ ] Add items until the cart holds 20 and check \"Your cart is full\" appears. _showMessage(\"Your cart is full\")_\n4. [ ] Check the 50-item limit no longer applies to the cart. _const MAX_ITEMS = 50;_\n\n### Possible impact, not stated\n- Do other screens or services that read the item limit need retesting? The change text does not name any.\n\n### Open questions\n- Does a 21st item get blocked, or does only the message show? The diff shows no block.\n- Does \"Your cart is full\" repeat on every add attempt at 20 items? The diff does not say.\n- Does this diff match the intended change? No change description was given, only the diff.",
+  "files": []
+}

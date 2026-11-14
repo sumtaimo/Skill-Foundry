@@ -1,0 +1,8 @@
+{
+  "case": "no-change-text",
+  "prompt": "What should we retest after this change?",
+  "agent": "claude",
+  "recordedAt": "2026-11-14",
+  "output": "Paste the change description or the diff you want the checklist for.",
+  "files": []
+}

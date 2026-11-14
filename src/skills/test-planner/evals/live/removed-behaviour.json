@@ -1,0 +1,8 @@
+{
+  "case": "removed-behaviour",
+  "prompt": "Regression checklist please. Change: The Export to PDF button is removed from the Reports page. CSV export is unchanged.",
+  "agent": "claude",
+  "recordedAt": "2026-11-14",
+  "output": "## Regression checklist: Reports page export change\n\nChange: The Export to PDF button is removed from the Reports page; CSV export is unchanged.\n\n### Reports page\n1. [ ] Check the Export to PDF button no longer appears on the Reports page. _The Export to PDF button is removed from the Reports page._\n\n### Possible impact, not stated\nNone.\n\n### Open questions\n- Is a replacement for PDF export planned on the Reports page? The change text names none.\n- The change text says \"CSV export is unchanged\" but names no link to the changed button, so no CSV item was written. Should a CSV check be added?",
+  "files": []
+}

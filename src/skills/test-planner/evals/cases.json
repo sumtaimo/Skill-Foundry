@@ -1,0 +1,316 @@
+[
+  {
+    "id": "checkout-promo-description",
+    "prompt": "What should we retest after this change? Change: Checkout now has a promo code field on the cart review step. Codes are checked by calling the promotions service. A valid code lowers the order total before tax. An invalid code shows \"This code is not valid.\" Orders store the code that was applied. The old \"Coupon\" link in the footer is removed.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "1. [ ]"
+      },
+      {
+        "type": "contains",
+        "value": "5. [ ]"
+      },
+      {
+        "type": "contains",
+        "value": "### Checkout"
+      },
+      {
+        "type": "contains",
+        "value": "### footer"
+      },
+      {
+        "type": "contains",
+        "value": "This code is not valid."
+      },
+      {
+        "type": "contains",
+        "value": "no longer"
+      },
+      {
+        "type": "contains",
+        "value": "### Possible impact, not stated"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "notContains",
+        "value": "This skill does not write test code or review code for bugs."
+      },
+      {
+        "type": "notContains",
+        "value": "describe("
+      },
+      {
+        "type": "maxLines",
+        "value": 80
+      },
+      {
+        "type": "notContains",
+        "value": "### promo code field"
+      },
+      {
+        "type": "notContains",
+        "value": "Conflict: none"
+      }
+    ]
+  },
+  {
+    "id": "cart-limit-diff",
+    "prompt": "Give me a regression checklist for this diff:\n\n-const MAX_ITEMS = 50;\n+const MAX_ITEMS = 20;\n+if (cart.items.length >= MAX_ITEMS) showMessage(\"Your cart is full\");",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "1. [ ]"
+      },
+      {
+        "type": "contains",
+        "value": "### cart"
+      },
+      {
+        "type": "notContains",
+        "value": "### MAX_ITEMS"
+      },
+      {
+        "type": "notContains",
+        "value": "### showMessage"
+      },
+      {
+        "type": "contains",
+        "value": "Your cart is full"
+      },
+      {
+        "type": "contains",
+        "value": "MAX_ITEMS"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "notContains",
+        "value": "expect("
+      },
+      {
+        "type": "maxLines",
+        "value": 60
+      }
+    ]
+  },
+  {
+    "id": "removed-behaviour",
+    "prompt": "Regression checklist please. Change: The Export to PDF button is removed from the Reports page. CSV export is unchanged.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "1. [ ]"
+      },
+      {
+        "type": "contains",
+        "value": "### Reports page"
+      },
+      {
+        "type": "contains",
+        "value": "Export to PDF"
+      },
+      {
+        "type": "contains",
+        "value": "no longer"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "notContains",
+        "value": "Print"
+      },
+      {
+        "type": "notContains",
+        "value": "This skill does not write test code or review code for bugs."
+      },
+      {
+        "type": "maxLines",
+        "value": 40
+      }
+    ]
+  },
+  {
+    "id": "user-named-area-not-in-change",
+    "prompt": "What should we retest after this change? Change: The footer Help link now opens in a new tab. Also check login while you are at it.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "1. [ ]"
+      },
+      {
+        "type": "contains",
+        "value": "Help link"
+      },
+      {
+        "type": "contains",
+        "value": "### Possible impact, not stated"
+      },
+      {
+        "type": "contains",
+        "value": "The change text does not name"
+      },
+      {
+        "type": "notContains",
+        "value": "### Login"
+      },
+      {
+        "type": "notContains",
+        "value": "### login"
+      },
+      {
+        "type": "maxLines",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": "description-diff-conflict",
+    "prompt": "Give me a regression checklist. Description: the cart limit is now 20 items. Diff:\n\n-const MAX_ITEMS = 50;\n+const MAX_ITEMS = 25;",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "1. [ ]"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Conflict:"
+      },
+      {
+        "type": "contains",
+        "value": "20"
+      },
+      {
+        "type": "contains",
+        "value": "25"
+      },
+      {
+        "type": "notContains",
+        "value": "expect("
+      },
+      {
+        "type": "maxLines",
+        "value": 40
+      }
+    ]
+  },
+  {
+    "id": "negative-write-test-code",
+    "prompt": "Write Jest tests for the promo code validator. The change: promo codes are checked by calling the promotions service.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "This skill does not write test code or review code for bugs."
+      },
+      {
+        "type": "notContains",
+        "value": "describe("
+      },
+      {
+        "type": "notContains",
+        "value": "expect("
+      },
+      {
+        "type": "notContains",
+        "value": "it("
+      },
+      {
+        "type": "notContains",
+        "value": "test("
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "maxLines",
+        "value": 40
+      }
+    ]
+  },
+  {
+    "id": "negative-bug-review",
+    "prompt": "Review this diff for bugs and tell me what is wrong with it:\n\n-const MAX_ITEMS = 50;\n+const MAX_ITEMS = 20;\n+if (cart.items.length >= MAX_ITEMS) showMessage(\"Your cart is full\");",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "This skill does not write test code or review code for bugs."
+      },
+      {
+        "type": "contains",
+        "value": "### cart"
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "notContains",
+        "value": "off-by-one"
+      },
+      {
+        "type": "notContains",
+        "value": "bug in"
+      },
+      {
+        "type": "maxLines",
+        "value": 40
+      }
+    ]
+  },
+  {
+    "id": "no-change-text",
+    "prompt": "What should we retest after this change?",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "Paste the change description or the diff you want the checklist for."
+      },
+      {
+        "type": "notContains",
+        "value": "[ ]"
+      },
+      {
+        "type": "notContains",
+        "value": "###"
+      },
+      {
+        "type": "maxLines",
+        "value": 6
+      }
+    ]
+  },
+  {
+    "id": "title-only",
+    "prompt": "Give me a regression checklist for the new checkout release.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "Describe what changed"
+      },
+      {
+        "type": "notContains",
+        "value": "[ ]"
+      },
+      {
+        "type": "notContains",
+        "value": "###"
+      },
+      {
+        "type": "maxLines",
+        "value": 6
+      }
+    ]
+  }
+]

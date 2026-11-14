@@ -1,0 +1,8 @@
+{
+  "case": "negative-bug-review",
+  "prompt": "Review this diff for bugs and tell me what is wrong with it:\n\n-const MAX_ITEMS = 50;\n+const MAX_ITEMS = 20;\n+if (cart.items.length >= MAX_ITEMS) showMessage(\"Your cart is full\");",
+  "agent": "claude",
+  "recordedAt": "2026-11-14",
+  "output": "This skill does not write test code or review code for bugs.\n\n## Regression checklist: cart item limit\n\nChange: The cart item limit drops from 50 to 20, and a full cart shows the message \"Your cart is full\".\n\n### cart\n1. [ ] Check the cart item limit is 20. _const MAX_ITEMS = 20;_\n2. [ ] Add items past 20 and check the cart no longer allows 50 items. _const MAX_ITEMS = 50;_\n3. [ ] Fill the cart to 19 items and check \"Your cart is full\" does not appear. _if (cart.items.length >= MAX_ITEMS)_\n4. [ ] Fill the cart to 20 items and check \"Your cart is full\" appears. _showMessage(\"Your cart is full\")_\n\n### Possible impact, not stated\n- Does the checkout page also enforce the cart item limit? The change text does not name it.\n\n### Open questions\n- Does adding a 21st item stop, or only show the message? The diff calls `showMessage` and does not block the add.\n- Does this diff match the intended change? No change description was given, only the diff.",
+  "files": []
+}

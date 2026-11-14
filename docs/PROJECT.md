@@ -34,6 +34,7 @@ Read the row of the skill you work on before you change it. The owner set these 
 | `figure-craft` | Draw any object the user describes as a full, lit isometric figure that the reader can open, turn and hover | 0 lint errors in every state and view; the object looks like the real thing from outside, shows its real inside, and carries micro detail | Showcases ONE object, the refrigerator (`examples/build-demo.mjs`). Quality comes from the engine and rules, never from editing output. A reuse check on a second object lives in `docs/skills/figure-craft/verify/`, outside the showcase. Locked in `src/factory/locks.json` for its owner session |
 | `changelog-writer` | Turn merged changes into one CHANGELOG entry with the correct semver bump | Live evals pass with a fresh agent | Layers pending (`src/factory/migration.json`) |
 | `copy-tight` | Rewrite UI copy short and plain without changing meaning, numbers, names or legal text | Live evals pass with a fresh agent | Layers pending (`src/factory/migration.json`) |
+| `test-planner` | Give QA leads and developers a numbered regression checklist from a change description or diff | Live evals 9 of 9 and routing pass with fresh agents; every item traces to a source phrase from the change; refuses test code and bug review with one fixed sentence | Layers built; version 1.0.0 |
 
 Rules that apply to every skill (the full text is in `AGENTS.md`, SKILL QUALITY LAW, and `.harness/memory/lessons.md`):
 
