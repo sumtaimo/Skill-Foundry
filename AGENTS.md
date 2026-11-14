@@ -77,11 +77,11 @@ Every agent that creates or changes a skill in `src/skills/` MUST:
 7. Report honestly which results came from a real agent and which from hand-written examples.
 8. **One skill per session.** Change at most one skill (`src/skills/<name>/` and `docs/skills/<name>/`) in a session. Site and factory work is not a skill.
 9. **Respect other agents.** Never edit a skill listed in `src/factory/locks.json`; write suggestions to `docs/factory/notes/` instead. Only its owner unlocks it (`SKILL_OWNER=<name>`).
-10. Run `npm run guard` before every commit. If it prints `WARNING skill-guard`, stop, do not commit, and tell the user.
+10. Run `npm run setup` once per clone: it turns on a pre-commit hook that runs the skill guard and refuses the commit on a WARNING. Never bypass it (`--no-verify`). Run `npm run guard` on its own before committing too, never piped (`| tail` hides its exit code). On `WARNING skill-guard`, stop, do not commit, and tell the user.
 11. **Never leave work half done.** Finish every task you start, including each gap and open item your own report would list, before you report. An item that stays open must have a real blocker, named with what you need. Work that belongs to another skill goes to a named session (one skill per session), never to a vague "later". A report that lists an open item you could have done yourself is not finished.
 11a. **Portable check before `ready`.** A skill that is not `scope: factory` also needs a recording from `node src/factory/portable-check.mjs <name> --prompt "<request>" --record`: a real agent uses the skill in an empty project outside this repository. `npm test` fails when it is missing, failing, or stale because the skill changed. Read the recorded answer yourself, not only the flags.
 12. **One release path.** Every skill goes lab branch → real-agent proof → `npm run release:check` (must print READY) → TAIMO approves in chat → merge to `master` → GitHub Pages → users `npx … update`. The steps are in `docs/factory/PUBLISHING.md`; follow them in order and never skip one.
-13. **Ship skills the same way to every project.** Users add and update skills with `npx github:sumtaimo/Skill-Foundry add <skill> | add --role <ROLE> | check | update` (`src/factory/foundry.mjs`). Keep `roles` in `src/factory/registry.json` correct for every ready skill: the CLI uses them to give a skill to the matching agent roles in a project's agentic harness (`.harness/skills/`). Never break `add`, `check` or `update` for projects that already installed a skill; `tests/factory-foundry-cli.test.mjs` must pass. Pushing to `master` publishes the site on GitHub Pages (`.github/workflows/pages.yml`).
+13. **Ship skills the same way to every project.** Users add and update skills with `npx github:sumtaimo/Skill-Foundry add <skill> | add --role <ROLE> | check | update` (`src/factory/foundry.mjs`). Keep `roles` in `src/factory/registry.json` correct for every ready skill: the CLI uses them to give a skill to the matching agent roles in a project's agentic harness (`.harness/skills/`). By default `add` also writes the skills block in the user's `AGENTS.md` and deny rules in `.claude/settings.json` so agents use the skills but cannot edit or update them (opt-outs `--no-rules`, `--no-protect`); keep both defaults. Never break `add`, `check` or `update` for projects that already installed a skill; `tests/factory-foundry-cli.test.mjs` must pass. Pushing to `master` publishes the site on GitHub Pages (`.github/workflows/pages.yml`).
 
 ---
 
@@ -300,3 +300,15 @@ against the real tool. `node .harness/doctor.mjs` probes `<tool> --help` and lis
 An engine that is missing or fails the probe is replaced by `auto` (logged as `ENGINE_FALLBACK`).
 To fix one, read its `"note"`, run `<tool> --help`, and propose the change to the user before
 editing the config.
+
+<!-- skill-foundry:begin (managed by `npx github:sumtaimo/Skill-Foundry`; edits inside are replaced) -->
+## Skills
+
+This project has these skills in `.claude/skills/`. When a task matches one, read its `SKILL.md` first and follow its steps and layers, starting from the goal the user states. Use one skill per step; when a request needs several, use them in the order the request gives.
+
+**Never edit, delete or overwrite anything under `.claude/skills/` or `.harness/skills/`.** Skills are changed only by the user, with `npx github:sumtaimo/Skill-Foundry update`. If a skill seems wrong, say so in your answer instead of editing it.
+
+- **copy-tight** (`.claude/skills/copy-tight/SKILL.md`): Rewrites UI copy (buttons, labels, errors, empty states, tooltips) to be short and plain without changing meaning. Use when asked to "shorten this copy", "make this plain", "tighten this text" or when a UI string is too wordy. Do not use for long-form docs, blog posts, translation or changelog entries; use changelog-writer for those.
+
+Update them with `npx github:sumtaimo/Skill-Foundry update`.
+<!-- skill-foundry:end -->

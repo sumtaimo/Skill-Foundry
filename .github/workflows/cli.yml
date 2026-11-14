@@ -1,0 +1,37 @@
+# Proves the user-facing command works on the systems and Node versions people really use.
+name: cli
+on:
+  pull_request:
+  workflow_dispatch:
+  push:
+    branches: ['claude/**']
+jobs:
+  install:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [18, 20, 22]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: CLI tests
+        run: node --test tests/factory-foundry-cli.test.mjs
+      - name: Install into an empty project, then check
+        shell: bash
+        run: |
+          mkdir "$RUNNER_TEMP/proj" && cd "$RUNNER_TEMP/proj" && mkdir -p .harness/skills
+          node "$GITHUB_WORKSPACE/src/factory/foundry.mjs" add --role QA_AUDITOR
+          node "$GITHUB_WORKSPACE/src/factory/foundry.mjs" check
+          test -f .claude/skills/test-planner/SKILL.md && test -f AGENTS.md && grep -q "autoApply: true" .harness/skills/test-planner/SKILL.md && grep -q "Edit(.claude/skills" .claude/settings.json
+      - name: Install from the packed package, exactly what npx downloads
+        shell: bash
+        run: |
+          npm pack --pack-destination "$RUNNER_TEMP" >/dev/null
+          mkdir "$RUNNER_TEMP/pkgproj" && cd "$RUNNER_TEMP/pkgproj"
+          npx -y --package "$(ls "$RUNNER_TEMP"/skill-foundry-*.tgz)" skill-foundry add --all
+          npx -y --package "$(ls "$RUNNER_TEMP"/skill-foundry-*.tgz)" skill-foundry check
+          test ! -e .claude/skills/skill-smith && test ! -e .claude/skills/copy-tight/evals

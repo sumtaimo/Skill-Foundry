@@ -20,6 +20,8 @@ async function collect(dir, prefix) {
     if (EXCLUDE.has(e.name)) continue;
     const p = join(dir, e.name);
     const rel = `${prefix}/${e.name}`;
+    // Evals (cases and recordings) are the lab's tests, not shipped: they would only lead a user's agent to read test data.
+    if (/^[^/]+\/evals$/.test(rel)) continue;
     if (e.isDirectory()) out.push(...(await collect(p, rel)));
     else if (e.isFile()) out.push({ path: rel, data: await readFile(p) });
   }

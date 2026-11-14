@@ -1,6 +1,6 @@
 {
   "name": "skill-foundry",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "license": "MIT",
   "type": "module",
@@ -10,12 +10,23 @@
     "evals:live": "node src/factory/live-evals.mjs",
     "guard": "node src/factory/skill-guard.mjs",
     "foundry": "node src/factory/foundry.mjs",
-    "release:check": "node src/factory/release-check.mjs"
+    "release:check": "node src/factory/release-check.mjs",
+    "setup": "git config core.hooksPath .githooks && echo \"skill-guard pre-commit hook on\""
   },
   "devDependencies": {
     "playwright": "^1.65.0"
   },
   "bin": {
     "skill-foundry": "src/factory/foundry.mjs"
-  }
+  },
+  "files": [
+    "src/factory/foundry.mjs",
+    "src/factory/registry.json",
+    "src/skills/",
+    "!src/skills/_template/",
+    "!src/skills/skill-smith/",
+    "CHANGELOG.md",
+    "!src/skills/*/evals/",
+    "README.md"
+  ]
 }

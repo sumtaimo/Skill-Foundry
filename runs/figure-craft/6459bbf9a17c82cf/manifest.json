@@ -1,0 +1,80 @@
+{
+  "skill": "figure-craft",
+  "version": "1.0.0",
+  "caseId": "refrigerator-cooling",
+  "inputSha256": "949bb654617ca9e77be32133cfbe5164c24f30d462868cfd556165919c599661",
+  "skillSha256": "470504e5802a8426868f3a9354f8a4e9bd8a989fddb0e95ffd2e102103037171",
+  "key": "6459bbf9a17c82cf4e803749dd142773bbf8f2437ce8fbbca60d784c7bd77780",
+  "startedAt": "2026-11-14T18:14:10.744Z",
+  "finishedAt": "2026-11-14T18:15:53.455Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.12180108,
+  "usage": {
+    "input_tokens": 42,
+    "cache_creation_input_tokens": 85113,
+    "cache_read_input_tokens": 1879900,
+    "output_tokens": 24722,
+    "output_tokens_details": {
+      "thinking_tokens": 5486
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 85113,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 742,
+        "cache_read_input_tokens": 114772,
+        "cache_creation_input_tokens": 597,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 597
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [
+    {
+      "path": "build-figure.mjs",
+      "bytes": 21231,
+      "sha256": "c81724962c66de68f8be3dac8a48b446872a51990158c0ee133ca614c49dd19d"
+    },
+    {
+      "path": "lint-report.json",
+      "bytes": 37,
+      "sha256": "e0c2924b0cf38903b5cc04c6b7491eb4acbcdfb846f4563bd1fe20d4953aff75"
+    },
+    {
+      "path": "refrigerator.html",
+      "bytes": 796635,
+      "sha256": "141fbe94295143d6424fa0f7e1295a6faf66bbc048c2ccc453e1ad57d3e3035e"
+    },
+    {
+      "path": "refrigerator.svg",
+      "bytes": 161044,
+      "sha256": "ab6b61a6f658e92e80ad441dcb2d486cbd6e80e1ddff79dd1f0c2c68868d77e5"
+    },
+    {
+      "path": "report.md",
+      "bytes": 8106,
+      "sha256": "a2b1ac55c46fc0d82b3c6fd959552c74c8d2223d9a3cce5c973a74f44e4569dd"
+    }
+  ],
+  "checks": {
+    "expectations": 8,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "The refrigerator figure is built and passes lint with zero errors and zero warnings. Browser checks and visual review were not done.\n\n**Files** (all in `/home/user/Skill-Foundry/runs/figure-craft/6459bbf9a17c82cf/output/`):\n- `refrigerator.html`: the orbit page. Doors open by default, with an open/close button, four turnable views, hover/tap labels and a card per part. No external scripts.\n- `refrigerator.svg`: the front view, doors open.\n- `build-figure.mjs`: regenerates everything with `node build-figure.mjs`.\n- `lint-report.json`: `{ errors: [], warnings: [] }`.\n- `report.md`: the idea sentence, parts table, motion story, engine functions, checks, checklist answers and open items.\n\n**Checks run:**\n- Build run: `lint: 0 errors, 0 warnings`. This covers `lintStates` on both states and all views, and `lintCards` on the cards.\n- Rebuild gives identical sha256 hashes for all three generated files.\n- The page has no external resources; the only URL is the SVG namespace.\n- The skill's reference figure lints clean on this machine, so the engine works here.\n\n**Not run:**\n- Browser checks (light/dark, 390px, reduced motion, console, hover reveal). No browser tool was available, so nothing here claims they passed.\n- Visual inspection of the rendered figure, and the second-reader test.\n\n**Choices and open items:**\n- The scene geometry is adapted from the skill's reference refrigerator (`examples/build-demo.mjs`). The parts list, labels and cards are mine.\n- No real model was supplied. Every card says \"Assumed\" and cites the common household fridge-freezer layout. If the customers want a specific model, send its spec or photos and the locations and parts can be corrected.\n- `build-figure.mjs` imports the engine from `/home/user/Skill-Foundry/src/skills/figure-craft/engine/`, not from a copy in the output folder. I couldn't copy the engine there because the copy command was refused. If the skill folder moves, update the `ENGINE` constant at the top of the script.\n- Parts are drawn for legibility, not to real dimensions."
+}

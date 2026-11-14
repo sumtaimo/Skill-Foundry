@@ -8,6 +8,7 @@ Review against `docs/factory/REVIEW.md`. Status: ready at 0.2.0.
 - 0.2.0 fixed the skill (not the cases). Real-agent live evals: 3 of 3.
 - 0.2.0 migrated to the ten-layer standard (layers 01-10, references/checklist.md, no repository paths). Removed from src/factory/migration.json, so chk-layers and chk-portable now apply. Re-recorded with fresh real agents (`claude -p`, 2026-11-14): 3 of 3. Description unchanged; routing 12 of 12.
 - Added 4 edge-case evals (mixed-legal, placeholders-kept, already-tight, length-limit-not-met). First fresh-agent run: 5 of 7. Real failures: change list quoted removed words (R-copy-tight-7); unmet length limit stated in free words. Fixed the skill (layers 04, 06, 07, 08), not the cases. Second fresh-agent run: 7 of 7, every answer read by hand.
+- Finding from two fresh portable-check agents (docs/factory/notes/copy-tight-findings.md): one added "Try again." to an error, one did not. Cause in the skill: layer 04 step 5, layer 08 step 5 and checklist item 7 said errors must say "what to do". Added R-copy-tight-8 (no new action, promise or fact; a next step stays only if the original had one), fixed those three lines, added eval `error-no-new-step`. Fresh-agent live evals 8 of 8, portable check and recipe ship-a-change re-recorded; every answer read by hand. Description unchanged, routing not re-run. Version stays as is.
 
 ## Layers
 - [x] Ten core layers with numbered steps, linked from SKILL.md (chk-layers)
@@ -26,8 +27,8 @@ Review against `docs/factory/REVIEW.md`. Status: ready at 0.2.0.
 - [x] Every rule in RULES.json has a check or checklist item
 
 ## Evals
-- [x] 7 cases with unique ids including `notContains` and `maxLines`
-- [x] Live evals: 7 of 7 on fresh real-agent recordings in `evals/live/`
+- [x] 8 cases with unique ids including `notContains` and `maxLines`
+- [x] Live evals: 8 of 8 on fresh real-agent recordings in `evals/live/`
 
 ## Preview
 - [x] Tagline 78 characters, 3 tags; cover redrawn with tokens and currentColor only

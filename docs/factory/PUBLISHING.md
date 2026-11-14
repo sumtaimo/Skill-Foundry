@@ -51,11 +51,26 @@ site at https://sumtaimo.github.io/Skill-Foundry/. Check the workflow run succee
 |---|---|---|
 | Claude Code | `npx github:sumtaimo/Skill-Foundry add <skill>` | the skill in `.claude/skills/`, picked by its description |
 | An agentic harness | `npx github:sumtaimo/Skill-Foundry add --role <ROLE>` | also `.harness/skills/<skill>/`, injected into workers of the matching role |
-| Codex, Cursor, Gemini | add `--rules` | one managed block in `AGENTS.md` listing the skills and when to use each; their own text is kept |
+| Codex, Cursor, Gemini, any agent | (default) | one managed block in `AGENTS.md` listing the skills and when to use each; their own text is kept. Opt out with `--no-rules` |
+| Any Claude Code project | (default) | deny rules in `.claude/settings.json` so the agent cannot edit the installed skills or run `add`/`update`; only the user updates skills. Existing settings are merged, never replaced. Opt out with `--no-protect`. A guard rail, not a lock: tested with a real agent (edit blocked), but a user can always change it |
 | Already installed | `npx github:sumtaimo/Skill-Foundry check` then `update` | new content; files they changed are kept |
 
 Never break `add`, `check`, `update` or `--rules` for projects that already installed a skill
 (`tests/factory-foundry-cli.test.mjs`).
+
+## Versions (slow on purpose)
+
+- Each skill has its own version (frontmatter, CHANGELOG, registry). It stays where it is until TAIMO calls it final (L4).
+- Skill Foundry itself has one version in `package.json` and the root `CHANGELOG.md` (now 0.1.0). Bump it only with
+  TAIMO's approval: PATCH for fixes, MINOR for new commands or skills. Record smaller changes under the current version.
+- After a release merge, tag it: `git tag v<version>` on the merge commit.
+
+## What users receive
+
+`package.json` `files` decides what `npx` downloads: `foundry.mjs`, the registry and the skills that work outside this
+repository. Not shipped: `skill-smith` and `_template` (lab only), evals (test prompts and recordings), `runs/`, `docs/`, `tests/`,
+`.harness/`, `.claude/`. A new skill that is only for this lab gets `scope: factory` and a `!src/skills/<name>/` line.
+Checked by `tests/factory-package.test.mjs`.
 
 ## Downloads (zip)
 

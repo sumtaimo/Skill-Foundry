@@ -13,13 +13,14 @@ import { join, resolve, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
-import { installSkill } from './install.mjs';
+import { addSkill, writeRules } from './foundry.mjs';
 
 const HERE = fileURLToPath(import.meta.url);
 const REPO_ROOT = resolve(dirname(HERE), '..', '..');
 
 /** Words that only exist in this repository's own rules; an answer containing one leaked them. */
-export const REPO_MARKERS = /TAIMO|lessons\.md|CLAUDE\.md|AGENTS\.md|docs\/PROJECT|skill-guard|\bL\d{1,2}\b rule|Skill Foundry repo/i;
+// AGENTS.md and CLAUDE.md are not markers: a user's project legitimately has them (`add --rules` writes AGENTS.md there).
+export const REPO_MARKERS = /TAIMO|lessons\.md|docs\/PROJECT|skill-guard|\bL\d{1,2}\b rule|Skill Foundry repo/i;
 
 /**
  * Read a `claude -p --output-format stream-json --verbose` transcript.
@@ -34,7 +35,7 @@ export function parseStream(stdout, skill) {
     if (e.type === 'assistant') for (const b of e.message?.content ?? []) if (b.type === 'tool_use') tools.push({ name: b.name, input: JSON.stringify(b.input) });
     if (e.type === 'result') { final = String(e.result ?? ''); cost = typeof e.total_cost_usd === 'number' ? e.total_cost_usd : null; }
   }
-  const usedSkill = tools.some((t) => (t.name === 'Skill' && t.input.includes(skill)) || (t.name === 'Read' && t.input.includes(`.claude/skills/${skill}`)));
+  const usedSkill = tools.some((t) => (t.name === 'Skill' && t.input.includes(skill)) || ((t.name === 'Read' || t.name === 'Bash') && t.input.includes(`.claude/skills/${skill}`)));  // reading the skill with `cat` counts too
   const touchedRepo = tools.filter((t) => t.input.includes(REPO_ROOT)).map((t) => t.name);
   return { tools, final, cost, usedSkill, touchedRepo };
 }
@@ -95,13 +96,16 @@ export async function portableCheck(skill, prompt, { out, engine = 'claude', tim
   const root = out ? resolve(out) : mkdtempSync(join(tmpdir(), 'portable-'));
   if (root.startsWith(REPO_ROOT)) throw new Error('portableCheck: the empty project must be outside the repository');
   mkdirSync(root, { recursive: true });
-  const installed = await installSkill(skill, { projectRoot: root, force: true });
+  // Install the way a user does (`npx github:sumtaimo/Skill-Foundry add <skill> --rules`), so the check covers that real path.
+  addSkill(skill, { project: root, force: true });
+  writeRules({ project: root });
+  const installed = { length: readdirSync(join(root, '.claude', 'skills', skill)).length };
   const r = spawnSync(engine, ['-p', '--output-format', 'stream-json', '--verbose', '--allowedTools', 'Read', 'Write', 'Edit', 'Glob', 'Grep', 'Skill', 'Bash(node:*)', 'Bash(ls:*)'],
     { cwd: root, input: prompt, encoding: 'utf8', timeout: timeoutMs, maxBuffer: 1 << 28 });
   if (r.error) throw r.error;
   const s = parseStream(r.stdout, skill);
   writeFileSync(join(root, '.portable-check.jsonl'), r.stdout);
-  return { skill, prompt, project: root, installedFiles: installed.length, exit: r.status, usedSkill: s.usedSkill, leakedRepoRules: REPO_MARKERS.test(s.final), touchedRepo: s.touchedRepo, produced: listProduced(root).filter((f) => f !== '.portable-check.jsonl'), cost: s.cost, answer: s.final };
+  return { skill, prompt, project: root, installedFiles: installed.length, exit: r.status, usedSkill: s.usedSkill, leakedRepoRules: REPO_MARKERS.test(s.final), touchedRepo: s.touchedRepo, produced: listProduced(root).filter((f) => f !== '.portable-check.jsonl' && f !== 'AGENTS.md'), cost: s.cost, answer: s.final };
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === HERE) {

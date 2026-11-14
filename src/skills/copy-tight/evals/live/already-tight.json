@@ -3,6 +3,6 @@
   "prompt": "make this plain: Save changes",
   "agent": "claude",
   "recordedAt": "2026-11-14",
-  "output": "Rewritten copy:\nSave changes\n\nWhat changed:\n- No change needed\n\nI guessed the UI job is a button, because the string is a short verb phrase. Tell me if it is a label or a status message instead.",
+  "output": "Rewritten copy:\nSave changes\n\nWhat changed:\n- No change needed",
   "files": []
 }
