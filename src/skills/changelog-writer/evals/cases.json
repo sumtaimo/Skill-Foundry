@@ -108,5 +108,53 @@
         "value": 20
       }
     ]
+  },
+  {
+    "id": "we-are-at-current-version",
+    "prompt": "We are at version 2.3.0. We added dark mode and fixed a crash on login. Today is 2026-11-14. Write the changelog entry.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## 2.4.0 - 2026-11-14"
+      },
+      {
+        "type": "notContains",
+        "value": "## 2.3.0 - 2026-11-14"
+      },
+      {
+        "type": "notContains",
+        "value": "2.2.0"
+      },
+      {
+        "type": "maxLines",
+        "value": 20
+      }
+    ]
+  },
+  {
+    "id": "ambiguous-version-asks",
+    "prompt": "Version 2.3.0 is ready. We added dark mode. Today is 2026-11-14. Write the changelog entry.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "?"
+      },
+      {
+        "type": "notContains",
+        "value": "## 2.3.0 - 2026-11-14"
+      },
+      {
+        "type": "notContains",
+        "value": "## 2.4.0 - 2026-11-14"
+      },
+      {
+        "type": "notContains",
+        "value": "2.2.0"
+      },
+      {
+        "type": "maxLines",
+        "value": 10
+      }
+    ]
   }
 ]

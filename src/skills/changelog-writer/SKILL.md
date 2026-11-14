@@ -22,7 +22,7 @@ Follow the layers in order. Each layer file is the detailed chapter for that ste
 
 1. Intent: restate the request and decide write or check. [layers/01-intent.md](layers/01-intent.md)
 2. Context: read the existing CHANGELOG and every place the version is recorded. [layers/02-context.md](layers/02-context.md)
-3. Inputs: skill name, current version, date and changes; ask for any that is missing. [layers/03-inputs.md](layers/03-inputs.md)
+3. Inputs: skill or project, current version ("we are at X" is current), date and changes; ask for any that is missing. [layers/03-inputs.md](layers/03-inputs.md)
 4. Flow: sort the changes, choose the bump, write the heading and bullets. [layers/04-flow.md](layers/04-flow.md)
 5. Rules: R-changelog-writer-1 to 6, 10 and 11. [layers/05-rules.md](layers/05-rules.md)
 6. States and edge cases: missing input, no CHANGELOG, mixed types, check task. [layers/06-states.md](layers/06-states.md)
@@ -38,7 +38,7 @@ Follow the layers in order. Each layer file is the detailed chapter for that ste
 - R-changelog-writer-3: Each bullet MUST hold one idea and start with a verb.
 - R-changelog-writer-4: Existing entries MUST NEVER be edited or reordered.
 - R-changelog-writer-5: The version MUST match the frontmatter and any registry or manifest entry.
-- R-changelog-writer-6: The skill NEVER invents a change, version or date.
+- R-changelog-writer-6: The skill NEVER invents a change, version or date. "We are at X" means X is the current version and the heading is X bumped; a previous version is never invented; an ambiguous version ("version X is ready") is asked.
 - R-changelog-writer-10: The entry and reply MUST be in the language of the request (English request, English entry).
 - R-changelog-writer-11: A bullet NEVER adds a fact or qualifier the input does not contain ("fixed a link" stays "Fix a link", not "Fix a broken link").
 

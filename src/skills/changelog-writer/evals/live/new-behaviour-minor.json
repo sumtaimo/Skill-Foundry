@@ -3,6 +3,6 @@
   "prompt": "Skill spec-check is at 1.0.0. On 2026-11-14 we added a step and fixed a link. Write the changelog entry.",
   "agent": "claude",
   "recordedAt": "2026-11-14",
-  "output": "```markdown\n## 1.1.0 - 2026-11-14\n\n- Add a step.\n- Fix a link.\n```\n\nBump: MINOR (1.0.0 → 1.1.0). \"Added a step\" is new behaviour, which sets the bump over the fix.\n\nMismatches: not checked, spec-check not found in this repo (no `src/skills/spec-check/`); set its SKILL.md version, CHANGELOG.md and any registry entry to 1.1.0.\n\nQuestions:\n1. Project lesson L4 says skill versions stay at 1.0.0 until you call a version final. Should I apply 1.1.0 now, or keep 1.0.0?\n2. Where is spec-check? Please give me its folder path.",
+  "output": "```\n## 1.1.0 - 2026-11-14\n\n- Add a step.\n- Fix a link.\n```\n\nBump: MINOR (1.0.0 → 1.1.0), because one change is new behaviour (the added step) and none is breaking.\n\nMismatches: not checked, spec-check not found in this repo (no `src/skills/spec-check/SKILL.md`, `CHANGELOG.md`, or entry in `src/factory/registry.json`); set the SKILL.md version, CHANGELOG.md and any registry entry to 1.1.0.\n\nQuestions:\n1. Where is spec-check kept? I could not find it in this repo.",
   "files": []
 }
