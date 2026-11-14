@@ -25,9 +25,8 @@
     "src/skills/",
     "!src/skills/_template/",
     "!src/skills/skill-smith/",
-    "!src/skills/*/evals/live/",
-    "!src/skills/*/evals/portable.json",
     "CHANGELOG.md",
+    "!src/skills/*/evals/",
     "README.md"
   ]
 }

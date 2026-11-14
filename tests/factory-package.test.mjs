@@ -16,7 +16,7 @@ test('the package ships every portable ready skill and nothing from the lab', ()
   const files = JSON.parse(out)[0].files.map((f) => f.path);
   for (const f of files) {
     assert.doesNotMatch(f, /^(runs|docs|tests|test|\.harness|\.claude|\.github|dist)\//, `${f} is lab-only`);
-    assert.doesNotMatch(f, /evals\/(live\/|portable\.json$)/, `${f} is a recording of our own evals`);
+    assert.doesNotMatch(f, /\/evals\//, `${f} is a lab test (eval prompt or recording)`);
     assert.doesNotMatch(f, /^src\/skills\/(skill-smith|_template)\//, `${f} only works inside this repository`);
   }
   const reg = JSON.parse(readFileSync(join(ROOT, 'src', 'factory', 'registry.json'), 'utf8'));

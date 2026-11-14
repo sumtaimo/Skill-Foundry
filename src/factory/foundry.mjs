@@ -38,8 +38,8 @@ function files(dir, base = dir) {
   }
   return out.sort();
 }
-// Our own proof (agent recordings of the eval cases) is not part of what users install: it would only tempt their agents to read answers.
-const SHIPPED = (f) => !/^evals\/(live\/|portable\.json$)/.test(f);
+// Evals are the lab's tests, not part of the skill a user runs: their prompts and recordings would only lead a user's agent to read test data.
+const SHIPPED = (f) => !/^evals\//.test(f);
 const hashes = (dir) => Object.fromEntries(files(dir).filter(SHIPPED).map((f) => [f, sha(readFileSync(join(dir, f)))]));
 const total = (h) => sha(Object.entries(h).map(([f, x]) => `${f}:${x}`).join('\n'));
 

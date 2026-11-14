@@ -97,7 +97,8 @@ test('recordings of our own evals are not installed into users\' projects', () =
   const p = mkdtempSync(join(tmpdir(), 'sf-noeval-'));
   addSkill('copy-tight', { project: p });
   const d = join(p, '.claude', 'skills', 'copy-tight');
-  assert.ok(existsSync(join(d, 'SKILL.md')) && existsSync(join(d, 'evals', 'cases.json')), 'the skill itself and its cases are installed');
+  assert.ok(existsSync(join(d, 'SKILL.md')) && existsSync(join(d, 'layers')), 'the skill itself is installed');
+  assert.ok(!existsSync(join(d, 'evals')), 'evals (prompts and answers) are lab tests, not shipped');
   assert.ok(!existsSync(join(d, 'evals', 'portable.json')), 'portable.json (an answer) must not be installed');
   assert.ok(!existsSync(join(d, 'evals', 'live')), 'live recordings must not be installed');
   assert.equal(checkProject({ project: p }).every((x) => x.current), true, 'check still sees it as current');

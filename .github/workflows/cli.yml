@@ -34,4 +34,4 @@ jobs:
           mkdir "$RUNNER_TEMP/pkgproj" && cd "$RUNNER_TEMP/pkgproj"
           npx -y --package "$(ls "$RUNNER_TEMP"/skill-foundry-*.tgz)" skill-foundry add --all
           npx -y --package "$(ls "$RUNNER_TEMP"/skill-foundry-*.tgz)" skill-foundry check
-          test ! -e .claude/skills/skill-smith && test ! -e .claude/skills/copy-tight/evals/portable.json
+          test ! -e .claude/skills/skill-smith && test ! -e .claude/skills/copy-tight/evals
