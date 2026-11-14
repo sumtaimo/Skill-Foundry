@@ -1,0 +1,80 @@
+{
+  "skill": "figure-craft",
+  "version": "1.0.0",
+  "caseId": "refrigerator-cooling",
+  "inputSha256": "949bb654617ca9e77be32133cfbe5164c24f30d462868cfd556165919c599661",
+  "skillSha256": "d01f1a027018fe446f7e8ab11e466d2c7ce5bba3bf43d3ca6ced6c9caea16ca6",
+  "key": "9b8e796a6429d94002b931c32f33be9167b68543f5374d1fabe273a533452d6e",
+  "startedAt": "2026-11-14T05:33:18.299Z",
+  "finishedAt": "2026-11-14T05:42:16.824Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.9292794599999998,
+  "usage": {
+    "input_tokens": 104,
+    "cache_creation_input_tokens": 243703,
+    "cache_read_input_tokens": 9590672,
+    "output_tokens": 115645,
+    "output_tokens_details": {
+      "thinking_tokens": 79341
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 243703,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 923,
+        "cache_read_input_tokens": 243395,
+        "cache_creation_input_tokens": 308,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 308
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [
+    {
+      "path": "build-figure.mjs",
+      "bytes": 20509,
+      "sha256": "bd5f9a6260edd3369a69cbfb7f6020276ec6f158012dd6b51f042cae058752a1"
+    },
+    {
+      "path": "lint-report.json",
+      "bytes": 37,
+      "sha256": "e0c2924b0cf38903b5cc04c6b7491eb4acbcdfb846f4563bd1fe20d4953aff75"
+    },
+    {
+      "path": "refrigerator.html",
+      "bytes": 599090,
+      "sha256": "d8b8ebde7ab6a00820e8a75bdd30344c5f252e392f32d2c78c58962605d87713"
+    },
+    {
+      "path": "refrigerator.svg",
+      "bytes": 116679,
+      "sha256": "726b5cee176d81d0919b347c8fe5d3024bd11d19e85bea6f01491d29f8d5bbae"
+    },
+    {
+      "path": "report.md",
+      "bytes": 9249,
+      "sha256": "3c2d6c964f02e1ce43e4714cf7f45af0d94b84ed14efa3aa24ee084bb6ba7a10"
+    }
+  ],
+  "checks": {
+    "expectations": 8,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "The figure is built and lint-clean, but I have not visually checked it, and the skill's release checklist is not complete.\n\n**Files** (all in `/home/user/Skill-Foundry/runs/figure-craft/9b8e796a6429d940/output`)\n- `refrigerator.html`: self-contained page with the turnable figure, open and closed states, nine part cards, and light/dark and pause buttons.\n- `refrigerator.svg`: front view, doors open, tokens inlined.\n- `build-figure.mjs`: builds the other files from the figure-craft engine. It reads the engine from the skill folder by default.\n- `lint-report.json`: 0 errors, 0 warnings.\n- `report.md`: idea sentence, parts table with details, motion story, checks, open items.\n\n**Checks run**\n- Lint (L1–L19 across the four views of both states): 0 errors, 0 warnings.\n- The build gives identical bytes on a second run.\n- Every labelled part appears in at least one view of each state.\n- The HTML loads no external scripts or stylesheets.\n- The SVG has no raw colours.\n- Label text computes to about 12.2 CSS px at 390 px, above the 11 px minimum. This is computed, not rendered.\n- 85 face details in total, against a minimum of 24.\n\n**Not run**\n- Browser checks: light and dark, 390 px, reduced motion, console, hover and Tab reveal. Chrome is installed, but the shell commands that would run it needed approval and were not approved. No screenshots exist.\n- Second-reader check.\n\n**Open items**\n1. Run the browser checks above before release.\n2. Decide whether the one-figure page needs a contents rail (checklist 7 and 8). The reference demo has none.\n3. Labels are hover chips above each part, not side columns (checklist 16). This is the engine default. Switching to always-shown labels would bring back the side-column checks.\n4. In the turned views, some items on the glass shelves are drawn before their shelf (lint L1), and a few turned-view detail counts are low (L11). The turned views are not part of the lint gate, so these do not show in the lint result.\n5. The refrigerant pipes are not drawn. The proportions are schematic, and the compressor is drawn larger than to scale.\n6. The layout is general knowledge of a top-freezer refrigerator, not checked against a specific model.\n\nI read the reference figure (`examples/build-demo.mjs`) for the layering and detail level. I wrote my own build script rather than copying it, so the figure differs in placement and detail."
+}
