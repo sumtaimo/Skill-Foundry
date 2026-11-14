@@ -11,8 +11,9 @@ Machine-checked by `engine/lint.mjs`:
 7. R-figure-craft-7: Every animation MUST stop under `prefers-reduced-motion: reduce` (`L7-motion-no-reduced`).
 8. R-figure-craft-8: Motion MUST move along one iso axis and NEVER lift in z while resting (`L8-motion-off-axis`).
 9. R-figure-craft-14: The moving part MUST be labelled (`L9-moving-unlabelled`).
-10. R-figure-craft-15: Parts on one base MUST be at least 4 apart and span at least 30% of the base (`L10-crowded`, warning).
-11. R-figure-craft-16: Every labelled part MUST carry at least one face detail that identifies it (`L11-no-detail`).
+10. R-figure-craft-15: Parts on one base MUST either touch (one joined structure) or be at least 4 apart, and span at least 30% of the base (`L10-crowded`, warning).
+11. R-figure-craft-16: Every labelled part MUST carry face details that identify it: one, plus one per 8% of the drawing it covers, up to three (`L11-no-detail`).
+11a. R-figure-craft-19: Every labelled part MUST cover at least 3% of the drawing (`L12-part-too-small`).
 
 Checked by the reviewer with the checklist:
 

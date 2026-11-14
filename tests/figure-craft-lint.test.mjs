@@ -14,6 +14,9 @@ function clean() {
     box({ at: [0, 0, 40], size: [80, 20, 10], id: 'beam', rests: 'postA' }),
     dot([40, 10, 50], { face: 'top', on: 'beam', tone: 'ok' }),
     line([[64, 10, 40], [76, 10, 40]], { on: 'postB', face: 'top', id: 'postB-seam' }),
+    line([[80, 4, 10], [80, 16, 10]], { on: 'postB', face: 'x', id: 'postB-band' }),
+    line([[10, 20, 44], [70, 20, 44]], { on: 'beam', face: 'y', id: 'beam-joint' }),
+    line([[80, 4, 42], [80, 16, 42]], { on: 'beam', face: 'x', id: 'beam-end' }),
     box({ at: [0, 40, 0], size: [10, 10, 10], id: 'mover', anim: 'slide', move: [20, 0, 0] }),
   ];
   return renderSvg(shapes, { labels: [
@@ -118,7 +121,9 @@ test('L9-moving-unlabelled: the moving part must be labelled', () => {
 test('L10-crowded: parts too close, or huddled on a big base, are warned', () => {
   const g = box({ at: [0, 0, 0], size: [100, 100, 4], id: 'ground' });
   const part = (id, x, y) => box({ at: [x, y, 4], size: [10, 10, 20], id, rests: 'ground' });
-  const tight = lint(renderSvg([g, part('a', 0, 0), part('b', 11, 0)]).model).warnings.filter((w) => w.rule === 'L10-crowded');
+  const touching = lint(renderSvg([g, part('a', 5, 5), part('b', 15, 5), part('c', 70, 70)]).model).warnings;
+  assert.equal(touching.some((w) => /a and b/.test(w.message)), false, 'touching parts are one structure');
+  const tight = lint(renderSvg([g, part('a', 0, 0), part('b', 12, 0)]).model).warnings.filter((w) => w.rule === 'L10-crowded');
   assert.equal(tight.length, 2, 'too close and spanning too little');
   const spread = lint(renderSvg([g, part('a', 5, 5), part('b', 70, 70)]).model).warnings;
   assert.equal(has(spread, 'L10-crowded'), false);
@@ -126,7 +131,7 @@ test('L10-crowded: parts too close, or huddled on a big base, are warned', () =>
 
 test('L11-no-detail: a labelled part needs an identifying face detail', () => {
   const m = copy(clean());
-  m.shapes = m.shapes.filter((s) => s.id !== 'postB-seam');
+  m.shapes = m.shapes.filter((s) => s.id !== 'postB-seam' && s.id !== 'postB-band');
   const r = lint(m);
   assert.ok(r.errors.some((e) => e.rule === 'L11-no-detail' && /Post B/.test(e.message)));
 });
@@ -134,4 +139,17 @@ test('L11-no-detail: a labelled part needs an identifying face detail', () => {
 test('the skill demo passes its own lint with no errors and no warnings', async () => {
   const { demoRender } = await import('../src/skills/figure-craft/examples/build-demo.mjs');
   assert.deepEqual(lint(demoRender().model), { errors: [], warnings: [] });
+});
+
+test('L11: a large labelled part needs more than one detail', () => {
+  const shapes = [box({ at: [0, 0, 0], size: [40, 40, 80], id: 'cab' }), line([[40, 5, 70], [40, 35, 70]], { on: 'cab', face: 'x', id: 'seam' })];
+  const labels = [{ at: [40, 20, 40], text: 'Cabinet', side: 'r' }];
+  const r = lint(renderSvg(shapes, { labels }).model);
+  assert.ok(r.errors.some((e) => e.rule === 'L11-no-detail' && /needs 3/.test(e.message)));
+});
+
+test('L12-part-too-small: a tiny labelled part is an error', () => {
+  const shapes = [box({ at: [0, 0, 0], size: [200, 200, 4], id: 'ground' }), box({ at: [10, 10, 4], size: [4, 4, 4], id: 'tiny', rests: 'ground' }), dot([12, 12, 8], { on: 'tiny', r: 0.5 })];
+  const r = lint(renderSvg(shapes, { labels: [{ at: [12, 12, 8], text: 'Tiny', side: 'r' }] }).model);
+  assert.ok(has(r.errors, 'L12-part-too-small'));
 });

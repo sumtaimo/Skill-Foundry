@@ -4,7 +4,7 @@ A part is recognisable when it carries the features people know it by. Details a
 shapes that lie on a visible face of the part. They are planned here, before building, so the
 detail comes from the skill and not from touching up the picture afterwards.
 
-- MUST give every labelled part one to three details (lint `L11-no-detail`).
+- MUST give every labelled part one detail, plus one for every 8% of the drawing it covers, up to three (lint `L11-no-detail`). Large parts such as a door or cabinet need more than one.
 - MUST make each detail a real feature of the real part: a seam, door edge, handle, hinge line, vent slot, shelf edge, pipe, coil, dial, screen edge, indicator light.
 - MUST attach each detail to its part with `on: '<part id>'` and a visible `face`: `top`, `x` (the right-facing side) or `y` (the left-facing side).
 - MUST keep every point of a detail inside that face (lint `L2-face-detail`).

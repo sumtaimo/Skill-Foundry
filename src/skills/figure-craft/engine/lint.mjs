@@ -1,5 +1,5 @@
 /**
- * figure-craft lint: geometry, layout and detail checks L1-L11 on a renderSvg model (or a hand-built one).
+ * figure-craft lint: geometry, layout and detail checks L1-L12 on a renderSvg model (or a hand-built one).
  * Node 24 ESM, stdlib only, zero deps.
  * @governed-by PO_ARCHITECT
  */
@@ -9,6 +9,11 @@ const EPS = 1e-6;
 /** L10: minimum gap between sibling parts, and minimum share of the base they span. */
 export const MIN_PART_GAP = 4;
 export const MIN_BASE_USE = 0.3;
+/** L12: a labelled part covers at least this share of the drawing. L11: one more detail per DETAIL_STEP of the drawing, up to 3. */
+export const MIN_PART_SHARE = 0.03;
+export const DETAIL_STEP = 0.08;
+
+const polyArea = (p) => Math.abs(p.reduce((s, [x, y], i) => { const [a, b] = p[(i + 1) % p.length]; return s + x * b - a * y; }, 0)) / 2;
 
 function segCross(a, b, c, d) {
   const o = (p, q, r) => (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
@@ -163,7 +168,8 @@ export function lint(model) {
       const a = list[i]; const b = list[j];
       const gap = (k) => Math.max(a.at[k] - (b.at[k] + b.size[k]), b.at[k] - (a.at[k] + a.size[k]), 0);
       const d = Math.hypot(gap(0), gap(1));
-      if (d < MIN_PART_GAP - EPS) warnings.push({ rule: 'L10-crowded', message: `${a.id} and ${b.id} are ${Math.round(d * 10) / 10} apart on ${baseId} (min ${MIN_PART_GAP}); leave a gap so each reads as its own part` });
+      // Touching parts (gap 0) are one joined structure, such as cabinet walls; only a small open gap is crowded.
+      if (d > EPS && d < MIN_PART_GAP - EPS) warnings.push({ rule: 'L10-crowded', message: `${a.id} and ${b.id} are ${Math.round(d * 10) / 10} apart on ${baseId} (min ${MIN_PART_GAP}); leave a gap so each reads as its own part` });
     }
     if (base && base.kind === 'box' && list.length >= 2) {
       const x0 = Math.min(...list.map((b) => b.at[0])); const x1 = Math.max(...list.map((b) => b.at[0] + b.size[0]));
@@ -173,11 +179,27 @@ export function lint(model) {
     }
   }
 
-  // L11 every labelled part carries a detail that identifies it
+  // Share of the drawing each box covers, from the projected outlines.
+  const pts = boxes.flatMap((b) => boxOutline(b));
+  const xs = pts.map((p) => p[0]); const ys = pts.map((p) => p[1]);
+  const drawing = pts.length ? (Math.max(...xs) - Math.min(...xs)) * (Math.max(...ys) - Math.min(...ys)) : 0;
+  const share = (b) => (drawing > 0 ? polyArea(boxOutline(b)) / drawing : 1);
+
+  // L11 every labelled part carries details that identify it; bigger parts carry more (up to 3)
   for (const [id, l] of named) {
     const b = byId.get(id);
     if (b.move || kids.has(id)) continue; // moving tokens and bases that carry parts are identified by those
-    if (!shapes.some((s) => (s.kind === 'dot' || s.kind === 'line') && s.on === id)) err('L11-no-detail', `"${l.text}" (${id}) has no face detail; add a line or dot with on: '${id}' that identifies it`);
+    const have = shapes.filter((s) => (s.kind === 'dot' || s.kind === 'line') && s.on === id).length;
+    const need = Math.min(3, 1 + Math.floor(share(b) / DETAIL_STEP + EPS));
+    if (have === 0) err('L11-no-detail', `"${l.text}" (${id}) has no face detail; add a line or dot with on: '${id}' that identifies it`);
+    else if (have < need) err('L11-no-detail', `"${l.text}" (${id}) covers ${Math.round(share(b) * 100)}% of the drawing and has ${have} detail(s); it needs ${need}`);
+  }
+
+  // L12 a labelled part is large enough to read
+  for (const [id, l] of named) {
+    const b = byId.get(id);
+    if (b.move) continue;
+    if (share(b) < MIN_PART_SHARE - EPS) err('L12-part-too-small', `"${l.text}" (${id}) covers ${Math.round(share(b) * 1000) / 10}% of the drawing (min ${MIN_PART_SHARE * 100}%); make it larger or shrink the rest`);
   }
 
   return { errors, warnings };

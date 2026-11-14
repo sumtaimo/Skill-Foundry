@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.0 - 2026-11-14
+
+- Lint `L12-part-too-small`: every labelled part covers at least 3% of the drawing.
+- Lint `L11-no-detail` asks for more details on bigger parts: one, plus one per 8% of the drawing, up to three.
+- Lint `L10-crowded` no longer warns about parts that touch (one joined structure, such as cabinet walls).
+- Layers 04 and 08 and the references describe sizing and full detail.
+
 ## 1.1.0 - 2026-11-13
 
 - Detail comes from the skill: `line` face details (`on`, `face`), lint `L11-no-detail` for every labelled part, and `references/detail.md` with the parts table.

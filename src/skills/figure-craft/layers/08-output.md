@@ -11,6 +11,7 @@ Produce these files in the output folder, named from a short slug of the subject
 Quality bar, checked before handing over:
 
 6. Every labelled part is recognisable from its details alone, without reading the label.
-7. Parts do not hide each other; each has clear space around it.
+7. Parts do not hide each other; each has clear space around it, and no labelled part is too small to read.
+7a. The figure is full: every labelled part shows all the details its size calls for, and the page lists every labelled part in a card with what it does.
 8. Labels are horizontal in two side columns, and each leader ends on its own part.
 9. The figure is the engine's output, byte for byte. Nothing was drawn or adjusted by hand.

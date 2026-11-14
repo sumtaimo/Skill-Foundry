@@ -13,8 +13,9 @@
   {"id": "R-figure-craft-12", "text": "The page MUST work in light and dark, at 390px with no horizontal scroll, with no console errors.", "checklist": "Screenshots in light, dark and 390px show no horizontal scroll and the console is clean."},
   {"id": "R-figure-craft-13", "text": "Dots MUST carry meaning and be named in a label or the copy; NEVER decorate solids.", "checklist": "Every dot on a solid is named in a label or the copy."},
   {"id": "R-figure-craft-14", "text": "The moving part MUST be labelled.", "check": "L9-moving-unlabelled"},
-  {"id": "R-figure-craft-15", "text": "Parts on one base MUST be at least 4 apart and span at least 30% of the base.", "check": "L10-crowded"},
-  {"id": "R-figure-craft-16", "text": "Every labelled part MUST carry at least one face detail that identifies it.", "check": "L11-no-detail"},
+  {"id": "R-figure-craft-15", "text": "Parts on one base MUST either touch (one joined structure) or be at least 4 apart, and span at least 30% of the base.", "check": "L10-crowded"},
+  {"id": "R-figure-craft-16", "text": "Every labelled part MUST carry face details that identify it: one, plus one per 8% of the drawing it covers, up to three.", "check": "L11-no-detail"},
   {"id": "R-figure-craft-17", "text": "Every detail MUST be a real feature of the real part, and the SVG is NEVER edited by hand after the engine rendered it.", "checklist": "Each detail in the parts table names a real feature, and the SVG equals the build script output."},
-  {"id": "R-figure-craft-18", "text": "The figure MUST start from the goal the user stated; a missing goal is asked for, NEVER invented.", "checklist": "The report quotes the user's request and the idea sentence derived from it."}
+  {"id": "R-figure-craft-18", "text": "The figure MUST start from the goal the user stated; a missing goal is asked for, NEVER invented.", "checklist": "The report quotes the user's request and the idea sentence derived from it."},
+  {"id": "R-figure-craft-19", "text": "Every labelled part MUST cover at least 3% of the drawing so it can be read.", "check": "L12-part-too-small"}
 ]

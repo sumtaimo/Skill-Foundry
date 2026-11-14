@@ -31,7 +31,8 @@ Item 33a applies only to the skill's own demo.
 18. Do all shapes and label text sit inside the viewBox? (L5-outside-viewbox)
 19. Are there no decorative dots on solids (every dot carries meaning and is named in a label or the copy)?
 20. Is the projection the shared one (`project`, C = 0.866), with no hand-drawn skew?
-19a. Does every labelled part carry one to three face details, each a real feature of the real part? (L11-no-detail)
+19e. Does every labelled part cover at least 3% of the drawing? (L12-part-too-small)
+19a. Does every labelled part carry its required number of face details (one, plus one per 8% of the drawing, up to three), each a real feature of the real part? (L11-no-detail)
 19b. Are parts on one base at least 4 apart and spread over at least 30% of the base? (L10-crowded)
 19c. Is the moving part labelled? (L9-moving-unlabelled)
 19d. Is the SVG exactly what the engine rendered, with nothing edited by hand?
@@ -53,7 +54,7 @@ Item 33a applies only to the skill's own demo.
 
 ## 7. Verification
 29. Do build and lint pass with zero errors?
-30. Are geometry checks (lint L1-L11) run on the rendered model?
+30. Are geometry checks (lint L1-L12) run on the rendered model?
 31. Were screenshots taken in light, dark, 390px width and a second language?
 32. Is the browser console free of errors?
 33. Was reduced motion checked to show a still figure?

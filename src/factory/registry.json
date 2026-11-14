@@ -7,8 +7,8 @@
   },
   {
     "name": "figure-craft",
-    "version": "1.1.0",
-    "purpose": "Draws detailed isometric explanatory figures from a stated goal, with tokens, a shared iso engine and lint L1 to L11.",
+    "version": "1.2.0",
+    "purpose": "Draws detailed isometric explanatory figures from a stated goal, with tokens, a shared iso engine and lint L1 to L12.",
     "status": "ready"
   }
 ]
