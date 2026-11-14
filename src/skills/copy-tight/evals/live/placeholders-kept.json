@@ -1,0 +1,8 @@
+{
+  "case": "placeholders-kept",
+  "prompt": "tighten this text: Hello {name}, you currently have {{count}} new messages that are waiting for you in your Inbox.",
+  "agent": "claude",
+  "recordedAt": "2026-11-14",
+  "output": "Rewritten copy:\nHello {name}, you have {{count}} new messages in your Inbox.\n\nWhat changed:\n- Cut filler\n- Cut a redundant phrase\n- Kept the placeholders and \"Inbox\" as written",
+  "files": []
+}
