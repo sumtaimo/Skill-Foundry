@@ -1,0 +1,4 @@
+#!/bin/sh
+# Skill Foundry lab: refuse a commit that breaks the skill guard (one skill per change, locks).
+# Installed once per clone with `npm run setup`. A WARNING here means: stop and tell TAIMO.
+node src/factory/skill-guard.mjs || { echo "pre-commit: skill-guard refused this commit. Do not bypass it (no --no-verify); tell the owner." >&2; exit 1; }

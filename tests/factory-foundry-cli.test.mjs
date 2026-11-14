@@ -125,3 +125,22 @@ test('by default add lists the skills in AGENTS.md and denies agents edit rights
   assert.match(protectSkills({ project: bad }).skipped, /left untouched/);
   assert.equal(readFileSync(join(bad, '.claude', 'settings.json'), 'utf8'), '{ not json');
 });
+
+test('add --all, check reports local edits, remove cleans up only what we installed', () => {
+  const p = mkdtempSync(join(tmpdir(), 'sf-all-')); mkdirSync(join(p, '.harness', 'skills'), { recursive: true });
+  mkdirSync(join(p, '.claude', 'skills', 'mine'), { recursive: true }); writeFileSync(join(p, '.claude', 'skills', 'mine', 'SKILL.md'), 'mine');
+  const cwd = process.cwd(); process.chdir(p); const out = [];
+  try {
+    main(['add', '--all'], () => {});
+    const portable = catalog().filter((s) => s.scope !== 'factory').map((s) => s.name).sort();
+    assert.deepEqual(checkProject({ project: p }).map((x) => x.name).sort(), portable);
+    writeFileSync(join(p, '.claude', 'skills', 'copy-tight', 'SKILL.md'), 'tampered');
+    assert.equal(main(['check'], (l) => out.push(l)), 2);
+    assert.ok(out.some((l) => /copy-tight.*CHANGED LOCALLY: SKILL\.md/.test(l)), out.join('\n'));
+    main(['remove', 'copy-tight'], () => {});
+  } finally { process.chdir(cwd); }
+  assert.ok(!existsSync(join(p, '.claude', 'skills', 'copy-tight')) && !existsSync(join(p, '.harness', 'skills', 'copy-tight')));
+  assert.doesNotMatch(readFileSync(join(p, 'AGENTS.md'), 'utf8'), /\*\*copy-tight\*\*/);
+  assert.equal(readFileSync(join(p, '.claude', 'skills', 'mine', 'SKILL.md'), 'utf8'), 'mine', 'the user skill is untouched');
+  assert.throws(() => main(['remove', 'mine'], () => {}), /not installed by skill-foundry/);
+});

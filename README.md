@@ -12,13 +12,34 @@ npm test
 node src/factory/lint-skills.mjs
 ```
 
-## Use a skill in your own project
+## Use a skill in your own project (one command)
 
-Skills are self-contained, so they work outside this repository.
+Needs Node.js and git. Tested on Linux, macOS and Windows with Node 18, 20 and 22.
 
-1. Build the site and downloads: `node src/site/build.mjs` (or `npm run dev` to browse it locally).
-2. Unzip a skill from `dist/site/downloads/` into your project at `.claude/skills/<name>/`, or from this repository run `node src/factory/install.mjs <name>` in your project root.
-3. Restart Claude Code and state your goal in one line. The skill starts from that goal and asks when something is missing.
+```
+npx github:sumtaimo/Skill-Foundry list                     # what is available
+npx github:sumtaimo/Skill-Foundry add test-planner          # one skill
+npx github:sumtaimo/Skill-Foundry add --role QA_AUDITOR     # every skill for a role
+npx github:sumtaimo/Skill-Foundry add --all                 # every skill
+npx github:sumtaimo/Skill-Foundry check                     # out of date, or changed locally?
+npx github:sumtaimo/Skill-Foundry update                    # get new content; your edits are kept
+npx github:sumtaimo/Skill-Foundry remove test-planner       # remove cleanly
+```
+
+What `add` does in your project:
+
+- copies the skill into `.claude/skills/<name>/` (Claude Code picks it by its description);
+- if you have an agentic harness (`.harness/skills/`), registers it for the matching roles so workers get it;
+- writes one block in `AGENTS.md` listing the skills, so any agent (Codex, Cursor, Gemini) uses them (`--no-rules` to skip);
+- adds deny rules to `.claude/settings.json` so agents cannot edit or update the skills; only you do (`--no-protect` to skip).
+
+Your own text and settings are kept. Restart your agent, then state your goal in one line.
+Zips with SHA-256 checksums are on the site: https://sumtaimo.github.io/Skill-Foundry/
+
+## Work in this repository (the lab)
+
+Run `npm run setup` once (pre-commit skill guard). The release path is in `docs/factory/PUBLISHING.md`:
+build on a `claude/...` branch, prove with real agents, `npm run release:check` must print READY, TAIMO approves, merge to `master`.
 
 ## Add a skill
 
