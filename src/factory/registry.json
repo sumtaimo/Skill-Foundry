@@ -16,5 +16,11 @@
     "version": "1.0.0",
     "purpose": "Turns merged changes into a CHANGELOG entry with the correct semver bump.",
     "status": "ready"
+  },
+  {
+    "name": "copy-tight",
+    "version": "0.2.0",
+    "purpose": "Rewrites UI copy to be short and plain without changing meaning, numbers, names or legal text.",
+    "status": "ready"
   }
 ]

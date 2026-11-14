@@ -59,6 +59,22 @@ only point here.
 
 ---
 
+## SKILL QUALITY LAW (applies to every AI and every agent in this project)
+
+A skill is accepted only when a **real agent can use it for real work**, not when its files look complete.
+Every agent that creates or changes a skill in `src/skills/` MUST:
+
+1. Follow `src/skills/skill-smith/SKILL.md` and pass every layer in `docs/factory/QUALITY-LAYERS.md`.
+2. Prove it with a **fresh agent** that gets only the skill folder and the case prompt: save each answer to
+   `src/skills/<name>/evals/live/<case-id>.json` and run `node src/factory/live-evals.mjs <name>` until 0 failed.
+3. Re-run routing (`node src/factory/routing-evals.mjs`) after any description change, and add a routing case for every new skill.
+4. Keep UI output from live runs in `evals/live/files/` and check it with `checkPage`.
+5. Fix the skill when a real agent fails; never weaken a case just to pass, and never write a recording by hand.
+6. Never set status `ready` in `src/factory/registry.json` until `npm test` passes (it fails on missing or stale recordings).
+7. Report honestly which results came from a real agent and which from hand-written examples.
+
+---
+
 ## Core Architecture Mandate: Lightweight Native Harness (Modern Standard)
 
 Every AI agent working in or extending this repository MUST follow the **Lightweight Native Harness** philosophy:

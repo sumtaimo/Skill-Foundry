@@ -82,6 +82,7 @@ These are the lint problem codes from `src/factory/lint-skills.mjs`:
 | `chk-links` | Relative links in the skill point to existing files |
 | `chk-preview-json` | preview.json has the required fields within limits |
 | `chk-cover-svg` | cover.svg meets the safety and size limits |
+| `chk-changelog` | Every CHANGELOG heading is `## <semver> - <YYYY-MM-DD>` and the current version has an entry |
 
 Lint output format: `<file>:<line> <code> <message>`. Exit code 0 means no problems.
 

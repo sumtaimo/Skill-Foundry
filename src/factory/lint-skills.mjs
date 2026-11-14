@@ -12,7 +12,7 @@ export const REPO_ROOT = resolve(dirname(HERE), '..', '..');
 
 export const CHECK_IDS = [
   'chk-required-files', 'chk-frontmatter', 'chk-name-match', 'chk-size', 'chk-rules-mapped',
-  'chk-check-tested', 'chk-links', 'chk-preview-json', 'chk-cover-svg',
+  'chk-check-tested', 'chk-links', 'chk-preview-json', 'chk-cover-svg', 'chk-changelog',
 ];
 
 export const REQUIRED_FILES = [
@@ -92,6 +92,14 @@ export async function lintSkill(skillDir, { testsDir } = {}) {
         }
         if (fm.version && !SEMVER.test(fm.version)) add('SKILL.md', 1, 'chk-frontmatter', `version ${fm.version} is not semver`);
         if (fm.name && fm.name !== name) add('SKILL.md', 1, 'chk-name-match', `name ${fm.name} does not equal folder ${name}`);
+        const log = await readText(join(dir, 'CHANGELOG.md'));
+        if (log !== null) {
+          const heads = log.split('\n').map((l, i) => [l, i + 1]).filter(([l]) => /^##\s/.test(l));
+          for (const [l, ln] of heads) {
+            if (!/^## \d+\.\d+\.\d+\S* - \d{4}-\d{2}-\d{2}$/.test(l.trim())) add('CHANGELOG.md', ln, 'chk-changelog', `heading "${l.trim()}" must be ## <semver> - <YYYY-MM-DD>`);
+          }
+          if (fm.version && !heads.some(([l]) => l.startsWith(`## ${fm.version} `))) add('CHANGELOG.md', 1, 'chk-changelog', `no CHANGELOG entry for version ${fm.version}`);
+        }
       }
     }
     for (const s of SECTIONS) {
