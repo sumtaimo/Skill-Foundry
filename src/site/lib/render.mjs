@@ -40,6 +40,36 @@ export function formatBytes(bytes) {
 export const zipName = (s) => (typeof s.zip === 'string' && s.zip ? s.zip : `${s.name}-${s.version}.zip`);
 export const installCommand = (s) => `unzip ${zipName(s)} -d .claude/skills/`;
 
+/**
+ * One-line install: download, verify SHA-256, unzip into .claude/skills/. Works with curl, shasum and unzip
+ * on macOS and Linux. url is the absolute zip URL; site.js fills it from the page address.
+ */
+export function installOneLiner(s, sha256, url) {
+  const z = zipName(s);
+  return `mkdir -p .claude/skills && curl -fsSL "${url}" -o "${z}" && echo "${sha256}  ${z}" | shasum -a 256 -c - && unzip -oq "${z}" -d .claude/skills && rm "${z}"`;
+}
+
+/** Copy button for the install command; site.js upgrades data-copy to the one-liner when served over http(s). */
+function installButton(skill, sha256, cls = 'btn copy') {
+  const zip = `downloads/${zipName(skill)}`;
+  return `<button type="button" class="${cls}" data-copy="${esc(installCommand(skill))}" data-install-zip="${esc(zip)}" data-install-name="${esc(zipName(skill))}" data-sha256-install="${esc(sha256 ?? '')}">${t('install.copy')}</button>`;
+}
+
+/** Plain-text search haystack for a plate. */
+const haystack = (s) => [s.name, s.title, s.tagline, s.description, s.prompt, ...(s.tags || []), ...(s.outputs || [])].join(' ').toLowerCase().replace(/\s+/g, ' ');
+
+function liveLine(skill) {
+  const l = skill.live;
+  return l && l.total > 0
+    ? t('live.yes', 'p', `class="live live-yes" data-live="${l.passed}/${l.total}"`, { p: l.passed, t: l.total })
+    : t('live.no', 'p', 'class="live live-no" data-live="none"');
+}
+
+function rolesList(skill) {
+  if (!skill.roles || !skill.roles.length) return '';
+  return `<p class="roles">${t('plate.roles')} ${skill.roles.map((r) => t(`role.${r}`, 'span', `class="role" data-role="${esc(r)}"`)).join(' ')}</p>`;
+}
+
 const SKIP_PART = /^<(defs|title|desc|style)\b/i;
 
 /**
@@ -159,14 +189,16 @@ export function renderCard(skill, opts = {}) {
   const up = '../'.repeat(opts.depth ?? 0);
   const idx = Number.isInteger(opts.index) ? opts.index : 1;
   const tags = skill.tags.map((x) => `<li>${esc(x)}</li>`).join('');
-  return `<article class="plate" data-skill="${esc(skill.name)}">
+  return `<article class="plate" data-skill="${esc(skill.name)}" data-roles="${esc((skill.roles || []).join(' '))}" data-text="${esc(haystack(skill))}">
 <div class="plate-head"><span class="plate-index">No. ${pad(idx)}</span><ul class="tags" lang="en">${tags}</ul></div>
 ${cover(skill, 'cover')}
 <h3 lang="en"><a href="${up}skills/${esc(skill.name)}/index.html">${esc(skill.title)}</a></h3>
 <p class="plate-type">${esc(EN['plate.type'])} <code>${esc(skill.prompt.replace(/\s+/g, ' ').trim())}</code></p>
 <p class="plate-get">${esc(EN['plate.get'])} ${esc(skill.outputs.join(', ') || '-')}</p>
+${rolesList(skill)}
+${liveLine(skill)}
 ${renderMeter(skill)}
-<footer><code class="ver">${esc(skill.version)}</code>${downloadButton(skill, up)}</footer>
+<footer><code class="ver">${esc(skill.version)}</code>${downloadButton(skill, up)}${installButton(skill, opts.sha256, 'btn ghost copy')}</footer>
 </article>`;
 }
 
@@ -174,6 +206,21 @@ ${renderMeter(skill)}
 function allLink(bytes) {
   const args = { size: formatBytes(bytes) };
   return `<a class="dl-all" href="downloads/all-skills.zip" download data-i18n="download.allLabel" data-i18n-args="${esc(JSON.stringify(args))}">${esc(fill(EN['download.allLabel'], args))}</a>`;
+}
+
+/** Search box, role filter and live count; filtering itself is done by site.js. */
+function renderFinder(skills) {
+  const used = ['PO_ARCHITECT', 'BA_ANALYST', 'DEV_ENGINEER', 'QA_AUDITOR'].filter((r) => skills.some((s) => (s.roles || []).includes(r)));
+  const roles = [`<button type="button" class="rolechip" data-role="" aria-pressed="true">${t('role.all')}</button>`,
+    ...used.map((r) => `<button type="button" class="rolechip" data-role="${esc(r)}" aria-pressed="false">${t(`role.${r}`)}</button>`)].join('\n');
+  return `<div class="finder">
+<label class="find-label" for="find">${esc(EN['find.label'])}</label>
+<input id="find" class="find" type="search" autocomplete="off" spellcheck="false" placeholder="${esc(EN['find.placeholder'])}" data-i18n-placeholder="find.placeholder">
+<div class="roles-filter" role="group" aria-label="${esc(EN['role.label'])}">
+${roles}
+</div>
+${t('find.count', 'p', 'class="find-count" aria-live="polite"', { n: skills.length, t: skills.length })}
+</div>`;
 }
 
 function renderHero(skills) {
@@ -211,9 +258,19 @@ export function renderIndex(skills, opts = {}) {
 <section id="collection" class="collection" aria-labelledby="collection-title">
 <div class="collection-bar">${t('collection.title', 'h2', 'id="collection-title"')}<p class="meta"><a href="downloads/checksums.json">${t('download.checksums')}</a></p></div>
 ${Number.isFinite(opts.allBytes) && opts.allBytes > 0 ? `<p>${allLink(opts.allBytes)}</p>` : ''}
+${renderFinder(sorted)}
 <div class="grid">
-${sorted.map((s, i) => renderCard(s, { index: i + 1 })).join('\n')}
+${sorted.map((s, i) => renderCard(s, { index: i + 1, sha256: opts.checksums?.[zipName(s)]?.sha256 })).join('\n')}
 </div>
+${t('find.none', 'p', 'class="find-none" hidden')}
+</section>
+<section class="col" aria-labelledby="agents">
+${t('agents.title', 'h2', 'id="agents"')}
+${t('agents.p', 'p')}
+<ul class="agent-files">
+<li><a href="skills.json">${t('agents.json')}</a></li>
+<li><a href="llms.txt">${t('agents.txt')}</a></li>
+</ul>
 </section>
 <section class="col" aria-labelledby="made">
 ${t('made.title', 'h2', 'id="made"')}
@@ -226,6 +283,7 @@ ${t('install.title', 'h2', 'id="install"')}
 <ol class="steps">
 ${steps('install.s', 3)}
 </ol>
+${t('install.cmd', 'p')}
 </section>
 <section class="col" aria-labelledby="limits">
 ${t('limits.title', 'h2', 'id="limits"')}
@@ -289,6 +347,8 @@ ${cover(s, 'cover cover-lg')}
 <h1 lang="en">${esc(s.title)}</h1>
 <p class="meta">${t('version')} <code class="ver">${esc(s.version)}</code></p>
 <ul class="tags" lang="en">${s.tags.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
+${rolesList(s)}
+${liveLine(s)}
 </header>
 <nav class="qbar" aria-label="${esc(EN['q.nav'])}">
 <div class="qbar-tabs">
@@ -323,6 +383,7 @@ ${t('example.open', 'a', 'class="example-open" href="example.html"')}` : ''}
   parts.push(`<section id="how-you-know" aria-labelledby="h-know">
 ${take(esc(EN['take.know']))}
 ${t('q.know', 'h2', 'id="h-know"')}
+${liveLine(s)}
 ${renderMeter(s)}
 <dl class="stats">
 <div>${t('rules.total', 'dt')}<dd>${s.rules.total}</dd></div>
@@ -349,7 +410,8 @@ ${t('install.s1', 'li')}
 ${t('install.s2', 'li')}
 ${t('install.s3', 'li')}
 </ol>
-<div class="codebox"><pre><code>${esc(installCommand(s))}</code></pre>${copyButton(installCommand(s))}</div>
+${t('install.cmd', 'p')}
+<div class="codebox"><pre><code class="install-cmd">${esc(installCommand(s))}</code></pre>${installButton(s, dl.sha256)}</div>
 </section>`);
   return renderLayout({
     title: `${s.title} | Skill Foundry`,
