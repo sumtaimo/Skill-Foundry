@@ -73,6 +73,8 @@ Rules that apply to every skill (the full text is in `AGENTS.md`, SKILL QUALITY 
 
 ## 7. Rules for every agent
 
+- **One release path** (`docs/factory/PUBLISHING.md`): lab branch → real-agent proof → `npm run release:check` READY → TAIMO approves in chat → `master` → Pages → users `npx … update`. **[built]**
+
 - Skills reach other projects with one command: `npx github:sumtaimo/Skill-Foundry add <skill>` (or `add --role <ROLE>`, `check`, `update`). An update keeps files the user changed; a project with an agentic harness gets each skill registered for its roles. **[built]** `src/factory/foundry.mjs`, `tests/factory-foundry-cli.test.mjs`. The site is published on GitHub Pages from `master` (`.github/workflows/pages.yml`).
 
 - A skill is also checked for someone outside this repo: `node src/factory/portable-check.mjs <name> --prompt "<request>" --record`. It is required before `ready` and goes stale when the skill changes (not for `scope: factory`).
