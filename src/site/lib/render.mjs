@@ -114,8 +114,27 @@ function coverSvg(skill) {
   });
 }
 
+/** Every cover says what it is: real output (a recorded run or a real agent's answer) or a concept drawing. */
+function coverTag(skill) {
+  const kind = skill.coverKind ?? 'concept';
+  return t(kind === 'concept' ? 'cover.concept' : 'cover.real', 'span', `class="cover-tag" data-kind="${esc(kind)}"`);
+}
+
 function cover(skill, cls) {
-  return `<div class="${cls}">${coverSvg(skill)}</div>`;
+  return `<div class="${cls}" data-cover="${esc(skill.coverKind ?? 'concept')}">${coverSvg(skill)}${coverTag(skill)}</div>`;
+}
+
+/** The real answer a fresh agent gave, word for word, with the request it was given. */
+function proofBlock(skill) {
+  const p = skill.proof;
+  if (!p) return '';
+  return `${t('answer.title', 'h3')}
+${t(p.source === 'portable' ? 'answer.note.portable' : 'answer.note.live', 'p', 'class="run-note"')}
+<figure class="proof" data-proof-source="${esc(p.source)}">
+<p class="proof-ask">${t('answer.asked', 'span', 'class="proof-label"')} <code lang="en">${esc(p.prompt)}</code></p>
+<pre class="proof-answer" lang="en">${esc(p.answer)}</pre>
+${copyButton(p.answer, 'answer.copy')}
+</figure>`;
 }
 
 function copyButton(text, key = 'copy.copy') {
@@ -233,7 +252,7 @@ function renderHero(skills) {
   const chips = skills
     .map((s, i) => `<button type="button" class="chip" data-skill="${esc(s.name)}" data-prompt="${esc(s.prompt)}" aria-pressed="${i === 0}">${esc(s.title)}</button>`)
     .join('\n');
-  const templates = skills.map((s) => `<template data-cover="${esc(s.name)}">${heroParts(coverSvg(s))}</template>`).join('\n');
+  const templates = skills.map((s) => `<template data-cover="${esc(s.name)}">${heroParts(coverSvg(s))}${coverTag(s)}</template>`).join('\n');
   return `<section class="hero">
 <div class="hero-copy">
 ${t('hero.title', 'h1')}
@@ -242,7 +261,7 @@ ${finder}
 ${t('hero.label', 'p', 'class="hero-label"')}
 <div class="hero-prompt"><code lang="en" data-full="${esc(first.prompt)}">${esc(first.prompt)}</code></div>
 </div>
-<div class="hero-figure" data-skill="${esc(first.name)}">${heroParts(coverSvg(first))}</div>
+<div class="hero-figure" data-skill="${esc(first.name)}">${heroParts(coverSvg(first))}${coverTag(first)}</div>
 <div class="hero-chips" role="group" aria-label="${esc(EN['hero.chips'])}">
 ${chips}
 </div>
@@ -398,6 +417,7 @@ ${take(esc(EN['take.get']))}
 ${t('q.get', 'h2', 'id="h-get"')}
 ${s.example ? '' : cover(s, 'get-cover')}
 <ul class="outputs" lang="en">${s.outputs.map((o) => `<li>${esc(o)}</li>`).join('')}</ul>
+${proofBlock(s)}
 ${t('skill.files', 'h3')}
 <ul class="files" lang="en">${s.files.map((f) => `<li><code>${esc(s.name)}/${esc(f)}</code></li>`).join('')}</ul>
 ${s.example ? `${t(s.run ? (s.run.reference ? 'ref.title' : 'run.title') : 'skill.example', 'h3')}

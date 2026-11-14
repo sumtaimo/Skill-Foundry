@@ -77,7 +77,8 @@ Forbidden anywhere: left rail, pointer glyph, `01 / 05` numbering, any class con
 | outputs | preview.json | plate, what-you-get |
 | tags | preview.json | plate and page |
 | run | runs/<name>/<key>/manifest.json | newest run with `status: pass` and the registry version; when present its `.svg` is the cover, its `input.md` the prompt and its `.html` the example; heading `run.title`, note `run.note` (or `ref.title`, `ref.note` when the run reproduced the skill's own example byte for byte), facts in `.run-facts` |
-| coverSvg | preview/cover.svg (fallback when no run) | through `sanitizeSvg`; build fails on `<script`, `<foreignObject`, `on*` attrs, external href |
+| proof | evals/portable.json (current and passing) or a passing evals/live recording | the real answer, shown in full in `what-you-get` (`figure.proof`, `pre.proof-answer`, copy button) and drawn as the cover by `docFigure` |
+| coverSvg, coverKind | run figure (`run`), else the answer as a document (`proof`), else preview/cover.svg (`concept`) | every cover carries `.cover-tag`: "Real output from an agent" or "Concept drawing, not real output"; a ready skill may not be `concept` | through `sanitizeSvg`; build fails on `<script`, `<foreignObject`, `on*` attrs, external href |
 | procedure | SKILL.md `## Procedure` | numbered list items, in order |
 | rules.total | RULES.json | count of entries |
 | rules.machine | RULES.json | entries with `check` |
