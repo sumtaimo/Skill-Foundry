@@ -98,7 +98,6 @@ function shapes() {
     ...slots([[21, 5, 101], [41, 5, 101]], [[21, 5, 109], [41, 5, 109]], 5, { on: 'vent', face: 'y', id: 'vent-slot' }),
     disc([47, 5, 105], { on: 'vent', face: 'y', r: 3, material: 'steel', id: 'dial' }),
     line([[47, 5, 105], [47, 5, 107.5]], { on: 'vent', face: 'y', bold: true, id: 'dial-mark' }),
-    box({ at: [33, 8, 100], size: [6, 6, 6], material: 'blue', inside: FR, move: [0, 0, -34], anim: 'fall', id: 'cold-air' }),
 
     // Crisper drawer with vegetables
     box({ at: [10, 16, 15], size: [14, 12, 10], material: 'green', inside: FR, id: 'lettuce' }),
@@ -146,6 +145,9 @@ function shapes() {
     disc([58, 14, 111.5], { on: 'water', face: 'top', r: 1.8, material: 'white', id: 'water-cap' }),
     box({ at: [10, 30, 93.5], size: [12, 10, 6], material: 'amber', ...on('shelf-3', 'cheese') }),
     ...repeat(3, (i) => box({ at: [30 + i * 10, 32, 93.5], size: [6, 6, 7], round: true, material: 'white', ...on('shelf-3', `yogurt-${i}`) })),
+
+    // The story: cold air falls from the vent. Drawn over the shelves so the reader can always see and point at it.
+    box({ at: [33, 8, 100], size: [6, 6, 6], material: 'blue', inside: FR, move: [0, 0, -34], anim: 'fall', id: 'cold-air' }),
 
     // Freezer, open at the front
     box({ at: [0, 0, 119], size: [70, 60, 48], material: 'steel', id: FZ, rests: FR, open: 'xy', wall: 3, when: 'open' }),

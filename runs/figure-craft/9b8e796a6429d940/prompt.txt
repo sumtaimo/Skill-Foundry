@@ -1,6 +1,0 @@
-You are running the skill in /home/user/Skill-Foundry/src/skills/figure-craft. Read /home/user/Skill-Foundry/src/skills/figure-craft/SKILL.md and every file it links to, then follow it step by step.
-Write every file you produce into /home/user/Skill-Foundry/runs/figure-craft/9b8e796a6429d940/output and nowhere else. Produce the real output the skill describes, never a placeholder or mock.
-When done, reply with a short report: files produced, checks run and their results, open items.
-
-Input:
-Show my customers how a refrigerator keeps food cold. I want them to see the real fridge in detail, open, with the food and drinks inside.

@@ -14,13 +14,13 @@ const KEYS = ['bg', 'surface', 'surface2', 'line', 'lineStrong', 'fg', 'muted', 
 // Modern, quiet palette: near-white surfaces, low contrast between faces, hairline grey outlines.
 export const TOKENS = Object.freeze({
   light: Object.freeze({
-    bg: '#fafafa', surface: '#ffffff', surface2: '#f4f4f3', line: '#e6e6e3', lineStrong: '#a9a9a4',
+    bg: '#fafafa', surface: '#ffffff', surface2: '#f4f4f3', line: '#e6e6e3', lineStrong: '#8e8e89',
     fg: '#1a1a19', muted: '#6b6b68', faint: '#9a9a96', ok: '#2f8f5b', warn: '#b7791f', danger: '#c0392b',
-    isoTop: '#ffffff', isoA: '#f5f5f4', isoB: '#e8e8e6', isoInk: '#2b2b2a', isoInkTop: '#6a6a67', isoInkA: '#565654', isoInkB: '#434341',
-    matSteelTop: '#f8f9fa', matSteelA: '#eceff1', matSteelB: '#d9dde1', matWhiteTop: '#ffffff', matWhiteA: '#fbfbfa', matWhiteB: '#eeeeec',
-    matBlueTop: '#e2eef8', matBlueA: '#cfe2f3', matBlueB: '#b3cfe8', matRedTop: '#fae1da', matRedA: '#f4cdc2', matRedB: '#e8b0a1',
-    matGreenTop: '#e0f1e3', matGreenA: '#cde6d2', matGreenB: '#b0d4b8', matAmberTop: '#fbf0d6', matAmberA: '#f5e3b8', matAmberB: '#e8cd8e',
-    matCavity: '#dfe1e3', matGlow: '#fff3cf', matGlass: '#bcdaea', matCopper: '#c98f63', matCold: '#4f9fd3', matWarm: '#df7655', matShadow: '#1a1a19', matShine: '#ffffff',
+    isoTop: '#ffffff', isoA: '#f1f1ef', isoB: '#dcdcd9', isoInk: '#2b2b2a', isoInkTop: '#6a6a67', isoInkA: '#565654', isoInkB: '#434341',
+    matSteelTop: '#f8f9fa', matSteelA: '#e5e9ec', matSteelB: '#c8ced4', matWhiteTop: '#ffffff', matWhiteA: '#f6f6f4', matWhiteB: '#e1e1de',
+    matBlueTop: '#e2eef8', matBlueA: '#cfe2f3', matBlueB: '#a3c3e0', matRedTop: '#fae1da', matRedA: '#f4cdc2', matRedB: '#e09f8e',
+    matGreenTop: '#e0f1e3', matGreenA: '#cde6d2', matGreenB: '#9fc8a8', matAmberTop: '#fbf0d6', matAmberA: '#f5e3b8', matAmberB: '#debf78',
+    matCavity: '#d3d6d9', matGlow: '#fff3cf', matGlass: '#bcdaea', matCopper: '#c98f63', matCold: '#4f9fd3', matWarm: '#df7655', matShadow: '#1a1a19', matShine: '#ffffff',
   }),
   dark: Object.freeze({
     bg: '#141413', surface: '#1d1d1c', surface2: '#262625', line: '#383836', lineStrong: '#7a7a76',

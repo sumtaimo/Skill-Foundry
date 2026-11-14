@@ -19,7 +19,7 @@ Machine-checked by `engine/lint.mjs`:
 11e. R-figure-craft-24: A labelled part MUST stay at least 40% visible; glass or one open side shows the inside (`L16-hidden-part`).
 11f. R-figure-craft-25: Solids MUST have the material of the real thing, at least two in a figure of three or more solids (`L17-one-material`).
 11g. R-figure-craft-27: Inside parts and contents MUST be drawn inside the body and marked `inside`; NEVER beside it (`L18-outside-container`).
-11h. R-figure-craft-28: The figure MUST carry at least twelve face details, three per labelled part on average (`L19-sparse`).
+11h. R-figure-craft-28: The figure MUST carry at least twelve face details, three per labelled part and one per solid on average, and no large solid may be bare (`L19-sparse`).
 11d. R-figure-craft-22: A part above the ground MUST rest on or touch another part; NEVER float (`L15-floating`).
 
 Checked by the reviewer with the checklist:

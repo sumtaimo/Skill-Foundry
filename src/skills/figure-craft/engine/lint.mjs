@@ -20,6 +20,8 @@ export const MIN_VISIBLE = 0.4;
 /** L19: fewest face details in a figure, and per labelled part. */
 export const MIN_DETAILS = 12;
 export const DETAILS_PER_PART = 3;
+/** L19: a solid covering this share of the drawing must carry at least one face detail. */
+export const BARE_SHARE = 0.04;
 
 const polyArea = (p) => Math.abs(p.reduce((s, [x, y], i) => { const [a, b] = p[(i + 1) % p.length]; return s + x * b - a * y; }, 0)) / 2;
 
@@ -272,12 +274,20 @@ export function lint(model) {
     if (pts.some((p) => [0, 1, 2].some((k) => p[k] < c.at[k] - EPS || p[k] > c.at[k] + c.size[k] + EPS))) err('L18-outside-container', `${s.id} is declared inside ${c.id} but reaches outside it`);
   }
 
-  // L19 micro detail: a figure that names its parts carries enough small real features to look real
+  // L19 micro detail: enough small real features for the size of the figure, and no large bare solid
   if (Array.isArray(model.requiredParts) && model.requiredParts.length) {
+    const back = model.backDetails ?? {};
+    const count = (id) => shapes.filter((x) => x.kind !== 'box' && x.on === id).length + (back[id] ?? 0);
     const labelled = [...named.keys()].filter((id) => !byId.get(id).move).length;
-    const need = Math.max(MIN_DETAILS, DETAILS_PER_PART * labelled);
-    const have = shapes.filter((x) => x.kind !== 'box' && x.on !== undefined).length + Object.values(model.backDetails ?? {}).reduce((a, b) => a + b, 0);
-    if (have < need) err('L19-sparse', `${have} face details in the figure (min ${need}); add the small real features of each part: seams, handles, vents, screws, feet, controls, edges`);
+    const solids = boxes.filter((x) => !x.move).length;
+    // At least 12, three per labelled part, and one per solid on average: a bigger object needs more.
+    const need = Math.max(MIN_DETAILS, DETAILS_PER_PART * labelled, solids);
+    const have = shapes.filter((x) => x.kind !== 'box' && x.on !== undefined).length + Object.values(back).reduce((p, q) => p + q, 0);
+    if (have < need) err('L19-sparse', `${have} face details in the figure (min ${need} for ${solids} solids and ${labelled} labelled parts); add the small real features of each part: seams, handles, vents, screws, feet, controls, edges`);
+    for (const x of boxes) {
+      if (x.move || x.material === 'glass' || kids.has(x.id) && x.at[2] === 0 && x.size[2] <= 4) continue; // glass and flat ground plates stay plain
+      if (share(x) >= BARE_SHARE - EPS && count(x.id) === 0) err('L19-sparse', `${x.id} covers ${Math.round(share(x) * 100)}% of the drawing and has no face detail; a large surface of a real object is never bare`);
+    }
   }
 
   // L17 materials: a figure with several solids uses more than one material, as real objects do

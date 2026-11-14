@@ -12,7 +12,7 @@ detail comes from the skill and not from touching up the picture afterwards.
 - MUST add the small real features that make the object look real even where no label points: feet, hinges, a kick plate, a control strip, shelf edges, a power cable. These belong to the part they sit on (`on`).
 - MUST use a `dot` only for a point feature that is named in a label or the copy (a light, a sensor, a knob).
 - NEVER add a detail that the real part does not have, and NEVER add lines only to fill space.
-- MUST reach the micro-detail minimum: at least twelve face details in the figure, and at least three per labelled part on average (lint `L19-sparse`). Aim well above it: screws at corners, vent slots as rows of short lines, rating plates, hinges, feet, seams, control knobs, cable entries.
+- MUST reach the micro-detail minimum (lint `L19-sparse`): at least twelve face details in the figure, at least three per labelled part on average, and at least one per solid on average, so a bigger object carries more. No solid that covers 4% of the drawing or more may be bare, except glass. Aim well above it: screws at corners, vent slots as rows of short lines, rating plates, hinges, feet, seams, control knobs, cable entries.
 - MUST use the kit from `engine/kit.mjs` for repeated small features: `slots(first, last, count, opts)` for vents, grilles and fins; `screws(corners, opts)` for the four screws of a plate; `repeat(count, make)` for rows of items.
 - MUST read `examples/build-demo.mjs` first: the reference figure shows the detail level to reach.
 - MUST detail the back sides too (`face: '-x'` or `'-y'`), because the reader can turn the object. See [orbit](orbit.md).

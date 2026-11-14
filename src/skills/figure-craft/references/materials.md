@@ -3,7 +3,7 @@
 The style is quiet and modern: near-white surfaces, low contrast between faces, one hairline grey
 outline weight for every edge, soft shadows. The engine lights every figure the same way, so any object a user describes comes out in the same
 style: light from the upper left, a lit left-facing side with a soft shine band, a shaded
-right-facing side, a soft shadow on the surface under each solid, and an edge highlight.
+right-facing side, a soft cast shadow plus a tight contact shadow under each solid so it sits firmly, and an edge highlight.
 You choose what each solid is made of; the engine does the rest. NEVER draw shadows or highlights yourself.
 
 - MUST give every solid the material of the real thing with `material`:
