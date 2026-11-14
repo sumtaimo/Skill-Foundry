@@ -33,3 +33,17 @@ hand-written answers cannot ship.
 - Fix the **skill** so agents behave correctly. Change an eval case only when the case itself is wrong, and say why in the CHANGELOG.
 - Re-record with a fresh agent after any change to SKILL.md, a case prompt or a description; old recordings fail as stale.
 - Keep agent-produced files (HTML, SVG) in `evals/live/files/` as evidence.
+
+## Layer 9: real install (2026-11-14)
+
+The release zips were unzipped into `.claude/skills/` of an empty project, all four together, and
+Claude Code was started with a plain request that did not name any skill.
+
+| Request | Skill Claude Code loaded | Result |
+|---------|--------------------------|--------|
+| Wordy error toast | copy-tight | Correct format; kept "Invoice" with its capital |
+| Typo fix, write changelog entry | changelog-writer | Correct PATCH bump 1.2.0 to 1.2.1 |
+| Turn a PR checklist into a skill | skill-smith | Asked the interview questions first, guessed nothing |
+| Interactive figure of a database index | figure-craft | Loaded, but stopped honestly: the session had no permission to run `node`. Re-run with `Bash(node:*)` not done yet (usage limit) |
+
+Finding: figure-craft needs permission to run `node` for its engine and lint. Without it the agent cannot finish.
