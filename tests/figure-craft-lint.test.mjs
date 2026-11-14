@@ -4,7 +4,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { box, dot, line, panel, renderSvg } from '../src/skills/figure-craft/engine/iso.mjs';
+import { box, dot, line, panel, disc, glow, renderSvg } from '../src/skills/figure-craft/engine/iso.mjs';
 import { lint } from '../src/skills/figure-craft/engine/lint.mjs';
 
 function clean() {
@@ -137,9 +137,14 @@ test('L11-no-detail: a labelled part needs an identifying face detail', () => {
   assert.ok(r.errors.some((e) => e.rule === 'L11-no-detail' && /Post B/.test(e.message)));
 });
 
-test('the skill demo passes its own lint with no errors and no warnings', async () => {
-  const { demoRender } = await import('../src/skills/figure-craft/examples/build-demo.mjs');
-  assert.deepEqual(lint(demoRender().model), { errors: [], warnings: [] });
+test('the skill reference figure passes its own lint in every state and view, with no errors and no warnings', async () => {
+  const { demoLint, demoStates, REQUIRED_PARTS } = await import('../src/skills/figure-craft/examples/build-demo.mjs');
+  assert.deepEqual(demoLint(), { errors: [], warnings: [] });
+  const states = demoStates();
+  assert.deepEqual(Object.keys(states), ['open', 'closed']);
+  assert.equal(states.open.length, 4);
+  assert.ok(states.open[0].model.shapes.length >= 100, 'the reference figure is drawn in micro detail');
+  assert.deepEqual(states.open[0].model.requiredParts, REQUIRED_PARTS);
 });
 
 test('L11: a large labelled part needs more than one detail', () => {
@@ -253,4 +258,21 @@ test('L19-sparse: a figure with named parts needs at least 12 face details', () 
   assert.ok(lint(renderSvg(shapes, opts).model).errors.some((e) => e.rule === 'L19-sparse' && /min 12/.test(e.message)));
   const rich = shapes.concat(Array.from({ length: 11 }, (_, i) => line([[60, 5, 4 + i * 4], [60, 55, 4 + i * 4]], { on: 'body', face: 'x' })));
   assert.equal(has(lint(renderSvg(rich, opts).model).errors, 'L19-sparse'), false);
+});
+
+test('round solids along x or y, discs and glow render and validate', () => {
+  const shapes = [
+    box({ at: [0, 0, 0], size: [60, 60, 40], material: 'steel', id: 'body' }),
+    box({ at: [10, 20, 40], size: [40, 12, 12], round: 'x', material: 'dark', id: 'drum', rests: 'body' }),
+    disc([60, 30, 20], { on: 'body', face: 'x', r: 6, material: 'glass', id: 'porthole' }),
+    glow([30, 30, 60], { r: 10, id: 'lamp' }),
+  ];
+  const { svg, model } = renderSvg(shapes);
+  assert.match(svg, /id="fc-dark-lie"/);
+  assert.match(svg, /filter="url\(#fc-glow\)"/);
+  assert.equal(has(lint(model).errors, 'L2-face-detail'), false);
+  const bad = renderSvg([shapes[0], disc([60, 58, 20], { on: 'body', face: 'x', r: 6 })]).model;
+  assert.ok(has(lint(bad).errors, 'L2-face-detail'), 'a disc must stay inside its face');
+  assert.throws(() => box({ at: [0, 0, 0], size: [10, 4, 6], round: 'x' }), /round/);
+  assert.throws(() => disc([0, 0, 0], { on: 'b', r: 0 }), /r must/);
 });

@@ -5,8 +5,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { box, line, panel, renderSvg } from '../src/skills/figure-craft/engine/iso.mjs';
-import { lint, lintViews } from '../src/skills/figure-craft/engine/lint.mjs';
-import { turnShapes, sortShapes, renderViews, orbitHtml } from '../src/skills/figure-craft/engine/orbit.mjs';
+import { lint, lintViews, lintStates } from '../src/skills/figure-craft/engine/lint.mjs';
+import { turnShapes, sortShapes, renderViews, renderStates, orbitHtml } from '../src/skills/figure-craft/engine/orbit.mjs';
 
 const has = (list, id) => list.some((e) => e.rule === id);
 function scene(extra = {}) {
@@ -34,7 +34,9 @@ test('open box: the inside is drawn and contents are clipped to the opening', ()
 
 test('L16: contents of a closed box are hidden; L18: contents must stay inside', () => {
   const closed = scene().map((s) => (s.id === 'cab' ? (({ open, wall, ...r }) => r)(s) : s));
-  assert.ok(lint(renderSvg(closed, { labels }).model).errors.some((e) => e.rule === 'L16-hidden-part' && /no open side/.test(e.message)));
+  const shut = renderSvg(closed, { labels, requiredParts: ['bottle'] });
+  assert.doesNotMatch(shut.svg, /data-id="bottle"/, 'contents of a closed body are not drawn');
+  assert.ok(lint(shut.model).errors.some((e) => e.rule === 'L16-hidden-part' && /no open side/.test(e.message)));
   const out = scene(); out[3] = box({ at: [80, 30, 62], size: [10, 10, 18], inside: 'cab', id: 'bottle' });
   assert.ok(has(lint(renderSvg(out).model).errors, 'L18-outside-container'));
 });
@@ -75,4 +77,44 @@ test('renderViews and orbitHtml: four views with separate ids, controls and a no
   const r = lintViews(views);
   assert.deepEqual(r.errors.filter((e) => /^view /.test(e.message)), []);
   assert.throws(() => orbitHtml(views.slice(0, 2)), /four/);
+});
+
+test('cutaway: open xy shows the whole inside and turns with the body', () => {
+  const sc = scene({ open: 'xy' });
+  const { model } = renderSvg(sc, { labels });
+  assert.equal(has(lint(model).errors, 'L16-hidden-part'), false);
+  assert.equal(turnShapes(sc, 1).find((s) => s.id === 'cab').open, 'x');
+  assert.equal(turnShapes(sc, 3).find((s) => s.id === 'cab').open, 'y');
+  assert.equal(turnShapes(sc, 2).find((s) => s.id === 'cab').open, undefined);
+});
+
+test('states: shapes with when are drawn only in their state, and the orbit gets a state button', () => {
+  const sc = scene().filter((s) => s.id !== 'door').concat([
+    box({ at: [70, 20, 3], size: [46, 3, 120], material: 'steel', id: 'door', when: 'open' }),
+    box({ at: [70, 20, 3], size: [3, 50, 120], material: 'steel', id: 'door', when: 'closed' }),
+  ]);
+  const states = renderStates(sc, { labels, requiredParts: ['bottle'], states: ['open', 'closed'] });
+  assert.deepEqual(Object.keys(states), ['open', 'closed']);
+  assert.deepEqual(states.open[0].model.shapes.find((s) => s.id === 'door').size, [46, 3, 120]);
+  assert.deepEqual(states.closed[0].model.shapes.find((s) => s.id === 'door').size, [3, 50, 120]);
+  assert.notEqual(states.open[0].svg.match(/class="(\w+)-fig"/)[1], states.closed[0].svg.match(/class="(\w+)-fig"/)[1]);
+  const html = orbitHtml(states, { label: 'Cabinet' });
+  assert.match(html, /data-state="open" data-view="0">/);
+  assert.match(html, /data-state="closed" data-view="0" hidden>/);
+  assert.match(html, /data-orbit-toggle[^>]*>Closed</);
+  assert.match(html, /max-height:min\(70vh,640px\)/, 'the figure never grows taller than the screen');
+  assert.ok(Array.isArray(lintStates(states).errors));
+  assert.deepEqual(Object.keys(renderStates(scene(), { labels })), ['default']);
+});
+
+test('lintViews: a part hidden from the front passes when another side shows it', () => {
+  const sc = [
+    box({ at: [20, -12, 0], size: [20, 12, 20], material: 'dark', id: 'motor' }), // behind the body: drawn first
+    panel([[22, -12, 4], [38, -12, 16]], { on: 'motor', face: '-y', material: 'steel', id: 'motor-plate' }),
+    box({ at: [0, 0, 0], size: [60, 60, 80], material: 'steel', id: 'body' }),
+    box({ at: [70, 0, 0], size: [10, 10, 10], material: 'plain', id: 'stool' }),
+  ];
+  const lab = [{ at: [30, -6, 10], text: 'Motor' }];
+  assert.ok(has(lint(renderSvg(sc, { labels: lab }).model).errors, 'L16-hidden-part'));
+  assert.equal(has(lintViews(renderViews(sc, { labels: lab })).errors, 'L16-hidden-part'), false);
 });

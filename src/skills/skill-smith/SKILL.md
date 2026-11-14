@@ -1,7 +1,7 @@
 ---
 name: skill-smith
 description: Build a new Skill Foundry skill from the template, as ten layers, portable for other people, so it passes the factory linter, evals and review and has a recorded real run. Use when asked for a new skill or to turn a repeated workflow into a skill. Do not use for a typo fix in an existing skill.
-version: 1.1.0
+version: 1.0.0
 scope: factory
 ---
 
