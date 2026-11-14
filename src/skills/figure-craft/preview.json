@@ -3,8 +3,8 @@
   "tagline": "Any object you describe, drawn full and lit, with real materials and labels on hover.",
   "prompt": "explain how a CDN edge cache serves a request, interactive",
   "outputs": [
-    "Self-contained HTML page and SVG figure with labels on hover",
-    "Lint result for L1 to L17",
+    "Self-contained HTML page: an object you can open, turn and hover, plus the SVG",
+    "Lint result for L1 to L19",
     "Checklist outcome",
     "Short report"
   ],

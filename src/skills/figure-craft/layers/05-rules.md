@@ -18,6 +18,8 @@ Machine-checked by `engine/lint.mjs`:
 11c. R-figure-craft-21: The parts the idea needs MUST be declared in `requiredParts`, drawn and labelled; a needed part is NEVER dropped to pass another check (`L14-missing-part`).
 11e. R-figure-craft-24: A labelled part MUST stay at least 40% visible; glass or one open side shows the inside (`L16-hidden-part`).
 11f. R-figure-craft-25: Solids MUST have the material of the real thing, at least two in a figure of three or more solids (`L17-one-material`).
+11g. R-figure-craft-27: Inside parts and contents MUST be drawn inside the body and marked `inside`; NEVER beside it (`L18-outside-container`).
+11h. R-figure-craft-28: The figure MUST carry at least twelve face details, three per labelled part on average (`L19-sparse`).
 11d. R-figure-craft-22: A part above the ground MUST rest on or touch another part; NEVER float (`L15-floating`).
 
 Checked by the reviewer with the checklist:
@@ -31,3 +33,5 @@ Checked by the reviewer with the checklist:
 18. R-figure-craft-18: The figure MUST start from the goal the user stated; a missing goal is asked for, NEVER invented.
 19. R-figure-craft-23: Labels and leaders MUST stay hidden until their part is hovered, focused or tapped, then appear with motion; the page MUST name every part in a card so nothing depends on hover.
 20. R-figure-craft-26: The object MUST look like the real thing from outside, in its real materials, with light and shadow from the engine only; NEVER show only the machinery, and NEVER draw a shadow or highlight by hand.
+21. R-figure-craft-29: The reader MUST be able to turn the object (four views from `renderViews` in `orbitHtml`), and the back sides MUST carry their real features.
+22. R-figure-craft-30: Outlines MUST be the engine's one hairline weight; NEVER a heavier stroke.

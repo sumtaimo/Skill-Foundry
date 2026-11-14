@@ -12,7 +12,8 @@ detail comes from the skill and not from touching up the picture afterwards.
 - MUST add the small real features that make the object look real even where no label points: feet, hinges, a kick plate, a control strip, shelf edges, a power cable. These belong to the part they sit on (`on`).
 - MUST use a `dot` only for a point feature that is named in a label or the copy (a light, a sensor, a knob).
 - NEVER add a detail that the real part does not have, and NEVER add lines only to fill space.
-- The lint minimum is one to three details per labelled part; a real appliance or machine usually needs twelve or more details and panels in total to look real.
+- MUST reach the micro-detail minimum: at least twelve face details in the figure, and at least three per labelled part on average (lint `L19-sparse`). Aim well above it: screws at corners, vent slots as rows of short lines, rating plates, hinges, feet, seams, control knobs, cable entries.
+- MUST detail the back sides too (`face: '-x'` or `'-y'`), because the reader can turn the object. See [orbit](orbit.md).
 
 ## Parts table
 

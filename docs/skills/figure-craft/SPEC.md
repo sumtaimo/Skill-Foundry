@@ -1,6 +1,6 @@
 # figure-craft spec
 
-Isometric explanatory figures: one idea, one object, drawn from shared tokens with the iso engine and checked by lint rules L1-L17. The skill's own layers (`src/skills/figure-craft/layers/`) are the procedure; this file is the factory-side spec. Checklist item numbers (C#) refer to `CHECKLIST.md`.
+Isometric explanatory figures: one idea, one object, drawn from shared tokens with the iso engine and checked by lint rules L1-L19. The skill's own layers (`src/skills/figure-craft/layers/`) are the procedure; this file is the factory-side spec. Checklist item numbers (C#) refer to `CHECKLIST.md`.
 
 ## Inputs
 - A one-line prompt naming the idea.
@@ -69,6 +69,10 @@ A second reader restates the idea; warnings fixed or justified.
 | L15-floating | error | a part above the ground neither rests on nor touches another part |
 | L16-hidden-part | error | a labelled part is less than 40% visible behind later-drawn solids (glass does not hide) |
 | L17-one-material | error | three or more solids all of one material |
+| L18-outside-container | error | a shape marked `inside` reaches outside its container |
+| L19-sparse | error | fewer than 12 face details, or fewer than 3 per labelled part |
+
+Open and orbit: `open` bodies show contents marked `inside`; `renderViews` gives four views a quarter turn apart and `orbitHtml` the turn controls. Style: hairline outlines, near-white palette.
 
 Materials and light: `steel`, `white`, `dark`, `glass`, `plain`, `ink`; round solids; panels; pipe tones. One light direction with soft cast shadows, from the engine only.
 

@@ -17,6 +17,7 @@ function clean() {
     line([[80, 4, 10], [80, 16, 10]], { on: 'postB', face: 'x', id: 'postB-band' }),
     line([[10, 20, 44], [70, 20, 44]], { on: 'beam', face: 'y', id: 'beam-joint' }),
     line([[80, 4, 42], [80, 16, 42]], { on: 'beam', face: 'x', id: 'beam-end' }),
+    ...Array.from({ length: 7 }, (_, i) => line([[4 + i * 10, 20, 46], [8 + i * 10, 20, 46]], { on: 'beam', face: 'y', id: `beam-rivet-${i}` })),
     box({ at: [0, 40, 0], size: [10, 10, 10], id: 'mover', anim: 'slide', move: [20, 0, 0] }),
   ];
   return renderSvg(shapes, { labels: [
@@ -244,4 +245,12 @@ test('L2: a panel must lie in its face', () => {
   assert.equal(has(lint(ok).errors, 'L2-face-detail'), false);
   const bad = renderSvg([box({ at: [0, 0, 0], size: [40, 40, 40], id: 'b' }), panel([[40, 5, 5], [40, 55, 35]], { on: 'b', face: 'x' })]).model;
   assert.ok(has(lint(bad).errors, 'L2-face-detail'));
+});
+
+test('L19-sparse: a figure with named parts needs at least 12 face details', () => {
+  const shapes = [box({ at: [0, 0, 0], size: [60, 60, 60], id: 'body' }), line([[60, 5, 50], [60, 55, 50]], { on: 'body', face: 'x' })];
+  const opts = { labels: [{ at: [30, 30, 30], text: 'Body' }], requiredParts: ['body'] };
+  assert.ok(lint(renderSvg(shapes, opts).model).errors.some((e) => e.rule === 'L19-sparse' && /min 12/.test(e.message)));
+  const rich = shapes.concat(Array.from({ length: 11 }, (_, i) => line([[60, 5, 4 + i * 4], [60, 55, 4 + i * 4]], { on: 'body', face: 'x' })));
+  assert.equal(has(lint(renderSvg(rich, opts).model).errors, 'L19-sparse'), false);
 });
