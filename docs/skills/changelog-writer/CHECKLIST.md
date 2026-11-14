@@ -1,12 +1,14 @@
 # changelog-writer review (2026-11-14)
 
-Review against `docs/factory/REVIEW.md`. Status: ready.
+Review against `docs/factory/REVIEW.md`. Status: ready. Migrated to the ten-layer standard (STANDARD.md section 12) on 2026-11-14.
 
 ## Clarity
 - [x] Procedure is numbered, imperative, one action per step
 - [x] Every rule uses MUST or NEVER and has an id `R-changelog-writer-<n>`
 - [x] No step relies on unstated knowledge (bump table is in references/)
 - [x] SKILL.md is at most 150 lines
+- [x] Ten core layers `layers/01-intent.md` to `layers/10-evidence.md` with numbered steps, linked from SKILL.md (`chk-layers`)
+- [x] Self-contained: no `src/`, `docs/` or `tests/` paths in SKILL.md, layers or references (`chk-portable`)
 
 ## Triggers
 - [x] Description says when to use and when not (commit messages, docs, marketing; names copy-tight)
@@ -22,7 +24,8 @@ Review against `docs/factory/REVIEW.md`. Status: ready.
 ## Evals
 - [x] Three cases with unique ids, including negative cases (`notContains`, `maxLines`)
 - [x] Pass with `runEvals` in `tests/changelog-writer.test.mjs`
-- [x] Live evals: 3 of 3 pass on fresh real-agent recordings in `evals/live/`
+- [x] Live evals: 3 of 3 pass on fresh real-agent recordings in `evals/live/` (re-recorded after the migration)
+- [x] `new-behaviour-minor` also rejects `## 1.0.0 - 2026-11-14`: a real agent once kept the old version in the heading and only passed because `## 1.1.0` appeared in a side sentence
 
 ## Preview quality
 - [x] Tagline under 90 characters, 3 tags, cover uses only tokens and currentColor
@@ -33,4 +36,4 @@ Review against `docs/factory/REVIEW.md`. Status: ready.
 ## Release
 - [x] `node src/factory/lint-skills.mjs changelog-writer` exits 0
 - [x] Version 1.0.0 matches SKILL.md, CHANGELOG and registry
-- [x] Packed: `changelog-writer-1.0.0.zip`, sha256 `1368c5ce3dc04e9541378c4348776fa7e15436a225834fd9ebc65dd2e1b2957a`
+- [x] Packed: `changelog-writer-1.0.0.zip`, sha256 `1ded70bf5031e6a326fd19058ac4af4298d9b4b802aacd1f638d89210cf398de`
