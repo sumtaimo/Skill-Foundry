@@ -13,7 +13,7 @@ import vm from 'node:vm';
 import { packAll } from '../factory/pack.mjs';
 import { loadSkills } from './lib/content.mjs';
 import { DICTS } from './lib/i18n.mjs';
-import { renderIndex, renderSkillPage, zipName } from './lib/render.mjs';
+import { renderIndex, renderSkillPage, zipName, installOneLiner } from './lib/render.mjs';
 
 const HERE = fileURLToPath(import.meta.url);
 const REPO_ROOT = resolve(dirname(HERE), '..', '..');
@@ -86,7 +86,7 @@ export async function buildSite({ root = REPO_ROOT, out = join(REPO_ROOT, 'dist'
 export function agentIndex(skills, checksums) {
   return {
     name: 'Skill Foundry',
-    install: 'Unzip a skill zip into .claude/skills/ so the folder keeps its name, then restart the agent.',
+    install: 'Replace {base} in installCommand with the URL of the folder this file was fetched from (ending in /), run it in the project root, then restart the agent. The command stops if the SHA-256 does not match.',
     skills: skills.map((s) => ({
       name: s.name,
       title: s.title,
@@ -100,6 +100,7 @@ export function agentIndex(skills, checksums) {
       zip: `downloads/${zipName(s)}`,
       sha256: checksums[zipName(s)].sha256,
       bytes: checksums[zipName(s)].bytes,
+      installCommand: installOneLiner(s, checksums[zipName(s)].sha256, `{base}downloads/${zipName(s)}`),
       liveEvals: s.live ? { passed: s.live.passed, total: s.live.total } : null,
     })),
   };
@@ -107,9 +108,10 @@ export function agentIndex(skills, checksums) {
 
 /** Plain-text index (llms.txt convention): one block per ready skill. */
 export function llmsTxt(skills, checksums) {
-  const lines = ['# Skill Foundry', '', '> Reusable AI agent skills. Each is a folder to unzip into .claude/skills/. Paths are relative to this file.', '', '## Skills', ''];
+  const lines = ['# Skill Foundry', '', '> Reusable AI agent skills. Each is a folder to unzip into .claude/skills/. Paths are relative to this file. In each install command, replace {base} with the URL of the folder this file came from (ending in /) and run it in the project root; it stops if the SHA-256 does not match.', '', '## Skills', ''];
   for (const s of skills) {
     lines.push(`- [${s.name} ${s.version}](skills/${s.name}/index.html): ${s.description}`);
+    lines.push(`  install: ${installOneLiner(s, checksums[zipName(s)].sha256, `{base}downloads/${zipName(s)}`)}`);
     lines.push(`  roles: ${s.roles.join(', ') || '-'}; zip: downloads/${zipName(s)}; sha256: ${checksums[zipName(s)].sha256}; real-agent evals: ${s.live ? `${s.live.passed}/${s.live.total}` : 'not yet'}`);
   }
   lines.push('', '## Machine index', '', '- [skills.json](skills.json)', '');

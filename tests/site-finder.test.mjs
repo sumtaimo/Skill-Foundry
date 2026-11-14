@@ -65,6 +65,7 @@ test('skills.json lists every ready skill with zip, sha256 matching the file, ro
     assert.equal(createHash('sha256').update(buf).digest('hex'), s.sha256, s.name);
     assert.equal(buf.length, s.bytes);
     assert.ok(s.description.length > 20 && s.roles.length > 0, s.name);
+    assert.ok(s.installCommand.includes(`"{base}${s.zip}"`) && s.installCommand.includes(s.sha256), `${s.name} installCommand`);
     readFileSync(join(out, s.page));
   }
 });
@@ -74,6 +75,7 @@ test('llms.txt names every ready skill with its zip and sha256', async () => {
   assert.match(txt, /^# Skill Foundry/);
   for (const r of ready) assert.match(txt, new RegExp(`\\[${r.name} `));
   assert.match(txt, /sha256: [0-9a-f]{64}/);
+  assert.match(txt, /install: mkdir -p \.claude\/skills && curl -fsSL "\{base\}downloads\//);
 });
 
 test('installOneLiner downloads, verifies the sha256 and unzips into .claude/skills', () => {
