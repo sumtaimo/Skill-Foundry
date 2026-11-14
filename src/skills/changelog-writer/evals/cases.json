@@ -48,5 +48,65 @@
         "value": 12
       }
     ]
+  },
+  {
+    "id": "english-request-english-entry",
+    "prompt": "Skill spec-check is at 1.2.0. On 2026-11-14 we added an example for empty input. Write the changelog entry.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## 1.3.0 - 2026-11-14"
+      },
+      {
+        "type": "contains",
+        "value": "- Add"
+      },
+      {
+        "type": "contains",
+        "value": "example"
+      },
+      {
+        "type": "notContains",
+        "value": "ការ"
+      },
+      {
+        "type": "notContains",
+        "value": "បន្ថែម"
+      },
+      {
+        "type": "maxLines",
+        "value": 20
+      }
+    ]
+  },
+  {
+    "id": "no-added-qualifier",
+    "prompt": "Skill spec-check is at 1.2.0. On 2026-11-14 we fixed a link in the references. Write the changelog entry.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## 1.2.1 - 2026-11-14"
+      },
+      {
+        "type": "contains",
+        "value": "- Fix"
+      },
+      {
+        "type": "notContains",
+        "value": "broken"
+      },
+      {
+        "type": "notContains",
+        "value": "Broken"
+      },
+      {
+        "type": "notContains",
+        "value": "dead link"
+      },
+      {
+        "type": "maxLines",
+        "value": 20
+      }
+    ]
   }
 ]

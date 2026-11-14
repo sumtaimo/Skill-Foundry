@@ -1,0 +1,8 @@
+{
+  "case": "no-added-qualifier",
+  "prompt": "Skill spec-check is at 1.2.0. On 2026-11-14 we fixed a link in the references. Write the changelog entry.",
+  "agent": "claude",
+  "recordedAt": "2026-11-14",
+  "output": "```markdown\n## 1.2.1 - 2026-11-14\n\n- Fix a link in the references.\n```\n\nBump: PATCH (1.2.0 → 1.2.1). The only change is a fix, and fixes give PATCH.\n\nMismatches: not checked, spec-check not found in this repo (no `src/skills/spec-check/` folder and no entry in `src/factory/registry.json`); set its SKILL.md version, CHANGELOG.md and any registry entry to 1.2.1.\n\nQuestions:\n1. Where is spec-check kept? Send its folder path so I can check the 1.2.0 heading and the version files.\n2. Lesson L4 says skill versions stay put until you call a version final. Should 1.2.1 be applied now, or should this fix be recorded under 1.2.0?",
+  "files": []
+}

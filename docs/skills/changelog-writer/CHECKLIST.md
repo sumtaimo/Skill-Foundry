@@ -16,15 +16,16 @@ Review against `docs/factory/REVIEW.md`. Status: ready. Migrated to the ten-laye
 
 ## Coverage
 - [x] Main path (MINOR), breaking path (MAJOR) and missing-input path covered
+- [x] Language path (English request gives an English entry, R-changelog-writer-10) and no-added-qualifier path (R-changelog-writer-11) covered
 - [x] Every rule in RULES.json has a check or checklist item
 
 ## Examples
 - [x] Three realistic examples; they follow the skill's own rules
 
 ## Evals
-- [x] Three cases with unique ids, including negative cases (`notContains`, `maxLines`)
+- [x] Five cases with unique ids, including negative cases (`notContains`, `maxLines`)
 - [x] Pass with `runEvals` in `tests/changelog-writer.test.mjs`
-- [x] Live evals: 3 of 3 pass on fresh real-agent recordings in `evals/live/` (re-recorded after the migration)
+- [x] Live evals: 5 of 5 pass on fresh real-agent recordings in `evals/live/` (re-recorded after the migration)
 - [x] `new-behaviour-minor` also rejects `## 1.0.0 - 2026-11-14`: a real agent once kept the old version in the heading and only passed because `## 1.1.0` appeared in a side sentence
 
 ## Preview quality
@@ -36,4 +37,4 @@ Review against `docs/factory/REVIEW.md`. Status: ready. Migrated to the ten-laye
 ## Release
 - [x] `node src/factory/lint-skills.mjs changelog-writer` exits 0
 - [x] Version 1.0.0 matches SKILL.md, CHANGELOG and registry
-- [x] Packed: `changelog-writer-1.0.0.zip`, sha256 `1ded70bf5031e6a326fd19058ac4af4298d9b4b802aacd1f638d89210cf398de`
+- [x] Packed: `changelog-writer-1.0.0.zip`, sha256 `b396815b5694acd49c47b5c1a20d328a39367a978d2c0afff9750900e5710880`
