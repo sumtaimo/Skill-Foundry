@@ -44,6 +44,6 @@ Claude Code was started with a plain request that did not name any skill.
 | Wordy error toast | copy-tight | Correct format; kept "Invoice" with its capital |
 | Typo fix, write changelog entry | changelog-writer | Correct PATCH bump 1.2.0 to 1.2.1 |
 | Turn a PR checklist into a skill | skill-smith | Asked the interview questions first, guessed nothing |
-| Interactive figure of a database index | figure-craft | First run stopped honestly without permission to run `node`. Re-run with `Bash(node:*)`: lint 0 errors, 0 warnings; `checkPage` 0 problems; page kept as `src/skills/figure-craft/evals/live/files/install-db-index.html` |
+| Interactive figure of a database index | figure-craft | First run stopped honestly without permission to run `node`. Re-run with `Bash(node:*)`: lint 0 errors, 0 warnings; `checkPage` 0 problems; details in `docs/factory/notes/figure-craft-suggestions.md` (figure-craft is locked; the evidence is not kept in its folder) |
 
 Finding: figure-craft needs permission to run `node` for its engine and lint. Without it the agent cannot finish.

@@ -1,8 +1,0 @@
-{
-  "case": "not-for-charts",
-  "prompt": "Make a bar chart of monthly sales.",
-  "agent": "claude-code subagent (fresh context, skill folder only)",
-  "recordedAt": "2026-11-14",
-  "output": "I won't use figure-craft for this. It makes isometric diagrams that explain how something works, and its rules exclude data charts, bar charts included. A bar chart of monthly sales needs a charting tool.\n\nI can make the chart another way. To do that I need your sales figures: the month and the sales total for each month. Paste them here or point me to the file they're in.",
-  "files": []
-}

@@ -9,3 +9,4 @@ Remove with:  node .harness/memory.mjs forget L3
 - [L4] (2026-11-14) A skill is done only when a fresh real agent, given only the skill folder, passes its live evals (node src/factory/live-evals.mjs <name>) and routing evals; hand-written answers never count as proof.
 - [L5] (2026-11-14) When a real agent fails a skill eval, fix the skill, not the eval case, and re-record with a new agent.
 - [L6] (2026-11-14) Never bring brands, products or languages from outside this project (e.g. WABOOKS, WeBill365, WeCafe, Korean) into Skill Foundry work or questions; use only what is in this repository or what the user says here.
+- [L7] (2026-11-14) Change at most one skill per session, never edit a skill listed in src/factory/locks.json (write notes in docs/factory/notes/ instead), and run npm run guard before every commit; on a WARNING stop and tell the user.
