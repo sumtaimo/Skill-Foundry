@@ -39,6 +39,7 @@ See `RULES.json`. Every rule maps to a linter check or a reviewer checklist item
 
 - `node src/factory/lint-skills.mjs <name>` prints no problems.
 - `node src/factory/live-evals.mjs <name>` prints 0 failed, on recordings made by a fresh agent.
+- `node src/factory/portable-check.mjs <name> --prompt "<request>" --record` records a real agent using the skill in an empty project outside the repository (skills with `scope: factory` are exempt).
 - `node src/factory/run-skill.mjs <name> --case <id>` records a real run with status `pass` for a skill that produces files.
 
 ## Review
