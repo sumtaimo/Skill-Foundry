@@ -299,3 +299,10 @@ test('a labelled moving part gets an unseen hit area along its path, and solids 
   assert.match(svg, /data-id="puck"[^>]*><path d="[^"]+" fill="none" stroke="none" pointer-events="all"/);
   assert.match(svg, /filter="url\(#fc-touch\)"/);
 });
+
+test('line weight follows the size of the drawing: a small scene gets a thinner stroke than a large one', () => {
+  const w = (size) => Number(/stroke-width="([\d.]+)" stroke-linejoin/.exec(renderSvg([box({ at: [0, 0, 0], size, r: 0 })]).svg)[1]);
+  const small = w([30, 30, 30]); const large = w([300, 300, 300]);
+  assert.ok(small < large, `${small} < ${large}`);
+  assert.ok(small >= 0.25 && large <= 1);
+});

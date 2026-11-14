@@ -299,8 +299,6 @@ const FLAT = { plain: FLAT_LIGHT, steel: FLAT_LIGHT, white: FLAT_LIGHT, blue: FL
 const GLASS_OPACITY = 0.38;
 /** Light comes from the upper left: the left-facing face is lit and shadows fall toward +x. */
 const SHADOW = { dx: 0.5, dy: -0.12, max: 34, opacity: 0.17, blur: 3, contact: 0.24, contactBlur: 0.9 };
-/** Hairline outlines: one thin weight for every edge, as in a technical drawing. */
-const HAIR = 0.6;
 const TONE_STROKE = { copper: 'var(--mat-copper)', cold: 'var(--mat-cold)', warm: 'var(--mat-warm)' };
 const pathOf = (pts) => 'M' + pts.map(([x, y]) => `${r2(x)} ${r2(y)}`).join(' L') + ' Z';
 
@@ -382,6 +380,9 @@ export function renderSvg(shapes, opts = {}) {
   const nameOf = new Map(targets.map((id, i) => [id, model.labels[i].text]).filter(([id]) => id !== null));
   model.viewBox = [r2(vx0 - padding), r2(vy0 - padding), r2(vx1 - vx0 + 2 * padding), r2(vy1 - vy0 + 2 * padding)];
 
+  // Line weight follows the size of the drawing, so a small object and a large one get the same hairline on screen.
+  const HAIR = r2(Math.min(1, Math.max(0.25, model.viewBox[2] / 480)));
+  const BOLD = r2(HAIR * 2.2); const TONE = r2(HAIR * 1.8);
   const defs = []; const body = []; const css = []; model.animations = [];
   const fig = `.${pre}-fig`;
   if (!flat) {
@@ -541,7 +542,7 @@ export function renderSvg(shapes, opts = {}) {
       inner = flat ? '' : `<ellipse cx="${r2(cx)}" cy="${r2(cy)}" rx="${r2(s.r * 1.2)}" ry="${r2(s.r * 0.85)}" fill="${F('var(--mat-glow)')}" opacity="0.5" filter="url(#${pre}-glow)" pointer-events="none"/>`;
     } else if (s.kind === 'line') {
       const stroke = s.tone && !flat ? TONE_STROKE[s.tone] : s.bold ? 'var(--fg)' : 'var(--line-strong)';
-      inner = `<path d="M${s.points.map((p) => project(p).map(r2).join(' ')).join(' L')}" fill="${F('none')}" stroke="${S(stroke)}" stroke-width="${s.bold ? 1.3 : s.tone ? 1.1 : HAIR}" stroke-linecap="round" stroke-linejoin="round"/>`;
+      inner = `<path d="M${s.points.map((p) => project(p).map(r2).join(' ')).join(' L')}" fill="${F('none')}" stroke="${S(stroke)}" stroke-width="${s.bold ? BOLD : s.tone ? TONE : HAIR}" stroke-linecap="round" stroke-linejoin="round"/>`;
     } else {
       const [cx, cy] = project(s.at);
       const fill = F(s.tone === 'ink' ? (flat ? 'var(--fg)' : 'var(--iso-ink)') : 'var(--ok)');
@@ -600,8 +601,8 @@ export function renderSvg(shapes, opts = {}) {
       // A chip above the part: a short leader that draws itself, a plate for legibility over the drawing, and the name.
       const b = labelBox(l);
       const cx = Math.min(Math.max(l.x, b.minX + 2), b.maxX - 2);
-      const chip = `<line class="leader" pathLength="1" x1="${r2(l.x)}" y1="${r2(l.y)}" x2="${r2(cx)}" y2="${r2(b.maxY + 2)}" stroke="${S('var(--fg)')}" stroke-width="0.75"/>` +
-        `<rect x="${r2(b.minX - 4)}" y="${r2(b.minY - 2)}" width="${r2(b.maxX - b.minX + 8)}" height="${r2(b.maxY - b.minY + 4)}" rx="3" fill="${F('var(--surface)')}" stroke="${S('var(--line-strong)')}" stroke-width="0.6"/>` +
+      const chip = `<line class="leader" pathLength="1" x1="${r2(l.x)}" y1="${r2(l.y)}" x2="${r2(cx)}" y2="${r2(b.maxY + 2)}" stroke="${S('var(--fg)')}" stroke-width="${HAIR}"/>` +
+        `<rect x="${r2(b.minX - 4)}" y="${r2(b.minY - 2)}" width="${r2(b.maxX - b.minX + 8)}" height="${r2(b.maxY - b.minY + 4)}" rx="3" fill="${F('var(--surface)')}" stroke="${S('var(--line-strong)')}" stroke-width="${HAIR}"/>` +
         `<text x="${r2(l.tx)}" y="${r2(l.ty)}" text-anchor="start" dominant-baseline="middle" font-size="${fontSize}" font-family="system-ui, sans-serif" fill="${F('var(--fg)')}">${esc(l.text)}</text>`;
       body.push(targets[li] !== null ? `<g class="${pre}-label" data-for="${esc(targets[li])}">${chip}</g>` : `<g class="${pre}-label">${chip}</g>`);
       return;
