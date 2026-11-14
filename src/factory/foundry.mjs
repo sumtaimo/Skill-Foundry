@@ -14,7 +14,7 @@
  * those roles get it automatically.
  * @governed-by PO_ARCHITECT
  */
-import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, copyFileSync, statSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, copyFileSync, realpathSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join, resolve, dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -103,7 +103,7 @@ export function main(argv, log = console.log) {
   const [cmd, ...rest] = argv;
   const force = rest.includes('--force');
   const ri = rest.indexOf('--role');
-  const names = rest.filter((a, i) => !a.startsWith('--') && i !== ri + 1);
+  const names = rest.filter((a, i) => !a.startsWith('--') && !(ri >= 0 && i === ri + 1));
   const show = (r) => log(`${r.action.padEnd(8)} ${r.name}${r.kept.length ? `  (kept your changes: ${r.kept.join(', ')})` : ''}${r.harness ? `  → harness: ${r.harness}` : ''}`);
   if (cmd === 'list') {
     for (const s of catalog()) log(`${s.name.padEnd(18)} ${s.version.padEnd(7)} ${s.roles.join(',').padEnd(26)} ${s.scope === 'factory' ? '(repo only) ' : ''}${s.description.slice(0, 70)}`);
@@ -133,6 +133,7 @@ export function main(argv, log = console.log) {
   return 0;
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === HERE) {
+// npx runs the file through a symlink in node_modules/.bin, so compare real paths.
+if (process.argv[1] && realpathSync(resolve(process.argv[1])) === realpathSync(HERE)) {
   try { process.exitCode = main(process.argv.slice(2)); } catch (e) { console.error(e.message); process.exitCode = 1; }
 }
