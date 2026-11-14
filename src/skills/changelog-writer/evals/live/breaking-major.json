@@ -1,0 +1,8 @@
+{
+  "case": "breaking-major",
+  "prompt": "Skill spec-check is at 1.1.0. On 2026-11-20 we renamed the Output section. Write the entry.",
+  "agent": "claude-code subagent (fresh context, skill folder only)",
+  "recordedAt": "2026-11-14",
+  "output": "```\n## 2.0.0 - 2026-11-20\n\n- Breaking: Rename the Output section so old reports no longer match.\n```\n\n**Bump: MAJOR (1.1.0 to 2.0.0).** Renaming a required section is a breaking change, so the major version goes up.\n\nPut this entry at the top of `CHANGELOG.md`, above `## 1.1.0`. Leave the older entries as they are.\n\n**Version mismatches:** I couldn't check these, because I don't have spec-check's files. Set the version to `2.0.0` in both of these places:\n- the `version:` line at the top of spec-check's `SKILL.md`\n- spec-check's entry in the skill registry",
+  "files": []
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "name": "skill-smith",
+    "version": "1.1.0",
+    "purpose": "Guides an agent through building a new skill that passes the factory linter, evals and review.",
+    "status": "ready"
+  },
+  {
+    "name": "figure-craft",
+    "version": "1.1.0",
+    "purpose": "Draws isometric explanatory figures with tokens, a shared iso engine and geometry lint L1 to L8.",
+    "status": "ready"
+  },
+  {
+    "name": "changelog-writer",
+    "version": "1.0.0",
+    "purpose": "Turns merged changes into a CHANGELOG entry with the correct semver bump.",
+    "status": "ready"
+  }
+]

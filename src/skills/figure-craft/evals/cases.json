@@ -1,0 +1,29 @@
+[
+  {
+    "id": "cdn-edge-cache-explainer",
+    "prompt": "explain how a CDN edge cache serves a request, interactive",
+    "expect": [
+      { "type": "contains", "value": "renderSvg" },
+      { "type": "contains", "value": "lint" },
+      { "type": "contains", "value": "prefers-reduced-motion" },
+      { "type": "notContains", "value": "<script src=" },
+      { "type": "maxLines", "value": 80 }
+    ]
+  },
+  {
+    "id": "no-raw-colours",
+    "prompt": "Draw a technical illustration of a load balancer in front of three servers.",
+    "expect": [
+      { "type": "contains", "value": "var(--" },
+      { "type": "notContains", "value": "fill=\"#" },
+      { "type": "notContains", "value": "stroke=\"#" }
+    ]
+  },
+  {
+    "id": "not-for-charts",
+    "prompt": "Make a bar chart of monthly sales.",
+    "expect": [
+      { "type": "notContains", "value": "renderSvg" }
+    ]
+  }
+]

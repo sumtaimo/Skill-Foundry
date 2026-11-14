@@ -1,0 +1,15 @@
+{
+  "name": "skill-foundry",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "dev": "node src/site/dev.mjs",
+    "evals:live": "node src/factory/live-evals.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.65.0"
+  }
+}

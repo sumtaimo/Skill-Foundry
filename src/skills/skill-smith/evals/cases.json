@@ -1,0 +1,38 @@
+[
+  {
+    "id": "new-skill-report",
+    "prompt": "Make a skill that rewrites UI copy to be short and plain.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "RULES.json"
+      },
+      {
+        "type": "contains",
+        "value": "lint-skills"
+      },
+      {
+        "type": "fileExists",
+        "value": "src/skills/copy-tight/SKILL.md"
+      },
+      {
+        "type": "maxLines",
+        "value": 60
+      }
+    ]
+  },
+  {
+    "id": "no-external-cover-links",
+    "prompt": "Draw the cover for the changelog-writer skill.",
+    "expect": [
+      {
+        "type": "notContains",
+        "value": "<script"
+      },
+      {
+        "type": "notContains",
+        "value": "href=\"http"
+      }
+    ]
+  }
+]

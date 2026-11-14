@@ -1,0 +1,5 @@
+[
+  { "id": "R-_template-1", "text": "The skill folder contains every required file.", "check": "chk-required-files" },
+  { "id": "R-_template-2", "text": "SKILL.md has valid frontmatter and all required sections.", "check": "chk-frontmatter" },
+  { "id": "R-_template-3", "text": "Placeholder: a rule that needs human judgement.", "checklist": "Reviewer confirms the rule is followed in the examples." }
+]

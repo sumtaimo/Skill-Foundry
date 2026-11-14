@@ -1,0 +1,7 @@
+{
+  "title": "skill-smith",
+  "tagline": "Build a new skill that passes the linter, evals and review.",
+  "prompt": "Make a skill that writes CHANGELOG entries from merged changes.",
+  "outputs": ["Skill folder under src/skills/<name>/", "Zip in dist/", "Registry entry", "Short report"],
+  "tags": ["meta", "factory", "authoring"]
+}
