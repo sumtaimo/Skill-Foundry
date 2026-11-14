@@ -1,7 +1,7 @@
 ---
 name: figure-craft
 description: Draws isometric explanatory figures with a token palette, a shared iso engine and a geometry lint. Use for any request for an explanatory diagram, technical illustration or interactive explainer of how a thing works. Do not use for data charts, photos, logos, UI mockups or decorative art.
-version: 1.1.0
+version: 1.0.0
 ---
 
 # figure-craft
@@ -60,6 +60,6 @@ Mention docs paths in backticks; never link outside the skill folder.
 
 - One self-contained HTML page or SVG with the figure, tokens inlined, no external scripts.
 - The lint result (errors and warnings) and the checklist outcome.
-- A short report: files, the engine functions used (name `renderSvg` and `lint` when used), idea sentence, motion story, open items.
+- A short report: files, idea sentence, motion story, open items.
 
 See [references](references/README.md) and [examples](examples/README.md).

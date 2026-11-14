@@ -7,7 +7,7 @@
   },
   {
     "name": "figure-craft",
-    "version": "1.1.0",
+    "version": "1.0.0",
     "purpose": "Draws isometric explanatory figures with tokens, a shared iso engine and geometry lint L1 to L8.",
     "status": "ready"
   },

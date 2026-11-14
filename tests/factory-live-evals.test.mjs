@@ -10,11 +10,14 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { scoreLive, agentPrompt } from '../src/factory/live-evals.mjs';
+import { loadLocks } from '../src/factory/skill-guard.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const registry = JSON.parse(readFileSync(path.join(ROOT, 'src', 'factory', 'registry.json'), 'utf8'));
 
+const locks = loadLocks(ROOT);
 for (const r of registry.filter((x) => x.status === 'ready')) {
+  if (locks[r.name]) { test(`live evals: ${r.name} is locked (owner: ${locks[r.name].owner}); skipped here`, { skip: 'locked skill' }, () => {}); continue; }
   test(`live evals: ${r.name} passes on real agent recordings`, () => {
     const s = scoreLive(path.join(ROOT, 'src', 'skills', r.name));
     assert.deepEqual(s.missing, [], `missing live recordings: ${s.missing.join(', ')} (run: node src/factory/live-evals.mjs ${r.name} --run)`);

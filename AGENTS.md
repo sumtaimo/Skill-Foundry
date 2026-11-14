@@ -72,6 +72,9 @@ Every agent that creates or changes a skill in `src/skills/` MUST:
 5. Fix the skill when a real agent fails; never weaken a case just to pass, and never write a recording by hand.
 6. Never set status `ready` in `src/factory/registry.json` until `npm test` passes (it fails on missing or stale recordings).
 7. Report honestly which results came from a real agent and which from hand-written examples.
+8. **One skill per session.** Change at most one skill (`src/skills/<name>/` and `docs/skills/<name>/`) in a session. Site and factory work is not a skill.
+9. **Respect other agents.** Never edit a skill listed in `src/factory/locks.json`; write suggestions to `docs/factory/notes/` instead. Only its owner unlocks it (`SKILL_OWNER=<name>`).
+10. Run `npm run guard` before every commit. If it prints `WARNING skill-guard`, stop, do not commit, and tell the user.
 
 ---
 
