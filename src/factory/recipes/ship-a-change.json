@@ -1,0 +1,18 @@
+{
+  "id": "ship-a-change",
+  "title": "Ship a change: retest, release note, error copy",
+  "prompt": "We are at version 2.3.0. Today is 2026-11-14. We changed our checkout so promo codes now apply before shipping is calculated, and we added a limit of 5 promo codes per order. Our new error message for the sixth code says: 'We are sorry, but it is not possible for you to add any more promo codes to this order at this time.' Please give me what we should retest, the changelog entry, and a shorter error message.",
+  "recordedAt": "2026-11-14",
+  "agent": "claude -p in an empty project outside the repository, with test-planner, changelog-writer, copy-tight installed",
+  "hash": "237753d2350793f0be373cdd78aa51c1dd2cd15b7894f41ec1cefe5c6af74a6b",
+  "exit": 0,
+  "used": [
+    "test-planner",
+    "changelog-writer",
+    "copy-tight"
+  ],
+  "leakedRepoRules": false,
+  "touchedRepo": [],
+  "cost": 0.007453400000000001,
+  "answer": "Here are the three outputs. The project has no CHANGELOG.md at its root, so the changelog entry is written for the version bump but not checked against an existing file.\n\n## Regression checklist: checkout promo codes 2.3.0\n\nChange: Promo codes now apply before shipping is calculated, and each order is limited to 5 promo codes, with a sixth code rejected.\n\n### Promo codes\n1. [ ] Apply a promo code and confirm its discount is taken off before shipping is calculated. _promo codes now apply before shipping is calculated_\n2. [ ] Add up to 5 promo codes to one order and confirm each is accepted. _limit of 5 promo codes per order_\n3. [ ] Add a sixth promo code and confirm it is rejected with \"We are sorry, but it is not possible for you to add any more promo codes to this order at this time.\" _sixth code is rejected with the message_\n4. [ ] Confirm the 5 accepted codes still apply after the sixth is rejected. _limit of 5 promo codes per order_\n\n### Shipping\n5. [ ] Confirm shipping is calculated on the discounted subtotal when a promo code is applied. _shipping calculation that now depends on the discounted subtotal_\n6. [ ] Confirm shipping is no longer calculated on the undiscounted subtotal. _promo codes now apply before shipping is calculated_\n\n### Possible impact, not stated\n- Does the order total or the order confirmation change when shipping is based on the discounted subtotal? The change text does not name it.\n\n### Open questions\n- None.\n\n## Changelog entry\n\n```\n## 2.4.0 - 2026-11-14\n\n- Apply promo codes before shipping is calculated.\n- Limit orders to 5 promo codes.\n- Reject a sixth promo code with an error.\n```\n\nBump: MINOR (2.3.0 → 2.4.0)\nReason: both changes add new behaviour. The sixth-code rejection is part of the limit, so it is not a separate change.\n\nMismatches: not checked. No CHANGELOG.md was found at the project root; the only ones are in the skill folders. Set the checkout's version to 2.4.0 wherever it is recorded.\n\n## Shorter error message\n\nRewritten copy:\n\"You can't add more promo codes to this order.\"\n\nWhat changed:\n- Cut the apology.\n- Cut filler.\n- Used plain words."
+}

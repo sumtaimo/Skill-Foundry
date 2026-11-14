@@ -303,3 +303,11 @@ svg { --iso-top: var(--surface); --iso-a: var(--surface2); --iso-b: var(--line);
 .proof-ask code { white-space: normal; overflow-wrap: anywhere; }
 .proof-label { font-size: 0.72rem; letter-spacing: .06em; text-transform: uppercase; margin-right: 6px; }
 .proof-answer { margin: 0 0 10px; padding: 12px; border-left: 3px solid var(--line-strong); background: var(--surface2); white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.85rem; line-height: 1.5; max-height: 28rem; overflow: auto; }
+
+/* Skills working together: the chain of skills used, then the real answer as a document and in full. */
+.recipe { margin: 16px 0 28px; }
+.recipe-chain { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 6px 0 14px; }
+.recipe-arrow { color: var(--muted); }
+.recipe-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 20px; align-items: start; }
+.recipe-body .cover { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface2); padding: 10px; }
+@media (max-width: 720px) { .recipe-body { grid-template-columns: 1fr; } }

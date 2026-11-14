@@ -15,7 +15,7 @@ step-by-step layers, and showcases **the real output each skill produces**, neve
 |---|---|---|
 | Factory | One standard and one toolchain (lint, evals, pack, install, site) produce many skills, not one | [built] for lint, evals, pack, install, site |
 | Layers | Every skill uses the same layer template (10 core layers, more allowed); each layer is a detailed chapter of what the agent does at that step, like a book | [built] standard, template, lint `chk-layers`; both shipped skills use layers |
-| Composition | Skills are atoms that combine into larger workflows (for example BA + UX + QA on one feature) | [planned] |
+| Composition | Skills are atoms that combine into larger workflows (for example BA + UX + QA on one feature) | **[built]** recipes: `src/factory/recipes.json` lists a request that needs several skills; `node src/factory/recipe-run.mjs <id> --record` installs them all in one empty project and records which skills a real agent used, in order, and its answer; `tests/factory-recipes.test.mjs` requires a passing, current recording; the site shows it under "Skills working together" |
 | Real output | The showcase shows only files a skill really produced from a real input, captured with its check results | [built] run recorder; the site shows the newest passing run of the current version, and falls back to the skill's own demo when there is none |
 
 ## 3. Kinds of skills and their output
@@ -68,7 +68,7 @@ Rules that apply to every skill (the full text is in `AGENTS.md`, SKILL QUALITY 
 2. Run recorder with cache: `node src/factory/run-skill.mjs <skill> (--case <id> | --input <file>)`. **[built]**
 3. Pilot: figure-craft showcase comes from a recorded real run (refrigerator). **[built]**
 4. Migrate `skill-smith` and `figure-craft` to the layer files; skills portable (`chk-portable`). **[built]**
-5. Recipes for combining skills. [planned]
+5. Recipes for combining skills. **[built]** (first recipe: `ship-a-change` = test-planner, changelog-writer, copy-tight)
 6. New skills from `docs/factory/ROADMAP.md`, BA and UI skills first. [planned]
 
 ## 7. Rules for every agent
