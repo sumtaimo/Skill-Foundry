@@ -177,7 +177,11 @@ export function renderLayout(o) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(o.title)}</title>
-<meta name="description" content="${esc(desc)}">
+<meta name="description" content="${esc(desc)}">${o.image ? `
+<meta property="og:title" content="${esc(o.title)}">
+<meta property="og:description" content="${esc(desc)}">
+<meta property="og:image" content="${esc(o.image)}">
+<meta name="twitter:card" content="summary_large_image">` : ''}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="${esc(FONTS)}">
@@ -494,10 +498,17 @@ ${s.factoryOnly ? '' : npxBox(`add ${s.name}`)}
 ${t('install.cmd', 'p')}
 <div class="codebox"><pre><code class="install-cmd">${esc(installCommand(s))}</code></pre>${installButton(s, dl.sha256)}</div>
 </section>`);
+  parts.push(`<section id="banner" aria-labelledby="h-banner">
+${t('banner.title', 'h2', 'id="h-banner"')}
+${t('banner.note', 'p')}
+<figure class="banner"><img src="banner.svg" width="1280" height="640" alt="${esc(`${s.title} ${s.version}: ${s.tagline}`)}" loading="lazy"></figure>
+<p class="meta"><a href="banner.svg" download="${esc(s.name)}-banner.svg">${t('banner.svg')}</a>${opts.siteUrl ? ` · <a href="banner.png" download="${esc(s.name)}-banner.png">${t('banner.png')}</a>` : ''}</p>
+</section>`);
   return renderLayout({
     title: `${s.title} | Skill Foundry`,
     description: s.tagline,
     depth: 2,
+    image: opts.siteUrl ? `${String(opts.siteUrl).replace(/\/$/, '')}/skills/${s.name}/banner.png` : undefined,
     body: parts.join('\n'),
   });
 }

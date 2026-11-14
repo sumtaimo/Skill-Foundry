@@ -311,3 +311,6 @@ svg { --iso-top: var(--surface); --iso-a: var(--surface2); --iso-b: var(--line);
 .recipe-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 20px; align-items: start; }
 .recipe-body .cover { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface2); padding: 10px; }
 @media (max-width: 720px) { .recipe-body { grid-template-columns: 1fr; } }
+
+.banner { margin: 0 0 8px; }
+.banner img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 12px; }
