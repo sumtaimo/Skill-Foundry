@@ -3,6 +3,6 @@
   "prompt": "shorten this copy: An unexpected error has occurred while attempting to save your changes.",
   "agent": "claude",
   "recordedAt": "2026-11-14",
-  "output": "Rewritten copy:\nWe couldn't save your changes.\n\nWhat changed:\n- Cut filler\n- Plain words\n- Active voice",
+  "output": "Rewritten copy:\nAn unexpected error occurred while saving your changes.\n\nWhat changed:\n- Cut a wordy phrase\n- Plainer verb form",
   "files": []
 }

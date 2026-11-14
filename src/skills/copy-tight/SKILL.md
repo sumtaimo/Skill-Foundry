@@ -38,6 +38,7 @@ Follow the layers in order. Each layer file is the detailed chapter for that ste
 - R-copy-tight-6: The output MUST contain the rewritten copy and the change list.
 - R-copy-tight-7: The change list MUST NEVER quote removed words.
 - R-copy-tight-8: The rewrite MUST NEVER add a new action, promise or fact that the original does not state (for example a next step such as "Try again" that the source never gave).
+- R-copy-tight-9: The answer MUST contain only the rewritten copy and the change list: nothing before or after them, such as a note about searching or editing project files, a question or an offer.
 
 See `RULES.json` for the check or checklist item behind each rule.
 

@@ -11,3 +11,4 @@ Answer each item yes or no for every answer. Any no blocks the answer.
 7. Buttons start with a verb; errors say what happened.
 8. The change list has at most 5 bullets.
 9. The rewrite adds no new action, promise or fact; every next step in it was in the original (R-copy-tight-8).
+10. The answer starts with Rewritten copy: and ends with the last change bullet; nothing comes before or after (R-copy-tight-9).
