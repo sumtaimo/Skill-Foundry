@@ -34,5 +34,23 @@
         "value": "href=\"http"
       }
     ]
+  },
+  {
+    "id": "duplicate-proposes-extend",
+    "prompt": "Make a skill that rewrites UI copy to be short and plain.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "copy-tight"
+      },
+      {
+        "type": "contains",
+        "value": "extend"
+      },
+      {
+        "type": "maxLines",
+        "value": 60
+      }
+    ]
   }
 ]

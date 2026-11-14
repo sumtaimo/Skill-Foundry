@@ -1,0 +1,11 @@
+{
+  "case": "duplicate-proposes-extend",
+  "prompt": "Make a skill that rewrites UI copy to be short and plain.",
+  "agent": "claudeRunner via run-skill (fresh agent, skill folder and the case prompt only)",
+  "recordedAt": "2026-11-14",
+  "output": "I did not build a new skill. The skill-smith procedure says to stop when a request overlaps an existing skill, and this one does: `copy-tight` (v0.2.0, status `ready`) already rewrites UI copy to be short and plain. Instead I wrote a proposal to extend it.\n\n**Files produced**\n- `/home/user/Skill-Foundry/runs/skill-smith/a0efcd666f38c8a3/output/proposal-extend-copy-tight.md` (35 lines): the overlap, the checks, a recommendation to extend `copy-tight` rather than add a second UI-copy skill, and open questions for you.\n\n**Checks run**\n- `node src/factory/lint-skills.mjs copy-tight`: \"lint-skills: no problems\". This was a read-only run.\n- I did not run live evals, routing evals, `npm test` or `npm run guard`. The 3-of-3 live-eval result I cite comes from `docs/skills/copy-tight/CHECKLIST.md`, not from a run I did.\n\n**Open items**\n- You need to say whether `copy-tight` already handles your strings. If it doesn't, send one or two examples it rewrites badly.\n- If the gap is a kind of UI copy it excludes (onboarding, help text, notifications), that is the part to extend. Extending it is a separate session, since the skill is not locked but the factory owner decides when it changes.\n- I changed nothing in the repository. No skill folder, registry entry, package or recorded run was created, because the skill procedure's later layers apply only once a new skill is approved.",
+  "files": [
+    "proposal-extend-copy-tight.md"
+  ],
+  "run": "runs/skill-smith/a0efcd666f38c8a3"
+}
