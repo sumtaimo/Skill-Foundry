@@ -33,7 +33,7 @@ Item 33a applies only to the skill's own demo.
 20. Is the projection the shared one (`project`, C = 0.866), with no hand-drawn skew?
 19o. Are inside parts and contents drawn inside the body, seen through an open side, and is the opened body filled as it is really used? (L18-outside-container)
 19p. Can the reader turn the object (orbit), and do the back sides carry their real features?
-19q. Does the figure have at least twelve face details, three per labelled part on average? (L19-sparse)
+19q. Does the figure have at least twelve face details, three per labelled part and one per solid on average, with no large bare solid? (L19-sparse)
 19r. Are all outlines the engine's one hairline weight?
 19k. Does every solid have the material of the real thing, with at least two materials in the figure? (L17-one-material)
 19l. Is every labelled part at least 40% visible, with the inside shown through glass or one open side? (L16-hidden-part)

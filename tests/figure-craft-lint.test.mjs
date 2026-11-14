@@ -14,6 +14,7 @@ function clean() {
     box({ at: [0, 0, 40], size: [80, 20, 10], id: 'beam', rests: 'postA', material: 'steel' }),
     dot([40, 10, 50], { face: 'top', on: 'beam', tone: 'ok' }),
     line([[64, 10, 40], [76, 10, 40]], { on: 'postB', face: 'top', id: 'postB-seam' }),
+    line([[20, 4, 10], [20, 16, 10]], { on: 'postA', face: 'x', id: 'postA-band' }),
     line([[80, 4, 10], [80, 16, 10]], { on: 'postB', face: 'x', id: 'postB-band' }),
     line([[10, 20, 44], [70, 20, 44]], { on: 'beam', face: 'y', id: 'beam-joint' }),
     line([[80, 4, 42], [80, 16, 42]], { on: 'beam', face: 'x', id: 'beam-end' }),
@@ -219,9 +220,9 @@ test('materials, light and shadow: tokens inside the svg, gradients per material
   assert.match(svg, /\.fc-fig\{[^}]*--mat-steel-top:/, 'standalone svg carries its tokens');
   assert.match(svg, /id="fc-steel-a"/);
   assert.match(svg, /id="fc-dark-cyl"/);
-  assert.match(svg, /<g class="fc-shadow" clip-path="url\(#fc-clip-cab\)"><path [^>]*filter="url\(#fc-soft\)"/);
+  assert.match(svg, /<g class="fc-shadow" clip-path="url\(#fc-clip-cab\)"><path [^>]*filter="url\(#fc-soft\)"\/><path [^>]*filter="url\(#fc-touch\)"/);
   assert.match(svg, /<ellipse /, 'round box draws an elliptical top');
-  assert.match(svg, /fill="var\(--mat-glass\)" fill-opacity="0\.32"/);
+  assert.match(svg, /fill="var\(--mat-glass\)" fill-opacity="0\.38"/);
   assert.match(svg, /stroke="var\(--mat-copper\)"/);
   assert.deepEqual(lint(model).errors.filter((e) => e.rule === 'L6-raw-colour'), []);
   assert.throws(() => box({ at: [0, 0, 0], size: [1, 1, 1], material: 'gold' }), /material/);
@@ -275,4 +276,26 @@ test('round solids along x or y, discs and glow render and validate', () => {
   assert.ok(has(lint(bad).errors, 'L2-face-detail'), 'a disc must stay inside its face');
   assert.throws(() => box({ at: [0, 0, 0], size: [10, 4, 6], round: 'x' }), /round/);
   assert.throws(() => disc([0, 0, 0], { on: 'b', r: 0 }), /r must/);
+});
+
+test('L19-sparse scales with the object: one detail per solid on average, and no large bare solid', () => {
+  const body = box({ at: [0, 0, 0], size: [60, 60, 60], material: 'steel', id: 'body' });
+  const side = box({ at: [70, 0, 0], size: [40, 60, 60], material: 'white', id: 'side' });
+  const lines = (id, x, n) => Array.from({ length: n }, (_, i) => line([[x, 5, 4 + i * 4], [x, 55, 4 + i * 4]], { on: id, face: 'x' }));
+  const opts = { labels: [{ at: [30, 30, 30], text: 'Body' }], requiredParts: ['body'] };
+  const bare = lint(renderSvg([body, ...lines('body', 60, 12), side], opts).model);
+  assert.ok(bare.errors.some((e) => e.rule === 'L19-sparse' && /side covers/.test(e.message)));
+  const ok = lint(renderSvg([body, ...lines('body', 60, 12), side, ...lines('side', 110, 2)], opts).model);
+  assert.equal(has(ok.errors, 'L19-sparse'), false);
+  const many = [body, ...lines('body', 60, 12), ...Array.from({ length: 14 }, (_, i) => box({ at: [70 + i * 6, 0, 0], size: [4, 4, 4], material: 'dark', id: `bit-${i}` }))];
+  assert.ok(lint(renderSvg(many, opts).model).errors.some((e) => e.rule === 'L19-sparse' && /min 15 for 15 solids/.test(e.message)));
+});
+
+test('a labelled moving part gets an unseen hit area along its path, and solids get a contact shadow', () => {
+  const { svg } = renderSvg([
+    box({ at: [0, 0, 0], size: [80, 80, 4], id: 'ground' }),
+    box({ at: [10, 10, 4], size: [8, 8, 8], material: 'blue', id: 'puck', rests: 'ground', move: [40, 0, 0] }),
+  ], { labels: [{ at: [14, 14, 8], text: 'Puck' }] });
+  assert.match(svg, /data-id="puck"[^>]*><path d="[^"]+" fill="none" stroke="none" pointer-events="all"/);
+  assert.match(svg, /filter="url\(#fc-touch\)"/);
 });

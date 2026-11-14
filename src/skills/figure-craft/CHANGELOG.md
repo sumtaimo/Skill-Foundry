@@ -9,6 +9,7 @@ The version stays 1.0.0 until the owner calls it final. Changes are listed here 
 - Rounded upright edges (`r`). Open bodies (`open: 'x' | 'y' | 'xy'`, back sides `'-x'`, `'-y'`) with contents (`inside`); states (`when`) such as doors open and closed.
 - Orbit: four views a quarter turn apart with turn buttons, drag and arrow keys; back-side details (`face: '-x'`, `'-y'`).
 - Labels: chips that appear on hover, focus or tap; no space reserved for them.
+- Solids read as solid: clearer difference between lit and shaded sides, contact shadows, firmer outlines. Moving parts have a hit area along their path.
 - Kit: `slots`, `screws`, `repeat` for micro detail in one call.
 - Lint L1 to L19, `lintViews` and `lintStates`.
 - Ten layer files; self-contained; starts from the goal the user states.

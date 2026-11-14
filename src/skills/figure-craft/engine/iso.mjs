@@ -296,11 +296,11 @@ const FACE = {
 const FLAT_LIGHT = { top: 'var(--surface)', a: 'var(--surface2)', b: 'var(--line)' };
 const FLAT_DARK = { top: 'var(--line-strong)', a: 'var(--muted)', b: 'var(--fg)' };
 const FLAT = { plain: FLAT_LIGHT, steel: FLAT_LIGHT, white: FLAT_LIGHT, blue: FLAT_LIGHT, red: FLAT_LIGHT, green: FLAT_LIGHT, amber: FLAT_LIGHT, glass: { top: 'var(--line)', a: 'var(--line)', b: 'var(--line)' }, ink: FLAT_DARK, dark: FLAT_DARK };
-const GLASS_OPACITY = 0.32;
+const GLASS_OPACITY = 0.38;
 /** Light comes from the upper left: the left-facing face is lit and shadows fall toward +x. */
-const SHADOW = { dx: 0.5, dy: -0.12, max: 34, opacity: 0.14, blur: 3 };
+const SHADOW = { dx: 0.5, dy: -0.12, max: 34, opacity: 0.17, blur: 3, contact: 0.24, contactBlur: 0.9 };
 /** Hairline outlines: one thin weight for every edge, as in a technical drawing. */
-const HAIR = 0.5;
+const HAIR = 0.6;
 const TONE_STROKE = { copper: 'var(--mat-copper)', cold: 'var(--mat-cold)', warm: 'var(--mat-warm)' };
 const pathOf = (pts) => 'M' + pts.map(([x, y]) => `${r2(x)} ${r2(y)}`).join(' L') + ' Z';
 
@@ -397,6 +397,7 @@ export function renderSvg(shapes, opts = {}) {
       defs.push(`<linearGradient id="${pre}-${m}-cyl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${f.b}"/><stop offset="0.22" stop-color="${f.a}"/><stop offset="0.36" stop-color="${f.top}"/><stop offset="0.6" stop-color="${f.a}"/><stop offset="1" stop-color="${f.b}"/></linearGradient>`);
     }
     if (model.shapes.some((s) => s.kind === 'glow')) defs.push(`<filter id="${pre}-glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="6"/></filter>`);
+    if (model.shapes.some((s) => s.kind === 'box')) defs.push(`<filter id="${pre}-touch" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="${SHADOW.contactBlur}"/></filter>`);
     if (model.shapes.some((s) => s.kind === 'box')) defs.push(`<filter id="${pre}-soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="${SHADOW.blur}"/></filter>`);
   }
   const faceFill = (m, face) => {
@@ -433,7 +434,10 @@ export function renderSvg(shapes, opts = {}) {
           defs.push(`<clipPath id="${cid}"><path d="${pathOf([[bx, by], [bx + bw, by], [bx + bw, by + bd], [bx, by + bd]].map(([a, b]) => project([a, b, bz + bh])))}"/></clipPath>`);
           clip = ` clip-path="url(#${cid})"`;
         }
-        body.push(`<g class="${pre}-shadow"${clip}><path d="${pathOf(sh)}" fill="${F('var(--mat-shadow)')}" opacity="${SHADOW.opacity}" filter="url(#${pre}-soft)"/></g>`);
+        // Two layers: the long soft cast shadow, and a tight dark one where the solid meets the surface, which is what makes it sit.
+        const touch = foot.map(([a, b]) => P(a, b, 0));
+        body.push(`<g class="${pre}-shadow"${clip}><path d="${pathOf(sh)}" fill="${F('var(--mat-shadow)')}" opacity="${SHADOW.opacity}" filter="url(#${pre}-soft)"/>` +
+          `<path d="${pathOf(touch)}" fill="${F('var(--mat-shadow)')}" opacity="${SHADOW.contact}" filter="url(#${pre}-touch)"/></g>`);
       }
       if (s.round === 'x' || s.round === 'y') {
         // A cylinder lying along x or y: the body is the hull of its two round ends, the near end is its cap.
@@ -543,6 +547,12 @@ export function renderSvg(shapes, opts = {}) {
       const m = s.move ?? [0, 0, 0];
       const [dx, dy] = project(m);
       const kf = s.move ? `transform:translate(${r2(dx)}px,${r2(dy)}px)` : 'opacity:0.4';
+      // A moving part is hard to point at: an unseen area covering its whole path catches the pointer.
+      if (s.move && s.kind === 'box' && hover && nameOf.has(s.id)) {
+        const o = boxOutline(s);
+        const sweep = hull(o.concat(o.map(([a, b]) => [a + dx, b + dy]), o.map(([a, b]) => [a - dx, b - dy])));
+        inner = `<path d="${pathOf(sweep)}" fill="none" stroke="none" pointer-events="all" class="${pre}-shade"/>` + inner;
+      }
       css.push(`@keyframes ${cls}{0%,15%{transform:none;opacity:1}60%,85%{${kf}}100%{transform:none;opacity:1}}`);
       css.push(`.${cls}{animation:${cls} 3.2s ease-in-out ${r2(s.delay ?? 0)}s infinite}`);
       css.push(`@media (prefers-reduced-motion: reduce){.${cls}{animation:none}}`);
