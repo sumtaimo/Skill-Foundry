@@ -7,6 +7,7 @@ import { join, resolve } from 'node:path';
 import { sanitizeSvg } from './svg.mjs';
 import { scoreLive } from '../../factory/live-evals.mjs';
 import { loadProof, docFigure } from './proof.mjs';
+import { objectFigure, KINDS } from './objects.mjs';
 import { loadRecipes, checkRecipe } from '../../factory/recipe-run.mjs';
 import { DICTS } from './i18n.mjs';
 
@@ -114,11 +115,11 @@ export function loadSkills(root, opts = {}) {
       for (const role of roles) if (!ROLES.includes(role)) throw new Error(`loadSkills: ${r.name} has unknown role ${role}`);
       const md = read('SKILL.md');
       // What the showcase shows, in order of strength: a recorded figure run, else the real answer of a fresh agent
-      // drawn as a document, else the hand-drawn preview cover, which is then labelled as a concept.
+      // drawn as the object it stands for (or a document), else the hand-drawn preview cover, which is then labelled as a concept.
       const proof = loadProof(dir, { showcase: typeof r.showcase === 'string' ? r.showcase : undefined });
       const coverKind = run?.svg ? 'run' : proof ? 'proof' : 'concept';
       const coverSvg = coverKind === 'run' ? run.svg
-        : coverKind === 'proof' ? sanitizeSvg(docFigure(proof, { askLabel: DICTS.en['answer.asked'], moreLabel: DICTS.en['answer.more'] }))
+        : coverKind === 'proof' ? sanitizeSvg(objectFigure(KINDS[r.name] ?? [], proof) ?? docFigure(proof, { askLabel: DICTS.en['answer.asked'], moreLabel: DICTS.en['answer.more'] }))
         : sanitizeSvg(read('preview/cover.svg'));
       return {
         name: r.name,
@@ -158,6 +159,6 @@ export function loadRecipeProofs(root) {
   return loadRecipes(root).map((r) => {
     const c = checkRecipe(r, root);
     if (!c.ok) return null;
-    return { id: r.id, title: String(r.title ?? r.id), prompt: c.rec.prompt, used: c.rec.used, answer: c.rec.answer, svg: sanitizeSvg(docFigure({ prompt: c.rec.prompt, answer: c.rec.answer }, { askLabel: DICTS.en['answer.asked'], moreLabel: DICTS.en['answer.more'] })) };
+    return { id: r.id, title: String(r.title ?? r.id), prompt: c.rec.prompt, used: c.rec.used, answer: c.rec.answer, svg: sanitizeSvg(objectFigure((c.rec.used ?? []).flatMap((u) => KINDS[u] ?? []), { prompt: c.rec.prompt, answer: c.rec.answer }) ?? docFigure({ prompt: c.rec.prompt, answer: c.rec.answer }, { askLabel: DICTS.en['answer.asked'], moreLabel: DICTS.en['answer.more'] })) };
   }).filter(Boolean);
 }

@@ -96,3 +96,28 @@ test('no line of the document figure is wider than its text column', () => {
   // 42 characters of 11px monospace is about 277 units; the text column is 292 units (360 wide, 22 margin, 16 inset, 8 right).
   for (const t of texts) assert.ok(t.length <= 42, `"${t}" is ${t.length} characters`);
 });
+
+test('text skills are drawn as objects, and every word in an object is cut from the recording', async () => {
+  const { objectFigure, KINDS, DEFAULT_LABELS } = await import('../src/site/lib/objects.mjs');
+  const flat = (s) => s.replace(/\s+/g, ' ');
+  const check = (name, kinds, proof) => {
+    const svg = objectFigure(kinds, proof);
+    assert.ok(svg, `${name}: no object could be drawn from the real answer`);
+    assert.equal(sanitizeSvg(svg), svg.trim(), `${name}: object figure is not safe`);
+    const source = flat(proof.prompt + ' ' + proof.answer);
+    for (const m of svg.matchAll(/<text [^>]*class="([^"]+)"[^>]*>([^<]*)<\/text>/g)) {
+      if (m[1] === 'obj-label') continue;
+      const t = unesc(m[2]).replace(/…$/, '');
+      assert.ok(source.includes(t), `${name}: "${t}" is not in the recording`);
+    }
+    return svg;
+  };
+  for (const s of loadSkills(ROOT)) {
+    if (s.coverKind !== 'proof' || !KINDS[s.name]) continue;
+    check(s.name, KINDS[s.name], s.proof);
+    assert.match(s.coverSvg, /class="obj doc-figure"/, `${s.name}: cover is not the object`);
+  }
+  const { loadRecipeProofs } = await import('../src/site/lib/content.mjs');
+  for (const r of loadRecipeProofs(ROOT)) check(r.id, r.used.flatMap((u) => KINDS[u] ?? []), r);
+  assert.ok(Object.values(DEFAULT_LABELS).every((l) => l.length < 12), 'captions stay short');
+});
