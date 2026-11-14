@@ -14,3 +14,4 @@ Remove with:  node .harness/memory.mjs forget L3
 - [L9] (2026-11-14) When a real agent fails a skill eval, fix the skill, not the eval case, and re-record with a new agent.
 - [L10] (2026-11-14) Never bring brands, products or languages from outside this project (e.g. WABOOKS, WeBill365, WeCafe, Korean) into Skill Foundry work or questions; use only what is in this repository or what the user says here.
 - [L11] (2026-11-14) Change at most one skill per session, never edit a skill listed in src/factory/locks.json (write notes in docs/factory/notes/ instead), and run npm run guard before every commit; on a WARNING stop and tell the user.
+- [L12] (2026-11-14) Never leave work half done: finish every task you start, including the gaps and open items your own report lists, in the same session; if something truly cannot be done, say exactly what blocked it and what you need, and hand any work for another skill to a named session instead of writing 'left for later'.
