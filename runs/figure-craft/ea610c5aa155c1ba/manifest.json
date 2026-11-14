@@ -1,0 +1,80 @@
+{
+  "skill": "figure-craft",
+  "version": "1.5.0",
+  "caseId": "refrigerator-cooling",
+  "inputSha256": "949bb654617ca9e77be32133cfbe5164c24f30d462868cfd556165919c599661",
+  "skillSha256": "e472e691c4706c9ce98a7066164f8110defdd7e1cbee796322928554ab40688e",
+  "key": "ea610c5aa155c1ba20736ad796b3185132495fa828489dc3bec6bda5756f22d5",
+  "startedAt": "2026-11-14T02:03:00.057Z",
+  "finishedAt": "2026-11-14T02:13:52.376Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.74032682,
+  "usage": {
+    "input_tokens": 58,
+    "cache_creation_input_tokens": 212372,
+    "cache_read_input_tokens": 4863660,
+    "output_tokens": 139421,
+    "output_tokens_details": {
+      "thinking_tokens": 116434
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 212372,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 988,
+        "cache_read_input_tokens": 241880,
+        "cache_creation_input_tokens": 748,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 748
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [
+    {
+      "path": "build-figure.mjs",
+      "bytes": 14317,
+      "sha256": "3cdffcc9bf49d6ea8c9d68a201389caebb52c0cf0faa6c2739dea77b3e02e23b"
+    },
+    {
+      "path": "lint-report.json",
+      "bytes": 1582,
+      "sha256": "c080cc18cbd684e7582d505d4c965ecc0d217182a0da9f750e0d2432240d67f0"
+    },
+    {
+      "path": "refrigerator.html",
+      "bytes": 131079,
+      "sha256": "5a9e6544d4e30054b6f3f861f67bd50f5dca688973e9f5bed58bb18ca257837d"
+    },
+    {
+      "path": "refrigerator.svg",
+      "bytes": 43018,
+      "sha256": "6634424464fe6cdbe32dd19e735db3a540f570859caef3f01a1a0d2563d95904"
+    },
+    {
+      "path": "report.md",
+      "bytes": 10394,
+      "sha256": "d47ca8178f6796a08ba1f00ce69744515d8b510a1ac4ea98d6f147818b70ef67"
+    }
+  ],
+  "checks": {
+    "expectations": 8,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "The figure is built: an open refrigerator with food and drinks inside, drawn with the figure-craft engine. The front view passes lint with zero errors and zero warnings. The browser checks were not run, so the rendering is not yet visually confirmed.\n\n**Files** (all in `/home/user/Skill-Foundry/runs/figure-craft/ea610c5aa155c1ba/output/`)\n- `refrigerator.html`: the orbit page, with four turnable views, a theme button, a pause button, and a card for each labelled part.\n- `refrigerator.svg`: the front view, exactly as the engine rendered it.\n- `build-figure.mjs`: rebuilds both files and runs lint. It imports the engine from the skill folder, so that folder must stay in place.\n- `lint-report.json`: the lint result, with per-view detail.\n- `report.md`: the idea sentence, the parts table, the checks, and the open items.\n\n**Idea sentence:** Cold air from the vent moves across the shelves, so the food stays cold. Size is Hero; motion is one loop, a cold-air block moving forward along the top shelf.\n\n**Checks run**\n- Lint on the front view: 0 errors, 0 warnings. The four-view rules also pass.\n- Rebuilding twice gives identical bytes.\n- The HTML has no external references. The SVG has no hex colours in fills or strokes.\n\n**Checks not run:** Google Chrome is installed, but launching it needs command approval that this run did not get. So there are no screenshots, and light/dark, 390px width, reduced motion, console errors and hover behaviour are unverified. A second reader was also not run.\n\n**Open items**\n1. **Engine limit on labels in turned views.** `renderViews` passes every label to every view. The vent and drawer labels resolve to the cabinet when the opening faces away, so hovering the cabinet in the back views shows chips for hidden parts. Fixing this needs an engine change; I did not patch it by hand.\n2. **Turned-view lint.** The left-side view has 2 L11 and 3 L16 messages, and the right-back view has 1 L16 (the door is 18% visible). The four-view rules do not block these, but they are not fixed.\n3. **Drawing choices to confirm.** The vent is on the inside left wall, because the back wall is hidden at this angle. The model is a generic household fridge with no freezer; the report lists all assumptions. If the customers' fridge is a specific model, send its specs or photos.\n4. **Unlabelled parts.** The glass shelves cannot take a label without failing L16, so the food and drinks are named in the cards. The compressor and coils show only on the back view.\n5. **Checklist items 7, 8 and 10.** These are answered \"no\" because the page is a single figure with no contents rail or margin notes. The reviewer should decide whether that blocks release.\n\nI also sent `refrigerator.html` and `refrigerator.svg` to you for preview, with the caveat that the browser checks are still open."
+}
