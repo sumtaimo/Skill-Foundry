@@ -140,3 +140,34 @@ test('browser: search and role filter narrow plates, empty state shows, install 
     srv.close();
   }
 });
+
+test('landing order: search in the hero, then skills, install, agents, proof, made, limits', async () => {
+  const html = readFileSync(join(await site(), 'index.html'), 'utf8');
+  const at = (re) => { const m = re.exec(html); assert.ok(m, String(re)); return m.index; };
+  const order = [/<section class="hero">/, /<input id="find"/, /class="hero-prompt"/, /id="collection"/, /<section id="install"/, /<section id="agents"/, /<section id="proof"/, /id="made"/, /id="limits"/].map(at);
+  assert.deepEqual([...order].sort((a, b) => a - b), order);
+});
+
+test('top bar links to skills, install, agents and proof on the index', async () => {
+  const html = readFileSync(join(await site(), 'index.html'), 'utf8');
+  for (const id of ['collection', 'install', 'agents', 'proof']) assert.match(html, new RegExp(`href="index\\.html#${id}"`));
+});
+
+test('proof table: one row per ready skill with real recorded numbers', async () => {
+  const html = readFileSync(join(await site(), 'index.html'), 'utf8');
+  const table = html.slice(html.indexOf('<table class="proof">'), html.indexOf('</table>'));
+  for (const r of ready) assert.match(table, new RegExp(`skills/${r.name}/index\\.html`));
+  assert.match(table, /\d+ \/ \d+/);
+});
+
+test('agent prompt points the agent at llms.txt and has a copy button', async () => {
+  const html = readFileSync(join(await site(), 'index.html'), 'utf8');
+  assert.match(html, /class="agent-prompt">Read \{site\}llms\.txt\./);
+  assert.match(html, /data-agent-prompt="Read \{site\}llms\.txt\./);
+});
+
+test('skill page: install command button sits in the header', async () => {
+  const html = readFileSync(join(await site(), 'skills', ready[0].name, 'index.html'), 'utf8');
+  const head = html.slice(html.indexOf('<header class="skill-head">'), html.indexOf('</header>', html.indexOf('<header class="skill-head">')));
+  assert.match(head, /data-install-zip="downloads\//);
+});

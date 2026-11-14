@@ -135,9 +135,9 @@ ${t('meter.text', 'p', 'class="meter-text"', { m, t: tot })}
 </div>`;
 }
 
-function downloadButton(skill, up) {
+function downloadButton(skill, up, cls = 'btn primary') {
   const size = formatBytes(Number(skill.zipBytes) || 0);
-  return `<a class="btn primary" href="${up}downloads/${esc(zipName(skill))}" download data-i18n="download.label" data-i18n-args="${esc(JSON.stringify({ name: skill.name, version: skill.version, size }))}">${esc(fill(EN['download.label'], { name: skill.name, version: skill.version, size }))}</a>`;
+  return `<a class="${cls}" href="${up}downloads/${esc(zipName(skill))}" download data-i18n="download.label" data-i18n-args="${esc(JSON.stringify({ name: skill.name, version: skill.version, size }))}">${esc(fill(EN['download.label'], { name: skill.name, version: skill.version, size }))}</a>`;
 }
 
 /**
@@ -168,6 +168,9 @@ export function renderLayout(o) {
 <a class="brand" href="${up}index.html">Skill Foundry</a>
 <nav class="tools">
 <a href="${up}index.html#collection">${t('nav.collection')}</a>
+<a href="${up}index.html#install">${t('nav.install')}</a>
+<a href="${up}index.html#agents">${t('nav.agents')}</a>
+<a href="${up}index.html#proof">${t('nav.proof')}</a>
 <button type="button" class="btn ghost" data-action="theme" aria-pressed="false">${t('theme.toDark')}</button>
 <button type="button" class="btn ghost" data-action="lang">${t('lang.toKh')}</button>
 </nav>
@@ -198,7 +201,7 @@ ${cover(skill, 'cover')}
 ${rolesList(skill)}
 ${liveLine(skill)}
 ${renderMeter(skill)}
-<footer><code class="ver">${esc(skill.version)}</code>${downloadButton(skill, up)}${installButton(skill, opts.sha256, 'btn ghost copy')}</footer>
+<footer><code class="ver">${esc(skill.version)}</code>${installButton(skill, opts.sha256, 'btn primary copy')}${downloadButton(skill, up, 'btn ghost')}</footer>
 </article>`;
 }
 
@@ -225,6 +228,7 @@ ${t('find.count', 'p', 'class="find-count" aria-live="polite"', { n: skills.leng
 
 function renderHero(skills) {
   if (!skills.length) return `<section class="hero">${t('hero.title', 'h1')}</section>`;
+  const finder = renderFinder(skills);
   const first = skills[0];
   const chips = skills
     .map((s, i) => `<button type="button" class="chip" data-skill="${esc(s.name)}" data-prompt="${esc(s.prompt)}" aria-pressed="${i === 0}">${esc(s.title)}</button>`)
@@ -234,6 +238,7 @@ function renderHero(skills) {
 <div class="hero-copy">
 ${t('hero.title', 'h1')}
 ${t('hero.sub', 'p', 'class="hero-sub"')}
+${finder}
 ${t('hero.label', 'p', 'class="hero-label"')}
 <div class="hero-prompt"><code lang="en" data-full="${esc(first.prompt)}">${esc(first.prompt)}</code></div>
 </div>
@@ -254,36 +259,55 @@ export function renderIndex(skills, opts = {}) {
   const manifest = JSON.stringify({ ready: skills.map((s) => s.name), drafts: [...(opts.drafts ?? [])].sort() }).replace(/</g, '\\u003c');
   const sorted = [...skills].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
   const steps = (prefix, count) => Array.from({ length: count }, (_, i) => t(`${prefix}${i + 1}`, 'li')).join('\n');
+  const sums = opts.checksums ?? {};
+  const layers = Array.from({ length: 7 }, (_, i) => t(`proof.l${i + 1}`, 'li')).join('\n');
+  const proofRows = sorted.map((s) => `<tr><th scope="row" lang="en"><a href="skills/${esc(s.name)}/index.html">${esc(s.name)}</a></th><td>${s.live && s.live.total > 0 ? `${s.live.passed} / ${s.live.total}` : t('proof.notyet')}</td><td>${s.rules.machine} / ${s.rules.total}</td></tr>`).join('\n');
+  const agentPromptText = fill(EN['agents.prompt'], { site: '{site}' });
   const body = `${renderHero(sorted)}
 <section id="collection" class="collection" aria-labelledby="collection-title">
-<div class="collection-bar">${t('collection.title', 'h2', 'id="collection-title"')}<p class="meta"><a href="downloads/checksums.json">${t('download.checksums')}</a></p></div>
-${Number.isFinite(opts.allBytes) && opts.allBytes > 0 ? `<p>${allLink(opts.allBytes)}</p>` : ''}
-${renderFinder(sorted)}
+<div class="collection-bar">${t('collection.title', 'h2', 'id="collection-title"')}</div>
 <div class="grid">
-${sorted.map((s, i) => renderCard(s, { index: i + 1, sha256: opts.checksums?.[zipName(s)]?.sha256 })).join('\n')}
+${sorted.map((s, i) => renderCard(s, { index: i + 1, sha256: sums[zipName(s)]?.sha256 })).join('\n')}
 </div>
 ${t('find.none', 'p', 'class="find-none" hidden')}
 </section>
-<section class="col" aria-labelledby="agents">
-${t('agents.title', 'h2', 'id="agents"')}
+<section id="install" class="col" aria-labelledby="install-title">
+${t('install.title', 'h2', 'id="install-title"')}
+<ol class="steps">
+${steps('install.s', 3)}
+</ol>
+${t('install.cmd', 'p')}
+${Number.isFinite(opts.allBytes) && opts.allBytes > 0 ? `<p>${allLink(opts.allBytes)}</p>` : ''}
+<p class="meta"><a href="downloads/checksums.json">${t('download.checksums')}</a></p>
+</section>
+<section id="agents" class="col" aria-labelledby="agents-title">
+${t('agents.title', 'h2', 'id="agents-title"')}
 ${t('agents.p', 'p')}
 <ul class="agent-files">
 <li><a href="skills.json">${t('agents.json')}</a></li>
 <li><a href="llms.txt">${t('agents.txt')}</a></li>
 </ul>
+${t('agents.promptLabel', 'h3')}
+<div class="codebox"><pre lang="en"><code class="agent-prompt">${esc(agentPromptText)}</code></pre><button type="button" class="btn copy" data-copy="${esc(agentPromptText)}" data-agent-prompt="${esc(EN['agents.prompt'])}">${t('agents.copyPrompt')}</button></div>
+</section>
+<section id="proof" class="col" aria-labelledby="proof-title">
+${t('proof.title', 'h2', 'id="proof-title"')}
+${t('proof.p', 'p')}
+<ol class="layers">
+${layers}
+</ol>
+<div class="table-wrap"><table class="proof">
+<thead><tr>${t('proof.skill', 'th', 'scope="col"')}${t('proof.real', 'th', 'scope="col"')}${t('proof.rules', 'th', 'scope="col"')}</tr></thead>
+<tbody>
+${proofRows}
+</tbody>
+</table></div>
 </section>
 <section class="col" aria-labelledby="made">
 ${t('made.title', 'h2', 'id="made"')}
 <ol class="steps">
 ${steps('made.s', 5)}
 </ol>
-</section>
-<section class="col" aria-labelledby="install">
-${t('install.title', 'h2', 'id="install"')}
-<ol class="steps">
-${steps('install.s', 3)}
-</ol>
-${t('install.cmd', 'p')}
 </section>
 <section class="col" aria-labelledby="limits">
 ${t('limits.title', 'h2', 'id="limits"')}
@@ -349,6 +373,7 @@ ${cover(s, 'cover cover-lg')}
 <ul class="tags" lang="en">${s.tags.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
 ${rolesList(s)}
 ${liveLine(s)}
+<p class="head-actions">${installButton(s, dl.sha256, 'btn primary copy')}</p>
 </header>
 <nav class="qbar" aria-label="${esc(EN['q.nav'])}">
 <div class="qbar-tabs">
