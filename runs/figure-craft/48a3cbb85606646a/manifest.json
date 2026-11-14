@@ -1,0 +1,80 @@
+{
+  "skill": "figure-craft",
+  "version": "1.3.0",
+  "caseId": "refrigerator-cooling",
+  "inputSha256": "4dc6108688ed27c7dd83548326b03271dcdbabf1d8fecf7377f5b272ca83eb41",
+  "skillSha256": "38b5f63b9a56c4966ffd949a99ad9069308686fb469290376c88c7c93ab1cbd4",
+  "key": "48a3cbb85606646af75e0ecbe8218724c5a7b5fbc1b805a10f192ba34d5049aa",
+  "startedAt": "2026-11-14T01:25:22.363Z",
+  "finishedAt": "2026-11-14T01:33:05.555Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.55327912,
+  "usage": {
+    "input_tokens": 82,
+    "cache_creation_input_tokens": 151981,
+    "cache_read_input_tokens": 5638506,
+    "output_tokens": 95428,
+    "output_tokens_details": {
+      "thinking_tokens": 70043
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 151981,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 1040,
+        "cache_read_input_tokens": 180908,
+        "cache_creation_input_tokens": 1329,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 1329
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [
+    {
+      "path": "build-figure.mjs",
+      "bytes": 11228,
+      "sha256": "91a06ac234453f3b3a2bb2d3624be2fbdcd2f551ff4c01a0a6ce7acfcf92bc2e"
+    },
+    {
+      "path": "lint-report.json",
+      "bytes": 397,
+      "sha256": "01568c816a84342ff950e52b24fbc4f4a98ddd34ae7917d38c58926525dd921c"
+    },
+    {
+      "path": "refrigerator-cooling.html",
+      "bytes": 25897,
+      "sha256": "2244ae5a3e0e14e840ae53ceb27e2a144527fad0f71577f1d75286badbbed4ba"
+    },
+    {
+      "path": "refrigerator-cooling.svg",
+      "bytes": 20300,
+      "sha256": "e43f6d28b74280b7d160e01622b5327a05fd6f1b6e71c732b45272e863928c5d"
+    },
+    {
+      "path": "report.md",
+      "bytes": 13012,
+      "sha256": "cccee7349d7fd13126c1a0d77c52dc8d67463710ddad44e3d0fe6fe4870b6697"
+    }
+  ],
+  "checks": {
+    "expectations": 7,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "The figure is built, but it is not release-ready. Browser checks could not run, and several checklist items are unanswered or \"no\".\n\n**Files produced** (in `/home/user/Skill-Foundry/runs/figure-craft/48a3cbb85606646a/output/`):\n- `refrigerator-cooling.html`: one self-contained page with the figure, a caption, seven part cards, a theme button and a pause button. No external scripts.\n- `refrigerator-cooling.svg`: the same figure as a standalone file.\n- `build-figure.mjs`: regenerates both files and the lint report from the skill's engine. It imports the engine from the skill folder rather than copying it; running it again gives identical bytes.\n- `lint-report.json`: 0 errors, 3 warnings.\n- `report.md`: the request, the idea sentence, the parts table, the motion story, the checklist answers and open items.\n\n**Checks run:**\n- Lint (rules L1–L15): 0 errors. The 3 warnings are leaders that cross the thin back or left cabinet wall. No leader crosses a part. I tried other label positions and each alternative was worse.\n- Node checks on the built files, 13 of 13 passing: colours are all tokens, no external resources, every label has a card, hover wiring points at real parts, labels are hidden at rest, reduced-motion handling is present, and the SVG in the page matches the file.\n- Label size at 390px: 12.6 CSS px, calculated rather than measured.\n- Second reader: a fresh Haiku subagent given only the SVG recovered the idea in substance. It did not recognise the cut-away and noted the refrigerant pipes are not drawn.\n\n**Not run:** Chrome and ImageMagick are installed, but both commands needed approval that wasn't granted. So there are no screenshots, no light/dark or 390px check, no console check, and no hover or reduced-motion check in a browser.\n\n**Open items:**\n1. Browser checks above. This blocks release.\n2. The parts and their roles come from general refrigeration knowledge, not a checked source. Project search and web search were both blocked, so a refrigeration expert should review them before customers see this.\n3. The checklist has \"no\" or \"not checked\" answers on items 6, 7, 8, 13, 17, 19i, 23, 31, 32, 33 and 34 (some are partial). Items 7, 8 and 13 are layout rules written for multi-section pages; the reviewer should decide whether they apply to a single figure.\n4. The cut-away reads weakly; the second reader missed it.\n5. The refrigerant loop is described in the caption, not drawn.\n6. The expansion device and evaporator fan are drawn larger than real, and the condenser sits in the base (often at the back on real fridges). The cards say so."
+}
