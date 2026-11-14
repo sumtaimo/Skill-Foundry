@@ -1,6 +1,6 @@
 # Landing relayout plan (draft, waiting for approval)
 
-Status: PLAN ONLY. No UI code changes until the product owner approves this file.
+Status: APPROVED and built on 2026-11-14 (sections 3 and 4). Proof shows real-agent cases and machine-checked rules per skill.
 
 ## 1. Who the landing serves, and their one job
 

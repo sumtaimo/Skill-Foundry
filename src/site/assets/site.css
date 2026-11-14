@@ -230,6 +230,18 @@ dd { margin: 2px 0 0; font-weight: 500; }
 
 .foot { border-top: 1px solid var(--line); padding: 24px var(--gutter); color: var(--faint); font-size: .85rem; }
 
+/* Proof, agent prompt, skill head actions */
+.layers { padding-left: 1.4em; display: grid; gap: 6px; }
+.table-wrap { overflow-x: auto; margin-top: 16px; }
+.proof { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.proof th, .proof td { text-align: left; padding: 8px 12px 8px 0; border-bottom: 1px solid var(--line); }
+.proof thead th { color: var(--muted); font-weight: 500; }
+.proof td { font-family: var(--mono); }
+.head-actions { margin: 16px 0 0; }
+.codebox pre:has(.agent-prompt), .codebox pre:has(.install-cmd) { white-space: pre-wrap; word-break: break-all; }
+.agent-prompt, .install-cmd { white-space: pre-wrap; word-break: break-word; }
+.hero .finder { margin: 8px 0 24px; }
+
 /* Finder: search, role filter, live count */
 .finder { display: grid; gap: 12px; margin: 0 0 24px; }
 .find-label { font-weight: 500; }

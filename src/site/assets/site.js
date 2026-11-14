@@ -237,6 +237,13 @@
     if (!/^https?:$/.test(window.location.protocol)) return;
     var rootUrl = siteRoot();
     if (!rootUrl) return;
+    var ap = document.querySelectorAll('[data-agent-prompt]');
+    for (var k = 0; k < ap.length; k++) {
+      var filled = ap[k].getAttribute('data-agent-prompt').split('{site}').join(rootUrl.href);
+      ap[k].setAttribute('data-copy', filled);
+      var pre = ap[k].parentNode && ap[k].parentNode.querySelector('.agent-prompt');
+      if (pre) pre.textContent = filled;
+    }
     var btns = document.querySelectorAll('[data-install-zip]');
     for (var i = 0; i < btns.length; i++) {
       var zip = btns[i].getAttribute('data-install-name');
