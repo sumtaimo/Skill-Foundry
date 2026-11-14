@@ -31,4 +31,4 @@ Review against `docs/factory/REVIEW.md`. Status: ready at 0.2.0.
 - [x] Version 0.2.0 matches SKILL.md, CHANGELOG and registry
 
 ## Open
-- Only 3 cases. More real copy from WABOOKS, WeBill365 and WeCafe screens would make the evals stronger.
+- Only 3 cases; more cases would make the evals stronger.
