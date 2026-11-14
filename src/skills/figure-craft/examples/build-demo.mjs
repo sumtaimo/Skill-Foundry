@@ -72,7 +72,7 @@ function shapes() {
     line([[26, 14, 21], [26, -3, 21], [26, -3, 60]], { tone: 'copper', id: 'discharge-pipe' }),
     line([[14, 14, 21], [14, -5, 21], [14, -5, 46], [50, -3, 46], [50, -3, 60]], { tone: 'cold', id: 'suction-pipe' }),
     line([[34, 0, 6], [48, -8, 0], [62, -8, 0]], { bold: true, id: 'power-cable' }),
-    box({ at: [0, 0, 3], size: [70, 60, 22], material: 'dark', id: 'base', open: ['-x', '-y'], wall: 2 }),
+    box({ at: [0, 0, 3], size: [70, 60, 22], material: 'dark', id: 'base', open: ['-x', '-y'], wall: 3 }),
     ...slots([[10, 60, 8], [60, 60, 8]], [[10, 60, 20], [60, 60, 20]], 5, { on: 'base', face: 'y', id: 'kick-vent' }),
     ...slots([[70, 8, 8], [70, 52, 8]], [[70, 8, 20], [70, 52, 20]], 5, { on: 'base', face: 'x', id: 'side-vent' }),
     box({ at: [40, 6, 5], size: [24, 18, 4], material: 'white', inside: 'base', id: 'drain-pan' }),
@@ -83,7 +83,7 @@ function shapes() {
     line([[11, 14, 21], [25, 14, 21]], { on: 'compressor', face: 'top', id: 'compressor-weld' }),
 
     // Fresh-food cabinet, open at the front
-    box({ at: [0, 0, 11], size: [70, 60, 108], material: 'steel', id: FR, rests: 'base', open: 'xy', wall: 3, when: 'open' }),
+    box({ at: [0, 0, 11], size: [70, 60, 108], material: 'steel', id: FR, rests: 'base', open: 'xy', wall: 4, when: 'open' }),
     box({ at: [0, 0, 11], size: [70, 60, 108], material: 'steel', id: FR, rests: 'base', when: 'closed' }),
     line([[70, 56, 11], [70, 56, 119]], { on: FR, face: 'x', id: 'fridge-side-seam', when: 'closed' }),
     panel([[0, 30, 20], [0, 46, 30]], { on: FR, face: '-x', material: 'white', id: 'rating-plate' }),
@@ -150,7 +150,7 @@ function shapes() {
     box({ at: [33, 8, 100], size: [6, 6, 6], material: 'blue', inside: FR, move: [0, 0, -34], anim: 'fall', id: 'cold-air' }),
 
     // Freezer, open at the front
-    box({ at: [0, 0, 119], size: [70, 60, 48], material: 'steel', id: FZ, rests: FR, open: 'xy', wall: 3, when: 'open' }),
+    box({ at: [0, 0, 119], size: [70, 60, 48], material: 'steel', id: FZ, rests: FR, open: 'xy', wall: 4, when: 'open' }),
     box({ at: [0, 0, 119], size: [70, 60, 48], material: 'steel', id: FZ, rests: FR, when: 'closed' }),
     line([[70, 56, 119], [70, 56, 167]], { on: FZ, face: 'x', id: 'freezer-side-seam', when: 'closed' }),
     line([[0, 4, 119], [0, 4, 167]], { on: FZ, face: '-x', id: 'freezer-seam' }),

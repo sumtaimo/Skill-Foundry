@@ -10,6 +10,7 @@ The version stays 1.0.0 until the owner calls it final. Changes are listed here 
 - Orbit: four views a quarter turn apart with turn buttons, drag and arrow keys; back-side details (`face: '-x'`, `'-y'`).
 - Labels: chips that appear on hover, focus or tap; no space reserved for them.
 - Solids read as solid: clearer difference between lit and shaded sides, contact shadows, firmer outlines. Moving parts have a hit area along their path.
+- Cutaways read as solid hollows: the cut through the walls is a section band, the inside is lined like the body and shaded.
 - Kit: `slots`, `screws`, `repeat` for micro detail in one call.
 - Lint L1 to L19, `lintViews` and `lintStates`.
 - Ten layer files; self-contained; starts from the goal the user states.
