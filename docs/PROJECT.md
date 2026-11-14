@@ -73,7 +73,7 @@ Rules that apply to every skill (the full text is in `AGENTS.md`, SKILL QUALITY 
 
 ## 7. Rules for every agent
 
-- A skill is also checked for someone outside this repo: `node src/factory/portable-check.mjs <name> --prompt "<request>"` (not for `scope: factory`).
+- A skill is also checked for someone outside this repo: `node src/factory/portable-check.mjs <name> --prompt "<request>" --record`. It is required before `ready` and goes stale when the skill changes (not for `scope: factory`).
 - Never leave work half done: finish the gaps your own report lists (AGENTS.md, SKILL QUALITY LAW, rule 11).
 - Skill versions stay at 1.0.0 until TAIMO calls a version final. Record changes under the current version; never bump it yourself.
 - figure-craft showcases one object only, the refrigerator, at the detail level of TAIMO's reference figure. The registry field `showcase` pins that case for the site.
