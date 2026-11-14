@@ -22,6 +22,7 @@ Review against `docs/factory/REVIEW.md`. Status: ready.
 ## Evals
 - [x] Three cases with unique ids, including negative cases (`notContains`, `maxLines`)
 - [x] Pass with `runEvals` in `tests/changelog-writer.test.mjs`
+- [x] Live evals: 3 of 3 pass on fresh real-agent recordings in `evals/live/`
 
 ## Preview quality
 - [x] Tagline under 90 characters, 3 tags, cover uses only tokens and currentColor
