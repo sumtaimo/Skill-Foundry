@@ -5,7 +5,9 @@
  *   npx github:sumtaimo/Skill-Foundry list                 ready skills, version, roles
  *   npx github:sumtaimo/Skill-Foundry add test-planner     install into .claude/skills/
  *   npx github:sumtaimo/Skill-Foundry add --role QA_AUDITOR  every ready skill for that role
- *   npx github:sumtaimo/Skill-Foundry check                which installed skills are out of date
+ *   npx github:sumtaimo/Skill-Foundry add --all              every skill that works outside this repository
+ *   npx github:sumtaimo/Skill-Foundry check                which installed skills are out of date or changed locally
+ *   npx github:sumtaimo/Skill-Foundry remove <name>        remove one cleanly (folder, harness pointer, AGENTS.md line)
  *   npx github:sumtaimo/Skill-Foundry update [name…]       update them; files you changed are kept
  *   add ... --rules                                       also list the skills in AGENTS.md for non-Claude agents
  *
@@ -15,7 +17,7 @@
  * those roles get it automatically.
  * @governed-by PO_ARCHITECT
  */
-import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, copyFileSync, realpathSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, copyFileSync, realpathSync, rmSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join, resolve, dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -129,6 +131,18 @@ export function protectSkills({ project = process.cwd() } = {}) {
   return { file: '.claude/settings.json', added };
 }
 
+/** Remove a foundry skill cleanly: its folder, its harness pointer and its line in the AGENTS.md block. The user's own skills are never touched. */
+export function removeSkill(name, { project = process.cwd(), root = REPO } = {}) {
+  const target = join(project, '.claude', 'skills', name);
+  if (!existsSync(join(target, STAMP))) throw new Error(`${name} was not installed by skill-foundry here`);
+  rmSync(target, { recursive: true, force: true });
+  const ptr = join(project, '.harness', 'skills', name);
+  if (existsSync(join(ptr, 'SKILL.md')) && readFileSync(join(ptr, 'SKILL.md'), 'utf8').includes(MARK)) rmSync(ptr, { recursive: true, force: true });
+  const agents = join(project, 'AGENTS.md');
+  if (existsSync(agents) && readFileSync(agents, 'utf8').includes(BEGIN)) writeRules({ project, root });
+  return { name, action: 'removed' };
+}
+
 /** Installed foundry skills and whether each is current. */
 export function checkProject({ project = process.cwd(), root = REPO } = {}) {
   const dir = join(project, '.claude', 'skills');
@@ -137,7 +151,9 @@ export function checkProject({ project = process.cwd(), root = REPO } = {}) {
   return readdirSync(dir).filter((n) => existsSync(join(dir, n, STAMP))).map((n) => {
     const st = JSON.parse(readFileSync(join(dir, n, STAMP), 'utf8'));
     const s = cat.get(n);
-    return { name: n, installed: st.version, latest: s?.version ?? null, current: !!s && st.hash === total(hashes(s.dir)) };
+    // Files whose content differs from what was installed: someone (or an agent) edited the skill.
+    const modified = Object.entries(st.files ?? {}).filter(([f, h]) => { const p = join(dir, n, f); return !existsSync(p) || sha(readFileSync(p)) !== h; }).map(([f]) => f);
+    return { name: n, installed: st.version, latest: s?.version ?? null, current: !!s && st.hash === total(hashes(s.dir)), modified };
   });
 }
 
@@ -156,7 +172,8 @@ export function main(argv, log = console.log) {
       if (!ROLES.includes(role)) throw new Error(`--role must be one of ${ROLES.join(', ')}`);
       list = catalog().filter((s) => s.scope !== 'factory' && s.roles.includes(role)).map((s) => s.name);
     }
-    if (!list.length) throw new Error('usage: add <skill…> | add --role <ROLE>');
+    if (rest.includes('--all')) list = catalog().filter((s) => s.scope !== 'factory').map((s) => s.name);
+    if (!list.length) throw new Error('usage: add <skill…> | add --all | add --role <ROLE>');
     list.forEach((n) => show(addSkill(n, { force })));
     if (!rest.includes('--no-rules')) log(`rules    AGENTS.md lists ${writeRules().skills.join(', ')}`);
     if (!rest.includes('--no-protect')) { const g = protectSkills(); log(`protect  ${g.file}: ${g.skipped ?? (g.added.length ? `${g.added.length} deny rules added` : 'already in place')}`); }
@@ -164,8 +181,11 @@ export function main(argv, log = console.log) {
   } else if (cmd === 'check') {
     const r = checkProject();
     if (!r.length) log('No Skill Foundry skills installed here.');
-    for (const x of r) log(`${x.current ? 'current ' : 'outdated'} ${x.name} ${x.installed}${x.latest && !x.current ? ` → ${x.latest} (new content)` : ''}`);
-    return r.some((x) => !x.current) ? 2 : 0;
+    for (const x of r) log(`${x.current ? 'current ' : 'outdated'} ${x.name} ${x.installed}${x.latest && !x.current ? ` → ${x.latest} (new content)` : ''}${x.modified.length ? `  CHANGED LOCALLY: ${x.modified.join(', ')} (update keeps them; update --force restores the original)` : ''}`);
+    return r.some((x) => !x.current || x.modified.length) ? 2 : 0;
+  } else if (cmd === 'remove') {
+    if (!names.length) throw new Error('usage: remove <skill…>');
+    names.forEach((n) => log(`removed  ${removeSkill(n).name}`));
   } else if (cmd === 'update') {
     const r = checkProject().filter((x) => x.latest && (!names.length || names.includes(x.name)));
     if (!r.length) log('Nothing to update.');
@@ -173,7 +193,7 @@ export function main(argv, log = console.log) {
     if (r.length && !rest.includes('--no-rules')) log(`rules    AGENTS.md lists ${writeRules().skills.join(', ')}`);
     if (r.length && !rest.includes('--no-protect')) protectSkills();
   } else {
-    log('skill-foundry list | add <skill…> | add --role <PO_ARCHITECT|BA_ANALYST|DEV_ENGINEER|QA_AUDITOR> | check | update [skill…] [--force]\n  By default add also (1) lists the skills in AGENTS.md so any agent uses them, and (2) denies agents edit rights on the installed skills in .claude/settings.json.\n  --no-rules  skip (1)   --no-protect  skip (2)   Existing text and settings are kept.');
+    log('skill-foundry list | add <skill…> | add --all | add --role <PO_ARCHITECT|BA_ANALYST|DEV_ENGINEER|QA_AUDITOR> | check | update [skill…] [--force] | remove <skill…>\n  By default add also (1) lists the skills in AGENTS.md so any agent uses them, and (2) denies agents edit rights on the installed skills in .claude/settings.json.\n  --no-rules  skip (1)   --no-protect  skip (2)   Existing text and settings are kept.');
     return cmd ? 1 : 0;
   }
   return 0;

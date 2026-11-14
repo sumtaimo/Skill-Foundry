@@ -326,7 +326,7 @@ ${t('install.title', 'h2', 'id="install-title"')}
 ${steps('install.s', 3)}
 </ol>
 ${npxBox('add <skill>')}
-<div class="codebox"><pre><code class="npx-cmd">${esc(npxCommand('add --role QA_AUDITOR'))}\n${esc(npxCommand('check'))}\n${esc(npxCommand('update'))}</code></pre></div>
+<div class="codebox"><pre><code class="npx-cmd">${esc(npxCommand('add --role QA_AUDITOR'))}\n${esc(npxCommand('add --all'))}\n${esc(npxCommand('check'))}\n${esc(npxCommand('update'))}\n${esc(npxCommand('remove <skill>'))}</code></pre></div>
 ${t('install.npx.more', 'p')}
 ${t('install.cmd', 'p')}
 ${Number.isFinite(opts.allBytes) && opts.allBytes > 0 ? `<p>${allLink(opts.allBytes)}</p>` : ''}
