@@ -2,10 +2,13 @@
  * Portable check: install a skill into a brand-new empty project outside this repository and have a real
  * agent use it on one request, so the result shows how the skill behaves for someone who is not in this repo
  * (no CLAUDE.md, no lessons, no registry). It costs tokens. Skills with `scope: factory` cannot be checked.
- * CLI: node src/factory/portable-check.mjs <skill> --prompt "<user request>" [--out <dir>] [--engine claude]
+ * CLI: node src/factory/portable-check.mjs <skill> --prompt "<user request>" [--record] [--out <dir>] [--engine claude]
+ *   --record: save the result as src/skills/<skill>/evals/portable.json; `npm test` requires it for every ready skill
+ *   that is not `scope: factory` (see tests/factory-portable-gate.test.mjs), and it is stale when the skill changes.
  * @governed-by PO_ARCHITECT
  */
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { join, resolve, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
@@ -36,6 +39,41 @@ export function parseStream(stdout, skill) {
   return { tools, final, cost, usedSkill, touchedRepo };
 }
 
+/** Files that do not change how a skill behaves for a user, so editing them never makes a recording stale. */
+const NOT_BEHAVIOUR = (rel) => rel.startsWith('evals/live/') || rel === 'evals/portable.json' || rel === 'CHANGELOG.md' || rel.startsWith('preview/') || rel.startsWith('examples/');
+
+/**
+ * Hash of what an agent follows when it uses the skill (instructions, layers, references, rules, engine, evals cases).
+ * @param {string} skillDir
+ */
+export function behaviourHash(skillDir) {
+  const walk = (d) => readdirSync(d, { withFileTypes: true }).flatMap((e) => {
+    const p = join(d, e.name);
+    return e.isDirectory() ? walk(p) : [p.slice(skillDir.length + 1).split('\\').join('/')];
+  });
+  const h = createHash('sha256');
+  for (const rel of walk(skillDir).filter((f) => !NOT_BEHAVIOUR(f)).sort()) h.update(rel).update('\0').update(readFileSync(join(skillDir, rel))).update('\0');
+  return h.digest('hex');
+}
+
+/**
+ * Is there a passing portable-check recording that matches the skill as it is now?
+ * @param {string} skillDir @returns {{ok:boolean, problems:string[]}}
+ */
+export function checkRecording(skillDir) {
+  const p = join(skillDir, 'evals', 'portable.json');
+  if (!existsSync(p)) return { ok: false, problems: ['no portable-check recording (run: node src/factory/portable-check.mjs <name> --prompt "<request>" --record)'] };
+  let rec; try { rec = JSON.parse(readFileSync(p, 'utf8')); } catch { return { ok: false, problems: ['portable.json is not valid JSON'] }; }
+  const problems = [];
+  if (!rec.usedSkill) problems.push('the agent did not use the skill');
+  if (rec.leakedRepoRules) problems.push("this repository's rules leaked into the answer");
+  if (Array.isArray(rec.touchedRepo) && rec.touchedRepo.length) problems.push('the agent touched this repository');
+  if (rec.exit !== 0) problems.push(`the agent run exited with ${rec.exit}`);
+  if (typeof rec.prompt !== 'string' || !rec.prompt.trim() || typeof rec.answer !== 'string' || !rec.answer.trim()) problems.push('prompt or answer is missing');
+  if (rec.skillSha !== behaviourHash(skillDir)) problems.push('stale: the skill changed since this recording, record it again');
+  return { ok: problems.length === 0, problems };
+}
+
 /** @param {string} dir files under dir, relative, without the installed .claude folder */
 export function listProduced(dir) {
   const walk = (d) => readdirSync(d, { withFileTypes: true }).flatMap((e) => {
@@ -63,7 +101,7 @@ export async function portableCheck(skill, prompt, { out, engine = 'claude', tim
   if (r.error) throw r.error;
   const s = parseStream(r.stdout, skill);
   writeFileSync(join(root, '.portable-check.jsonl'), r.stdout);
-  return { skill, project: root, installedFiles: installed.length, exit: r.status, usedSkill: s.usedSkill, leakedRepoRules: REPO_MARKERS.test(s.final), touchedRepo: s.touchedRepo, produced: listProduced(root).filter((f) => f !== '.portable-check.jsonl'), cost: s.cost, answer: s.final };
+  return { skill, prompt, project: root, installedFiles: installed.length, exit: r.status, usedSkill: s.usedSkill, leakedRepoRules: REPO_MARKERS.test(s.final), touchedRepo: s.touchedRepo, produced: listProduced(root).filter((f) => f !== '.portable-check.jsonl'), cost: s.cost, answer: s.final };
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === HERE) {
@@ -74,6 +112,13 @@ if (process.argv[1] && resolve(process.argv[1]) === HERE) {
     if (!skill || !arg('--prompt')) throw new Error('usage: portable-check.mjs <skill> --prompt "<user request>" [--out <dir>] [--engine claude]');
     const r = await portableCheck(skill, arg('--prompt'), { out: arg('--out'), engine: arg('--engine') });
     const { answer, ...rest } = r;
+    if (a.includes('--record')) {
+      const dir = join(REPO_ROOT, 'src', 'skills', skill);
+      const rec = { skill, prompt: r.prompt, recordedAt: new Date().toISOString().slice(0, 10), agent: `${arg('--engine') ?? 'claude'} -p in an empty project outside the repository`, skillSha: behaviourHash(dir), exit: r.exit, usedSkill: r.usedSkill, leakedRepoRules: r.leakedRepoRules, touchedRepo: r.touchedRepo, produced: r.produced.length, cost: r.cost, answer: answer.slice(0, 6000) };
+      mkdirSync(join(dir, 'evals'), { recursive: true });
+      writeFileSync(join(dir, 'evals', 'portable.json'), JSON.stringify(rec, null, 2) + '\n');
+      console.log(`recorded src/skills/${skill}/evals/portable.json`);
+    }
     console.log(JSON.stringify(rest, null, 2));
     console.log('\nANSWER:\n' + answer);
     process.exit(r.exit === 0 && r.usedSkill && !r.leakedRepoRules && r.touchedRepo.length === 0 ? 0 : 1);

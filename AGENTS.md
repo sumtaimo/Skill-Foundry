@@ -78,6 +78,7 @@ Every agent that creates or changes a skill in `src/skills/` MUST:
 8. **One skill per session.** Change at most one skill (`src/skills/<name>/` and `docs/skills/<name>/`) in a session. Site and factory work is not a skill.
 9. **Respect other agents.** Never edit a skill listed in `src/factory/locks.json`; write suggestions to `docs/factory/notes/` instead. Only its owner unlocks it (`SKILL_OWNER=<name>`).
 10. Run `npm run guard` before every commit. If it prints `WARNING skill-guard`, stop, do not commit, and tell the user.
+11a. **Portable check before `ready`.** A skill that is not `scope: factory` also needs a recording from `node src/factory/portable-check.mjs <name> --prompt "<request>" --record`: a real agent uses the skill in an empty project outside this repository. `npm test` fails when it is missing, failing, or stale because the skill changed. Read the recorded answer yourself, not only the flags.
 11. **Never leave work half done.** Finish every task you start, including each gap and open item your own report would list, before you report. An item that stays open must have a real blocker, named with what you need. Work that belongs to another skill goes to a named session (one skill per session), never to a vague "later". A report that lists an open item you could have done yourself is not finished.
 
 ---
