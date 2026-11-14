@@ -1,0 +1,80 @@
+{
+  "skill": "figure-craft",
+  "version": "1.0.0",
+  "caseId": "kettle-round",
+  "inputSha256": "ea08e6ff04d46a6da8bde77d45a58c6402eb0681a628cf9994ddfbb30ae1ff4c",
+  "skillSha256": "470504e5802a8426868f3a9354f8a4e9bd8a989fddb0e95ffd2e102103037171",
+  "key": "23fc758a98d93dec7d08b6f134526cb53f1c50bda32ece5c241043a0ea808d77",
+  "startedAt": "2026-11-14T17:37:37.119Z",
+  "finishedAt": "2026-11-14T17:44:22.716Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.55731981,
+  "usage": {
+    "input_tokens": 70,
+    "cache_creation_input_tokens": 175035,
+    "cache_read_input_tokens": 4807699,
+    "output_tokens": 89193,
+    "output_tokens_details": {
+      "thinking_tokens": 44538
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 175035,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 916,
+        "cache_read_input_tokens": 201518,
+        "cache_creation_input_tokens": 3773,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 3773
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [
+    {
+      "path": "build-figure.mjs",
+      "bytes": 21044,
+      "sha256": "626cad02119041be5187dfdf5bfb16bca94971ed3e744118949f73d9290eb8cf"
+    },
+    {
+      "path": "electric-kettle.html",
+      "bytes": 674031,
+      "sha256": "5977eecbc39414df5211051740baef94ec9f1d5caddc628f2f63fc5f0d080f81"
+    },
+    {
+      "path": "electric-kettle.svg",
+      "bytes": 99636,
+      "sha256": "dc0927059f2dc8689f1ec9b1c8819c91710c01f017a693dbfd8009fb85f46966"
+    },
+    {
+      "path": "lint-report.json",
+      "bytes": 37,
+      "sha256": "e0c2924b0cf38903b5cc04c6b7491eb4acbcdfb846f4563bd1fe20d4953aff75"
+    },
+    {
+      "path": "report.md",
+      "bytes": 8304,
+      "sha256": "7da4835e7f7479654eb6040409bc5a23a65f34141e27adbe6c62e97155f6c18e"
+    }
+  ],
+  "checks": {
+    "expectations": 12,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "The kettle figure is built and passes the skill's lint with 0 errors and 0 warnings. Its build is deterministic: two runs gave byte-identical files. I haven't looked at it visually, because no browser or SVG renderer was available.\n\n**Files** (all in `/home/user/Skill-Foundry/runs/figure-craft/23fc758a98d93dec/output`):\n- `electric-kettle.html`: the page, with the turnable figure, an open/close button, nine part cards, and a light/dark toggle. No external scripts.\n- `electric-kettle.svg`: the front view, standalone.\n- `build-figure.mjs`: regenerates everything. It imports the engine from the skill folder by absolute path, so that folder must stay in place.\n- `lint-report.json`: `{ errors: [], warnings: [] }`.\n- `report.md`: the request verbatim, the idea sentence, the parts table, the checks, and the open items.\n\n**What's drawn:** the kettle is open with its side cut away and the water inside. The lid is lifted above the open top. Inside: a heating plate with its coil, a thermostat, and terminal blocks. Outside: the steel body, handle, spout, a power base on three feet, a switch, and a cable.\n\n**Checks:**\n- `lintStates` on both states and all four views: 0 errors, 0 warnings.\n- `lintCards`: 0 errors.\n- Every colour is a token, and the stroke widths come from the engine.\n- The page loads no external scripts or stylesheets.\n\n**Open items:**\n- **Lid:** drawn lifting straight up. A real kettle lid is hinged at the back, and the engine can't rotate a part.\n- **Assumed placements:** the heating element is drawn exposed on the floor, the thermostat sits on the plate in the water, and the switch is on the base's side. Each is marked as an assumption on its card. Web search was not permitted, so I couldn't check these against a real model. The layout is generic, not from one kettle.\n- **No motion story:** the skill asks for one, but the nine-label hover limit is already full. Bubbles rising from the heater would need a labelled part, so this is your call.\n- **Not run:** browser checks in light and dark, at 390px, and with reduced motion; a second-reader check of the idea. The checklist items that depend on them are answered \"not run\" in the report."
+}

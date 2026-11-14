@@ -7,6 +7,7 @@
  *   npx github:sumtaimo/Skill-Foundry add --role QA_AUDITOR  every ready skill for that role
  *   npx github:sumtaimo/Skill-Foundry check                which installed skills are out of date
  *   npx github:sumtaimo/Skill-Foundry update [name…]       update them; files you changed are kept
+ *   add ... --rules                                       also list the skills in AGENTS.md for non-Claude agents
  *
  * Each install writes `.claude/skills/<name>/.foundry.json` (version, content hash, a hash per file), so `check`
  * and `update` know what came from the foundry and what the user changed. When the project has an agentic harness
@@ -54,8 +55,11 @@ function harnessPointer(project, s) {
   const file = join(dir, s.name, 'SKILL.md');
   if (existsSync(file) && !readFileSync(file, 'utf8').includes(MARK)) return null; // the project's own skill wins
   mkdirSync(dirname(file), { recursive: true });
-  writeFileSync(file, `---\nname: ${s.name}\ndescription: ${s.description}\nroles: ${JSON.stringify(s.roles)}\nallowedTools: ["Read", "Edit", "Write"]\nkeywords: []\nautoApply: false\n${MARK} ${s.version}\n---\n` +
-    `# ${s.name}\n\nFollow the full skill in \`.claude/skills/${s.name}/SKILL.md\` and its layers. Start from the goal the user states.\n`);
+  // The harness injects a skill into a worker only when its role matches AND (autoApply OR a keyword is in the prompt),
+  // so the pointer sets autoApply: true. The pointer is a few lines; the full skill is read on demand.
+  const tags = (() => { try { return JSON.parse(readFileSync(join(s.dir, 'preview.json'), 'utf8')).tags ?? []; } catch { return []; } })();
+  writeFileSync(file, `---\nname: ${s.name}\ndescription: ${s.description}\nroles: ${JSON.stringify(s.roles)}\nallowedTools: ["Read", "Edit", "Write"]\nkeywords: ${JSON.stringify(tags)}\nautoApply: true\n${MARK} ${s.version}\n---\n` +
+    `# ${s.name}\n\nWhen the task matches this skill (${s.description.split('. ')[0]}.), read \`.claude/skills/${s.name}/SKILL.md\` and follow it with its layers, starting from the goal the user states. When the task does not match, ignore this skill.\n`);
   return relative(project, file).split(sep).join('/');
 }
 
@@ -87,6 +91,25 @@ export function addSkill(name, { project = process.cwd(), root = REPO, force = f
   return { name, action: old ? 'updated' : 'added', kept, harness: harnessPointer(project, s) };
 }
 
+const BEGIN = '<!-- skill-foundry:begin (managed by `npx github:sumtaimo/Skill-Foundry`; edits inside are replaced) -->';
+const END = '<!-- skill-foundry:end -->';
+/**
+ * Write (or refresh) one managed block in the project's AGENTS.md, read by Codex, Cursor, Gemini and others, so agents
+ * that do not load `.claude/skills/` still know which skills exist and when to use each. Text outside the block is never touched.
+ */
+export function writeRules({ project = process.cwd(), root = REPO } = {}) {
+  const cat = new Map(catalog({ root }).map((s) => [s.name, s]));
+  const rows = checkProject({ project, root }).map((x) => cat.get(x.name)).filter(Boolean);
+  const block = `${BEGIN}\n## Skills\n\nThis project has these skills in \`.claude/skills/\`. When a task matches one, read its \`SKILL.md\` first and follow its steps and layers, starting from the goal the user states. Use one skill per step; when a request needs several, use them in the order the request gives.\n\n` +
+    rows.map((s) => `- **${s.name}** (\`.claude/skills/${s.name}/SKILL.md\`): ${s.description}`).join('\n') + `\n\nUpdate them with \`npx github:sumtaimo/Skill-Foundry update\`.\n${END}\n`;
+  const file = join(project, 'AGENTS.md');
+  const old = existsSync(file) ? readFileSync(file, 'utf8') : '';
+  const i = old.indexOf(BEGIN); const j = old.indexOf(END);
+  const next = i >= 0 && j > i ? old.slice(0, i) + block + old.slice(j + END.length).replace(/^\n/, '') : (old ? `${old.replace(/\n*$/, '\n\n')}${block}` : `# AGENTS.md\n\n${block}`);
+  writeFileSync(file, next);
+  return { file: 'AGENTS.md', skills: rows.map((s) => s.name) };
+}
+
 /** Installed foundry skills and whether each is current. */
 export function checkProject({ project = process.cwd(), root = REPO } = {}) {
   const dir = join(project, '.claude', 'skills');
@@ -116,6 +139,7 @@ export function main(argv, log = console.log) {
     }
     if (!list.length) throw new Error('usage: add <skill…> | add --role <ROLE>');
     list.forEach((n) => show(addSkill(n, { force })));
+    if (rest.includes('--rules')) log(`rules    AGENTS.md lists ${writeRules().skills.join(', ')}`);
     log('Restart your agent (Claude Code) so it loads the skills.');
   } else if (cmd === 'check') {
     const r = checkProject();
@@ -126,8 +150,9 @@ export function main(argv, log = console.log) {
     const r = checkProject().filter((x) => x.latest && (!names.length || names.includes(x.name)));
     if (!r.length) log('Nothing to update.');
     r.forEach((x) => show(addSkill(x.name, { force })));
+    if (rest.includes('--rules') || (existsSync(join(process.cwd(), 'AGENTS.md')) && readFileSync(join(process.cwd(), 'AGENTS.md'), 'utf8').includes(BEGIN))) log(`rules    AGENTS.md lists ${writeRules().skills.join(', ')}`);
   } else {
-    log('skill-foundry list | add <skill…> | add --role <PO_ARCHITECT|BA_ANALYST|DEV_ENGINEER|QA_AUDITOR> | check | update [skill…] [--force]');
+    log('skill-foundry list | add <skill…> [--rules] | add --role <PO_ARCHITECT|BA_ANALYST|DEV_ENGINEER|QA_AUDITOR> [--rules] | check | update [skill…] [--force]\n  --rules  also list the skills in AGENTS.md (for Codex, Cursor, Gemini); text outside its block is kept');
     return cmd ? 1 : 0;
   }
   return 0;

@@ -1,0 +1,60 @@
+{
+  "skill": "figure-craft",
+  "version": "1.0.0",
+  "caseId": "not-for-charts",
+  "inputSha256": "1edbeee2cf564cef9cdb2aa445fd490215cb252416af54c41041606a73d2dfa6",
+  "skillSha256": "470504e5802a8426868f3a9354f8a4e9bd8a989fddb0e95ffd2e102103037171",
+  "key": "47bacaaa23730044719935403ae80a874b37d6136480469016c6544159197689",
+  "startedAt": "2026-11-14T17:39:05.102Z",
+  "finishedAt": "2026-11-14T17:39:20.926Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.006993180000000001,
+  "usage": {
+    "input_tokens": 8,
+    "cache_creation_input_tokens": 21086,
+    "cache_read_input_tokens": 167918,
+    "output_tokens": 2192,
+    "output_tokens_details": {
+      "thinking_tokens": 904
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 21086,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 367,
+        "cache_read_input_tokens": 50440,
+        "cache_creation_input_tokens": 902,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 902
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [
+    {
+      "path": "report.md",
+      "bytes": 1230,
+      "sha256": "fde68ac3df8a45cf503ae14b1673ab169e71e6d69d5f7fec1ead7adcf0924768"
+    }
+  ],
+  "checks": {
+    "expectations": 1,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "I did not make the bar chart. figure-craft is for isometric explanatory figures of real objects, and its own rules exclude data charts. Layer 01, step 6 says to stop in that case.\n\n**Files produced**\n- `/home/user/Skill-Foundry/runs/figure-craft/47bacaaa23730044/output/report.md`: records the request, the decision to stop, and the open items.\n\n**Checks run**\n- I read `SKILL.md`, `layers/01-intent.md`, `layers/03-inputs.md` and `references/README.md`. I did not read the other layers, references, engine or examples, because the run stopped at layer 01. That is a partial read of the linked files.\n- No lint, checklist or browser checks were run, since no figure was built.\n\n**Open items**\n- For a bar chart, the `dataviz` skill is the right route. I need the monthly sales values to build one: month labels with numbers, or a CSV/JSON path. I did not invent sample numbers.\n- If you want a figure-craft figure instead, give it an explanatory subject, such as how a kettle heats water, plus the parts the reader should see."
+}
