@@ -3,24 +3,40 @@
     "name": "skill-smith",
     "version": "1.1.0",
     "purpose": "Guides an agent through building a new skill that passes the factory linter, evals and review.",
-    "status": "ready"
+    "status": "ready",
+    "roles": [
+      "PO_ARCHITECT",
+      "DEV_ENGINEER"
+    ]
   },
   {
     "name": "figure-craft",
     "version": "1.0.0",
     "purpose": "Draws isometric explanatory figures with tokens, a shared iso engine and geometry lint L1 to L8.",
-    "status": "ready"
+    "status": "ready",
+    "roles": [
+      "BA_ANALYST",
+      "DEV_ENGINEER"
+    ]
   },
   {
     "name": "changelog-writer",
     "version": "1.0.0",
     "purpose": "Turns merged changes into a CHANGELOG entry with the correct semver bump.",
-    "status": "ready"
+    "status": "ready",
+    "roles": [
+      "DEV_ENGINEER",
+      "QA_AUDITOR"
+    ]
   },
   {
     "name": "copy-tight",
     "version": "0.2.0",
     "purpose": "Rewrites UI copy to be short and plain without changing meaning, numbers, names or legal text.",
-    "status": "ready"
+    "status": "ready",
+    "roles": [
+      "BA_ANALYST",
+      "DEV_ENGINEER"
+    ]
   }
 ]

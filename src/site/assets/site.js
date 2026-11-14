@@ -1,6 +1,7 @@
 /**
  * Skill Foundry showcase behaviour: theme, language, copy buttons, typing hero prompt,
- * skill chips, question bar progress and active tab.
+ * skill chips, question bar progress and active tab, skill search and role filter,
+ * and install commands built from the page address.
  * DICTS is injected at build time from src/site/lib/i18n.mjs. No external scripts.
  * @governed-by PO_ARCHITECT
  */
@@ -65,6 +66,11 @@
     for (var k = 0; k < takes.length; k++) {
       var strong = document.querySelector('#' + takes[k][0] + ' > .takeaway strong');
       if (strong && typeof dict[takes[k][1]] === 'string') strong.textContent = dict[takes[k][1]];
+    }
+    var ph = document.querySelectorAll('[data-i18n-placeholder]');
+    for (var q = 0; q < ph.length; q++) {
+      var pk = ph[q].getAttribute('data-i18n-placeholder');
+      if (typeof dict[pk] === 'string') ph[q].setAttribute('placeholder', dict[pk]);
     }
     syncButtons();
   }
@@ -185,6 +191,65 @@
     update();
   }
 
+  /* Finder: text search over data-text plus one role filter; shows a live count and an empty state. */
+  var role = '';
+  function applyFilter() {
+    var input = document.getElementById('find');
+    var plates = document.querySelectorAll('.plate');
+    if (!input || !plates.length) return;
+    var words = input.value.toLowerCase().split(/\s+/).filter(Boolean);
+    var shown = 0;
+    for (var i = 0; i < plates.length; i++) {
+      var hay = plates[i].getAttribute('data-text') || '';
+      var roles = ' ' + (plates[i].getAttribute('data-roles') || '') + ' ';
+      var ok = (!role || roles.indexOf(' ' + role + ' ') >= 0);
+      for (var w = 0; ok && w < words.length; w++) if (hay.indexOf(words[w]) < 0) ok = false;
+      plates[i].hidden = !ok;
+      if (ok) shown++;
+    }
+    var count = document.querySelector('.find-count');
+    if (count) {
+      count.setAttribute('data-i18n-args', JSON.stringify({ n: shown, t: plates.length }));
+      count.textContent = fill(text('find.count'), { n: shown, t: plates.length });
+    }
+    var none = document.querySelector('.find-none');
+    if (none) none.hidden = shown !== 0;
+  }
+  function selectRole(btn) {
+    role = btn.getAttribute('data-role') || '';
+    var all = document.querySelectorAll('.rolechip');
+    for (var i = 0; i < all.length; i++) all[i].setAttribute('aria-pressed', all[i] === btn ? 'true' : 'false');
+    applyFilter();
+  }
+  function setupFinder() {
+    var input = document.getElementById('find');
+    if (!input) return;
+    input.addEventListener('input', applyFilter);
+    input.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') { input.value = ''; applyFilter(); } });
+  }
+
+  /* Install commands: over http(s) the zip URL is known, so copy a full download, verify and unzip command. */
+  function siteRoot() {
+    var sc = document.querySelector('script[src$="assets/site.js"]');
+    return sc ? new URL('../', sc.src) : null;
+  }
+  function setupInstall() {
+    if (!/^https?:$/.test(window.location.protocol)) return;
+    var rootUrl = siteRoot();
+    if (!rootUrl) return;
+    var btns = document.querySelectorAll('[data-install-zip]');
+    for (var i = 0; i < btns.length; i++) {
+      var zip = btns[i].getAttribute('data-install-name');
+      var sha = btns[i].getAttribute('data-sha256-install');
+      if (!zip || !/^[0-9a-f]{64}$/.test(sha || '')) continue;
+      var url = new URL(btns[i].getAttribute('data-install-zip'), rootUrl).href;
+      var cmd = 'mkdir -p .claude/skills && curl -fsSL "' + url + '" -o "' + zip + '" && echo "' + sha + '  ' + zip + '" | shasum -a 256 -c - && unzip -oq "' + zip + '" -d .claude/skills && rm "' + zip + '"';
+      btns[i].setAttribute('data-copy', cmd);
+      var box = btns[i].parentNode && btns[i].parentNode.querySelector('.install-cmd');
+      if (box) box.textContent = cmd;
+    }
+  }
+
   function init() {
     if (lang !== 'en') applyLang(lang);
     else syncButtons();
@@ -202,6 +267,8 @@
         var nl = lang === 'en' ? 'kh' : 'en';
         applyLang(nl);
         save('sf-lang', nl);
+      } else if (btn.classList.contains('rolechip')) {
+        selectRole(btn);
       } else if (btn.classList.contains('chip') && btn.hasAttribute('data-skill')) {
         selectSkill(btn);
       } else if (btn.hasAttribute('data-copy')) {
@@ -210,6 +277,8 @@
     });
     setupHero();
     setupQbar();
+    setupFinder();
+    setupInstall();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

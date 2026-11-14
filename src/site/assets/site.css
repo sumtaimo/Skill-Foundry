@@ -230,6 +230,34 @@ dd { margin: 2px 0 0; font-weight: 500; }
 
 .foot { border-top: 1px solid var(--line); padding: 24px var(--gutter); color: var(--faint); font-size: .85rem; }
 
+/* Finder: search, role filter, live count */
+.finder { display: grid; gap: 12px; margin: 0 0 24px; }
+.find-label { font-weight: 500; }
+.find {
+  width: 100%; min-height: 44px; padding: 10px 14px; font: inherit; color: var(--fg);
+  background: var(--surface); border: 1px solid var(--line-strong); border-radius: 10px;
+}
+.find::placeholder { color: var(--faint); }
+.roles-filter { display: flex; flex-wrap: wrap; gap: 8px; }
+.rolechip {
+  min-height: 36px; padding: 6px 14px; font: inherit; font-size: .875rem; color: var(--muted); cursor: pointer;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+  transition: color .15s ease-out, border-color .15s ease-out, background-color .15s ease-out;
+}
+.rolechip:hover { color: var(--fg); border-color: var(--line-strong); }
+.rolechip[aria-pressed=true] { color: var(--fg); border-color: var(--fg); background: var(--surface2); font-weight: 500; }
+.find-count { margin: 0; color: var(--muted); font-size: .875rem; }
+.find-none { color: var(--muted); padding: 24px 0; }
+.plate[hidden] { display: none; }
+.roles { margin: 0; color: var(--muted); font-size: .85rem; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.role { padding: 2px 8px; border: 1px solid var(--line); border-radius: 999px; color: var(--fg); }
+.live { margin: 0; font-size: .85rem; }
+.live-yes { color: var(--fg); }
+.live-no { color: var(--warn); }
+.agent-files { padding-left: 1.2em; }
+.agent-files a { font-family: var(--mono); font-size: .9rem; }
+@media (max-width: 480px) { .rolechip { min-height: 44px; } }
+
 @media (max-width: 720px) {
   .hero { grid-template-columns: minmax(0, 1fr); grid-template-areas: "copy" "figure" "chips"; }
 }

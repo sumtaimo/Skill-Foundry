@@ -5,6 +5,17 @@
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { sanitizeSvg } from './svg.mjs';
+import { scoreLive } from '../../factory/live-evals.mjs';
+
+/** Agent roles a skill may declare; they match .harness/roles/. */
+export const ROLES = ['PO_ARCHITECT', 'BA_ANALYST', 'DEV_ENGINEER', 'QA_AUDITOR'];
+
+/** Real-agent eval result from evals/live/ recordings; null when the skill has none. */
+function liveResult(dir) {
+  if (!existsSync(join(dir, 'evals', 'live'))) return null;
+  const s = scoreLive(dir);
+  return { passed: s.passed, total: s.passed + s.failed };
+}
 
 const EXCLUDE = new Set(['.DS_Store', 'Thumbs.db', 'node_modules', '.git']);
 
@@ -57,8 +68,14 @@ export function loadSkills(root, opts = {}) {
       if (!Array.isArray(rules)) throw new Error(`loadSkills: RULES.json of ${r.name} must be an array`);
       const machine = rules.filter((x) => x && x.check).length;
       const checklist = rules.filter((x) => x && x.checklist && !x.check).length;
+      const roles = Array.isArray(r.roles) ? r.roles.map(String) : [];
+      for (const role of roles) if (!ROLES.includes(role)) throw new Error(`loadSkills: ${r.name} has unknown role ${role}`);
+      const md = read('SKILL.md');
       return {
         name: r.name,
+        roles,
+        description: (/^description:\s*(.*)$/m.exec(md)?.[1] ?? '').trim(),
+        live: liveResult(dir),
         version: String(r.version),
         status: r.status,
         title: String(preview.title ?? r.name),
@@ -67,7 +84,7 @@ export function loadSkills(root, opts = {}) {
         outputs: Array.isArray(preview.outputs) ? preview.outputs.map(String) : [],
         tags: Array.isArray(preview.tags) ? preview.tags.map(String) : [],
         coverSvg: sanitizeSvg(read('preview/cover.svg')),
-        procedure: parseProcedure(read('SKILL.md')),
+        procedure: parseProcedure(md),
         rules: { total: rules.length, machine, checklist },
         changelog: existsSync(join(dir, 'CHANGELOG.md')) ? read('CHANGELOG.md').replace(/\r\n?/g, '\n') : '',
         files: listFiles(dir).sort(),
