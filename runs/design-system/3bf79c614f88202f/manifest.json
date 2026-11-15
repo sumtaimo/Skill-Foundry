@@ -1,0 +1,21 @@
+{
+  "skill": "design-system",
+  "version": "1.0.0",
+  "caseId": "screen-declined",
+  "inputSha256": "4239e12fb36c1aab2904c4b9725548f3f50342325190b0c37ec5cacefb00520d",
+  "skillSha256": "06fa7bb5e2c8ac50a711a0ff3d1e2d91b6c3c55bfdd920c472485467e45c2db5",
+  "key": "3bf79c614f88202fcb1bdaccce47dbc08e34c35c73c771f9c1ff7244e36adf3b",
+  "startedAt": "2026-11-15T02:10:08.298Z",
+  "finishedAt": "2026-11-15T02:10:29.772Z",
+  "runner": "custom",
+  "exitCode": 0,
+  "costUsd": null,
+  "usage": null,
+  "files": [],
+  "checks": {
+    "expectations": 4,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "This skill builds design tokens, not screens. For finished screen code, use ui-polish.\n\n- **Files produced:** none. You asked for a dashboard screen, and this skill only makes design tokens. Its rules (layer 06, step 2, and R-design-system-13) say a screen request gets the sentence above and no files or markup. `/tmp/ds-live-5ZoYtG/out` is still empty.\n- **Checks run:** none. The engine and the contrast checks only run when tokens are built.\n- **Open items:** to get a token set for the analytics app, send a brand hex colour (for example #2563eb), a few words about the style, or the path to your existing tokens. Use ui-polish for the screen itself."
+}

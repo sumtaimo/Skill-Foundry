@@ -36,6 +36,7 @@ const INPUTS = {
   'yellow-brand': ['--primary', '#facc15', '--archetype', 'bold-consumer'],
   'font-editorial': ['--primary', '#be123c', '--archetype', 'editorial', '--font', 'Atkinson Hyperlegible'],
   'dense-tool': ['--primary', '#4f46e5', '--archetype', 'dense-data-tool'],
+  'midtone-teal': ['--primary', '#0d9488', '--archetype', 'calm-workspace', '--name', 'Plant-care app'],
 };
 
 test('design-system lint is clean', async () => {
@@ -74,7 +75,20 @@ test('engine: the given hex sits unchanged at its nearest step; steps keep its h
     assert.ok(E.maxDrift(r) <= 4, `${hx}: drift ${E.maxDrift(r)}`);
     const ls = E.STEPS.map((s) => E.rgbToHsl(E.hexToRgb(r.scale[s]))[2]);
     for (let i = 1; i < ls.length; i++) assert.ok(ls[i] < ls[i - 1], `${hx}: lightness goes down step by step`);
-    for (const s of E.MID_STEPS) assert.ok(Math.abs(E.rgbToHsl(E.hexToRgb(r.scale[s]))[1] - r.saturation) < 0.06, `${hx} ${s}: saturation kept`);
+    const l0 = E.rgbToHsl(E.hexToRgb(hx))[2], c0 = E.chroma(r.saturation, l0);
+    for (const s of E.STEPS) {
+      if (s === r.at || s <= 100) continue; // 50 and 100 are near-white: 8-bit hex cannot hold their HSL saturation, only their hue
+      const [, ss, ll] = E.rgbToHsl(E.hexToRgb(r.scale[s]));
+      assert.ok(E.chroma(ss, ll) <= E.chroma(r.saturation * E.SAT_TAPER[s], E.LIGHTNESS[s] / 100) + 0.02, `${hx} ${s}: saturation ${ss.toFixed(3)} is tapered, never above the input`);
+      if (E.CHROMA_CAP[s] && ss > r.saturation * E.SAT_FLOOR + 0.03) assert.ok(E.chroma(ss, ll) <= E.CHROMA_CAP[s] * c0 + 0.02, `${hx} ${s}: steps 400 to 700 are never more colourful than the input`);
+    }
+  }
+  // A mid-tone teal no longer turns bright cyan in the middle steps: 400 and 500 stay below the input's colourfulness.
+  const teal = E.ramp('#0d9488');
+  assert.equal(teal.scale[700], '#0d9488');
+  for (const s of [400, 500]) {
+    const [, ss, ll] = E.rgbToHsl(E.hexToRgb(teal.scale[s]));
+    assert.ok(ss < 0.7 && E.chroma(ss, ll) < E.chroma(teal.saturation, 0.316), `teal ${s}: ${teal.scale[s]} is not a bright cyan`);
   }
   let seed = 11; const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
   for (let i = 0; i < 2000; i++) {
@@ -92,8 +106,39 @@ test('engine: every archetype passes every text pair for light, dark, vivid, gre
     const b = E.build({ primary: hx, accent: '#f59e0b', archetype: a });
     const bad = b.pairs.filter((p) => p.light < p.need || p.dark < p.need);
     assert.deepEqual(bad, [], `${a} ${hx}`);
-    if (hx) assert.equal(b.roles.light['action-primary-bg'].hex, E.normHex(hx), `${a} ${hx}: the given colour is the action fill`);
+    if (!hx) continue;
+    const given = E.normHex(hx), fill = b.roles.light['action-primary-bg'].hex, f = b.fills.primary;
+    if (f && f.fillStep != null) {
+      // mid-tone: neither white nor the dark ink reaches 4.5:1 on the given colour, so the fill is the nearest darker step that carries white
+      assert.ok(E.contrast('#ffffff', given) < 4.5 && E.contrast(b.scales.neutral.scale[900], given) < 4.5, `${a} ${hx}: only mid-tones move`);
+      assert.equal(fill, b.scales.primary.scale[f.fillStep]);
+      assert.ok(f.fillStep > b.scales.primary.at, `${a} ${hx}: the fill is darker than the given step`);
+      assert.equal(b.roles.light['action-primary-text'].hex, '#ffffff');
+      const nearer = E.STEPS.filter((st) => st > b.scales.primary.at && st < f.fillStep);
+      for (const st of nearer) assert.ok(E.contrast('#ffffff', b.scales.primary.scale[st]) < 4.5, `${a} ${hx}: ${st} is a nearer darker step with white at 4.5:1`);
+    } else assert.equal(fill, given, `${a} ${hx}: the given colour is the action fill when white or the dark ink reads on it`);
+    assert.equal(b.scales.primary.scale[b.scales.primary.at], given, `${a} ${hx}: the given hex stays in its scale`);
   }
+});
+
+test('engine: a mid-tone brand colour keeps its hex as --color-brand; the button moves to a darker step of the same hue and the report shows both ratios', () => {
+  const { dir, reply } = engineText(['--primary', '#0d9488', '--archetype', 'calm-workspace']);
+  const css = readFileSync(path.join(dir, 'tokens.css'), 'utf8');
+  const json = JSON.parse(readFileSync(path.join(dir, 'design-tokens.json'), 'utf8'));
+  assert.match(css, /--color-brand: #0d9488;/);
+  assert.equal(json.color.brand.$value, '#0d9488');
+  assert.match(css, /--color-primary-700: #0d9488;/);
+  assert.match(css, /--color-action-primary-bg: var\(--color-primary-800\);/);
+  assert.match(css, /--color-action-primary-text: #ffffff;/);
+  const b = E.build({ primary: '#0d9488', archetype: 'calm-workspace' });
+  assert.ok(E.hueDiff(E.hueOf(b.roles.light['action-primary-bg'].hex), b.scales.primary.hue) <= 1, 'same hue');
+  assert.match(reply, /white text on your #0d9488 is 3\.74:1 \(below 4\.5:1\), so the fill uses primary-800 #[0-9a-f]{6}, the nearest darker step of the same hue, where white text is (\d+\.\d\d):1/);
+  const shown = Number(/where white text is (\d+\.\d\d):1/.exec(reply)[1]);
+  assert.ok(shown >= 4.5 && Math.abs(shown - E.contrast('#ffffff', b.roles.light['action-primary-bg'].hex)) < 0.01);
+  // a light colour keeps its hex as the fill with dark text; a dark colour keeps it with white text
+  assert.equal(E.build({ primary: '#facc15' }).roles.light['action-primary-bg'].hex, '#facc15');
+  assert.equal(E.build({ primary: '#0f766e' }).roles.light['action-primary-bg'].hex, '#0f766e');
+  assert.equal(E.build({ primary: '#facc15' }).fills.primary, undefined);
 });
 
 test('engine: contrast maths and ratio text match the reference table; a failing ratio never rounds up', () => {

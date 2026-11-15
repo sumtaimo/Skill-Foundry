@@ -4,13 +4,15 @@ Everything the engine (`engine/tokens.mjs`) does is written here, so the set can
 
 ## Colour scales
 
-Every scale keeps the hue and saturation (HSL) of its input colour and changes only lightness.
-The input hex sits unchanged at the step whose lightness is nearest to its own.
+Every scale keeps the hue (HSL) of its input colour. Lightness follows the table below; saturation eases toward the ends.
+The input hex sits unchanged at the step whose lightness is nearest to its own, and the primary input is also `--color-brand` (`color.brand`).
 
 | Step | 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | 950 |
 |------|----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
 | HSL lightness % | 97 | 93 | 85 | 75 | 64 | 53 | 43 | 34 | 24 | 15 | 8 (neutral only) |
 
+- Saturation of a step = input saturation × the taper: 50: 0.80, 100: 0.85, 200: 0.90, 300: 0.95, 400 to 700: 1, 800: 0.95, 900: 0.88, 950: 0.80.
+- Steps 400 to 700 are also capped so they are never more colourful than the input. Colourfulness is HSL chroma, C = (1 − |2L − 1|) × S. The cap is C(step) ≤ k × C(input), with k = 0.85 at 400, 0.90 at 500, 0.95 at 600 and 1 at 700, so S(step) ≤ k × C(input) / (1 − |2L(step) − 1|). A capped step keeps at least 0.6 × the input saturation, so hex can still hold the hue. Example: #0d9488 (a teal at 700) gives 400 #6bddd3 and 500 #4dc6bb, not a bright cyan.
 - When rounding a step to hex, try the nearby 8-bit values of each channel (keeping lightness within 1 percent, 2 percent at the palest and darkest steps) and pick the one whose hue is nearest the input hue. For inputs with 25% saturation or more the drift stays at or under 1 degree at steps 300 to 800 and 4 degrees at 50, 100, 200 and 900: 8-bit hex cannot hold a hue more exactly in very pale or very dark colours. Greyish inputs (under 25%) drift more at those steps; the report shows the drift.
 - **Neutral**: the primary hue at the archetype's neutral saturation (references/archetypes.md), steps 50 to 950. A neutral hex the user gives replaces this.
 - **Status** defaults when the user gives none: success #16a34a, warning #d97706, danger #dc2626, info #2563eb.
@@ -36,8 +38,8 @@ Each role has a light and a dark value. "First of" means the first step, in that
 | border-default | neutral-200 | neutral-800 |
 | border-strong | first of neutral 400 to 700 at 3:1 | first of neutral 500, 400, 300 at 3:1 |
 | border-focus | primary, as text-link but at 3:1 | as text-link but at 3:1 |
-| action-primary-bg | the given primary hex | the same |
-| action-primary-text | #ffffff or neutral-900, whichever has the higher ratio; #000000 when neither reaches 4.5:1 (mid-tones) | the same |
+| action-primary-bg | the given primary hex when #ffffff or neutral-900 reaches 4.5:1 on it; for a mid-tone (neither reaches it), the nearest darker step of the primary scale where #ffffff reaches 4.5:1 | the same |
+| action-primary-text | #ffffff or neutral-900, whichever has the higher ratio; #ffffff on a mid-tone's darker step; #000000 on the given hex only when no darker step reaches 4.5:1 with #ffffff | the same |
 | action-primary-bg-hover, -pressed | the next steps that keep action-primary-text at 4.5:1 (darker under white text, lighter under dark text) | the same |
 | action-secondary-text, -border | text-link, border-focus | the same |
 | selected-bg, selected-text | primary-50, primary text at 4.5:1 on it | primary-900, primary text at 4.5:1 on it |
@@ -47,7 +49,7 @@ Each role has a light and a dark value. "First of" means the first step, in that
 | accent-bg, accent-text-on, accent-text | as action-primary and text-link, for the accent | the same |
 | surface-brand, text-on-brand | bold-consumer only: action-primary-bg and its text | the same |
 
-Because #000000 or #ffffff always reaches 4.5:1 on any colour, the given primary is always the action fill; it is never darkened to make white text pass.
+The given hex is never changed: it stays at its step and as `--color-brand`. Only the filled button of a mid-tone moves, to a darker step of the same hue, and the report shows both ratios (white on the given hex, white on the fill). A light colour such as a yellow keeps its hex as the fill with dark text. Because #000000 or #ffffff always reaches 4.5:1 on any colour, a fill is always found.
 
 ## Contrast
 
@@ -119,6 +121,7 @@ existing background, text and border tokens get dark values under the same names
 Answer each line yes or no. Any "no" blocks the reply until it is fixed.
 
 - [ ] Each given hex appears unchanged, and its scale keeps its hue (report: at most 1 degree at 300 to 800, 4 elsewhere).
+- [ ] A mid-tone primary has its filled button on a darker step of the same hue, and the report shows white on the given hex and white on the fill.
 - [ ] Every text pair is 4.5:1 or more in light and dark, and each ratio is written with ":1".
 - [ ] tokens.css has prefers-color-scheme: dark, [data-theme="dark"] and prefers-reduced-motion blocks.
 - [ ] design-tokens.json uses $type and $value, with roles as aliases.

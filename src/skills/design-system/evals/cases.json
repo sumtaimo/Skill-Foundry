@@ -508,6 +508,108 @@
     ]
   },
   {
+    "id": "midtone-teal",
+    "prompt": "Make design tokens for our plant-care app. Brand colour #0d9488; it should feel calm and friendly.",
+    "expect": [
+      {
+        "type": "fileExists",
+        "value": "design-tokens.json"
+      },
+      {
+        "type": "fileExists",
+        "value": "tokens.css"
+      },
+      {
+        "type": "fileExists",
+        "value": "design-system-report.md"
+      },
+      {
+        "type": "contains",
+        "value": "## Design system:"
+      },
+      {
+        "type": "contains",
+        "value": "### Contrast"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "\"$type\": \"color\""
+      },
+      {
+        "type": "contains",
+        "value": "\"$value\""
+      },
+      {
+        "type": "contains",
+        "value": "prefers-color-scheme: dark"
+      },
+      {
+        "type": "contains",
+        "value": ":root[data-theme=\"dark\"]"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-reduced-motion: reduce"
+      },
+      {
+        "type": "contains",
+        "value": "--size-target-min: 44px"
+      },
+      {
+        "type": "notContains",
+        "value": "@import"
+      },
+      {
+        "type": "notContains",
+        "value": "<link"
+      },
+      {
+        "type": "notContains",
+        "value": "url("
+      },
+      {
+        "type": "contains",
+        "value": "--color-brand: #0d9488"
+      },
+      {
+        "type": "contains",
+        "value": "--color-primary-700: #0d9488"
+      },
+      {
+        "type": "contains",
+        "value": "--color-primary-400: #6bddd3"
+      },
+      {
+        "type": "contains",
+        "value": "--color-action-primary-bg: var(--color-primary-800)"
+      },
+      {
+        "type": "contains",
+        "value": "--color-action-primary-text: #ffffff"
+      },
+      {
+        "type": "notContains",
+        "value": "--color-action-primary-text: #000000"
+      },
+      {
+        "type": "contains",
+        "value": "white text on your #0d9488 is 3.74:1"
+      },
+      {
+        "type": "contains",
+        "value": "the nearest darker step of the same hue, where white text is 5.95:1"
+      },
+      {
+        "type": "contains",
+        "value": "calm-workspace"
+      }
+    ]
+  },
+  {
     "id": "font-editorial",
     "prompt": "Design tokens for our online magazine. Brand red is #be123c, and we use the font Atkinson Hyperlegible, which we host ourselves.",
     "expect": [

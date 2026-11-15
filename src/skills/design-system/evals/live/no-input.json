@@ -1,9 +1,9 @@
 {
   "case": "no-input",
   "prompt": "Make us a design system.",
-  "agent": "claude via run-skill (fresh agent, skill folder and the case prompt only)",
+  "agent": "custom via run-skill (fresh agent, skill folder and the case prompt only)",
   "recordedAt": "2026-11-15",
   "output": "Give me a brand colour as a hex code (for example #2563eb), a few words about the style you want, or the path to your existing design tokens.",
   "files": [],
-  "run": "runs/design-system/49be849e08e2185c"
+  "run": "runs/design-system/32285f47df509640"
 }

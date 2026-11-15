@@ -1,0 +1,6 @@
+You are running the skill in /home/user/Skill-Foundry/src/skills/design-system. Read /home/user/Skill-Foundry/src/skills/design-system/SKILL.md and every file it links to, then follow it step by step.
+Write every file you produce into /home/user/Skill-Foundry/runs/design-system/0bd74388b6571bfa/output and nowhere else. Produce the real output the skill describes, never a placeholder or mock.
+When done, reply with a short report: files produced, checks run and their results, open items.
+
+Input:
+Set up design tokens for a learning app for kids. Primary #7c3aed, accent #f59e0b. It should feel fun and energetic.

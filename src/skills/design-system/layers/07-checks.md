@@ -13,7 +13,7 @@ Checks anyone can run by search, in any project:
 Reviewer checklist, answered yes or no (the same list is in references/README.md):
 
 8. The archetype fits the user's words, and the why line says which words.
-9. The brand colour looks like the brand: same hue, and it is the primary action fill.
+9. The brand colour looks like the brand: same hue; it is the primary action fill, or, for a mid-tone, the fill is the nearest darker step of the same hue and the report says so with both ratios.
 10. The reply is the report in the layer 08 format.
 
 Hand the answers to layer 08 for the quality bar and to layer 10 for the record.

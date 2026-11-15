@@ -137,8 +137,31 @@ export const SIZE_NAMES = ['xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'];
 
 // ---------- scales ----------
 
+/** Share of the input saturation each step keeps: 1 in the middle, less toward the palest and darkest steps. */
+export const SAT_TAPER = { 50: 0.8, 100: 0.85, 200: 0.9, 300: 0.95, 400: 1, 500: 1, 600: 1, 700: 1, 800: 0.95, 900: 0.88, 950: 0.8 };
+/** Steps 400 to 700 are never more colourful than the input: their HSL chroma stays at or under this share of the input's chroma. */
+export const CHROMA_CAP = { 400: 0.85, 500: 0.9, 600: 0.95, 700: 1 };
+/** A capped step keeps at least this share of the input saturation, so 8-bit hex can still hold the hue. */
+export const SAT_FLOOR = 0.6;
+/** HSL chroma (colourfulness) of a saturation at a lightness, both 0 to 1. */
+export const chroma = (s, l) => (1 - Math.abs(2 * l - 1)) * s;
+
 /**
- * A 50-900 scale that keeps the input's hue and saturation and changes only lightness.
+ * Saturation of one step: the input saturation, tapered toward the ends; in steps 400 to 700 also capped so the step is
+ * no more colourful than the input (a mid-tone teal never turns into a bright cyan at 400 or 500).
+ * @param {number} st step @param {number} s input saturation @param {number} l input lightness
+ */
+export function stepSaturation(st, s, l) {
+  let out = s * (SAT_TAPER[st] ?? 1);
+  if (CHROMA_CAP[st]) {
+    const L = LIGHTNESS[st] / 100;
+    out = Math.min(out, Math.max((CHROMA_CAP[st] * chroma(s, l)) / (1 - Math.abs(2 * L - 1)), s * SAT_FLOOR));
+  }
+  return out;
+}
+
+/**
+ * A 50-900 scale that keeps the input's hue; lightness follows the fixed table and saturation follows stepSaturation.
  * The input hex itself sits unchanged at the step whose lightness is nearest.
  * @param {string} hex @param {{withDarkest?:boolean}} [o]
  */
@@ -149,7 +172,7 @@ export function ramp(hex, { withDarkest = false } = {}) {
   let at = steps[0];
   for (const st of steps) if (Math.abs(LIGHTNESS[st] / 100 - l) < Math.abs(LIGHTNESS[at] / 100 - l)) at = st;
   const scale = {};
-  for (const st of steps) scale[st] = st === at ? given : hslToHexKeepHue(h, s, LIGHTNESS[st] / 100);
+  for (const st of steps) scale[st] = st === at ? given : hslToHexKeepHue(h, stepSaturation(st, s, l), LIGHTNESS[st] / 100);
   return { given, hue: h, saturation: s, at, scale };
 }
 /** Neutral scale tinted with the primary hue at a low saturation. */
@@ -180,14 +203,25 @@ function pick(scale, order, bgs, need) {
 /** Order of steps starting next to `from` and moving in one direction. */
 const from = (start, dir, steps = STEPS) => { const i = steps.indexOf(start); return dir > 0 ? steps.slice(i) : steps.slice(0, i + 1).reverse(); };
 
-/** Fill colour with a readable text colour on it: keep the given step when a text colour passes. */
-function solid(r, ink) {
+/**
+ * Fill colour with a readable text colour on it: keep the given step when white or the dark ink passes on it.
+ * A brand colour that is a mid-tone (neither white nor the dark ink reaches 4.5:1 on it) moves the fill to the nearest
+ * darker step of the same scale where white reaches 4.5:1; only when no darker step can, black text goes on the given colour.
+ * The result keeps `midTone` with both ratios for the report.
+ */
+function solid(r, ink, { brand = false } = {}) {
   const tries = [r.at ?? 600, ...from(r.at ?? 600, 1).slice(1), ...from(r.at ?? 600, -1).slice(1)];
   for (const st of tries) {
     const bg = r.scale[st];
     const opts = [WHITE, ink].map((t) => ({ t, c: contrast(t, bg) })).sort((a, b) => b.c - a.c);
     if (opts[0].c >= 4.5) return { step: st, bg, on: opts[0].t };
-    if (contrast(BLACK, bg) >= 4.5) return { step: st, bg, on: BLACK }; // mid-tones: black text keeps the user's colour as the fill
+    if (brand && st === r.at) {
+      const darker = from(st, 1).slice(1).find((d) => r.scale[d] && contrast(WHITE, r.scale[d]) >= 4.5);
+      const midTone = { step: st, hex: bg, white: contrast(WHITE, bg), black: contrast(BLACK, bg) };
+      if (darker != null) return { step: darker, bg: r.scale[darker], on: WHITE, midTone: { ...midTone, fillStep: darker, fillHex: r.scale[darker], fillWhite: contrast(WHITE, r.scale[darker]) } };
+      if (midTone.black >= 4.5) return { step: st, bg, on: BLACK, midTone: { ...midTone, fillStep: null } };
+    }
+    if (contrast(BLACK, bg) >= 4.5) return { step: st, bg, on: BLACK }; // no darker step of the hue carries white text: black keeps the colour as the fill
   }
   return { step: 900, bg: r.scale[900], on: WHITE };
 }
@@ -226,6 +260,7 @@ export function build(input = {}) {
   const ref = (scale, st) => ({ ref: `color.${scale}.${st}`, hex: scales[scale].scale[st] });
   const lit = (hex) => ({ ref: null, hex });
   const need = (step, msg) => { if (step == null) throw new Error(msg); return step; };
+  const fills = {}; // mid-tone brand colours whose filled button moved to a darker step (or got black text), for the report
 
   for (const mode of ['light', 'dark']) {
     const S = surf[mode], R = roles[mode], bgs = Object.values(S);
@@ -242,7 +277,8 @@ export function build(input = {}) {
     R['border-default'] = ref('neutral', lighter ? 800 : 200);
     R['border-strong'] = ref('neutral', need(pick(N, lighter ? [500, 400, 300] : [400, 500, 600, 700], bgs, 3), 'no strong border passes'));
     R['border-focus'] = ref('primary', need(pick(P.scale, lighter ? from(Math.min(P.at, 400), -1) : from(Math.max(P.at, 500), 1), bgs, 3), 'no focus step passes'));
-    const s = solid(P, ink), sh = shades(P, s);
+    const s = solid(P, ink, { brand: true }), sh = shades(P, s);
+    if (s.midTone) fills.primary = s.midTone;
     R['action-primary-bg'] = ref('primary', s.step);
     R['action-primary-bg-hover'] = ref('primary', sh.hover);
     R['action-primary-bg-pressed'] = ref('primary', sh.pressed);
@@ -256,7 +292,8 @@ export function build(input = {}) {
       R['text-on-brand'] = R['action-primary-text'];
     }
     if (scales.accent) {
-      const a = solid(scales.accent, ink);
+      const a = solid(scales.accent, ink, { brand: true });
+      if (a.midTone) fills.accent = a.midTone;
       R['accent-bg'] = ref('accent', a.step);
       R['accent-text-on'] = onRole(a.on, ref, lit);
       R['accent-text'] = ref('accent', need(pick(scales.accent.scale, lighter ? from(Math.min(scales.accent.at, 400), -1) : from(Math.max(scales.accent.at, 500), 1), bgs, 4.5), 'no accent text step passes'));
@@ -287,7 +324,7 @@ export function build(input = {}) {
 
   const fontSans = input.font ? [input.font, ...SYSTEM_SANS] : SYSTEM_SANS;
   const fontHeading = input.font ? fontSans : A.headingFont === 'serif' ? SYSTEM_SERIF : SYSTEM_SANS;
-  return { archetype: archId, A, scales, roles, pairs, fonts: { sans: fontSans, heading: fontHeading, mono: SYSTEM_MONO }, input: { ...input, primary: primaryHex, primaryFromArchetype: !input.primary } };
+  return { archetype: archId, A, scales, roles, pairs, fills, fonts: { sans: fontSans, heading: fontHeading, mono: SYSTEM_MONO }, input: { ...input, primary: primaryHex, primaryFromArchetype: !input.primary } };
 }
 
 // ---------- writers ----------
@@ -305,6 +342,7 @@ export function tokenList(b) {
   const { A, scales, fonts } = b;
   const out = [];
   const t = (group, name, css, type, json = css, desc) => out.push({ group, name, css: String(css), type, json, desc });
+  t('color-primary', 'color-brand', scales.primary.given, 'color', scales.primary.given, 'The brand colour exactly as given; the filled button may use a darker step of the same hue (see color.role.*.action-primary-bg).');
   for (const [k, r] of Object.entries(scales)) for (const [st, hx] of Object.entries(r.scale)) t(k === 'neutral' ? 'color-neutral' : ['success', 'warning', 'danger', 'info'].includes(k) ? 'color-status' : 'color-primary', `color-${k}-${st}`, hx, 'color');
   t('typography', 'font-family-sans', fam(fonts.sans), 'fontFamily', fonts.sans);
   t('typography', 'font-family-heading', fam(fonts.heading), 'fontFamily', fonts.heading);
@@ -340,6 +378,7 @@ export function tokenList(b) {
 /** Where a token sits in the JSON tree: color.primary.600, font.size.md, space.16, motion.duration-fast. */
 export function jsonPath(tk) {
   const p = tk.name.split('-');
+  if (tk.name === 'color-brand') return ['color', 'brand'];
   if (p[0] === 'color') return ['color', p[1], p.slice(2).join('-')];
   if (p[0] === 'font') return ['font', p[1], p.slice(2).join('-')];
   if (tk.name.startsWith('line-height-')) return ['font', 'line-height', p.slice(2).join('-')];
@@ -470,7 +509,7 @@ export function autoQuestions(b, existing) {
   const q = [];
   const writesRoles = !existing || existing.added.includes('color-roles');
   const L = b.roles.light;
-  if (writesRoles && L['action-primary-bg-hover'].ref === L['action-primary-bg-pressed'].ref) q.push(`Hover and pressed share ${L['action-primary-bg-hover'].ref.replace('color.', '').replace('.', '-')}, because your colour sits near the end of its scale; give pressed its own colour if they must differ.`);
+  if (writesRoles && L['action-primary-bg-hover'].ref === L['action-primary-bg-pressed'].ref) q.push(`Hover and pressed share ${L['action-primary-bg-hover'].ref.replace('color.', '').replace('.', '-')}, because the filled button sits near the end of its scale; give pressed its own colour if they must differ.`);
   for (const k of Object.keys(STATUS_DEFAULTS)) {
     if (b.input[k]) continue;
     if (hueDiff(b.scales.primary.hue, b.scales[k].hue) < 15 && b.scales.primary.saturation > 0.25) q.push(`Your primary colour is close to the ${k} colour (${b.scales[k].given}); should ${k} use a different hue?`);
@@ -497,9 +536,17 @@ export function report(b, { name = 'Product', why = '', path = 'a', existing = n
     L.push(`| ${src} | ${r.given} | ${Math.round(r.hue)}° | ${keptHere ? 'your token, unchanged' : `${k}-${r.at}`} |`);
   }
   if (defaults.length) L.push('', `Status colours not given, defaults used: ${defaults.join(', ')}.`);
+  for (const [k, f] of Object.entries(b.fills ?? {})) {
+    const keptHere = existing && !existing.added.includes(SCALE_GROUP(`color.${k}`));
+    if (keptHere) continue;
+    const what = k === 'primary' ? 'Primary button' : 'Accent fill';
+    L.push('', f.fillStep != null
+      ? `${what}: white text on your ${f.hex} is ${ratioText(f.white)} (below 4.5:1), so the fill uses ${k}-${f.fillStep} ${f.fillHex}, the nearest darker step of the same hue, where white text is ${ratioText(f.fillWhite)}. Your ${f.hex} stays unchanged at ${k}-${f.step}${k === 'primary' ? ' and as --color-brand' : ''}.`
+      : `${what}: white text on your ${f.hex} is ${ratioText(f.white)} and no darker step of the same hue reaches 4.5:1 with white, so the fill keeps your colour with black text at ${ratioText(f.black)}.`);
+  }
   const given = Object.values(b.scales).filter((r) => r.given);
   const mid = Math.max(...given.map((r) => maxDrift(r, MID_STEPS))), ends = Math.max(...given.map((r) => maxDrift(r)));
-  L.push('', `Hue check: each input hex is unchanged and every step aims at its exact hue; only lightness changes. Rounding to hex moves the hue at most ${mid.toFixed(1)}° at steps 300 to 800 and ${ends.toFixed(1)}° at the palest and darkest steps.`, '');
+  L.push('', `Hue check: each input hex is unchanged and every step aims at its exact hue; lightness follows the fixed steps and saturation eases toward the palest and darkest steps, and steps 400 to 700 are never more colourful than your colour. Rounding to hex moves the hue at most ${mid.toFixed(1)}° at steps 300 to 800 and ${ends.toFixed(1)}° at the palest and darkest steps.`, '');
   L.push('### Contrast', `Text needs 4.5:1; borders of controls and focus rings need 3:1; border-default is for dividers and is not checked. ${failing.length ? 'Pairs of your own tokens below 4.5:1 are marked "yours, kept": this skill never changes your tokens.' : 'Every text role meets 4.5:1, so it is safe at any size.'}`, '');
   L.push('| Text | On | Light | Dark | Needs | Result |', '|------|----|-------|------|-------|--------|');
   if (existing && !existing.added.includes('color-roles')) {

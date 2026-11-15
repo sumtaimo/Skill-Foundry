@@ -1,8 +1,8 @@
 [
   {
     "id": "R-design-system-1",
-    "text": "The user's hex colour MUST appear unchanged in its scale, and every step MUST aim at its exact hue and saturation, changing only lightness; rounding to hex MAY move the hue at most 1 degree at steps 300 to 800 and 4 degrees at the other steps (inputs with 25% saturation or more). NEVER change a given hue.",
-    "checklist": "Each given hex appears unchanged in design-tokens.json and tokens.css, and the report's hue check is at most 1 degree at steps 300 to 800 and 4 degrees elsewhere."
+    "text": "The user's hex colour MUST appear unchanged in its scale and as --color-brand, and every step MUST aim at its exact hue; saturation MUST ease toward the palest and darkest steps and steps 400 to 700 MUST NOT be more colourful (HSL chroma) than the input; rounding to hex MAY move the hue at most 1 degree at steps 300 to 800 and 4 degrees at the other steps (inputs with 25% saturation or more). NEVER change a given hue.",
+    "checklist": "Each given hex appears unchanged in design-tokens.json and tokens.css (its scale step and --color-brand), steps 400 to 700 are no more colourful than it, and the report's hue check is at most 1 degree at steps 300 to 800 and 4 degrees elsewhere."
   },
   {
     "id": "R-design-system-2",

@@ -41,7 +41,7 @@ The engine is `engine/tokens.mjs` in this folder (Node.js, no dependencies).
 
 ## Rules
 
-- R-design-system-1: The user's hex colour MUST appear unchanged in its scale, and every step MUST aim at its exact hue and saturation, changing only lightness; rounding to hex MAY move the hue at most 1 degree at steps 300 to 800 and 4 degrees at the other steps (inputs with 25% saturation or more). NEVER change a given hue.
+- R-design-system-1: The user's hex colour MUST appear unchanged in its scale and as --color-brand, and every step MUST aim at its exact hue; saturation MUST ease toward the palest and darkest steps and steps 400 to 700 MUST NOT be more colourful (HSL chroma) than the input; rounding to hex MAY move the hue at most 1 degree at steps 300 to 800 and 4 degrees at the other steps (inputs with 25% saturation or more). NEVER change a given hue.
 - R-design-system-2: Every colour scale MUST have the steps 50 to 900; the neutral scale MUST also have 950.
 - R-design-system-3: Every text role MUST reach 4.5:1 on every surface it is meant for, in light and in dark mode; borders and focus rings MUST reach 3:1; every ratio MUST be written as a number with ":1".
 - R-design-system-4: The output MUST be design-tokens.json in the W3C design tokens format ($type, $value, aliases in braces) and tokens.css with custom properties.

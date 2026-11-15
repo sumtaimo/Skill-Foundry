@@ -1,7 +1,7 @@
 # Layer 05: Rules
 
 1. Apply every rule in RULES.json (R-design-system-1 to R-design-system-14) to the token set and the reply.
-2. R-design-system-1 and R-design-system-2: each given hex sits unchanged at the step nearest its lightness; the other steps keep its hue and saturation; scales run 50 to 900, neutral to 950.
+2. R-design-system-1 and R-design-system-2: each given hex sits unchanged at the step nearest its lightness; the other steps keep its hue, with saturation easing toward the ends and steps 400 to 700 never more colourful than the given hex; the hex is also `--color-brand`; scales run 50 to 900, neutral to 950.
 3. R-design-system-3: every text pair in the report is 4.5:1 or more in light and in dark mode; borders and focus rings 3:1 or more; ratios written as numbers with ":1".
 4. R-design-system-4 and R-design-system-5: design-tokens.json uses $type and $value with aliases like `{color.neutral.900}`; tokens.css has the light roles on `:root`, the dark roles under `prefers-color-scheme: dark` (unless `data-theme="light"`) and under `[data-theme="dark"]`.
 5. R-design-system-6 and R-design-system-7: every group of references/README.md is present, on the fixed scales, with two font weights.
