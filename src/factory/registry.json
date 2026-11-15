@@ -72,6 +72,16 @@
     "showcase": "midtone-teal"
   },
   {
+    "name": "spec-writer",
+    "version": "1.0.0",
+    "purpose": "Writes testable acceptance criteria as numbered Given-When-Then clauses from a feature request, user story or requirement; what the text does not state becomes open questions, never invented clauses.",
+    "status": "ready",
+    "roles": [
+      "BA_ANALYST",
+      "PO_ARCHITECT"
+    ]
+  },
+  {
     "name": "a11y-audit",
     "version": "1.0.0",
     "purpose": "Audits pasted HTML or JSX for what users cannot see (names, labels, keyboard access, ARIA, status messages, language, tables, media, zoom) and lists numbered findings with element, rule id, WCAG 2.2 criterion, who is affected and the exact fix; never contrast, focus style, spacing, target size, flow or visible text.",

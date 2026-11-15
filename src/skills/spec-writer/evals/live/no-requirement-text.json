@@ -1,0 +1,8 @@
+{
+  "case": "no-requirement-text",
+  "prompt": "Write acceptance criteria for this feature.",
+  "agent": "claude",
+  "recordedAt": "2026-11-15",
+  "output": "Paste the feature request, user story or requirement you want acceptance criteria for.",
+  "files": []
+}

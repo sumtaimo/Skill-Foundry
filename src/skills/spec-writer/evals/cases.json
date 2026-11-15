@@ -1,0 +1,462 @@
+[
+  {
+    "id": "password-reset-story",
+    "prompt": "Write acceptance criteria for this user story: As a registered user, I want to reset my password by email so that I can get back into my account. The reset link expires after 30 minutes. The new password must have at least 12 characters. If the email is not registered, the page shows \"If this email is registered, we sent a link.\" Single sign-on accounts are out of scope.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Acceptance criteria:"
+      },
+      {
+        "type": "contains",
+        "value": "AC-1. Given"
+      },
+      {
+        "type": "contains",
+        "value": "AC-4."
+      },
+      {
+        "type": "contains",
+        "value": "### Main path"
+      },
+      {
+        "type": "contains",
+        "value": "### Validation and errors"
+      },
+      {
+        "type": "contains",
+        "value": "### Limits"
+      },
+      {
+        "type": "contains",
+        "value": "30 minutes"
+      },
+      {
+        "type": "contains",
+        "value": "at least 12 characters"
+      },
+      {
+        "type": "contains",
+        "value": "If this email is registered, we sent a link."
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "### Out of scope"
+      },
+      {
+        "type": "contains",
+        "value": "Single sign-on accounts are out of scope"
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "notContains",
+        "value": "[ ]"
+      },
+      {
+        "type": "notContains",
+        "value": "This skill does not"
+      },
+      {
+        "type": "notContains",
+        "value": "for example"
+      },
+      {
+        "type": "maxLines",
+        "value": 60
+      }
+    ]
+  },
+  {
+    "id": "vague-words",
+    "prompt": "Acceptance criteria please. Requirement: The search page must be fast and easy to use. Results show the product name and the price.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "AC-1. Given"
+      },
+      {
+        "type": "contains",
+        "value": "product name"
+      },
+      {
+        "type": "contains",
+        "value": "What measurable value defines \"fast\""
+      },
+      {
+        "type": "contains",
+        "value": "What measurable value defines \"easy"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "None stated."
+      },
+      {
+        "type": "notContains",
+        "value": " seconds"
+      },
+      {
+        "type": "notContains",
+        "value": "millisecond"
+      },
+      {
+        "type": "notContains",
+        "value": " ms"
+      },
+      {
+        "type": "notContains",
+        "value": "for example"
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "maxLines",
+        "value": 40
+      }
+    ]
+  },
+  {
+    "id": "roles-states-reload",
+    "prompt": "Spec this requirement as acceptance criteria: Only admins can delete a project. Members see the Delete button disabled with the tooltip \"Only admins can delete projects.\" A deleted project stays in Trash for 30 days. After a page reload the project list still does not show the deleted project.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "AC-1. Given"
+      },
+      {
+        "type": "contains",
+        "value": "AC-4."
+      },
+      {
+        "type": "contains",
+        "value": "### Permissions and roles"
+      },
+      {
+        "type": "contains",
+        "value": "### Persistence after reload"
+      },
+      {
+        "type": "contains",
+        "value": "### Limits"
+      },
+      {
+        "type": "contains",
+        "value": "Only admins can delete projects."
+      },
+      {
+        "type": "contains",
+        "value": "30 days"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "### Out of scope"
+      },
+      {
+        "type": "contains",
+        "value": "None stated."
+      },
+      {
+        "type": "notContains",
+        "value": "### Validation and errors"
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "maxLines",
+        "value": 60
+      }
+    ]
+  },
+  {
+    "id": "thin-text-nothing-invented",
+    "prompt": "Acceptance criteria for: Users can upload a profile photo.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "AC-1. Given"
+      },
+      {
+        "type": "contains",
+        "value": "### Main path"
+      },
+      {
+        "type": "contains",
+        "value": "Users can upload a profile photo"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Limits:"
+      },
+      {
+        "type": "contains",
+        "value": "Validation and errors:"
+      },
+      {
+        "type": "notContains",
+        "value": "AC-2."
+      },
+      {
+        "type": "notContains",
+        "value": "### Limits"
+      },
+      {
+        "type": "notContains",
+        "value": "### Validation and errors"
+      },
+      {
+        "type": "notContains",
+        "value": "MB"
+      },
+      {
+        "type": "notContains",
+        "value": "JPG"
+      },
+      {
+        "type": "notContains",
+        "value": "PNG"
+      },
+      {
+        "type": "notContains",
+        "value": "for example"
+      },
+      {
+        "type": "notContains",
+        "value": "such as"
+      },
+      {
+        "type": "maxLines",
+        "value": 40
+      }
+    ]
+  },
+  {
+    "id": "conflicting-limit",
+    "prompt": "Write acceptance criteria. Requirement: A customer can apply up to 5 promo codes per order. An order accepts at most 3 promo codes. An applied code is listed under the order total. Gift cards are not part of this work.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "AC-1. Given"
+      },
+      {
+        "type": "contains",
+        "value": "Conflict:"
+      },
+      {
+        "type": "contains",
+        "value": "up to 5"
+      },
+      {
+        "type": "contains",
+        "value": "at most 3"
+      },
+      {
+        "type": "contains",
+        "value": "### Out of scope"
+      },
+      {
+        "type": "contains",
+        "value": "Gift cards are not part of this work"
+      },
+      {
+        "type": "notContains",
+        "value": "### Limits"
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "maxLines",
+        "value": 45
+      }
+    ]
+  },
+  {
+    "id": "no-requirement-text",
+    "prompt": "Write acceptance criteria for this feature.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "Paste the feature request, user story or requirement you want acceptance criteria for."
+      },
+      {
+        "type": "notContains",
+        "value": "AC-1"
+      },
+      {
+        "type": "notContains",
+        "value": "###"
+      },
+      {
+        "type": "notContains",
+        "value": "Given"
+      },
+      {
+        "type": "maxLines",
+        "value": 3
+      }
+    ]
+  },
+  {
+    "id": "title-only",
+    "prompt": "Write acceptance criteria for the new export feature.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "Describe the requirement for the new export feature: who uses it, what they do and what must happen."
+      },
+      {
+        "type": "notContains",
+        "value": "AC-1"
+      },
+      {
+        "type": "notContains",
+        "value": "###"
+      },
+      {
+        "type": "notContains",
+        "value": "Given"
+      },
+      {
+        "type": "maxLines",
+        "value": 3
+      }
+    ]
+  },
+  {
+    "id": "negative-test-code",
+    "prompt": "Write Cypress tests for this story: As a shopper, I can save an item to my wishlist from the product page. A saved item shows a filled heart icon.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "This skill does not write test code."
+      },
+      {
+        "type": "contains",
+        "value": "AC-1. Given"
+      },
+      {
+        "type": "contains",
+        "value": "filled heart icon"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "notContains",
+        "value": "cy."
+      },
+      {
+        "type": "notContains",
+        "value": "describe("
+      },
+      {
+        "type": "notContains",
+        "value": "it("
+      },
+      {
+        "type": "maxLines",
+        "value": 45
+      }
+    ]
+  },
+  {
+    "id": "negative-regression-diff",
+    "prompt": "Give me a regression checklist for this diff:\n\n-const MAX_ITEMS = 50;\n+const MAX_ITEMS = 20;\n+if (cart.items.length >= MAX_ITEMS) showMessage(\"Your cart is full\");",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "This skill does not write regression checklists for a change or diff; use test-planner for that."
+      },
+      {
+        "type": "notContains",
+        "value": "AC-1"
+      },
+      {
+        "type": "notContains",
+        "value": "[ ]"
+      },
+      {
+        "type": "notContains",
+        "value": "###"
+      },
+      {
+        "type": "notContains",
+        "value": "Given"
+      },
+      {
+        "type": "maxLines",
+        "value": 3
+      }
+    ]
+  },
+  {
+    "id": "negative-estimate-priority",
+    "prompt": "Here is the requirement: Users can export the invoice list as CSV. The export contains the columns the user currently sees. Write the acceptance criteria, estimate the story points and tell me which one to build first.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "This skill does not design screens, rewrite copy, estimate or prioritise."
+      },
+      {
+        "type": "contains",
+        "value": "AC-1. Given"
+      },
+      {
+        "type": "contains",
+        "value": "AC-2."
+      },
+      {
+        "type": "contains",
+        "value": "CSV"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "notContains",
+        "value": "story point"
+      },
+      {
+        "type": "notContains",
+        "value": "build first"
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "maxLines",
+        "value": 45
+      }
+    ]
+  }
+]

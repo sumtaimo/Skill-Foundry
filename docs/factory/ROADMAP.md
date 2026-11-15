@@ -11,15 +11,16 @@ The project roadmap is in `docs/PROJECT.md` section 6. This file lists skills.
 | changelog-writer | Turn a list of changes into a CHANGELOG entry with the correct semver bump |
 | copy-tight | Rewrite UI copy to be short and plain without changing meaning (0.2.0) |
 | test-planner | Derive a numbered regression checklist from a change description or diff, never adding features the change does not name |
+| design-system | One design-token set (colour scales, type, spacing, control heights, radius, shadow, motion, light and dark) from a hex, a style description or existing tokens; five numeric style archetypes |
 | ui-polish | Final polish pass on finished UI code: on-scale spacing and type, contrast, one primary action, states; keeps every word and the brand hue |
+| spec-writer | Write testable Given-When-Then acceptance criteria as numbered clauses (AC-1 …) from a feature request, user story or requirement, each traced to a source phrase; gaps become open questions. Never a regression checklist (test-planner), test code, UI design, copy, estimates or priorities |
 
-`changelog-writer` and `copy-tight` do not have the ten layer files yet; they are listed in `src/factory/migration.json` and each is migrated in its own session.
+All ready skills have the ten layer files (`src/factory/migration.json` lists none pending).
 
 ## Candidates (not built)
 
 | Skill | Kind | Purpose | Boundary (what it never does) |
 |-------|------|---------|-------------------------------|
-| spec-writer | analysis | Write testable Given-When-Then acceptance criteria, as numbered clauses | Never a regression checklist (test-planner) |
 | ux-review | analysis | Review a screen or flow: affordance, feedback, mapping, error handling, choice count, target distance, memory load, familiar patterns; one severity per finding | Never fixes code (ui-polish), never semantics or ARIA (a11y-audit), never text (copy-tight) |
 | a11y-audit | analysis | Check what users cannot see: semantic HTML, labels, keyboard order, ARIA, screen reader output; list fixes | Never contrast, focus style or target size (ui-polish owns them) |
 
