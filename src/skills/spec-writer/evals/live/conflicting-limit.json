@@ -1,0 +1,8 @@
+{
+  "case": "conflicting-limit",
+  "prompt": "Write acceptance criteria. Requirement: A customer can apply up to 5 promo codes per order. An order accepts at most 3 promo codes. An applied code is listed under the order total. Gift cards are not part of this work.",
+  "agent": "claude",
+  "recordedAt": "2026-11-15",
+  "output": "## Acceptance criteria: promo codes\n\nRequirement: A customer applies promo codes to an order, and an applied code is listed under the order total.\n\n### Main path\nAC-1. Given a customer with an order, when the customer applies a promo code, then the applied code is listed under the order total. _An applied code is listed under the order total._\n\n### Open questions\n- Conflict: Which statement sets the number of promo codes on one order, \"A customer can apply up to 5 promo codes per order\" or \"An order accepts at most 3 promo codes\"?\n- Validation and errors: What happens when a customer applies a promo code that the order does not accept?\n- Permissions and roles: Which roles other than a customer may apply a promo code to an order?\n- Empty, loading and disabled states: What is shown under the order total when no promo code is applied?\n- Persistence after reload: What is shown under the order total after a reload when a promo code has been applied?\n\n### Out of scope\n- Gift cards. _Gift cards are not part of this work._",
+  "files": []
+}

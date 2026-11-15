@@ -4,5 +4,11 @@
     "title": "Ship a change: retest, release note, error copy",
     "skills": ["test-planner", "changelog-writer", "copy-tight"],
     "prompt": "We are at version 2.3.0. Today is 2026-11-14. We changed our checkout so promo codes now apply before shipping is calculated, and we added a limit of 5 promo codes per order. Our new error message for the sixth code says: 'We are sorry, but it is not possible for you to add any more promo codes to this order at this time.' Please give me what we should retest, the changelog entry, and a shorter error message."
+  },
+  {
+    "id": "spec-then-retest",
+    "title": "Spec a story, then plan the retest of a change",
+    "skills": ["spec-writer", "test-planner"],
+    "prompt": "Two things for our checkout team. First, write the acceptance criteria for this story: As a customer, I want to apply a promo code at checkout so that I pay less. A code can be used once per customer. An expired code shows \"This code has expired.\" Gift cards are out of scope. Second, we shipped this change yesterday: promo codes now apply before shipping is calculated, and the old Coupon link in the footer is removed. What should we retest after that change?"
   }
 ]
