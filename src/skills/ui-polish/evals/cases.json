@@ -70,6 +70,14 @@
       {
         "type": "contains",
         "value": "R-ui-polish-5"
+      },
+      {
+        "type": "notContains",
+        "value": "var(--"
+      },
+      {
+        "type": "contains",
+        "value": "Ratios "
       }
     ]
   },
@@ -120,6 +128,10 @@
       {
         "type": "notContains",
         "value": "style={{"
+      },
+      {
+        "type": "notContains",
+        "value": "var(--"
       }
     ]
   },
@@ -272,6 +284,306 @@
       {
         "type": "maxLines",
         "value": 4
+      }
+    ]
+  },
+  {
+    "id": "tokens-css",
+    "prompt": "final polish on this invoice card. Our design tokens are in tokens.css, pasted below; use them.\n\ntokens.css:\n```css\n:root {\n  --color-brand: #0f766e;\n  --color-primary-50: #f0fdfc;\n  --color-primary-500: #52c0b7;\n  --color-primary-800: #0f766e;\n  --color-primary-900: #0c403c;\n  --color-neutral-50: #f4fbfa;\n  --color-neutral-100: #e9f2f1;\n  --color-neutral-200: #d2dfde;\n  --color-neutral-400: #96b0ae;\n  --color-neutral-500: #7a9492;\n  --color-neutral-600: #617b79;\n  --color-neutral-700: #4a6462;\n  --color-neutral-800: #364342;\n  --color-neutral-900: #202d2c;\n  --font-family-sans: system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif;\n  --font-size-xs: 12px;\n  --font-size-sm: 14px;\n  --font-size-md: 16px;\n  --font-size-lg: 18px;\n  --font-size-xl: 20px;\n  --font-size-2xl: 24px;\n  --font-size-3xl: 30px;\n  --line-height-body: 1.5;\n  --line-height-heading: 1.25;\n  --line-height-display: 1.2;\n  --font-weight-regular: 400;\n  --font-weight-strong: 600;\n  --measure: 65ch;\n  --space-0: 0px;\n  --space-4: 4px;\n  --space-8: 8px;\n  --space-12: 12px;\n  --space-16: 16px;\n  --space-24: 24px;\n  --space-32: 32px;\n  --space-48: 48px;\n  --space-64: 64px;\n  --control-height-sm: 32px;\n  --control-height-md: 40px;\n  --control-height-lg: 48px;\n  --size-target-min: 44px;\n  --radius-sm: 4px;\n  --radius-md: 6px;\n  --radius-lg: 8px;\n  --radius-full: 9999px;\n  --radius-control: var(--radius-md);\n  --shadow-1: 0 1px 2px 0px rgba(15, 25, 24, 0.08);\n  --border-width-hairline: 1px;\n  --border-width-thick: 2px;\n  --border-width-focus: 2px;\n  --duration-fast: 100ms;\n  --duration-base: 150ms;\n  --duration-slow: 200ms;\n  --ease-standard: cubic-bezier(0.2, 0, 0, 1);\n  --color-surface-default: #ffffff;\n  --color-surface-subtle: var(--color-neutral-50);\n  --color-surface-raised: #ffffff;\n  --color-surface-sunken: var(--color-neutral-100);\n  --color-surface-inverse: var(--color-neutral-900);\n  --color-text-default: var(--color-neutral-900);\n  --color-text-muted: var(--color-neutral-700);\n  --color-text-disabled: var(--color-neutral-400);\n  --color-text-inverse: var(--color-neutral-50);\n  --color-text-link: var(--color-primary-800);\n  --color-text-link-hover: var(--color-primary-900);\n  --color-border-default: var(--color-neutral-200);\n  --color-border-strong: var(--color-neutral-600);\n  --color-border-focus: var(--color-primary-800);\n  --color-action-primary-bg: var(--color-primary-800);\n  --color-action-primary-bg-hover: var(--color-primary-900);\n  --color-action-primary-bg-pressed: var(--color-primary-900);\n  --color-action-primary-text: #ffffff;\n  --color-action-secondary-text: var(--color-primary-800);\n  --color-action-secondary-border: var(--color-primary-800);\n  --color-selected-bg: var(--color-primary-50);\n  --color-selected-text: var(--color-primary-800);\n}\n```\n\nCode:\n<style>\n.card{padding:13px;background:#ffffff;border:1px solid #e5e7eb;border-radius:5px;font-family:system-ui;transition:box-shadow .3s}\n.card h2{font-size:22px;margin:0 0 5px;color:#202d2c}\n.card p{font-size:13px;color:#999999}\n.card button{background:#2563eb;color:#fff;padding:6px 10px;border:none;border-radius:5px}\n</style>\n<div class=\"card\"><h2>Invoice 1042</h2><p>Due on 30 November. Pay by bank transfer or card.</p><button>Pay now</button><button>Download PDF</button></div>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## UI polish:"
+      },
+      {
+        "type": "contains",
+        "value": "### Fixes"
+      },
+      {
+        "type": "contains",
+        "value": "### Contrast"
+      },
+      {
+        "type": "contains",
+        "value": "### Polished code"
+      },
+      {
+        "type": "contains",
+        "value": "### Not changed"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Invoice 1042"
+      },
+      {
+        "type": "contains",
+        "value": "Due on 30 November. Pay by bank transfer or card."
+      },
+      {
+        "type": "contains",
+        "value": "Pay now"
+      },
+      {
+        "type": "contains",
+        "value": "Download PDF"
+      },
+      {
+        "type": "contains",
+        "value": "**Tokens**"
+      },
+      {
+        "type": "contains",
+        "value": "Tokens from tokens.css."
+      },
+      {
+        "type": "contains",
+        "value": "Token file: not edited."
+      },
+      {
+        "type": "contains",
+        "value": "var(--space-12)"
+      },
+      {
+        "type": "contains",
+        "value": "var(--color-action-primary-bg)"
+      },
+      {
+        "type": "contains",
+        "value": "var(--color-action-primary-text)"
+      },
+      {
+        "type": "contains",
+        "value": "var(--color-action-secondary-text)"
+      },
+      {
+        "type": "contains",
+        "value": "var(--color-text-muted)"
+      },
+      {
+        "type": "contains",
+        "value": "var(--radius-"
+      },
+      {
+        "type": "contains",
+        "value": "var(--color-border-focus)"
+      },
+      {
+        "type": "contains",
+        "value": "focus-visible"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-reduced-motion"
+      },
+      {
+        "type": "contains",
+        "value": "R-ui-polish-20"
+      },
+      {
+        "type": "contains",
+        "value": "Ratios computed with the contrast script."
+      },
+      {
+        "type": "notContains",
+        "value": ":root"
+      }
+    ]
+  },
+  {
+    "id": "tokens-tailwind",
+    "prompt": "do a pixel pass on this React component. We use Tailwind with the CSS variables of our tokens.css, pasted below, so use the variables.\n\ntokens.css:\n```css\n:root {\n  --color-brand: #0f766e;\n  --color-primary-50: #f0fdfc;\n  --color-primary-500: #52c0b7;\n  --color-primary-800: #0f766e;\n  --color-primary-900: #0c403c;\n  --color-neutral-50: #f4fbfa;\n  --color-neutral-100: #e9f2f1;\n  --color-neutral-200: #d2dfde;\n  --color-neutral-400: #96b0ae;\n  --color-neutral-500: #7a9492;\n  --color-neutral-600: #617b79;\n  --color-neutral-700: #4a6462;\n  --color-neutral-800: #364342;\n  --color-neutral-900: #202d2c;\n  --font-family-sans: system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif;\n  --font-size-xs: 12px;\n  --font-size-sm: 14px;\n  --font-size-md: 16px;\n  --font-size-lg: 18px;\n  --font-size-xl: 20px;\n  --font-size-2xl: 24px;\n  --font-size-3xl: 30px;\n  --line-height-body: 1.5;\n  --line-height-heading: 1.25;\n  --line-height-display: 1.2;\n  --font-weight-regular: 400;\n  --font-weight-strong: 600;\n  --measure: 65ch;\n  --space-0: 0px;\n  --space-4: 4px;\n  --space-8: 8px;\n  --space-12: 12px;\n  --space-16: 16px;\n  --space-24: 24px;\n  --space-32: 32px;\n  --space-48: 48px;\n  --space-64: 64px;\n  --control-height-sm: 32px;\n  --control-height-md: 40px;\n  --control-height-lg: 48px;\n  --size-target-min: 44px;\n  --radius-sm: 4px;\n  --radius-md: 6px;\n  --radius-lg: 8px;\n  --radius-full: 9999px;\n  --radius-control: var(--radius-md);\n  --shadow-1: 0 1px 2px 0px rgba(15, 25, 24, 0.08);\n  --border-width-hairline: 1px;\n  --border-width-thick: 2px;\n  --border-width-focus: 2px;\n  --duration-fast: 100ms;\n  --duration-base: 150ms;\n  --duration-slow: 200ms;\n  --ease-standard: cubic-bezier(0.2, 0, 0, 1);\n  --color-surface-default: #ffffff;\n  --color-surface-subtle: var(--color-neutral-50);\n  --color-surface-raised: #ffffff;\n  --color-surface-sunken: var(--color-neutral-100);\n  --color-surface-inverse: var(--color-neutral-900);\n  --color-text-default: var(--color-neutral-900);\n  --color-text-muted: var(--color-neutral-700);\n  --color-text-disabled: var(--color-neutral-400);\n  --color-text-inverse: var(--color-neutral-50);\n  --color-text-link: var(--color-primary-800);\n  --color-text-link-hover: var(--color-primary-900);\n  --color-border-default: var(--color-neutral-200);\n  --color-border-strong: var(--color-neutral-600);\n  --color-border-focus: var(--color-primary-800);\n  --color-action-primary-bg: var(--color-primary-800);\n  --color-action-primary-bg-hover: var(--color-primary-900);\n  --color-action-primary-bg-pressed: var(--color-primary-900);\n  --color-action-primary-text: #ffffff;\n  --color-action-secondary-text: var(--color-primary-800);\n  --color-action-secondary-border: var(--color-primary-800);\n  --color-selected-bg: var(--color-primary-50);\n  --color-selected-text: var(--color-primary-800);\n}\n```\n\nexport function PlanBar({ onUpgrade, onSkip }) {\n  return (\n    <div className=\"flex gap-[10px] p-[13px] bg-white rounded\">\n      <span className=\"text-[15px] text-gray-400\">Trial ends in 3 days</span>\n      <button onClick={onUpgrade} className=\"bg-blue-600 text-white px-[7px] py-[3px]\">Upgrade plan</button>\n      <button onClick={onSkip} className=\"bg-blue-600 text-white px-[7px] py-[3px]\">Remind me later</button>\n    </div>\n  );\n}",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "### Polished code"
+      },
+      {
+        "type": "contains",
+        "value": "className="
+      },
+      {
+        "type": "contains",
+        "value": "onClick={onUpgrade}"
+      },
+      {
+        "type": "contains",
+        "value": "onClick={onSkip}"
+      },
+      {
+        "type": "contains",
+        "value": "Trial ends in 3 days"
+      },
+      {
+        "type": "contains",
+        "value": "Upgrade plan"
+      },
+      {
+        "type": "contains",
+        "value": "Remind me later"
+      },
+      {
+        "type": "contains",
+        "value": "**Tokens**"
+      },
+      {
+        "type": "contains",
+        "value": "p-[var(--space-12)]"
+      },
+      {
+        "type": "contains",
+        "value": "bg-[var(--color-action-primary-bg)]"
+      },
+      {
+        "type": "contains",
+        "value": "focus-visible:"
+      },
+      {
+        "type": "contains",
+        "value": "Token file: not edited."
+      },
+      {
+        "type": "notContains",
+        "value": "style={{"
+      },
+      {
+        "type": "notContains",
+        "value": ":root"
+      }
+    ]
+  },
+  {
+    "id": "tokens-no-match",
+    "prompt": "final polish for this team settings row, our tokens.css is below; use it.\n\ntokens.css:\n```css\n:root {\n  --color-brand: #0f766e;\n  --color-primary-50: #f0fdfc;\n  --color-primary-500: #52c0b7;\n  --color-primary-800: #0f766e;\n  --color-primary-900: #0c403c;\n  --color-neutral-50: #f4fbfa;\n  --color-neutral-100: #e9f2f1;\n  --color-neutral-200: #d2dfde;\n  --color-neutral-400: #96b0ae;\n  --color-neutral-500: #7a9492;\n  --color-neutral-600: #617b79;\n  --color-neutral-700: #4a6462;\n  --color-neutral-800: #364342;\n  --color-neutral-900: #202d2c;\n  --font-family-sans: system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif;\n  --font-size-xs: 12px;\n  --font-size-sm: 14px;\n  --font-size-md: 16px;\n  --font-size-lg: 18px;\n  --font-size-xl: 20px;\n  --font-size-2xl: 24px;\n  --font-size-3xl: 30px;\n  --line-height-body: 1.5;\n  --line-height-heading: 1.25;\n  --line-height-display: 1.2;\n  --font-weight-regular: 400;\n  --font-weight-strong: 600;\n  --measure: 65ch;\n  --space-0: 0px;\n  --space-4: 4px;\n  --space-8: 8px;\n  --space-12: 12px;\n  --space-16: 16px;\n  --space-24: 24px;\n  --space-32: 32px;\n  --space-48: 48px;\n  --space-64: 64px;\n  --control-height-sm: 32px;\n  --control-height-md: 40px;\n  --control-height-lg: 48px;\n  --size-target-min: 44px;\n  --radius-sm: 4px;\n  --radius-md: 6px;\n  --radius-lg: 8px;\n  --radius-full: 9999px;\n  --radius-control: var(--radius-md);\n  --shadow-1: 0 1px 2px 0px rgba(15, 25, 24, 0.08);\n  --border-width-hairline: 1px;\n  --border-width-thick: 2px;\n  --border-width-focus: 2px;\n  --duration-fast: 100ms;\n  --duration-base: 150ms;\n  --duration-slow: 200ms;\n  --ease-standard: cubic-bezier(0.2, 0, 0, 1);\n  --color-surface-default: #ffffff;\n  --color-surface-subtle: var(--color-neutral-50);\n  --color-surface-raised: #ffffff;\n  --color-surface-sunken: var(--color-neutral-100);\n  --color-surface-inverse: var(--color-neutral-900);\n  --color-text-default: var(--color-neutral-900);\n  --color-text-muted: var(--color-neutral-700);\n  --color-text-disabled: var(--color-neutral-400);\n  --color-text-inverse: var(--color-neutral-50);\n  --color-text-link: var(--color-primary-800);\n  --color-text-link-hover: var(--color-primary-900);\n  --color-border-default: var(--color-neutral-200);\n  --color-border-strong: var(--color-neutral-600);\n  --color-border-focus: var(--color-primary-800);\n  --color-action-primary-bg: var(--color-primary-800);\n  --color-action-primary-bg-hover: var(--color-primary-900);\n  --color-action-primary-bg-pressed: var(--color-primary-900);\n  --color-action-primary-text: #ffffff;\n  --color-action-secondary-text: var(--color-primary-800);\n  --color-action-secondary-border: var(--color-primary-800);\n  --color-selected-bg: var(--color-primary-50);\n  --color-selected-text: var(--color-primary-800);\n}\n```\n\n<style>\n.row{display:flex;gap:10px;padding:14px;background:#ffffff;font-family:system-ui}\n.row h3{font-size:18px;margin:0;color:#202d2c}\n.badge{background:#7c3aed;color:#ffffff;font-size:12px;padding:2px 8px;border-radius:9999px}\n.row p{font-size:14px;color:#4a6462}\n.row a{background:#0f766e;color:#ffffff;padding:6px 12px;border-radius:6px}\n</style>\n<div class=\"row\"><h3>Team plan</h3><span class=\"badge\">Beta</span><p>Invite people to work on projects together.</p><a href=\"#invite\">Invite</a></div>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "### Polished code"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Team plan"
+      },
+      {
+        "type": "contains",
+        "value": "Beta"
+      },
+      {
+        "type": "contains",
+        "value": "Invite people to work on projects together."
+      },
+      {
+        "type": "contains",
+        "value": "Invite"
+      },
+      {
+        "type": "contains",
+        "value": "**Tokens**"
+      },
+      {
+        "type": "contains",
+        "value": "var(--space-"
+      },
+      {
+        "type": "contains",
+        "value": "var(--color-action-primary-bg)"
+      },
+      {
+        "type": "contains",
+        "value": "#7c3aed"
+      },
+      {
+        "type": "contains",
+        "value": "no matching token"
+      },
+      {
+        "type": "contains",
+        "value": "Token file: not edited."
+      },
+      {
+        "type": "notContains",
+        "value": "--color-purple"
+      },
+      {
+        "type": "notContains",
+        "value": "--color-accent"
+      },
+      {
+        "type": "notContains",
+        "value": "--color-badge"
+      },
+      {
+        "type": "notContains",
+        "value": "--color-beta"
+      },
+      {
+        "type": "notContains",
+        "value": ":root"
+      }
+    ]
+  },
+  {
+    "id": "tokens-fail-contrast",
+    "prompt": "pixel pass on this empty-state card please. Our tokens.css is below and it is the project's source of truth; use it.\n\ntokens.css:\n```css\n:root {\n  --color-brand: #0f766e;\n  --color-primary-50: #f0fdfc;\n  --color-primary-500: #52c0b7;\n  --color-primary-800: #0f766e;\n  --color-primary-900: #0c403c;\n  --color-neutral-50: #f4fbfa;\n  --color-neutral-100: #e9f2f1;\n  --color-neutral-200: #d2dfde;\n  --color-neutral-400: #96b0ae;\n  --color-neutral-500: #7a9492;\n  --color-neutral-600: #617b79;\n  --color-neutral-700: #4a6462;\n  --color-neutral-800: #364342;\n  --color-neutral-900: #202d2c;\n  --font-family-sans: system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif;\n  --font-size-xs: 12px;\n  --font-size-sm: 14px;\n  --font-size-md: 16px;\n  --font-size-lg: 18px;\n  --font-size-xl: 20px;\n  --font-size-2xl: 24px;\n  --font-size-3xl: 30px;\n  --line-height-body: 1.5;\n  --line-height-heading: 1.25;\n  --line-height-display: 1.2;\n  --font-weight-regular: 400;\n  --font-weight-strong: 600;\n  --measure: 65ch;\n  --space-0: 0px;\n  --space-4: 4px;\n  --space-8: 8px;\n  --space-12: 12px;\n  --space-16: 16px;\n  --space-24: 24px;\n  --space-32: 32px;\n  --space-48: 48px;\n  --space-64: 64px;\n  --control-height-sm: 32px;\n  --control-height-md: 40px;\n  --control-height-lg: 48px;\n  --size-target-min: 44px;\n  --radius-sm: 4px;\n  --radius-md: 6px;\n  --radius-lg: 8px;\n  --radius-full: 9999px;\n  --radius-control: var(--radius-md);\n  --shadow-1: 0 1px 2px 0px rgba(15, 25, 24, 0.08);\n  --border-width-hairline: 1px;\n  --border-width-thick: 2px;\n  --border-width-focus: 2px;\n  --duration-fast: 100ms;\n  --duration-base: 150ms;\n  --duration-slow: 200ms;\n  --ease-standard: cubic-bezier(0.2, 0, 0, 1);\n  --color-surface-default: #ffffff;\n  --color-surface-subtle: var(--color-neutral-50);\n  --color-surface-raised: #ffffff;\n  --color-surface-sunken: var(--color-neutral-100);\n  --color-surface-inverse: var(--color-neutral-900);\n  --color-text-default: var(--color-neutral-900);\n  --color-text-muted: #9ca3af;\n  --color-text-disabled: var(--color-neutral-400);\n  --color-text-inverse: var(--color-neutral-50);\n  --color-text-link: var(--color-primary-800);\n  --color-text-link-hover: var(--color-primary-900);\n  --color-border-default: var(--color-neutral-200);\n  --color-border-strong: var(--color-neutral-600);\n  --color-border-focus: var(--color-primary-800);\n  --color-action-primary-bg: var(--color-primary-800);\n  --color-action-primary-bg-hover: var(--color-primary-900);\n  --color-action-primary-bg-pressed: var(--color-primary-900);\n  --color-action-primary-text: #ffffff;\n  --color-action-secondary-text: var(--color-primary-800);\n  --color-action-secondary-border: var(--color-primary-800);\n  --color-selected-bg: var(--color-primary-50);\n  --color-selected-text: var(--color-primary-800);\n}\n```\n\n<style>\n.empty{padding:20px;background:#ffffff;font-family:system-ui;text-align:center}\n.empty h2{font-size:20px;margin:0 0 6px;color:#202d2c}\n.empty p{font-size:15px;color:#9ca3af;margin:0 0 18px}\n.empty button{background:#0f766e;color:#fff;padding:8px 14px;border:0;border-radius:6px}\n</style>\n<div class=\"empty\"><h2>No projects yet</h2><p>Create your first project to get started.</p><button>New project</button></div>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "### Polished code"
+      },
+      {
+        "type": "contains",
+        "value": "### Contrast"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "No projects yet"
+      },
+      {
+        "type": "contains",
+        "value": "Create your first project to get started."
+      },
+      {
+        "type": "contains",
+        "value": "New project"
+      },
+      {
+        "type": "contains",
+        "value": "**Tokens**"
+      },
+      {
+        "type": "contains",
+        "value": "var(--color-text-muted)"
+      },
+      {
+        "type": "contains",
+        "value": "--color-text-muted"
+      },
+      {
+        "type": "contains",
+        "value": "2.54:1"
+      },
+      {
+        "type": "contains",
+        "value": "fails"
+      },
+      {
+        "type": "contains",
+        "value": "Token file: not edited."
+      },
+      {
+        "type": "notContains",
+        "value": ":root"
       }
     ]
   }

@@ -51,7 +51,7 @@
   },
   {
     "id": "R-ui-polish-11",
-    "text": "NEVER change a brand colour hue; to fix contrast, change only its lightness or the text colour on it.",
+    "text": "NEVER change a brand colour hue; to fix contrast, change only its lightness or the text colour on it. With a token file, the brand colours are the ones the token file gives.",
     "checklist": "Every brand colour kept its hue."
   },
   {
@@ -93,5 +93,35 @@
     "id": "R-ui-polish-19",
     "text": "Every relative link MUST point to a file inside the skill folder.",
     "check": "chk-links"
+  },
+  {
+    "id": "R-ui-polish-20",
+    "text": "With a token file, every colour, spacing, font size, line-height, font weight, radius, control size, focus width and duration that has a matching token MUST be written as var(--name) of that token; the token scales replace the default scales.",
+    "checklist": "With a token file, the polished code has no raw value where the file has a matching token."
+  },
+  {
+    "id": "R-ui-polish-21",
+    "text": "With a token file, the one primary action MUST use the file's primary-fill tokens.",
+    "checklist": "With a token file, the primary action uses the primary-fill tokens of the file."
+  },
+  {
+    "id": "R-ui-polish-22",
+    "text": "NEVER write a token name that is not in the token file; a value with no matching token MUST stay a plain value and MUST be listed under Open questions.",
+    "checklist": "Every var(--name) in the polished code is in the token file or the input code, and each value with no matching token is under Open questions."
+  },
+  {
+    "id": "R-ui-polish-23",
+    "text": "NEVER edit, rewrite or redefine the token file or a token; a token pair below its ratio MUST be reported with its ratio under Contrast and under Open questions.",
+    "checklist": "The token file was not edited or redefined, and each failing token pair is reported with its ratio."
+  },
+  {
+    "id": "R-ui-polish-24",
+    "text": "Every ratio MUST come from the contrast script when commands can be run, else from the reference table; the reply MUST say which with the fixed sentence of layer 08, step 6.",
+    "checklist": "The reply has one of the three ratio-source sentences under the contrast table, and it is true."
+  },
+  {
+    "id": "R-ui-polish-25",
+    "text": "The contrast script MUST use only the Node.js standard library, MUST never write a file, and MUST agree with the reference table.",
+    "check": "chk-contrast-script"
   }
 ]

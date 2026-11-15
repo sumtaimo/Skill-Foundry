@@ -2,6 +2,12 @@
   "case": "no-code",
   "prompt": "can you do a final polish pass on our UI before release?",
   "agent": "claude",
+  "tools": [
+    "Read",
+    "Glob",
+    "Grep",
+    "Bash(node:*)"
+  ],
   "recordedAt": "2026-11-15",
   "output": "Paste the HTML and CSS of the finished screen you want polished.",
   "files": []

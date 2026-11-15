@@ -1,6 +1,6 @@
 ---
 name: ui-polish
-description: Runs a final polish pass on the HTML and CSS (or JSX) of a finished UI, fixing spacing, type, contrast, visual hierarchy, interactive states and layout against fixed numeric rules, and returns the numbered fixes plus the polished code with every word of text kept. Use when asked for a "final polish", a "pixel pass", or to "make this screen look cleaner" on code the user pastes. Do not use to design a new screen from scratch, to rewrite UI copy (use copy-tight), or for a full accessibility audit.
+description: Runs a final polish pass on the HTML and CSS (or JSX) of a finished UI, fixing spacing, type, contrast, visual hierarchy, interactive states and layout against fixed numeric rules, and returns the numbered fixes plus the polished code with every word of text kept. When the project has a design-token file (tokens.css or design-tokens.json), the fixes use its tokens instead of raw values. Use when asked for a "final polish", a "pixel pass", or to "make this screen look cleaner" on code the user pastes. Do not use to design a new screen from scratch, to rewrite UI copy (use copy-tight), to create or change design tokens (use design-system), or for a full accessibility audit.
 version: 1.0.0
 ---
 
@@ -9,13 +9,17 @@ version: 1.0.0
 Takes the code of a finished screen and makes it look finished: on-scale spacing, a clear type scale,
 readable contrast, one primary action, and visible hover, focus and disabled states.
 Every fix cites a numbered rule, and the polished code keeps the same text, the same elements and the same brand hue.
+When the project has a design-token file, every fix is written with its tokens, and the file itself is never edited.
+Contrast ratios come from the script in this folder, not from hand arithmetic.
 
 ## When to use
 
 - Use when someone pastes HTML, CSS, JSX or Tailwind markup of a finished screen and asks for a final polish or pixel pass.
 - Use when someone says a screen "looks off", "looks cluttered" or "needs a clean-up" and gives the code.
+- Use it the same way when the project has design tokens: say where the token file is, or paste it; the skill also looks for one.
 - Do not use to design a new screen, page or flow; reply with the fixed sentence in layer 06, step 2.
 - Do not use to rewrite or shorten text; say so with the fixed sentence in layer 06, step 3, then polish the code with the text unchanged.
+- Do not use to create, complete or correct design tokens; this skill only reads a token file.
 - Do not use without code; ask for it with the exact sentence in layer 03, step 3.
 
 ## Procedure
@@ -23,17 +27,19 @@ Every fix cites a numbered rule, and the polished code keeps the same text, the 
 Follow the layers in order. Each layer file is the detailed chapter for that step.
 
 1. Intent: confirm the goal and the defined terms. [layers/01-intent.md](layers/01-intent.md)
-2. Context: the pasted code is the only source. [layers/02-context.md](layers/02-context.md)
+2. Context: the pasted code is the source; find the token file, if there is one. [layers/02-context.md](layers/02-context.md)
 3. Inputs: code is required; ask when it is missing. [layers/03-inputs.md](layers/03-inputs.md)
-4. Flow: inventory, check each rule, fix, rebuild the code. [layers/04-flow.md](layers/04-flow.md)
+4. Flow: inventory, check each rule, fix with tokens or default scales, run the contrast script, rebuild the code. [layers/04-flow.md](layers/04-flow.md)
 5. Rules: the MUST / NEVER rules by id. [layers/05-rules.md](layers/05-rules.md)
-6. States and edge cases: no code, new design, text rewrite, already polished, frameworks. [layers/06-states.md](layers/06-states.md)
-7. Checks: text kept, numbers on scale, contrast, states, format. [layers/07-checks.md](layers/07-checks.md)
+6. States and edge cases: no code, new design, text rewrite, already polished, frameworks, token edge cases. [layers/06-states.md](layers/06-states.md)
+7. Checks: text kept, numbers on scale, contrast, states, token names, format. [layers/07-checks.md](layers/07-checks.md)
 8. Output: the exact reply format and its quality bar. [layers/08-output.md](layers/08-output.md)
 9. Handoff: what the reader receives. [layers/09-handoff.md](layers/09-handoff.md)
 10. Evidence: what to keep as proof. [layers/10-evidence.md](layers/10-evidence.md)
 
-The numeric scales, the contrast table and the reviewer checklist are in [references/README.md](references/README.md).
+The default scales, the contrast table and the reviewer checklist are in [references/README.md](references/README.md).
+How a token file is read and which token each value gets is in [references/tokens.md](references/tokens.md).
+The contrast script is `engine/contrast.mjs` in this folder (Node.js, no dependencies, read-only).
 
 ## Rules
 
@@ -47,7 +53,7 @@ The numeric scales, the contrast table and the reviewer checklist are in [refere
 - R-ui-polish-8: A page MUST use at most two font weights; emphasis MUST come from weight or colour before size.
 - R-ui-polish-9: Every transition or animation MUST be turned off under prefers-reduced-motion: reduce.
 - R-ui-polish-10: NEVER change, add or remove any visible text, and NEVER add or remove elements, features or content.
-- R-ui-polish-11: NEVER change a brand colour's hue; to fix contrast, change only its lightness or the text colour on it.
+- R-ui-polish-11: NEVER change a brand colour's hue; to fix contrast, change only its lightness or the text colour on it. With a token file, the brand colours are the ones the token file gives.
 - R-ui-polish-12: NEVER add external fonts, scripts, stylesheets, images or links.
 - R-ui-polish-13: The reply MUST follow the format in layer 08: Fixes, Polished code, Not changed, Open questions.
 - R-ui-polish-14: With no code, the skill MUST ask for it with the exact sentence and NEVER produce fixes.
@@ -56,13 +62,21 @@ The numeric scales, the contrast table and the reviewer checklist are in [refere
 - R-ui-polish-17: The skill MUST be self-contained; NEVER name a repository path in SKILL.md, layers or references.
 - R-ui-polish-18: SKILL.md MUST stay within 150 lines, with frontmatter name, description and semver version.
 - R-ui-polish-19: Every relative link MUST point to a file inside the skill folder.
+- R-ui-polish-20: With a token file, every colour, spacing, font size, line-height, font weight, radius, control size, focus width and duration in the polished code that has a matching token MUST be written as var(--name) of that token, chosen by references/tokens.md; the token scales replace the default scales of rules 1 to 3.
+- R-ui-polish-21: With a token file, the one primary action MUST use the file's primary-fill tokens (in a design-system file: --color-action-primary-bg with --color-action-primary-text).
+- R-ui-polish-22: NEVER write a token name that is not in the token file; a value with no matching token MUST stay a plain value and MUST be listed under Open questions.
+- R-ui-polish-23: NEVER edit, rewrite or redefine the token file or a token; a token pair below its ratio MUST be reported with its ratio under Contrast and under Open questions.
+- R-ui-polish-24: Every ratio MUST come from the contrast script when commands can be run, else from the reference table; the reply MUST say which with the fixed sentence of layer 08, step 6.
+- R-ui-polish-25: The contrast script MUST use only the Node.js standard library, MUST never write a file, and MUST agree with the reference table.
 
 Each rule's check or reviewer item is in `RULES.json`.
 
 ## Checks
 
 - Every visible text string in the input appears unchanged in the polished code.
-- Every spacing and font-size number in the polished code is on its scale.
+- Every spacing and font-size number in the polished code is on its scale, or is a token of the token file.
+- Every var(--name) in the polished code is in the token file or was in the input code.
+- Run `node engine/contrast.mjs <text> <background>` for every colour pair; use the table only when commands cannot run.
 - Every changed colour pair has its ratio written, and it meets rule 4.
 - Answer the reviewer items in [references/README.md](references/README.md); any "no" blocks the reply.
 
@@ -72,4 +86,4 @@ A designer or front-end developer opens the polished code next to the original a
 
 ## Output
 
-One Markdown reply: a heading, a one-line summary, numbered fixes grouped by area, a contrast table, the full polished code in one code block, "Not changed" and "Open questions". The exact shape is in [layers/08-output.md](layers/08-output.md).
+One Markdown reply: a heading, a one-line summary, numbered fixes grouped by area, a contrast table with the line that says where the ratios come from, the full polished code in one code block, "Not changed" and "Open questions". The exact shape is in [layers/08-output.md](layers/08-output.md).

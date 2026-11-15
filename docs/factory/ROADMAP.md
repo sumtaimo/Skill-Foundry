@@ -11,7 +11,7 @@ The project roadmap is in `docs/PROJECT.md` section 6. This file lists skills.
 | changelog-writer | Turn a list of changes into a CHANGELOG entry with the correct semver bump |
 | copy-tight | Rewrite UI copy to be short and plain without changing meaning (0.2.0) |
 | test-planner | Derive a numbered regression checklist from a change description or diff, never adding features the change does not name |
-| ui-polish | Final polish pass on finished UI code: on-scale spacing and type, contrast, one primary action, states; keeps every word and the brand hue |
+| ui-polish | Final polish pass on finished UI code: on-scale spacing and type, contrast, one primary action, states; uses the project's design tokens when present; keeps every word and the brand hue |
 
 `changelog-writer` and `copy-tight` do not have the ten layer files yet; they are listed in `src/factory/migration.json` and each is migrated in its own session.
 

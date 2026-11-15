@@ -1,4 +1,4 @@
-# ui-polish review (2026-11-15)
+# ui-polish review (2026-11-15, updated for design tokens and the contrast script)
 
 Review against `docs/factory/REVIEW.md`. Status: ready. Version 1.0.0.
 
@@ -6,9 +6,9 @@ Honest record: the author (an AI agent) ticked this list; the owner (TAIMO) is t
 
 ## Clarity
 - [x] Procedure is numbered, imperative, one action per step
-- [x] Every rule uses MUST or NEVER and has an id `R-ui-polish-<n>` (19 rules)
+- [x] Every rule uses MUST or NEVER and has an id `R-ui-polish-<n>` (25 rules)
 - [x] No step relies on unstated knowledge: terms in layer 01, scales and contrast table in references, exact sentences in layers 03 and 06
-- [x] SKILL.md is at most 150 lines (75)
+- [x] SKILL.md is at most 150 lines (under 150, lint checks it)
 - [x] Ten core layers with numbered steps, linked from SKILL.md (`chk-layers`)
 - [x] Self-contained: no repository paths in SKILL.md, layers or references (`chk-portable`)
 
@@ -26,9 +26,9 @@ Honest record: the author (an AI agent) ticked this list; the owner (TAIMO) is t
 - [x] Three hand-written examples (sign-in form, no code, new design); they follow the skill's own rules
 
 ## Evals
-- [x] Eight cases with strict expectations (exact ratios, kept text, headings, `notContains`, `maxLines`)
+- [x] Twelve cases with strict expectations (exact ratios, kept text, headings, `notContains`, `maxLines`); four are token cases: CSS tokens, Tailwind/JSX with CSS variables, a value with no matching token, tokens that fail contrast
 - [x] Pass with `runEvals` in `tests/ui-polish.test.mjs`; the same test shows bad answers fail
-- [x] Live evals 8 of 8 on fresh real-agent recordings; every answer read by hand and every contrast ratio recomputed
+- [x] Live evals 12 of 12 on fresh real-agent recordings (the 8 old cases re-recorded); every answer read by hand and every table ratio recomputed with `engine/contrast.mjs` (87 pairs, 0 differences)
 - [x] First run: all 8 agents were blocked from reading the skill (no read permission); re-run with read-only tools. One case was wrong (2.85:1 on white; the background is #f9fafb, so 2.73:1); reason in CHANGELOG.md
 
 ## Visual items
@@ -39,3 +39,14 @@ Honest record: the author (an AI agent) ticked this list; the owner (TAIMO) is t
 
 ## Preview quality
 - [x] Tagline under 90 characters, 4 tags; cover uses only `--cover-bg`, `--cover-accent` and `currentColor`
+
+## Design tokens and contrast script (this update)
+- [x] Token mode: tokens used wherever one matches, primary action on the primary-fill tokens, no invented token name (searched in the four token recordings), token file not edited, no `:root` in the polished code
+- [x] A value with no matching token stays plain and is an Open question (`tokens-no-match`: `#7c3aed`); a failing token pair is kept and reported (`tokens-fail-contrast`: `--color-text-muted` 2.54:1)
+- [x] Default mode unchanged: `settings-card` and `tailwind-jsx` contain no `var(--`
+- [x] `engine/contrast.mjs`: standard library only, read-only, agrees with the reference table, reads `tokens.css` and `design-tokens.json` the same way (tests in `tests/ui-polish.test.mjs`)
+- [x] Ratio source stated in every reply; two recordings were made on purpose without permission to run commands (table and by-hand sentences). The by-hand ratios were 0.01 off once (4.62:1 for 4.63:1) and the reply said so; the table now has #f9fafb and #f3f4f6 columns
+- [x] Portable check in an empty project that has `styles/tokens.css` and `design-tokens.json`: the agent found the token file by itself, used the skill, leaked no repository rules
+- [x] Recipe `tokens-then-polish` recorded: design-system then ui-polish, both used
+- [x] Visual: polished HTML of six live recordings (three of them with the pasted tokens.css) in `evals/live/files/`, `checkPage` 0 problems
+- [ ] Final reviewer: TAIMO. Not covered by an eval: a token file in another tool's naming (the skill says to match by meaning); dark-theme check of token pairs (stated in layer 06, step 18, seen in the recipe answer only)
