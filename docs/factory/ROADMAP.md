@@ -17,10 +17,22 @@ The project roadmap is in `docs/PROJECT.md` section 6. This file lists skills.
 
 ## Candidates (not built)
 
-| Skill | Kind | Purpose |
-|-------|------|---------|
-| spec-writer | analysis | Write testable Given-When-Then acceptance criteria, as numbered clauses |
-| usability-review | analysis | Review a screen or flow for affordance, feedback, mapping and error handling, with a severity per finding (next UX session) |
-| ux-laws-check | analysis | Check a layout against choice count, target size and distance, memory load and familiar patterns (UX session after usability-review) |
-| a11y-audit | analysis | Check a page against accessibility basics and list fixes |
-| svg-cover | output | Create a cover.svg that meets the factory preview limits |
+| Skill | Kind | Purpose | Boundary (what it never does) |
+|-------|------|---------|-------------------------------|
+| spec-writer | analysis | Write testable Given-When-Then acceptance criteria, as numbered clauses | Never a regression checklist (test-planner) |
+| ux-review | analysis | Review a screen or flow: affordance, feedback, mapping, error handling, choice count, target distance, memory load, familiar patterns; one severity per finding | Never fixes code (ui-polish), never semantics or ARIA (a11y-audit), never text (copy-tight) |
+| a11y-audit | analysis | Check what users cannot see: semantic HTML, labels, keyboard order, ARIA, screen reader output; list fixes | Never contrast, focus style or target size (ui-polish owns them) |
+
+Merged or dropped on 2026-11-15 (TAIMO approved): `usability-review` and `ux-laws-check` merged into `ux-review` (same input, same output, overlapping findings); `svg-cover` dropped (it is layer 04, step 10 of skill-smith).
+
+## UI/UX family: one job each, in work order
+
+`design-system` (makes the token file) → the team builds the screen → `ui-polish` (fixes what is seen) → `ux-review` (judges the flow) → `a11y-audit` (checks what is not seen) → `copy-tight` (fixes the words). Every UI skill reads the same token file when the project has one.
+
+## Before adding or changing a skill (overlap gate)
+
+Every AI does this whenever TAIMO asks for a new skill or a change, before any work:
+
+1. Compare the request with every row in "Built", "Candidates" and the merged/dropped list above.
+2. If it overlaps one, say so and name it; propose an improvement to that skill or a merge instead of a new skill. Do not start a new skill that duplicates one; wait for TAIMO's decision.
+3. If it is new, write its row with a Boundary column first, and add routing cases against its nearest neighbours.
