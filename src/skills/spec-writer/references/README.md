@@ -19,7 +19,7 @@
 | Persistence after reload | what is still there after a reload, a new session or a return |
 | Limits | a stated cap on a count, a size, a rate or a time |
 
-A heading with no statement never appears above "Open questions"; it appears there as the first words of a question.
+A heading with no statement never appears above "Open questions"; it appears there only as the first words of a question that blocks a stated clause, or of a minor question.
 
 ## Source phrases
 
@@ -29,10 +29,15 @@ A heading with no statement never appears above "Open questions"; it appears the
 
 ## Open questions
 
-- One sentence, to the Product Owner, starting with a heading name and a colon, or with "Conflict:".
-- Ask for the fact that is missing. Good: "Limits: What is the largest file a user can upload?" Not allowed: "Limits: Is the largest file 5 MB?" (it suggests a value) and "Validation and errors: Which formats, for example JPG or PNG, are accepted?" (it suggests examples).
-- A vague word always gets: `What measurable value defines "<word>" for <thing>?`, with the heading name in front.
-- At most three questions per heading.
+Every open question is `[blocking]` or `[minor]`. Blocking questions come first.
+
+- **Blocking**: the clause for a statement of the text cannot be written, or cannot be tested, without the answer, because a value, a role, a state or a result is missing. A vague word and a conflict are always blocking.
+- Form: `- [blocking] <Heading name>: <question>? Blocks: <AC-n or "<source phrase>">`. `Blocks:` names the clause id that cannot be tested, or, when no clause could be written, a source phrase copied from the text between quotation marks.
+- No fixed cap, per heading or in total. A text with many missing values gets many blocking questions, and the Product Owner answers them. Never cut one to get a smaller number; never add one that blocks nothing.
+- Ask for the fact that is missing. Good: `- [blocking] Limits: What is the largest file a user can upload? Blocks: "Users can upload a profile photo"` Not allowed: "Limits: Is the largest file 5 MB?" (it suggests a value) and "Validation and errors: Which formats, for example JPG or PNG, are accepted?" (it suggests examples).
+- A vague word always gets: `- [blocking] <Heading name>: What measurable value defines "<word>" for <thing>? Blocks: "<source phrase with the word>"`.
+- **Minor**: no statement of the text depends on it (an edge case, an extra role, a screen state, a reload) or the tester can settle it. Merge minor questions into at most three lines, two questions per line at most, after the blocking ones: `- [minor] <Heading name>: <question>? <Heading name>: <question>?`. Drop a minor question that only restates a default: a generic failure or error message, a loading indicator, what a reload keeps, who else may use the feature, or a heading the text says nothing about when no clause depends on it.
+- A heading with no statement of the text never makes a blocking question by itself.
 
 ## Vague words
 
@@ -58,8 +63,10 @@ Answer each line yes or no. Any "no" blocks the reply until it is fixed.
 - [ ] Every clause ends with an italic source phrase found in the requirement text by search.
 - [ ] The ids run AC-1 to AC-N with no gap, repeat or restart.
 - [ ] Every heading above "Open questions" has at least one clause.
-- [ ] Every gap is an open question that starts with a heading name and suggests no answer, example or value.
-- [ ] Every vague word has the measurable-value question, and no clause, number or unit was made from it.
+- [ ] Every blocking gap is a `[blocking]` question that starts with a heading name, names what it blocks (a clause id or a source phrase found in the text) and suggests no answer, example or value.
+- [ ] No `[blocking]` question was cut to reach a number, and none blocks nothing.
+- [ ] Minor questions are tagged `[minor]`, come after the blocking ones, fill at most three lines of two questions at most and none only restates a default.
+- [ ] Every vague word has the `[blocking]` measurable-value question, and no clause, number or unit was made from it.
 - [ ] Every "Out of scope" line has a source phrase from the text, or the section reads "None stated."
 - [ ] With no requirement text or only a title, the reply is the exact sentence, with no clause and no heading.
 - [ ] A request outside the boundary got its exact sentence and none of the refused work.

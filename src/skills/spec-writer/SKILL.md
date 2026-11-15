@@ -38,8 +38,8 @@ Follow the layers in order. Each layer file is the detailed chapter for that ste
 - R-spec-writer-3: Every clause MUST end with an italic source phrase copied word for word from the requirement text.
 - R-spec-writer-4: Clause ids MUST run AC-1 to AC-N in one run across all headings.
 - R-spec-writer-5: A heading (Main path, Validation and errors, Permissions and roles, Empty, loading and disabled states, Persistence after reload, Limits) MUST appear only when the text supports at least one clause under it.
-- R-spec-writer-6: Anything the text does not state MUST go under "Open questions" as a question to the Product Owner that starts with its heading name; a question NEVER suggests an answer, an example or a value.
-- R-spec-writer-7: A vague word in the text (such as "fast", "easy", "secure") MUST become the open question `What measurable value defines "<word>" for <thing>?`; NEVER a clause and NEVER a made-up number or unit.
+- R-spec-writer-6: Only a gap that BLOCKS a clause (a missing value, role, state or result without which the clause cannot be written or tested) MUST become a `[blocking]` question that starts with its heading name and ends with `Blocks:` and the clause id or quoted source phrase it blocks; blocking questions come first, have no fixed cap, and NEVER suggest an answer, an example or a value.
+- R-spec-writer-7: A vague word in the text (such as "fast", "easy", "secure") MUST become the blocking question `What measurable value defines "<word>" for <thing>?`; NEVER a clause and NEVER a made-up number or unit.
 - R-spec-writer-8: "Out of scope" MUST list only what the text itself excludes, each with its source phrase; otherwise it reads "None stated."
 - R-spec-writer-9: With no requirement text, or a title only, the skill MUST reply with the exact sentence of layer 03 and NEVER write a clause.
 - R-spec-writer-10: NEVER write test code, a regression checklist, a screen design, rewritten copy, an estimate or a priority; the exact sentences of layer 06 MUST be used.
@@ -47,6 +47,7 @@ Follow the layers in order. Each layer file is the detailed chapter for that ste
 - R-spec-writer-12: The skill MUST be self-contained; NEVER name a repository path in SKILL.md, layers or references.
 - R-spec-writer-13: SKILL.md MUST stay within 150 lines and have frontmatter with name, description and semver version.
 - R-spec-writer-14: Every relative link MUST point to a file inside the skill folder.
+- R-spec-writer-15: Every other question MUST be tagged `[minor]`, merged into at most three lines of at most two questions each after the blocking ones, or dropped when it only restates a default; a question that blocks nothing is NEVER tagged `[blocking]`.
 
 Each rule's check or reviewer item is in `RULES.json`.
 
@@ -54,6 +55,7 @@ Each rule's check or reviewer item is in `RULES.json`.
 
 - Search the requirement text for each clause's source phrase, ignoring case; a phrase that is not found removes the clause.
 - Ids run AC-1 to AC-N with no gap or restart; every clause has "Given", "when" and "then" once each.
+- Every `[blocking]` line names a clause id or a quoted source phrase found in the text; there are at most three `[minor]` lines of at most two questions each, after the blocking ones.
 - Answer the reviewer items in [references/README.md](references/README.md); any "no" blocks the reply.
 
 ## Review
@@ -63,4 +65,4 @@ The reviewer answers the checklist in [references/README.md](references/README.m
 
 ## Output
 
-One Markdown reply: a heading, a one-sentence restatement of the requirement, the supported headings with clauses AC-1 to AC-N, then "Open questions" and "Out of scope". The exact shape is in [layers/08-output.md](layers/08-output.md).
+One Markdown reply: a heading, a one-sentence restatement of the requirement, the supported headings with clauses AC-1 to AC-N, then "Open questions" (blocking questions first, then at most three minor lines) and "Out of scope". The exact shape is in [layers/08-output.md](layers/08-output.md).

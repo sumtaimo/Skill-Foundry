@@ -458,5 +458,89 @@
         "value": 45
       }
     ]
+  },
+  {
+    "id": "many-blocking-questions",
+    "prompt": "Write acceptance criteria. Requirement: Managers approve expense reports. A report above the approval limit goes to the finance team. A report that is not approved in time is escalated to the next manager. A rejected report returns to the submitter with a reason. Receipts are required for expenses above the receipt threshold. Approved reports are paid in the next payment run.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "AC-1. Given"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "[blocking]"
+      },
+      {
+        "type": "contains",
+        "value": "Blocks:"
+      },
+      {
+        "type": "contains",
+        "value": "approval limit"
+      },
+      {
+        "type": "contains",
+        "value": "receipt threshold"
+      },
+      {
+        "type": "notContains",
+        "value": "for example"
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "maxLines",
+        "value": 60
+      }
+    ]
+  },
+  {
+    "id": "minor-questions-merged",
+    "prompt": "Acceptance criteria for this story: As a visitor, I want to subscribe to the newsletter from the page footer by entering my email. After subscribing, the footer shows \"Thanks for subscribing.\" Every newsletter has an unsubscribe link.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "AC-1. Given"
+      },
+      {
+        "type": "contains",
+        "value": "Thanks for subscribing."
+      },
+      {
+        "type": "contains",
+        "value": "unsubscribe link"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "[minor]"
+      },
+      {
+        "type": "notContains",
+        "value": "for example"
+      },
+      {
+        "type": "notContains",
+        "value": "such as"
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "maxLines",
+        "value": 40
+      }
+    ]
   }
 ]

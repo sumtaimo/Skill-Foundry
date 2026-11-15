@@ -31,9 +31,9 @@ Honest record: the author (an AI agent) ticked this list; the owner (TAIMO) is t
 - [x] Examples follow the skill's own rules
 
 ## Evals
-- [x] Ten cases with unique ids and strict expectations (headings, exact sentences, `notContains`, `maxLines`)
+- [x] Twelve cases with unique ids and strict expectations (headings, exact sentences, `notContains`, `maxLines`)
 - [x] Pass with `runEvals` in `tests/spec-writer.test.mjs`; the same test shows bad answers fail (criteria instead of a fixed sentence, test code, a checklist, story points, a made-up number for "fast", an invented limit, a clause on a conflict)
-- [x] Live evals: 10 of 10 pass on fresh real-agent recordings in `evals/live/` (`node src/factory/live-evals.mjs spec-writer`); every answer was read by hand
+- [x] Live evals: 12 of 12 pass on fresh real-agent recordings in `evals/live/` (`node src/factory/live-evals.mjs spec-writer`); every answer was read by hand
 - [x] One case expectation was wrong and was corrected, not weakened: `vague-words` expected the quote "easy to use" where the vague word is "easy". The reason is in CHANGELOG.md. No skill fix was needed after the first recordings
 
 ## Preview quality
@@ -54,3 +54,11 @@ Honest record: the author (an AI agent) ticked this list; the owner (TAIMO) is t
 - [x] Registry roles `BA_ANALYST`, `PO_ARCHITECT` (set by the owner in the task)
 - [x] Packed: `spec-writer-1.0.0.zip` (`node src/factory/pack.mjs spec-writer`)
 - [x] `npm run release:check` prints READY
+
+## Update: fewer, blocking-first open questions (2026-11-15, version stays 1.0.0)
+- [x] Only questions that block a clause are `[blocking]`; each ends with `Blocks:` and an existing clause id or a quoted source phrase found in the request (checked in `tests/spec-writer.test.mjs` on every recording)
+- [x] Blocking questions come first and have no cap; a vague word and a conflict are always blocking (rule R-spec-writer-7, layer 04 clauses 10 and 11)
+- [x] Minor questions are at most three lines of two questions each, or dropped when they restate a default (R-spec-writer-15)
+- [x] New eval cases `many-blocking-questions` (six blocking questions kept) and `minor-questions-merged`
+- [x] All 12 live evals, the portable check and the recipe `spec-then-retest` re-recorded with fresh agents; showcase screenshots retaken; routing not re-recorded (description unchanged)
+- [x] Honest note: the author (an AI agent) ticked this list; TAIMO is the final reviewer. `examples/README.md` and the reference answers in the test are hand-written, not proof

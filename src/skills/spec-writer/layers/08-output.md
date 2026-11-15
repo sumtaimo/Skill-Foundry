@@ -19,8 +19,9 @@ AC-2. Given ..., when ..., then .... _<source phrase>_
 ### Limits
 
 ### Open questions
-- <Heading name>: <question to the Product Owner>?
-- Conflict: <question that quotes both statements>?
+- [blocking] <Heading name>: <question to the Product Owner>? Blocks: <AC-n or "<source phrase>">
+- [blocking] Conflict: <question that quotes both statements>? Blocks: "<source phrase>"
+- [minor] <Heading name>: <question>? <Heading name>: <question>?
 
 ### Out of scope
 - <what is excluded>. _<source phrase>_
@@ -33,7 +34,7 @@ Quality bar, applied to every clause:
 3. The "then" part is one observable result. It never says "works", "correctly", "properly" or "as expected".
 4. Names, numbers, units and quoted messages are exactly those of the requirement text.
 5. The source phrase is in italics with underscores, is the last thing on the line, and is found in the requirement text by search.
-6. An open question is one sentence that ends with a question mark and can be answered by the Product Owner with a fact.
-7. An empty "Open questions" section reads "None."; an empty "Out of scope" section reads "None stated.". Neither heading is dropped.
+6. An open question is one sentence that ends with a question mark and can be answered by the Product Owner with a fact. A blocking line adds `Blocks:` and what it blocks after the question mark. Blocking lines come first, with no cap on their number; minor questions are at most three lines after them, two questions per line at most.
+7. An empty "Open questions" section reads "None."; a document with no blocking question has no `[blocking]` line; an empty "Out of scope" section reads "None stated.". Neither heading is dropped.
 8. The document holds no code, no checkbox, no table, no estimate, no priority and no closing remark after "Out of scope".
 9. When layer 06, clause 5 or 6 applies, the fixed sentence is the first line, before the document heading.
