@@ -11,6 +11,7 @@ The project roadmap is in `docs/PROJECT.md` section 6. This file lists skills.
 | changelog-writer | Turn a list of changes into a CHANGELOG entry with the correct semver bump |
 | copy-tight | Rewrite UI copy to be short and plain without changing meaning (0.2.0) |
 | test-planner | Derive a numbered regression checklist from a change description or diff, never adding features the change does not name |
+| ui-polish | Final polish pass on finished UI code: on-scale spacing and type, contrast, one primary action, states; keeps every word and the brand hue |
 
 `changelog-writer` and `copy-tight` do not have the ten layer files yet; they are listed in `src/factory/migration.json` and each is migrated in its own session.
 
@@ -19,6 +20,7 @@ The project roadmap is in `docs/PROJECT.md` section 6. This file lists skills.
 | Skill | Kind | Purpose |
 |-------|------|---------|
 | spec-writer | analysis | Write testable Given-When-Then acceptance criteria, as numbered clauses |
-| ui-polish | output | Run a final pixel pass on a finished UI |
+| usability-review | analysis | Review a screen or flow for affordance, feedback, mapping and error handling, with a severity per finding (next UX session) |
+| ux-laws-check | analysis | Check a layout against choice count, target size and distance, memory load and familiar patterns (UX session after usability-review) |
 | a11y-audit | analysis | Check a page against accessibility basics and list fixes |
 | svg-cover | output | Create a cover.svg that meets the factory preview limits |

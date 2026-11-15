@@ -35,6 +35,7 @@ Read the row of the skill you work on before you change it. The owner set these 
 | `changelog-writer` | Turn merged changes into one CHANGELOG entry with the correct semver bump | Live evals pass with a fresh agent | Layers pending (`src/factory/migration.json`) |
 | `copy-tight` | Rewrite UI copy short and plain without changing meaning, numbers, names or legal text | Live evals pass with a fresh agent | Layers pending (`src/factory/migration.json`) |
 | `test-planner` | Give QA leads and developers a numbered regression checklist from a change description or diff | Live evals 9 of 9 and routing pass with fresh agents; every item traces to a source phrase from the change; refuses test code and bug review with one fixed sentence | Layers built; version 1.0.0 |
+| `ui-polish` | Give developers and QA a final polish pass on finished UI code | Live evals 8 of 8, routing and portable check pass with fresh agents; every fix cites a rule; no word of text and no brand hue changes; polished HTML passes `checkPage` | Layers built; version 1.0.0. Rules are numeric scales, not taste. Source books are not named in the skill |
 
 Rules that apply to every skill (the full text is in `AGENTS.md`, SKILL QUALITY LAW, and `.harness/memory/lessons.md`):
 

@@ -1,0 +1,278 @@
+[
+  {
+    "id": "settings-card",
+    "prompt": "final polish on this settings card before we ship:\n<div class=\"card\" style=\"padding:13px;background:#ffffff;font-family:system-ui\">\n  <h2 style=\"font-size:22px;margin:0 0 5px\">Notification settings</h2>\n  <p style=\"font-size:13px;color:#aaaaaa\">Choose how we contact you about your account.</p>\n  <button style=\"background:#2563eb;color:#fff;padding:6px 10px;border:none\">Save changes</button>\n  <button style=\"background:#2563eb;color:#fff;padding:6px 10px;border:none\">Cancel</button>\n</div>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## UI polish:"
+      },
+      {
+        "type": "contains",
+        "value": "### Fixes"
+      },
+      {
+        "type": "contains",
+        "value": "### Contrast"
+      },
+      {
+        "type": "contains",
+        "value": "### Polished code"
+      },
+      {
+        "type": "contains",
+        "value": "### Not changed"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Notification settings"
+      },
+      {
+        "type": "contains",
+        "value": "Choose how we contact you about your account."
+      },
+      {
+        "type": "contains",
+        "value": "Save changes"
+      },
+      {
+        "type": "contains",
+        "value": "Cancel"
+      },
+      {
+        "type": "contains",
+        "value": "**Spacing**"
+      },
+      {
+        "type": "contains",
+        "value": "**Contrast**"
+      },
+      {
+        "type": "contains",
+        "value": "**Hierarchy**"
+      },
+      {
+        "type": "contains",
+        "value": "**States**"
+      },
+      {
+        "type": "contains",
+        "value": "2.32:1"
+      },
+      {
+        "type": "contains",
+        "value": "focus-visible"
+      },
+      {
+        "type": "contains",
+        "value": "R-ui-polish-5"
+      }
+    ]
+  },
+  {
+    "id": "tailwind-jsx",
+    "prompt": "do a pixel pass on this React component, it looks off:\nexport function DraftBar({ onSave, onDiscard }) {\n  return (\n    <div className=\"flex gap-[10px] p-[13px] bg-white\">\n      <span className=\"text-[15px] text-gray-400\">Unsaved draft</span>\n      <button onClick={onSave} className=\"bg-blue-600 text-white px-[7px] py-[3px]\">Save draft</button>\n      <button onClick={onDiscard} className=\"bg-blue-600 text-white px-[7px] py-[3px]\">Discard</button>\n    </div>\n  );\n}",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "### Polished code"
+      },
+      {
+        "type": "contains",
+        "value": "className="
+      },
+      {
+        "type": "contains",
+        "value": "onClick={onSave}"
+      },
+      {
+        "type": "contains",
+        "value": "onClick={onDiscard}"
+      },
+      {
+        "type": "contains",
+        "value": "Unsaved draft"
+      },
+      {
+        "type": "contains",
+        "value": "Save draft"
+      },
+      {
+        "type": "contains",
+        "value": "Discard"
+      },
+      {
+        "type": "contains",
+        "value": "focus-visible:"
+      },
+      {
+        "type": "contains",
+        "value": "p-3"
+      },
+      {
+        "type": "contains",
+        "value": "**Hierarchy**"
+      },
+      {
+        "type": "notContains",
+        "value": "style={{"
+      }
+    ]
+  },
+  {
+    "id": "brand-hue-kept",
+    "prompt": "make this screen look cleaner, the orange is our brand colour:\n<style>.cta{background:#ff8a00;color:#ffffff;padding:9px 18px;font-size:15px;border-radius:3px;transition:background .3s}</style>\n<section><h1>Start your free trial</h1><a class=\"cta\" href=\"#signup\">Get started</a></section>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "### Polished code"
+      },
+      {
+        "type": "contains",
+        "value": "2.36:1"
+      },
+      {
+        "type": "contains",
+        "value": "Brand hue kept"
+      },
+      {
+        "type": "contains",
+        "value": "Start your free trial"
+      },
+      {
+        "type": "contains",
+        "value": "Get started"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-reduced-motion"
+      },
+      {
+        "type": "contains",
+        "value": "focus-visible"
+      },
+      {
+        "type": "contains",
+        "value": "44px"
+      }
+    ]
+  },
+  {
+    "id": "text-rewrite-declined",
+    "prompt": "polish this banner and also make the text shorter:\n<div style=\"padding:10px;background:#f9fafb\"><p style=\"color:#999999;font-size:14px\">Click here to download your monthly report in PDF format</p><a href=\"#report\" style=\"color:#2563eb\">Download</a></div>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "This skill does not rewrite text; every word is kept as written."
+      },
+      {
+        "type": "contains",
+        "value": "Click here to download your monthly report in PDF format"
+      },
+      {
+        "type": "contains",
+        "value": "Download"
+      },
+      {
+        "type": "contains",
+        "value": "2.73:1"
+      },
+      {
+        "type": "contains",
+        "value": "### Polished code"
+      }
+    ]
+  },
+  {
+    "id": "already-polished",
+    "prompt": "final polish please, I think it is done:\n<style>\n.box{padding:16px;max-width:65ch;font-family:system-ui;line-height:1.5;font-size:16px;color:#374151;background:#ffffff}\n.box h2{font-size:24px;line-height:1.25;font-weight:600;margin:0 0 8px}\n.box a{display:inline-block;min-height:44px;min-width:44px;padding:12px 16px;background:#1d4ed8;color:#ffffff;font-weight:600;border-radius:8px}\n.box a:hover{background:#2563eb}\n.box a:focus-visible{outline:2px solid #1d4ed8;outline-offset:2px}\n</style>\n<div class=\"box\"><h2>Invite your team</h2><p>Teammates can view and edit shared projects.</p><a href=\"#invite\">Send invite</a></div>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "No fixes needed."
+      },
+      {
+        "type": "contains",
+        "value": "### Fixes"
+      },
+      {
+        "type": "contains",
+        "value": "None."
+      },
+      {
+        "type": "contains",
+        "value": "Unchanged."
+      },
+      {
+        "type": "maxLines",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": "no-code",
+    "prompt": "can you do a final polish pass on our UI before release?",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "Paste the HTML and CSS of the finished screen you want polished."
+      },
+      {
+        "type": "notContains",
+        "value": "### Fixes"
+      },
+      {
+        "type": "maxLines",
+        "value": 3
+      }
+    ]
+  },
+  {
+    "id": "description-only",
+    "prompt": "Our settings page looks cluttered and the buttons are small and gray. Give it a pixel pass.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "Paste the HTML and CSS of the finished screen you want polished."
+      },
+      {
+        "type": "notContains",
+        "value": "### Fixes"
+      },
+      {
+        "type": "notContains",
+        "value": "### Polished code"
+      },
+      {
+        "type": "maxLines",
+        "value": 3
+      }
+    ]
+  },
+  {
+    "id": "new-design-declined",
+    "prompt": "Design a new pricing page for our app from scratch, with three plans.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "This skill polishes a finished UI; it does not design new screens."
+      },
+      {
+        "type": "notContains",
+        "value": "### Polished code"
+      },
+      {
+        "type": "notContains",
+        "value": "<div"
+      },
+      {
+        "type": "maxLines",
+        "value": 4
+      }
+    ]
+  }
+]

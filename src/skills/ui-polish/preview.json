@@ -1,0 +1,7 @@
+{
+  "title": "ui-polish",
+  "tagline": "Final polish pass on finished UI code: spacing, type, contrast, hierarchy and states.",
+  "prompt": "Final polish on this settings card before we ship: (paste the HTML and CSS)",
+  "outputs": ["Numbered fixes, each tied to a rule", "Contrast table with ratios", "Full polished code with every word kept"],
+  "tags": ["ui", "design", "css", "polish"]
+}

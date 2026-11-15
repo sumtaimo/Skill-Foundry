@@ -1,0 +1,97 @@
+[
+  {
+    "id": "R-ui-polish-1",
+    "text": "Every spacing value (margin, padding, gap) MUST be on the spacing scale 4, 8, 12, 16, 24, 32, 48, 64 px.",
+    "checklist": "Every spacing number in the polished code is on the spacing scale."
+  },
+  {
+    "id": "R-ui-polish-2",
+    "text": "Every font size MUST be on the type scale 12, 14, 16, 18, 20, 24, 30, 36, 48 px; body text MUST be at least 16 px.",
+    "checklist": "Every font size is on the type scale and body text is 16 px or more."
+  },
+  {
+    "id": "R-ui-polish-3",
+    "text": "Body text MUST have line-height 1.5; headings MUST have line-height 1.2 to 1.3; paragraphs MUST have max-width 65ch or less.",
+    "checklist": "Body line-height is 1.5, heading line-height 1.2 to 1.3, paragraph width 65ch or less."
+  },
+  {
+    "id": "R-ui-polish-4",
+    "text": "Normal text MUST reach 4.5:1 contrast; large text MUST reach 3:1; every reported ratio MUST be a number with :1.",
+    "checklist": "Every text colour pair meets its ratio and each ratio is written with :1."
+  },
+  {
+    "id": "R-ui-polish-5",
+    "text": "A view MUST have exactly one primary action; other actions MUST use a secondary or quiet style.",
+    "checklist": "The polished code has exactly one filled primary action."
+  },
+  {
+    "id": "R-ui-polish-6",
+    "text": "Every interactive element MUST have a hover style, a :focus-visible outline of at least 2 px, and a disabled style when it can be disabled.",
+    "checklist": "Every button, link and input has hover, :focus-visible and, if needed, disabled styles."
+  },
+  {
+    "id": "R-ui-polish-7",
+    "text": "Every click or tap target MUST be at least 44 by 44 px.",
+    "checklist": "Every button and link is at least 44 by 44 px."
+  },
+  {
+    "id": "R-ui-polish-8",
+    "text": "A page MUST use at most two font weights; emphasis MUST come from weight or colour before size.",
+    "checklist": "The polished code uses at most two font weights."
+  },
+  {
+    "id": "R-ui-polish-9",
+    "text": "Every transition or animation MUST be turned off under prefers-reduced-motion: reduce.",
+    "checklist": "Every transition is turned off in a prefers-reduced-motion block."
+  },
+  {
+    "id": "R-ui-polish-10",
+    "text": "NEVER change, add or remove any visible text, and NEVER add or remove elements, features or content.",
+    "checklist": "Every visible text string of the input appears unchanged, and no element was added or removed."
+  },
+  {
+    "id": "R-ui-polish-11",
+    "text": "NEVER change a brand colour hue; to fix contrast, change only its lightness or the text colour on it.",
+    "checklist": "Every brand colour kept its hue."
+  },
+  {
+    "id": "R-ui-polish-12",
+    "text": "NEVER add external fonts, scripts, stylesheets, images or links.",
+    "checklist": "No external font, script, stylesheet, image or link was added."
+  },
+  {
+    "id": "R-ui-polish-13",
+    "text": "The reply MUST follow the format in layer 08: Fixes, Polished code, Not changed, Open questions.",
+    "checklist": "The reply has the layer 08 headings in order."
+  },
+  {
+    "id": "R-ui-polish-14",
+    "text": "With no code, the skill MUST ask for it with the exact sentence and NEVER produce fixes.",
+    "checklist": "With no code, the reply is the exact ask sentence and has no fixes."
+  },
+  {
+    "id": "R-ui-polish-15",
+    "text": "A request to design a new screen MUST get the exact decline sentence and no code.",
+    "checklist": "A new-design request got the exact decline sentence and no code."
+  },
+  {
+    "id": "R-ui-polish-16",
+    "text": "The skill MUST have the ten core layers, each linked from SKILL.md.",
+    "check": "chk-layers"
+  },
+  {
+    "id": "R-ui-polish-17",
+    "text": "The skill MUST be self-contained; NEVER name a repository path in SKILL.md, layers or references.",
+    "check": "chk-portable"
+  },
+  {
+    "id": "R-ui-polish-18",
+    "text": "SKILL.md MUST stay within 150 lines, with frontmatter name, description and semver version.",
+    "check": "chk-size"
+  },
+  {
+    "id": "R-ui-polish-19",
+    "text": "Every relative link MUST point to a file inside the skill folder.",
+    "check": "chk-links"
+  }
+]

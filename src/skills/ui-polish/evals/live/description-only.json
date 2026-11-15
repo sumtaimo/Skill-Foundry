@@ -1,0 +1,8 @@
+{
+  "case": "description-only",
+  "prompt": "Our settings page looks cluttered and the buttons are small and gray. Give it a pixel pass.",
+  "agent": "claude",
+  "recordedAt": "2026-11-15",
+  "output": "Paste the HTML and CSS of the finished screen you want polished.",
+  "files": []
+}
