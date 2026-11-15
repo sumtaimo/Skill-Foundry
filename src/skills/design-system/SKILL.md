@@ -16,7 +16,7 @@ The numbers come from the engine in this folder, so the same input always gives 
 - Use when someone gives one or more hex colours and asks for a design system, tokens, a palette or a theme.
 - Use when someone describes a mood or style ("calm", "bold and playful", "like a banking app") and wants tokens.
 - Use when a project already has tokens and someone asks to complete them (dark mode, motion, missing scales).
-- Do not use to design a screen, page or flow; reply with the fixed sentence in layer 06, step 2.
+- Do not use to design a screen, page or flow; reply with only the fixed sentence in layer 06, step 2, and nothing else.
 - Do not use to polish finished screen code; that is ui-polish.
 - Without a colour, a style or an existing system, ask with the exact sentence in layer 03, step 7.
 

@@ -14,6 +14,6 @@ Collected when present:
 
 When nothing is given:
 
-7. No hex, no style or product words and no existing system: reply exactly "Give me a brand colour as a hex code (for example #2563eb), a few words about the style you want, or the path to your existing design tokens." Stop. Write no files and no tokens.
+7. No hex, no style or product words and no existing system: reply exactly "Give me a brand colour as a hex code (for example #2563eb), a few words about the style you want, or the path to your existing design tokens." That sentence is the whole reply, even when you were asked for a report of files, checks and open items: add nothing before or after it. Stop. Write no files and no tokens.
 8. A brand colour named in words only ("our brand is green") and no hex: reply exactly "Give me the hex code of your brand colour (for example #2563eb)." and stop; never guess a hex for a brand. A colour word that only describes the style ("warm, earthy tones") is a style word: use path b.
 9. Hand the inputs to layer 04.

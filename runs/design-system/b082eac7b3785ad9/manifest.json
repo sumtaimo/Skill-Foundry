@@ -1,0 +1,37 @@
+{
+  "skill": "design-system",
+  "version": "1.0.0",
+  "caseId": "hex-invoicing",
+  "inputSha256": "6e819073a578ad2145ce447f8e2ae76c60e5f579efaed664d4cc96237f082d9e",
+  "skillSha256": "fee4171f55cb596cd8a0ebd91123478e53b1f63a2ee6bc1eb54bac7a0a5fb57d",
+  "key": "b082eac7b3785ad90c02d2f0867d6e5618fda4968f86d96c747a9786ea8d175b",
+  "startedAt": "2026-11-15T05:45:04.617Z",
+  "finishedAt": "2026-11-15T05:45:43.666Z",
+  "runner": "custom",
+  "exitCode": 0,
+  "costUsd": null,
+  "usage": null,
+  "files": [
+    {
+      "path": "design-system-report.md",
+      "bytes": 3471,
+      "sha256": "255da8d83da180ab06b23fe41db7e88e7da7879ed5b228a4a245cf053ededf5a"
+    },
+    {
+      "path": "design-tokens.json",
+      "bytes": 20322,
+      "sha256": "e399379afa62d52346b28a0098445abefa20a18e39a7ccf21c028510ca86a1e3"
+    },
+    {
+      "path": "tokens.css",
+      "bytes": 13286,
+      "sha256": "fa183717087ea9d263a26b850391b68044b90a9c8e6da82f81b533c1c2d09312"
+    }
+  ],
+  "checks": {
+    "expectations": 21,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "## Design system: Invoicing app\n\nPath a, from your colour. Archetype: precise-fintech. An invoicing product calls for precise, trustworthy numbers.\n\nThis report is the whole reply: the files written, the checks run with every result, and the open questions.\n\n### Files\n- design-tokens.json: W3C design tokens\n- tokens.css: CSS custom properties, light and dark\n- design-system-report.md: this report\n\n### Colours kept\n| Input | Hex | Hue | Placed at |\n|-------|-----|-----|-----------|\n| primary | #0f766e | 175° | primary-800 |\n\nStatus colours not given, defaults used: success #16a34a (success-700), warning #d97706 (warning-600), danger #dc2626 (danger-500), info #2563eb (info-500).\n\nHue check: each input hex is unchanged and every step aims at its exact hue; lightness follows the fixed steps and saturation eases toward the palest and darkest steps, and steps 400 to 700 are never more colourful than your colour. Rounding to hex moves the hue at most 0.2° at steps 300 to 800 and 0.3° at the palest and darkest steps.\n\n### Contrast\nText needs 4.5:1; borders of controls and focus rings need 3:1; border-default is for dividers and is not checked. Every text role meets 4.5:1, so it is safe at any size.\n\n| Text | On | Light | Dark | Needs | Result |\n|------|----|-------|------|-------|--------|\n| text-default | all 4 surfaces | 12.51:1 | 9.82:1 | 4.5:1 | pass |\n| text-muted | all 4 surfaces | 5.60:1 | 5.86:1 | 4.5:1 | pass |\n| text-link | all 4 surfaces | 4.80:1 | 5.65:1 | 4.5:1 | pass |\n| selected-text | all 4 surfaces, selected-bg | 4.80:1 | 5.65:1 | 4.5:1 | pass |\n| text-inverse | surface-inverse | 13.59:1 | 13.59:1 | 4.5:1 | pass |\n| action-primary-text | action-primary-bg, action-primary-bg-hover, action-primary-bg-pressed | 5.47:1 | 5.47:1 | 4.5:1 | pass |\n| success-text | surface-default, success-bg-subtle | 6.50:1 | 7.36:1 | 4.5:1 | pass |\n| success-text-on | success-bg | 6.37:1 | 6.37:1 | 4.5:1 | pass |\n| warning-text | surface-default, warning-bg-subtle | 7.89:1 | 6.77:1 | 4.5:1 | pass |\n| warning-text-on | warning-bg | 6.59:1 | 6.59:1 | 4.5:1 | pass |\n| danger-text | surface-default, danger-bg-subtle | 5.59:1 | 7.18:1 | 4.5:1 | pass |\n| danger-text-on | danger-bg | 4.83:1 | 4.83:1 | 4.5:1 | pass |\n| info-text | surface-default, info-bg-subtle | 6.65:1 | 7.50:1 | 4.5:1 | pass |\n| info-text-on | info-bg | 5.17:1 | 5.17:1 | 4.5:1 | pass |\n| border-strong | surface-default, surface-subtle | 4.34:1 | 4.40:1 | 3:1 | pass |\n| border-focus | surface-default, surface-subtle | 5.22:1 | 7.82:1 | 3:1 | pass |\n\nLight and Dark give the lowest ratio of each role over the surfaces listed; 37 pairs checked in each mode.\n\n### How to use\n- Load tokens.css before your own styles. \n- Without a data-theme attribute the page follows the system setting; set data-theme=\"light\" or data-theme=\"dark\" on the html element to force one.\n- Spacing: 0, 4, 8, 12, 16, 24, 32, 48, 64 px. Type sizes: 12, 14, 16, 18, 20, 24, 30 px, body 16 px, line-height 1.5. Weights: 400 and 600.\n- Controls: 32, 40, 48 px high; every click or tap area at least 44 px. Breakpoints: 640, 768, 1024, 1280 px (copy the numbers into media queries).\n- Brand colour on at most 10% of a screen: primary action, links, focus ring, selected row.\n- Font: the system font stack. No font files, imports or links.\n\n### Open questions\n- Hover and pressed share primary-900, because the filled button sits near the end of its scale; give pressed its own colour if they must differ."
+}
