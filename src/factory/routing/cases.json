@@ -43,6 +43,16 @@
   { "id": "ux5", "prompt": "The error message on our payment form is long and confusing: \"We were unable to process the payment request at this time due to an error.\" Rewrite it shorter.", "expect": "copy-tight" },
   { "id": "ux6", "prompt": "We added a review step to the checkout flow. What should we retest after this change?", "expect": "test-planner" },
   { "id": "ux7", "prompt": "Design a new onboarding flow for our fitness app.", "expect": "none" },
-  { "id": "ux8", "prompt": "Run a full accessibility audit of this page: ARIA roles, form labels and screen reader output.", "expect": "none" },
-  { "id": "ux9", "prompt": "Write an interview guide for user research sessions about our checkout.", "expect": "none" }
+  { "id": "ux8", "prompt": "Run a full accessibility audit of this page: ARIA roles, form labels and screen reader output.", "expect": "a11y-audit" },
+  { "id": "ux9", "prompt": "Write an interview guide for user research sessions about our checkout.", "expect": "none" },
+  { "id": "ay1", "prompt": "Audit this sign-in form for accessibility: <input type=\"email\" placeholder=\"Email\"> <div onclick=\"submitForm()\">Sign in</div>", "expect": "a11y-audit" },
+  { "id": "ay2", "prompt": "Can a screen reader and the keyboard use this React component? Here is the JSX, please check it.", "expect": "a11y-audit" },
+  { "id": "ay3", "prompt": "I think we overused ARIA roles in this modal markup (pasted). Review it.", "expect": "a11y-audit" },
+  { "id": "ay4", "prompt": "Here is the CSS of our finished card. The grey text contrast is too low and the focus ring looks weak; do a final polish pass.", "expect": "ui-polish" },
+  { "id": "ay5", "prompt": "This button label is too wordy for screen reader users: \"Click here to open the page where you can change your notification settings\". Shorten it.", "expect": "copy-tight" },
+  { "id": "ay6", "prompt": "Our page jumps from h1 to h4 and some images have no alt text. Check the markup I pasted and list the fixes.", "expect": "a11y-audit" },
+  { "id": "ay7", "prompt": "Write the accessibility statement for our public website.", "expect": "none" },
+  { "id": "ay8", "prompt": "Is our checkout flow confusing for first-time users? Tell me which steps are hard to understand.", "expect": "ux-review" },
+  { "id": "ay9", "prompt": "Set up automated accessibility tests that run in our CI pipeline.", "expect": "none" },
+  { "id": "ay10", "prompt": "Design an accessible login screen from scratch for our app.", "expect": "none" }
 ]

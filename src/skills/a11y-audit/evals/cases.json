@@ -1,0 +1,1080 @@
+[
+  {
+    "id": "signin-page",
+    "prompt": "Please do an accessibility audit of this sign-in page:\n\n<!doctype html>\n<html>\n<head>\n  <meta charset=\"utf-8\">\n</head>\n<body>\n  <div class=\"header\"><img src=\"logo.png\"></div>\n  <h1>Sign in</h1>\n  <form>\n    <input type=\"email\" name=\"email\" placeholder=\"Email\">\n    <div class=\"btn\" onclick=\"submitForm()\">Sign in</div>\n    <button class=\"close\"><svg viewBox=\"0 0 8 8\"></svg></button>\n  </form>\n</body>\n</html>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Needs a manual test"
+      },
+      {
+        "type": "contains",
+        "value": "### Not checked here"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Element: `"
+      },
+      {
+        "type": "contains",
+        "value": "**html-lang**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 3.1.1"
+      },
+      {
+        "type": "contains",
+        "value": "**page-title**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 2.4.2"
+      },
+      {
+        "type": "contains",
+        "value": "**main-landmark**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 2.4.1"
+      },
+      {
+        "type": "contains",
+        "value": "**img-alt**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 1.1.1"
+      },
+      {
+        "type": "contains",
+        "value": "**form-label**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 3.3.2"
+      },
+      {
+        "type": "contains",
+        "value": "**autocomplete**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 1.3.5"
+      },
+      {
+        "type": "contains",
+        "value": "**click-no-keyboard**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 2.1.1"
+      },
+      {
+        "type": "contains",
+        "value": "**control-name**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 4.1.2"
+      },
+      {
+        "type": "contains",
+        "value": "```diff"
+      },
+      {
+        "type": "contains",
+        "value": "<button type=\"button\" class=\"btn\" onclick=\"submitForm()\">"
+      },
+      {
+        "type": "contains",
+        "value": "Sign in"
+      },
+      {
+        "type": "notContains",
+        "value": "is compliant"
+      },
+      {
+        "type": "notContains",
+        "value": "is conformant"
+      },
+      {
+        "type": "notContains",
+        "value": "is accessible"
+      },
+      {
+        "type": "notContains",
+        "value": "fully accessible"
+      },
+      {
+        "type": "notContains",
+        "value": ":1"
+      },
+      {
+        "type": "notContains",
+        "value": "### Contrast"
+      },
+      {
+        "type": "maxLines",
+        "value": 140
+      }
+    ]
+  },
+  {
+    "id": "settings-jsx",
+    "prompt": "a11y check on this React component please:\n\nexport function Settings() {\n  return (\n    <section>\n      <h2>Settings</h2>\n      <h4>Notifications</h4>\n      <label htmlFor=\"mail\">Email me</label>\n      <input id=\"mailbox\" type=\"checkbox\" />\n      <div role=\"button\" tabIndex={0} onClick={save}>Save</div>\n      <a onClick={reset}>Reset</a>\n      <input tabIndex={2} aria-label=\"Search\" />\n    </section>\n  );\n}",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Needs a manual test"
+      },
+      {
+        "type": "contains",
+        "value": "### Not checked here"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Element: `"
+      },
+      {
+        "type": "contains",
+        "value": "**heading-order**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 1.3.1"
+      },
+      {
+        "type": "contains",
+        "value": "**label-orphan**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 1.3.1"
+      },
+      {
+        "type": "contains",
+        "value": "**form-label**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 3.3.2"
+      },
+      {
+        "type": "contains",
+        "value": "**native-element**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 4.1.2"
+      },
+      {
+        "type": "contains",
+        "value": "**link-no-href**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 2.1.1"
+      },
+      {
+        "type": "contains",
+        "value": "**tabindex-positive**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 2.4.3"
+      },
+      {
+        "type": "contains",
+        "value": "htmlFor"
+      },
+      {
+        "type": "notContains",
+        "value": "for=\"mail\""
+      },
+      {
+        "type": "notContains",
+        "value": "tabindex="
+      },
+      {
+        "type": "contains",
+        "value": "JSX"
+      },
+      {
+        "type": "notContains",
+        "value": "is compliant"
+      },
+      {
+        "type": "notContains",
+        "value": "is conformant"
+      },
+      {
+        "type": "notContains",
+        "value": "is accessible"
+      },
+      {
+        "type": "notContains",
+        "value": "fully accessible"
+      },
+      {
+        "type": "notContains",
+        "value": ":1"
+      },
+      {
+        "type": "maxLines",
+        "value": 140
+      }
+    ]
+  },
+  {
+    "id": "clean-page",
+    "prompt": "Can you check this page for screen reader and keyboard problems?\n\n<!doctype html>\n<html lang=\"en\">\n<head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>Sign in - Acme</title></head>\n<body>\n<header><nav aria-label=\"Main\"><a href=\"/\">Home</a></nav></header>\n<main>\n<h1>Sign in</h1>\n<form>\n<label for=\"e\">Email</label><input id=\"e\" type=\"email\" autocomplete=\"email\" required>\n<button type=\"submit\">Sign in</button>\n<div role=\"status\" class=\"toast\"></div>\n</form>\n<a href=\"/pricing\">See pricing</a>\n</main>\n</body>\n</html>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "None."
+      },
+      {
+        "type": "contains",
+        "value": "### Needs a manual test"
+      },
+      {
+        "type": "contains",
+        "value": "### Not checked here"
+      },
+      {
+        "type": "notContains",
+        "value": "**html-lang**"
+      },
+      {
+        "type": "notContains",
+        "value": "**img-alt**"
+      },
+      {
+        "type": "notContains",
+        "value": "1. **"
+      },
+      {
+        "type": "notContains",
+        "value": "Element: `"
+      },
+      {
+        "type": "notContains",
+        "value": "is compliant"
+      },
+      {
+        "type": "notContains",
+        "value": "is conformant"
+      },
+      {
+        "type": "notContains",
+        "value": "is accessible"
+      },
+      {
+        "type": "notContains",
+        "value": "fully accessible"
+      },
+      {
+        "type": "notContains",
+        "value": ":1"
+      },
+      {
+        "type": "notContains",
+        "value": "no accessibility problems"
+      },
+      {
+        "type": "maxLines",
+        "value": 60
+      }
+    ]
+  },
+  {
+    "id": "form-errors",
+    "prompt": "Audit this form for accessibility, especially errors and required fields:\n\n<form novalidate>\n  <label for=\"pw\">Password *</label>\n  <input id=\"pw\" type=\"password\">\n  <input id=\"age\" aria-label=\"Age\" aria-invalid=\"true\">\n  <div class=\"error-message\">Enter your age</div>\n  <div class=\"toast\"></div>\n</form>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Needs a manual test"
+      },
+      {
+        "type": "contains",
+        "value": "### Not checked here"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Element: `"
+      },
+      {
+        "type": "contains",
+        "value": "**required-state**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 1.3.1"
+      },
+      {
+        "type": "contains",
+        "value": "**error-link**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 3.3.1"
+      },
+      {
+        "type": "contains",
+        "value": "**status-message**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 4.1.3"
+      },
+      {
+        "type": "contains",
+        "value": "**autocomplete**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 1.3.5"
+      },
+      {
+        "type": "contains",
+        "value": "aria-describedby"
+      },
+      {
+        "type": "contains",
+        "value": "role=\"alert\""
+      },
+      {
+        "type": "contains",
+        "value": "role=\"status\""
+      },
+      {
+        "type": "contains",
+        "value": "fragment"
+      },
+      {
+        "type": "notContains",
+        "value": "**html-lang**"
+      },
+      {
+        "type": "notContains",
+        "value": "**page-title**"
+      },
+      {
+        "type": "notContains",
+        "value": "is compliant"
+      },
+      {
+        "type": "notContains",
+        "value": "is conformant"
+      },
+      {
+        "type": "notContains",
+        "value": "is accessible"
+      },
+      {
+        "type": "notContains",
+        "value": "fully accessible"
+      },
+      {
+        "type": "notContains",
+        "value": ":1"
+      },
+      {
+        "type": "maxLines",
+        "value": 110
+      }
+    ]
+  },
+  {
+    "id": "content-media",
+    "prompt": "ARIA and screen reader review of this content block:\n\n<main>\n  <h1>Pricing</h1>\n  <p>Our new Pro plan is here. <a href=\"/pro\">Read more</a></p>\n  <a href=\"/docs\">Click here</a>\n  <table><tr><td>Plan</td><td>Price</td></tr><tr><td>Pro</td><td>$9</td></tr></table>\n  <video src=\"demo.mp4\" controls></video>\n  <iframe src=\"/map\"></iframe>\n</main>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Needs a manual test"
+      },
+      {
+        "type": "contains",
+        "value": "### Not checked here"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Element: `"
+      },
+      {
+        "type": "contains",
+        "value": "**link-purpose**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 2.4.4"
+      },
+      {
+        "type": "contains",
+        "value": "**table-header**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 1.3.1"
+      },
+      {
+        "type": "contains",
+        "value": "**video-captions**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 1.2.2"
+      },
+      {
+        "type": "contains",
+        "value": "**iframe-title**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 4.1.2"
+      },
+      {
+        "type": "contains",
+        "value": "advisory"
+      },
+      {
+        "type": "contains",
+        "value": "<th scope=\"col\">"
+      },
+      {
+        "type": "contains",
+        "value": "<track kind=\"captions\""
+      },
+      {
+        "type": "notContains",
+        "value": "**html-lang**"
+      },
+      {
+        "type": "notContains",
+        "value": "is compliant"
+      },
+      {
+        "type": "notContains",
+        "value": "is conformant"
+      },
+      {
+        "type": "notContains",
+        "value": "is accessible"
+      },
+      {
+        "type": "notContains",
+        "value": "fully accessible"
+      },
+      {
+        "type": "notContains",
+        "value": ":1"
+      },
+      {
+        "type": "maxLines",
+        "value": 120
+      }
+    ]
+  },
+  {
+    "id": "aria-misuse",
+    "prompt": "Is our ARIA right here? Please review.\n\n<main>\n  <button role=\"button\" aria-label=\"Buy now\">Add to cart</button>\n  <div aria-hidden=\"true\"><a href=\"/x\">Skip</a></div>\n  <span role=\"link\" tabindex=\"0\">Terms</span>\n  <input aria-labelledby=\"ghost\">\n  <div role=\"dialog\"><p>Are you sure?</p></div>\n</main>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Needs a manual test"
+      },
+      {
+        "type": "contains",
+        "value": "### Not checked here"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Element: `"
+      },
+      {
+        "type": "contains",
+        "value": "**redundant-role**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 4.1.2"
+      },
+      {
+        "type": "contains",
+        "value": "**label-in-name**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 2.5.3"
+      },
+      {
+        "type": "contains",
+        "value": "**aria-hidden-focusable**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 4.1.2"
+      },
+      {
+        "type": "contains",
+        "value": "**native-element**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 4.1.2"
+      },
+      {
+        "type": "contains",
+        "value": "**aria-ref-missing**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 1.3.1"
+      },
+      {
+        "type": "contains",
+        "value": "**dialog-name**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 4.1.2"
+      },
+      {
+        "type": "contains",
+        "value": "voice control"
+      },
+      {
+        "type": "notContains",
+        "value": "is compliant"
+      },
+      {
+        "type": "notContains",
+        "value": "is conformant"
+      },
+      {
+        "type": "notContains",
+        "value": "is accessible"
+      },
+      {
+        "type": "notContains",
+        "value": "fully accessible"
+      },
+      {
+        "type": "notContains",
+        "value": ":1"
+      },
+      {
+        "type": "maxLines",
+        "value": 120
+      }
+    ]
+  },
+  {
+    "id": "zoom-head",
+    "prompt": "Check this page for zoom and reflow problems and other accessibility issues:\n\n<!doctype html>\n<html lang=\"en\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no\">\n<title>Docs</title>\n</head>\n<body><main><h1>Docs</h1></main></body>\n</html>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Needs a manual test"
+      },
+      {
+        "type": "contains",
+        "value": "### Not checked here"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Element: `"
+      },
+      {
+        "type": "contains",
+        "value": "**viewport-zoom**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 1.4.4"
+      },
+      {
+        "type": "contains",
+        "value": "zoom"
+      },
+      {
+        "type": "contains",
+        "value": "Zoom and reflow"
+      },
+      {
+        "type": "notContains",
+        "value": "**html-lang**"
+      },
+      {
+        "type": "notContains",
+        "value": "**page-title**"
+      },
+      {
+        "type": "notContains",
+        "value": "**main-landmark**"
+      },
+      {
+        "type": "notContains",
+        "value": "is compliant"
+      },
+      {
+        "type": "notContains",
+        "value": "is conformant"
+      },
+      {
+        "type": "notContains",
+        "value": "is accessible"
+      },
+      {
+        "type": "notContains",
+        "value": "fully accessible"
+      },
+      {
+        "type": "notContains",
+        "value": ":1"
+      },
+      {
+        "type": "maxLines",
+        "value": 60
+      }
+    ]
+  },
+  {
+    "id": "focus-trap-dialog",
+    "prompt": "Accessibility audit of this subscribe dialog, including keyboard traps:\n\n<div role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"t\">\n  <h2 id=\"t\">Subscribe</h2>\n  <label for=\"e\">Email</label><input id=\"e\" type=\"email\" autocomplete=\"email\">\n  <button type=\"button\" id=\"ok\">Join</button>\n</div>\n<script>\ndocument.addEventListener('keydown', function (e) {\n  if (e.key === 'Tab') { e.preventDefault(); document.getElementById('e').focus(); }\n});\n</script>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Needs a manual test"
+      },
+      {
+        "type": "contains",
+        "value": "### Not checked here"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Element: `"
+      },
+      {
+        "type": "contains",
+        "value": "**focus-trap**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 2.1.2"
+      },
+      {
+        "type": "contains",
+        "value": "Escape"
+      },
+      {
+        "type": "contains",
+        "value": "Dialog"
+      },
+      {
+        "type": "notContains",
+        "value": "**dialog-name**"
+      },
+      {
+        "type": "notContains",
+        "value": "**html-lang**"
+      },
+      {
+        "type": "notContains",
+        "value": "is compliant"
+      },
+      {
+        "type": "notContains",
+        "value": "is conformant"
+      },
+      {
+        "type": "notContains",
+        "value": "is accessible"
+      },
+      {
+        "type": "notContains",
+        "value": "fully accessible"
+      },
+      {
+        "type": "notContains",
+        "value": ":1"
+      },
+      {
+        "type": "maxLines",
+        "value": 70
+      }
+    ]
+  },
+  {
+    "id": "contrast-request",
+    "prompt": "Check this card for accessibility, including the contrast ratio of the grey text and the focus ring style.\n\n<div class=\"card\" style=\"color:#aaa\"><h3>Plan</h3><img src=\"plan.png\"><a href=\"/buy\">Buy</a></div>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "Contrast, focus-ring style, spacing and target size are checked by ui-polish, not by this skill."
+      },
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Needs a manual test"
+      },
+      {
+        "type": "contains",
+        "value": "### Not checked here"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Element: `"
+      },
+      {
+        "type": "contains",
+        "value": "**img-alt**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 1.1.1"
+      },
+      {
+        "type": "notContains",
+        "value": "#aaa"
+      },
+      {
+        "type": "notContains",
+        "value": "#AAA"
+      },
+      {
+        "type": "notContains",
+        "value": ":1"
+      },
+      {
+        "type": "notContains",
+        "value": "ratio of"
+      },
+      {
+        "type": "notContains",
+        "value": "is compliant"
+      },
+      {
+        "type": "maxLines",
+        "value": 60
+      }
+    ]
+  },
+  {
+    "id": "usability-request",
+    "prompt": "Is this checkout easy to use? Tell me about the flow, and audit the markup for accessibility too.\n\n<div onclick=\"pay()\">Pay now</div>\n<a onclick=\"cancel()\">Cancel</a>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "This skill does not judge the flow or usability; it checks only what users cannot see."
+      },
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Needs a manual test"
+      },
+      {
+        "type": "contains",
+        "value": "### Not checked here"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Element: `"
+      },
+      {
+        "type": "contains",
+        "value": "**click-no-keyboard**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 2.1.1"
+      },
+      {
+        "type": "contains",
+        "value": "**link-no-href**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 2.1.1"
+      },
+      {
+        "type": "contains",
+        "value": "Pay now"
+      },
+      {
+        "type": "contains",
+        "value": "Cancel"
+      },
+      {
+        "type": "notContains",
+        "value": "is compliant"
+      },
+      {
+        "type": "notContains",
+        "value": "is conformant"
+      },
+      {
+        "type": "notContains",
+        "value": "is accessible"
+      },
+      {
+        "type": "notContains",
+        "value": "fully accessible"
+      },
+      {
+        "type": "notContains",
+        "value": ":1"
+      },
+      {
+        "type": "maxLines",
+        "value": 70
+      }
+    ]
+  },
+  {
+    "id": "rewrite-request",
+    "prompt": "Make the labels friendlier and fix the accessibility of this:\n\n<div onclick=\"go()\">Proceed to the next step of the registration</div>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "This skill does not rewrite visible text; fixes change only code, never the words users see."
+      },
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Needs a manual test"
+      },
+      {
+        "type": "contains",
+        "value": "### Not checked here"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Element: `"
+      },
+      {
+        "type": "contains",
+        "value": "**click-no-keyboard**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 2.1.1"
+      },
+      {
+        "type": "contains",
+        "value": "Proceed to the next step of the registration"
+      },
+      {
+        "type": "notContains",
+        "value": "Continue"
+      },
+      {
+        "type": "notContains",
+        "value": "Next step"
+      },
+      {
+        "type": "notContains",
+        "value": "Get started"
+      },
+      {
+        "type": "notContains",
+        "value": "is compliant"
+      },
+      {
+        "type": "notContains",
+        "value": "is conformant"
+      },
+      {
+        "type": "notContains",
+        "value": "is accessible"
+      },
+      {
+        "type": "notContains",
+        "value": "fully accessible"
+      },
+      {
+        "type": "notContains",
+        "value": ":1"
+      },
+      {
+        "type": "maxLines",
+        "value": 50
+      }
+    ]
+  },
+  {
+    "id": "certificate-request",
+    "prompt": "Is our page WCAG 2.2 AA compliant? Give me a certificate I can show our client.\n\n<!doctype html><html lang=\"en\"><head><title>Shop</title></head><body><main><h1>Shop</h1><img src=\"a.png\"></main></body></html>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "This audit cannot certify conformance with WCAG 2.2; it lists the checks that ran and the checks that need a manual test with assistive technology."
+      },
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Needs a manual test"
+      },
+      {
+        "type": "contains",
+        "value": "### Not checked here"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Element: `"
+      },
+      {
+        "type": "contains",
+        "value": "**img-alt**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 1.1.1"
+      },
+      {
+        "type": "notContains",
+        "value": "Certificate of"
+      },
+      {
+        "type": "notContains",
+        "value": "is compliant"
+      },
+      {
+        "type": "notContains",
+        "value": "is conformant"
+      },
+      {
+        "type": "notContains",
+        "value": "is accessible"
+      },
+      {
+        "type": "notContains",
+        "value": "fully accessible"
+      },
+      {
+        "type": "notContains",
+        "value": ":1"
+      },
+      {
+        "type": "maxLines",
+        "value": 60
+      }
+    ]
+  },
+  {
+    "id": "no-code",
+    "prompt": "Can you check our checkout page for accessibility problems?",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "Paste the HTML or JSX you want audited."
+      },
+      {
+        "type": "notContains",
+        "value": "###"
+      },
+      {
+        "type": "notContains",
+        "value": "Element:"
+      },
+      {
+        "type": "notContains",
+        "value": "SC "
+      },
+      {
+        "type": "maxLines",
+        "value": 4
+      }
+    ]
+  }
+]

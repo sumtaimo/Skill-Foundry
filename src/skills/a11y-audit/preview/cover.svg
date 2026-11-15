@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="a11y-audit cover">
+  <rect x="0" y="0" width="640" height="360" fill="var(--cover-bg)"/>
+  <rect x="120" y="40" width="400" height="280" rx="12" fill="none" stroke="currentColor" stroke-width="6"/>
+  <rect x="120" y="40" width="400" height="44" rx="12" fill="var(--cover-accent)"/>
+  <circle cx="148" cy="62" r="7" fill="none" stroke="currentColor" stroke-width="3"/>
+  <rect x="164" y="104" width="150" height="14" rx="4" fill="currentColor"/>
+  <rect x="164" y="136" width="200" height="10" rx="4" fill="currentColor"/>
+  <rect x="164" y="176" width="150" height="40" rx="6" fill="none" stroke="currentColor" stroke-width="4" stroke-dasharray="10 6"/>
+  <rect x="164" y="236" width="110" height="36" rx="6" fill="var(--cover-accent)"/>
+  <path d="M400 120 L412 138 L440 104" fill="none" stroke="currentColor" stroke-width="7"/>
+  <path d="M400 190 L430 220 M430 190 L400 220" fill="none" stroke="currentColor" stroke-width="7"/>
+  <circle cx="420" cy="262" r="26" fill="none" stroke="currentColor" stroke-width="5"/>
+  <path d="M436 278 L456 298" fill="none" stroke="currentColor" stroke-width="7"/>
+</svg>
