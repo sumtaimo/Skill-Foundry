@@ -6,6 +6,12 @@
     "prompt": "We are at version 2.3.0. Today is 2026-11-14. We changed our checkout so promo codes now apply before shipping is calculated, and we added a limit of 5 promo codes per order. Our new error message for the sixth code says: 'We are sorry, but it is not possible for you to add any more promo codes to this order at this time.' Please give me what we should retest, the changelog entry, and a shorter error message."
   },
   {
+    "id": "tokens-then-polish",
+    "title": "Tokens, then polish: make the design tokens, then fix a finished screen with them",
+    "skills": ["design-system", "ui-polish"],
+    "prompt": "We are building an invoicing app and our brand colour is #0d9488. First make our design tokens, with light and dark mode. Then do a final polish on this finished invoice card using those tokens, not raw values:\n<style>\n.card{padding:13px;background:#ffffff;border:1px solid #e5e7eb;border-radius:5px;font-family:system-ui}\n.card h2{font-size:22px;margin:0 0 5px;color:#111827}\n.card p{font-size:13px;color:#999999}\n.card button{background:#0d9488;color:#fff;padding:6px 10px;border:none;border-radius:5px}\n</style>\n<div class=\"card\"><h2>Invoice 1042</h2><p>Due on 30 November.</p><button>Pay now</button><button>Download PDF</button></div>"
+  },
+  {
     "id": "spec-then-retest",
     "title": "Spec a story, then plan the retest of a change",
     "skills": ["spec-writer", "test-planner"],

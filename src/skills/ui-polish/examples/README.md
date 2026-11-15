@@ -54,3 +54,38 @@ Output: "Paste the HTML and CSS of the finished screen you want polished."
 Input: "Design a new onboarding flow."
 
 Output: "This skill polishes a finished UI; it does not design new screens."
+
+## Example 4: with a token file
+
+Input: "Final polish on this card, our tokens.css is below." (a token file with `--space-12`, `--color-text-muted`, `--color-action-primary-bg` and the other tokens of a design-system file) and `<div style="padding:13px"><p style="font-size:13px;color:#999999">Due on 30 November.</p><button style="background:#2563eb;color:#fff">Pay now</button></div>`.
+
+Output (shortened):
+
+```
+## UI polish: Invoice card
+
+4 fixes across Spacing, Typography, Contrast and Tokens. Text and brand hue kept. Tokens from tokens.css.
+
+### Fixes
+1. **Spacing**: `padding: 13px` is off the scale. Now `padding: var(--space-12)`. (R-ui-polish-1, R-ui-polish-20)
+2. **Contrast**: `#999999` on `#ffffff` is 2.85:1. Now `var(--color-text-muted)`, 6.38:1. (R-ui-polish-4, R-ui-polish-20)
+3. **Hierarchy**: the raw blue button now uses the project's primary-fill tokens, 5.47:1. (R-ui-polish-5, R-ui-polish-21)
+...
+
+### Contrast
+| Text | Before | After |
+|------|--------|-------|
+| Description | #999999 on #ffffff, 2.85:1 | `--color-text-muted` (#4a6462) on `--color-surface-default` (#ffffff), 6.38:1 |
+
+Ratios computed with the contrast script.
+
+### Not changed
+- All visible text, word for word.
+- Brand hue kept: `--color-brand` (#0f766e).
+- Token file: not edited.
+
+### Open questions
+- None.
+```
+
+A value with no matching token (for example a purple badge) stays a plain value and is listed under Open questions; a token pair that fails its ratio is kept and reported with its ratio.

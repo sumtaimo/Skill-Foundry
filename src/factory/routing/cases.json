@@ -25,6 +25,8 @@
   { "id": "r24", "prompt": "Build me a complete landing page in our brand colour #0d9488.", "expect": "none" },
   { "id": "r25", "prompt": "Our theme switch says \"Click here to switch between the light and the dark colour theme\". Make it shorter.", "expect": "copy-tight" },
   { "id": "r26", "prompt": "Here is the CSS of our finished checkout card; the grey text is hard to read and the spacing is uneven. Do a final pixel pass.", "expect": "ui-polish" },
+  { "id": "r-uip-1", "prompt": "Here is our tokens.css and the CSS of our finished billing card. Do a final polish pass and use our tokens instead of raw values.", "expect": "ui-polish" },
+  { "id": "r-uip-2", "prompt": "We use Tailwind with CSS variables from our design tokens. This React toolbar looks off, do a pixel pass with our variables. (code pasted)", "expect": "ui-polish" },
   { "id": "sw1", "prompt": "Write acceptance criteria for this user story: As a shopper, I want to save my cart so that I can finish the order later.", "expect": "spec-writer" },
   { "id": "sw2", "prompt": "Here is the feature request our client sent (pasted below). Turn it into Given-When-Then scenarios the team can build and test against.", "expect": "spec-writer" },
   { "id": "sw3", "prompt": "Spec this requirement so QA knows when it is done: only admins can delete a project, and deleted projects stay in Trash for 30 days.", "expect": "spec-writer" },

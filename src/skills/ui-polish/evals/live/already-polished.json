@@ -2,7 +2,13 @@
   "case": "already-polished",
   "prompt": "final polish please, I think it is done:\n<style>\n.box{padding:16px;max-width:65ch;font-family:system-ui;line-height:1.5;font-size:16px;color:#374151;background:#ffffff}\n.box h2{font-size:24px;line-height:1.25;font-weight:600;margin:0 0 8px}\n.box a{display:inline-block;min-height:44px;min-width:44px;padding:12px 16px;background:#1d4ed8;color:#ffffff;font-weight:600;border-radius:8px}\n.box a:hover{background:#2563eb}\n.box a:focus-visible{outline:2px solid #1d4ed8;outline-offset:2px}\n</style>\n<div class=\"box\"><h2>Invite your team</h2><p>Teammates can view and edit shared projects.</p><a href=\"#invite\">Send invite</a></div>",
   "agent": "claude",
+  "tools": [
+    "Read",
+    "Glob",
+    "Grep",
+    "Bash(node:*)"
+  ],
   "recordedAt": "2026-11-15",
-  "output": "## UI polish: Invite your team\n\nNo fixes needed.\n\n### Fixes\nNone.\n\n### Contrast\n| Text | Before | After |\n|------|--------|-------|\n| Body text | #374151 on #ffffff, 10.31:1 | Unchanged, 10.31:1 |\n| Heading (24 px, 600) | #374151 on #ffffff, 10.31:1 | Unchanged, 10.31:1 |\n| \"Send invite\" button | #ffffff on #1d4ed8, 6.70:1 | Unchanged, 6.70:1 |\n| \"Send invite\" button, hover | #ffffff on #2563eb, 5.17:1 | Unchanged, 5.17:1 |\n\n### Polished code\nUnchanged.\n\n### Not changed\n- All visible text, word for word.\n- Brand hue kept: #1d4ed8 (button and focus outline), #2563eb (hover).\n- Spacing is on the scale (8, 12, 16 px). Font sizes are on the scale (16 px body, 24 px heading). Line-heights are 1.5 for body text and 1.25 for the heading. Width is capped at 65ch.\n- The page uses two font weights (400 and 600) and has one primary action.\n- The button has a hover style and a 2 px `:focus-visible` outline. It measures 48 px tall and at least 44 px wide.\n- There are no transitions, so no reduced-motion block is needed.\n\n### Open questions\n- None.",
+  "output": "## UI polish: Invite your team\n\nNo fixes needed.\n\n### Fixes\nNone.\n\n### Contrast\n| Text | Before | After |\n|------|--------|-------|\n| Heading and body text | #374151 on #ffffff, 10.31:1 | Unchanged |\n| \"Send invite\" link | #ffffff on #1d4ed8, 6.70:1 | Unchanged |\n| \"Send invite\" link, hover | #ffffff on #2563eb, 5.17:1 | Unchanged |\n| Focus outline | #1d4ed8 on #ffffff, 6.70:1 | Unchanged |\n\nRatios computed with the contrast script.\n\n### Polished code\nUnchanged.\n\n### Not changed\n- All visible text, word for word.\n- Brand hue kept: #1d4ed8, #2563eb.\n\n### Open questions\n- None.",
   "files": []
 }

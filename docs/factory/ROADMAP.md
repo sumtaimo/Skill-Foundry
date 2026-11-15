@@ -12,7 +12,7 @@ The project roadmap is in `docs/PROJECT.md` section 6. This file lists skills.
 | copy-tight | Rewrite UI copy to be short and plain without changing meaning (0.2.0) |
 | test-planner | Derive a numbered regression checklist from a change description or diff, never adding features the change does not name |
 | design-system | One design-token set (colour scales, type, spacing, control heights, radius, shadow, motion, light and dark) from a hex, a style description or existing tokens; five numeric style archetypes |
-| ui-polish | Final polish pass on finished UI code: on-scale spacing and type, contrast, one primary action, states; keeps every word and the brand hue |
+| ui-polish | Final polish pass on finished UI code: on-scale spacing and type, contrast, one primary action, states; uses the project's design tokens when present; keeps every word and the brand hue |
 | spec-writer | Write testable Given-When-Then acceptance criteria as numbered clauses (AC-1 …) from a feature request, user story or requirement, each traced to a source phrase; gaps become open questions. Never a regression checklist (test-planner), test code, UI design, copy, estimates or priorities |
 | ux-review | Review a screen or flow from code or a step description: 13 checkable usability rules, numbered findings with place, evidence, rule id, severity S1 to S4 and one recommendation in words; never fixes code, text, contrast or ARIA |
 

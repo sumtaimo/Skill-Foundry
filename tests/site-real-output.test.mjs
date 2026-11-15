@@ -120,7 +120,11 @@ test('text skills are drawn as objects, and every word in an object is cut from 
     assert.match(s.coverSvg, /class="obj doc-figure"/, `${s.name}: cover is not the object`);
   }
   const { loadRecipeProofs } = await import('../src/site/lib/content.mjs');
-  for (const r of loadRecipeProofs(ROOT)) check(r.id, r.used.flatMap((u) => KINDS[u] ?? []), r);
+  for (const r of loadRecipeProofs(ROOT)) {
+    const kinds = r.used.flatMap((u) => KINDS[u] ?? []);
+    // A chain with no drawable object (for example design-system, whose swatches need the tokens of one run, then ui-polish) is shown as a document, which content.mjs does and the page test checks.
+    if (objectFigure(kinds, r)) check(r.id, kinds, r);
+  }
   assert.ok(Object.values(DEFAULT_LABELS).every((l) => l.length < 12), 'captions stay short');
 });
 
