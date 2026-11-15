@@ -1,0 +1,7 @@
+{
+  "title": "a11y-audit",
+  "tagline": "Audits pasted HTML or JSX for what users cannot see; each fix is a small code change.",
+  "prompt": "Audit this sign-in form for accessibility: <input type=\"email\" placeholder=\"Email\"> <div onclick=\"submitForm()\">Sign in</div>",
+  "outputs": ["Numbered findings: element, rule id, WCAG 2.2 criterion, who is affected, diff fix", "Manual tests that need assistive technology"],
+  "tags": ["accessibility", "a11y", "wcag", "aria", "qa"]
+}

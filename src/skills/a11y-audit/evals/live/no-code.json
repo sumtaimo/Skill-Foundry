@@ -1,0 +1,8 @@
+{
+  "case": "no-code",
+  "prompt": "Can you check our checkout page for accessibility problems?",
+  "agent": "claude -p (fresh agent; cwd an empty folder outside the repository holding only a copy of the skill folder without evals; tools Read, Glob, Grep, Bash(node:*))",
+  "recordedAt": "2026-11-15",
+  "output": "Paste the HTML or JSX you want audited.",
+  "files": []
+}
