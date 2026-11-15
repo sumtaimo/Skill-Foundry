@@ -1,0 +1,8 @@
+{
+  "case": "vague-words",
+  "prompt": "Acceptance criteria please. Requirement: The search page must be fast and easy to use. Results show the product name and the price.",
+  "agent": "claude",
+  "recordedAt": "2026-11-15",
+  "output": "## Acceptance criteria: search page\n\nRequirement: The search page must be fast and easy to use, and its results show the product name and the price.\n\n### Main path\nAC-1. Given the search page, when the results are shown, then the results show the product name. _Results show the product name_\nAC-2. Given the search page, when the results are shown, then the results show the price. _the price_\n\n### Open questions\n- Main path: What measurable value defines \"fast\" for the search page?\n- Main path: What measurable value defines \"easy\" for the search page?\n- Main path: What does the user do on the search page to get results?\n- Validation and errors: What does the search page show when a search cannot be completed?\n- Permissions and roles: Who may use the search page?\n- Empty, loading and disabled states: What does the search page show when there are no results?\n- Empty, loading and disabled states: What does the search page show while the results are loading?\n- Persistence after reload: What does the search page show after a reload?\n- Limits: What is the cap on the number of results the search page shows?\n\n### Out of scope\nNone stated.",
+  "files": []
+}

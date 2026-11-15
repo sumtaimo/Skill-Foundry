@@ -8,7 +8,8 @@
     "copy-tight": "Rewrites UI copy (buttons, labels, errors, empty states, tooltips) to be short and plain without changing meaning. Use when asked to \"shorten this copy\", \"make this plain\", \"tighten this text\" or when a UI string is too wordy. Do not use for long-form docs, blog posts, translation or changelog entries; use changelog-writer for those.",
     "test-planner": "Derives a numbered regression checklist, grouped by area, from a change description or a diff, so the team knows what to retest and nothing outside the change is added. Use when asked \"what should we retest after this change?\" or \"give me a regression checklist for this diff\". Do not use to write test code, to review a diff for bugs, or to plan tests for features the change does not describe; answer those in the chat instead.",
     "ui-polish": "Runs a final polish pass on the HTML and CSS (or JSX) of a finished UI, fixing spacing, type, contrast, visual hierarchy, interactive states and layout against fixed numeric rules, and returns the numbered fixes plus the polished code with every word of text kept. When the project has a design-token file (tokens.css or design-tokens.json), the fixes use its tokens instead of raw values. Use when asked for a \"final polish\", a \"pixel pass\", or to \"make this screen look cleaner\" on code the user pastes. Do not use to design a new screen from scratch, to rewrite UI copy (use copy-tight), to create or change design tokens (use design-system), or for a full accessibility audit.",
-    "design-system": "Builds one complete, consistent design-token set from a brand hex colour, a description of the style, or the project's existing tokens (filling only the gaps, never overwriting), and writes design-tokens.json (W3C format), tokens.css with light and dark mode, and a report with every contrast ratio. Use when asked for a \"design system\", \"design tokens\", a \"colour palette from this hex\", a \"theme\" or \"dark mode tokens\". Do not use to design or build a screen or page, or to polish finished UI code (use ui-polish)."
+    "design-system": "Builds one complete, consistent design-token set from a brand hex colour, a description of the style, or the project's existing tokens (filling only the gaps, never overwriting), and writes design-tokens.json (W3C format), tokens.css with light and dark mode, and a report with every contrast ratio. Use when asked for a \"design system\", \"design tokens\", a \"colour palette from this hex\", a \"theme\" or \"dark mode tokens\". Do not use to design or build a screen or page, or to polish finished UI code (use ui-polish).",
+    "spec-writer": "Writes testable acceptance criteria as numbered Given-When-Then clauses (AC-1, AC-2 ...) from a feature request, user story or requirement text, each traced to a phrase of that text; what the text does not state becomes open questions for the Product Owner. Use when asked to \"write acceptance criteria\", \"turn this user story into Given-When-Then\" or \"spec this requirement\". Do not use for a regression checklist for a change or diff (use test-planner), test code, UI design, copy rewriting (use copy-tight), estimates or priorities."
   },
   "answers": {
     "r1": "copy-tight",
@@ -38,6 +39,15 @@
     "r25": "copy-tight",
     "r26": "ui-polish",
     "r-uip-1": "ui-polish",
-    "r-uip-2": "ui-polish"
+    "r-uip-2": "ui-polish",
+    "sw1": "spec-writer",
+    "sw2": "spec-writer",
+    "sw3": "spec-writer",
+    "sw4": "test-planner",
+    "sw5": "test-planner",
+    "sw6": "none",
+    "sw7": "none",
+    "sw8": "changelog-writer",
+    "sw9": "copy-tight"
   }
 }

@@ -10,5 +10,11 @@
     "title": "Tokens, then polish: make the design tokens, then fix a finished screen with them",
     "skills": ["design-system", "ui-polish"],
     "prompt": "We are building an invoicing app and our brand colour is #0d9488. First make our design tokens, with light and dark mode. Then do a final polish on this finished invoice card using those tokens, not raw values:\n<style>\n.card{padding:13px;background:#ffffff;border:1px solid #e5e7eb;border-radius:5px;font-family:system-ui}\n.card h2{font-size:22px;margin:0 0 5px;color:#111827}\n.card p{font-size:13px;color:#999999}\n.card button{background:#0d9488;color:#fff;padding:6px 10px;border:none;border-radius:5px}\n</style>\n<div class=\"card\"><h2>Invoice 1042</h2><p>Due on 30 November.</p><button>Pay now</button><button>Download PDF</button></div>"
+  },
+  {
+    "id": "spec-then-retest",
+    "title": "Spec a story, then plan the retest of a change",
+    "skills": ["spec-writer", "test-planner"],
+    "prompt": "Two things for our checkout team. First, write the acceptance criteria for this story: As a customer, I want to apply a promo code at checkout so that I pay less. A code can be used once per customer. An expired code shows \"This code has expired.\" Gift cards are out of scope. Second, we shipped this change yesterday: promo codes now apply before shipping is calculated, and the old Coupon link in the footer is removed. What should we retest after that change?"
   }
 ]

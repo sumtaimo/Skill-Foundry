@@ -26,5 +26,14 @@
   { "id": "r25", "prompt": "Our theme switch says \"Click here to switch between the light and the dark colour theme\". Make it shorter.", "expect": "copy-tight" },
   { "id": "r26", "prompt": "Here is the CSS of our finished checkout card; the grey text is hard to read and the spacing is uneven. Do a final pixel pass.", "expect": "ui-polish" },
   { "id": "r-uip-1", "prompt": "Here is our tokens.css and the CSS of our finished billing card. Do a final polish pass and use our tokens instead of raw values.", "expect": "ui-polish" },
-  { "id": "r-uip-2", "prompt": "We use Tailwind with CSS variables from our design tokens. This React toolbar looks off, do a pixel pass with our variables. (code pasted)", "expect": "ui-polish" }
+  { "id": "r-uip-2", "prompt": "We use Tailwind with CSS variables from our design tokens. This React toolbar looks off, do a pixel pass with our variables. (code pasted)", "expect": "ui-polish" },
+  { "id": "sw1", "prompt": "Write acceptance criteria for this user story: As a shopper, I want to save my cart so that I can finish the order later.", "expect": "spec-writer" },
+  { "id": "sw2", "prompt": "Here is the feature request our client sent (pasted below). Turn it into Given-When-Then scenarios the team can build and test against.", "expect": "spec-writer" },
+  { "id": "sw3", "prompt": "Spec this requirement so QA knows when it is done: only admins can delete a project, and deleted projects stay in Trash for 30 days.", "expect": "spec-writer" },
+  { "id": "sw4", "prompt": "We merged the promo code change yesterday; here is its description. What do we need to retest before the release?", "expect": "test-planner" },
+  { "id": "sw5", "prompt": "Give me a regression checklist for the pull request that changed the password reset flow (diff pasted).", "expect": "test-planner" },
+  { "id": "sw6", "prompt": "Write Playwright tests for the acceptance criteria below.", "expect": "none" },
+  { "id": "sw7", "prompt": "Estimate the story points for these five tickets and tell me which to build first.", "expect": "none" },
+  { "id": "sw8", "prompt": "We added password reset by email in 3.1.0. Write the changelog entry for that release.", "expect": "changelog-writer" },
+  { "id": "sw9", "prompt": "Our password reset error says \"We were unfortunately unable to reset your password at this point in time\". Tighten it.", "expect": "copy-tight" }
 ]

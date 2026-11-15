@@ -1,0 +1,8 @@
+{
+  "case": "negative-regression-diff",
+  "prompt": "Give me a regression checklist for this diff:\n\n-const MAX_ITEMS = 50;\n+const MAX_ITEMS = 20;\n+if (cart.items.length >= MAX_ITEMS) showMessage(\"Your cart is full\");",
+  "agent": "claude",
+  "recordedAt": "2026-11-15",
+  "output": "This skill does not write regression checklists for a change or diff; use test-planner for that.",
+  "files": []
+}
