@@ -1,0 +1,92 @@
+[
+  {
+    "id": "R-design-system-1",
+    "text": "The user's hex colour MUST appear unchanged in its scale and as --color-brand, and every step MUST aim at its exact hue; saturation MUST ease toward the palest and darkest steps and steps 400 to 700 MUST NOT be more colourful (HSL chroma) than the input; rounding to hex MAY move the hue at most 1 degree at steps 300 to 800 and 4 degrees at the other steps (inputs with 25% saturation or more). NEVER change a given hue.",
+    "checklist": "Each given hex appears unchanged in design-tokens.json and tokens.css (its scale step and --color-brand), steps 400 to 700 are no more colourful than it, and the report's hue check is at most 1 degree at steps 300 to 800 and 4 degrees elsewhere."
+  },
+  {
+    "id": "R-design-system-2",
+    "text": "Every colour scale MUST have the steps 50 to 900; the neutral scale MUST also have 950.",
+    "checklist": "Every scale has 50 to 900 and neutral has 950."
+  },
+  {
+    "id": "R-design-system-3",
+    "text": "Every text role MUST reach 4.5:1 on its surfaces in light and dark mode; borders and focus rings MUST reach 3:1; every ratio MUST be a number with :1.",
+    "checklist": "Every row of the contrast table passes, with ratios written as numbers with :1."
+  },
+  {
+    "id": "R-design-system-4",
+    "text": "The output MUST be design-tokens.json in the W3C design tokens format and tokens.css with custom properties.",
+    "checklist": "design-tokens.json uses $type and $value with aliases in braces; tokens.css defines custom properties."
+  },
+  {
+    "id": "R-design-system-5",
+    "text": "tokens.css MUST give dark values under prefers-color-scheme: dark and under data-theme=\"dark\", and data-theme=\"light\" MUST force light.",
+    "checklist": "tokens.css has both dark blocks and a data-theme=\"light\" block."
+  },
+  {
+    "id": "R-design-system-6",
+    "text": "The set MUST cover colour, typography, spacing, control heights with a 44 px target, radius, shadow, border widths, motion with reduced motion, breakpoints and density.",
+    "checklist": "Every group in references/README.md is present."
+  },
+  {
+    "id": "R-design-system-7",
+    "text": "Spacing MUST use 0, 4, 8, 12, 16, 24, 32, 48, 64 px; font sizes MUST come from 12 to 48 px on the type scale; body MUST be 16 px or more at line-height 1.5; exactly two weights.",
+    "checklist": "Every spacing and font-size value is on its scale; body 16 px or more; two weights."
+  },
+  {
+    "id": "R-design-system-8",
+    "text": "NEVER add external fonts, imports, links or scripts; use the system font stack unless the user names a font, which then goes first.",
+    "checklist": "No @import, http, url( or link appears in the output."
+  },
+  {
+    "id": "R-design-system-9",
+    "text": "With an existing design system, NEVER change, rename or delete an existing token or file; write only the missing groups to the gap files and report existing failing pairs as kept.",
+    "checklist": "On path c, the existing files are byte for byte the same and only gap files were written."
+  },
+  {
+    "id": "R-design-system-10",
+    "text": "A style MUST map to exactly one of the five archetypes, and the report MUST name it with a one-line reason.",
+    "checklist": "The report names one archetype and why."
+  },
+  {
+    "id": "R-design-system-11",
+    "text": "NEVER write the name of a brand or product the user compares to in any file or in the reply.",
+    "checklist": "No compared brand name appears in the files or the reply."
+  },
+  {
+    "id": "R-design-system-12",
+    "text": "With no colour, no style and no existing system, the skill MUST ask with the exact sentence and NEVER write files.",
+    "checklist": "With nothing to build from, the reply is the exact ask sentence and no file was written."
+  },
+  {
+    "id": "R-design-system-13",
+    "text": "A request to design a screen, page or flow MUST get the exact decline sentence and no files and no markup.",
+    "checklist": "A screen request got the exact decline sentence, no files and no markup."
+  },
+  {
+    "id": "R-design-system-14",
+    "text": "The reply MUST be the report in the layer 08 format, ending with Open questions.",
+    "checklist": "The reply has the layer 08 headings in order."
+  },
+  {
+    "id": "R-design-system-15",
+    "text": "The skill MUST have the ten core layers, each linked from SKILL.md.",
+    "check": "chk-layers"
+  },
+  {
+    "id": "R-design-system-16",
+    "text": "The skill MUST be self-contained; NEVER name a repository path in SKILL.md, layers or references.",
+    "check": "chk-portable"
+  },
+  {
+    "id": "R-design-system-17",
+    "text": "SKILL.md MUST stay within 150 lines, with frontmatter name, description and semver version.",
+    "check": "chk-size"
+  },
+  {
+    "id": "R-design-system-18",
+    "text": "Every relative link MUST point to a file inside the skill folder.",
+    "check": "chk-links"
+  }
+]

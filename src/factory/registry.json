@@ -49,5 +49,26 @@
       "BA_ANALYST",
       "QA_AUDITOR"
     ]
+  },
+  {
+    "name": "ui-polish",
+    "version": "1.0.0",
+    "purpose": "Runs a final polish pass on finished UI code: on-scale spacing and type, readable contrast, one primary action and visible states; keeps every word and the brand hue.",
+    "status": "ready",
+    "roles": [
+      "DEV_ENGINEER",
+      "QA_AUDITOR"
+    ]
+  },
+  {
+    "name": "design-system",
+    "version": "1.0.0",
+    "purpose": "Builds one complete design-token set (W3C JSON and CSS, light and dark, every contrast ratio checked) from a hex, a style or the project's existing tokens; keeps the user's hue and never overwrites existing tokens.",
+    "status": "ready",
+    "roles": [
+      "DEV_ENGINEER",
+      "BA_ANALYST"
+    ],
+    "showcase": "midtone-teal"
   }
 ]

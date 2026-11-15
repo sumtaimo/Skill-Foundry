@@ -128,6 +128,18 @@ function cover(skill, cls) {
 }
 
 /** The real answer a fresh agent gave, word for word, with the request it was given. */
+/** design-system: where the swatches of the cover come from (the recorded run and the request it was given). */
+function tokensBlock(skill) {
+  const k = skill.tokens;
+  if (!k) return '';
+  return `${t('tokens.title', 'h3')}
+${t('tokens.note', 'p', 'class="run-note"')}
+<figure class="tokens-proof" data-tokens-run="${esc(k.run)}" data-tokens-sha256="${esc(k.sha256)}">
+<div class="tokens-figure">${coverSvg(skill)}</div>
+<figcaption><span class="proof-label" data-i18n="answer.asked">${esc(EN['answer.asked'])}</span> <code lang="en">${esc(k.prompt)}</code> <code lang="en">${esc(k.run)}/output/tokens.css</code></figcaption>
+</figure>`;
+}
+
 function proofBlock(skill) {
   const p = skill.proof;
   if (!p) return '';
@@ -454,6 +466,7 @@ ${take(esc(EN['take.get']))}
 ${t('q.get', 'h2', 'id="h-get"')}
 ${s.example ? '' : cover(s, 'get-cover')}
 <ul class="outputs" lang="en">${s.outputs.map((o) => `<li>${esc(o)}</li>`).join('')}</ul>
+${tokensBlock(s)}
 ${proofBlock(s)}
 ${t('skill.files', 'h3')}
 <ul class="files" lang="en">${s.files.map((f) => `<li><code>${esc(s.name)}/${esc(f)}</code></li>`).join('')}</ul>

@@ -1,7 +1,8 @@
 /**
  * Draw a text skill's real answer as the object it stands for, not as a page of text:
  * copy-tight → the message before and after, changelog-writer → a version tag, test-planner → a clipboard,
- * skill-smith → a skill folder. Every word drawn is cut word for word from the recording (the answer, or the quote
+ * skill-smith → a skill folder, design-system → colour swatches of the tokens.css a fresh agent wrote (every colour and
+ * word read from that recorded file and its report). Every word drawn is cut word for word from the recording (the answer, or the quote
  * in the request for the "before" message); only the small captions in class `obj-label` are the site's own.
  * When nothing can be cut out, the caller falls back to the document figure.
  * @governed-by PO_ARCHITECT
@@ -46,14 +47,56 @@ export const extract = {
 };
 
 const STYLE = `<style>.obj text{font-family:'JetBrains Mono',ui-monospace,monospace;fill:var(--fg)}.obj .t{font-size:11px}.obj .b{font-size:12px;font-weight:600}` +
-  `.obj .s{font-size:10px;fill:var(--muted)}.obj .obj-label{font-size:9px;letter-spacing:.08em;fill:var(--muted)}.obj .big{font-size:20px;font-weight:700}</style>`;
+  `.obj .s{font-size:10px;fill:var(--muted)}.obj .obj-label{font-size:9px;letter-spacing:.08em;fill:var(--muted)}.obj .big{font-size:20px;font-weight:700}` +
+  `.obj .obj-tok{font-size:10px}.obj .big-t{font-size:13px;font-weight:700}.obj .b-t{font-size:11px;font-weight:600}</style>`;
 const T = (tx, ty, s, cls = 't') => `<text x="${tx}" y="${ty}" class="${cls}">${x(s)}</text>`;
 const shadow = (d) => `<path d="${d}" transform="translate(4 5)" fill="var(--line)" opacity="0.5"/>`;
 const rr = (X, Y, w, h, r) => `M${X + r} ${Y} H${X + w - r} Q${X + w} ${Y} ${X + w} ${Y + r} V${Y + h - r} Q${X + w} ${Y + h} ${X + w - r} ${Y + h} H${X + r} Q${X} ${Y + h} ${X} ${Y + h - r} V${Y + r} Q${X} ${Y} ${X + r} ${Y} Z`;
 const W = 360;
 
 /** Each drawer returns {h, body} at width W, drawn from y=0. */
+const fillText = (tx, ty, str, hex, cls = 'obj-tok', anchor) => `<text x="${tx}" y="${ty}" class="${cls}" style="fill:${hex}"${anchor ? ` text-anchor="${anchor}"` : ''}>${x(str)}</text>`;
 const draw = {
+  swatches({ brand, neutral, status, brandHex, light, dark, name }, L) {
+    let y = 16; let body = '';
+    const row = (label, list, mark) => {
+      body += T(22, y + 8, label, 'obj-label'); y += 14;
+      const w = (W - 44) / list.length;
+      list.forEach((sw, i) => {
+        const sx = 22 + i * w;
+        body += `<rect x="${sx.toFixed(1)}" y="${y}" width="${(w + 0.4).toFixed(1)}" height="26" fill="${sw.hex}"/>`;
+        if (mark && sw.hex === mark) body += `<path d="M${(sx + w / 2).toFixed(1)} ${y + 31} l-4 5 h8 Z" fill="var(--fg)"/>`;
+      });
+      body += `<rect x="22" y="${y}" width="${W - 44}" height="26" fill="none" stroke="var(--line-strong)" stroke-width="0.6"/>`;
+      body += T(22, y + 46, list[0].step, 's') + `<text x="${W - 22}" y="${y + 46}" class="s" text-anchor="end">${x(list.at(-1).step)}</text>`;
+      y += 58;
+    };
+    row(L.brandScale, brand, brandHex);
+    row(L.neutral, neutral);
+    if (status.length) {
+      body += T(22, y + 8, L.status, 'obj-label'); y += 14;
+      const w = (W - 44 - (status.length - 1) * 6) / status.length;
+      status.forEach((st, i) => {
+        const sx = 22 + i * (w + 6);
+        body += `<path d="${rr(sx, y, w, 24, 12)}" fill="${st.bg}"/>` + fillText(sx + w / 2, y + 16, st.name, st.on, 'obj-tok', 'middle');
+      });
+      y += 38;
+    }
+    const pw = (W - 44 - 10) / 2;
+    const panel = (px0, label, m) => {
+      let b = T(px0, y + 8, label, 'obj-label');
+      const py = y + 14; const ph = 132;
+      b += `<path d="${rr(px0, py, pw, ph, 8)}" fill="${m['surface-default']}" stroke="${m['border-default']}" stroke-width="1"/>`;
+      b += fillText(px0 + 12, py + 26, name ?? 'text-default', m['text-default'], 'obj-tok big-t');
+      b += fillText(px0 + 12, py + 44, 'text-muted', m['text-muted']);
+      b += `<path d="${rr(px0 + 12, py + 58, pw - 24, 28, 6)}" fill="${m['action-primary-bg']}"/>` + fillText(px0 + pw / 2, py + 76, 'primary', m['action-primary-text'], 'obj-tok b-t', 'middle');
+      b += `<path d="${rr(px0 + 12, py + 94, pw - 24, 28, 6)}" fill="${m['surface-default']}" stroke="${m['action-secondary-border']}" stroke-width="1.4"/>` + fillText(px0 + pw / 2, py + 112, 'secondary', m['action-secondary-text'], 'obj-tok b-t', 'middle');
+      return b;
+    };
+    body += panel(22, L.light, light) + panel(22 + pw + 10, L.dark, dark);
+    y += 14 + 132 + 14;
+    return { h: y, body };
+  },
   toast({ before, after }, L) {
     let y = 14; let body = '';
     const one = (label, text, muted) => {
@@ -114,9 +157,45 @@ const draw = {
   },
 };
 
+/**
+ * Custom properties of a real tokens.css, resolved to hex per mode: light is `:root` plus `:root[data-theme="light"]`,
+ * dark is light plus `:root[data-theme="dark"]`. Only top-level blocks are read; var() chains are followed.
+ * @param {string} css @returns {{light:Record<string,string>, dark:Record<string,string>}}
+ */
+export function resolveTokens(css) {
+  const blocks = {};
+  for (const m of String(css).replace(/\r\n?/g, '\n').matchAll(/(?:^|\n)(:root(?:\[data-theme="(?:light|dark)"\])?) \{\n([\s\S]*?)\n\}/g)) {
+    const decl = blocks[m[1]] ??= {};
+    for (const d of m[2].matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)) decl[d[1]] = d[2].trim();
+  }
+  const light = { ...(blocks[':root'] ?? {}), ...(blocks[':root[data-theme="light"]'] ?? {}) };
+  const dark = { ...light, ...(blocks[':root[data-theme="dark"]'] ?? {}) };
+  const resolve = (map) => {
+    const get = (v, depth = 0) => { const r = /^var\((--[\w-]+)\)$/.exec(v); return r && depth < 10 && map[r[1]] != null ? get(map[r[1]], depth + 1) : v; };
+    return Object.fromEntries(Object.entries(map).map(([k, v]) => [k, get(v)]));
+  };
+  return { light: resolve(light), dark: resolve(dark) };
+}
+
+const HEX = /^#[0-9a-f]{6}$/i;
+extract.swatches = (tokens) => {
+  if (!tokens || typeof tokens.css !== 'string') return null;
+  const { light, dark } = resolveTokens(tokens.css);
+  const scale = (k) => Object.keys(light).map((n) => new RegExp(`^--color-${k}-(\\d+)$`).exec(n)).filter(Boolean)
+    .map((m) => ({ step: m[1], hex: light[m[0]] })).filter((x) => HEX.test(x.hex)).sort((a, b) => a.step - b.step);
+  const brand = scale('primary'); const neutral = scale('neutral');
+  const roles = ['surface-default', 'border-default', 'text-default', 'text-muted', 'action-primary-bg', 'action-primary-text', 'action-secondary-text', 'action-secondary-border'];
+  const mode = (m) => Object.fromEntries(roles.map((r) => [r, m[`--color-${r}`]]));
+  const L = mode(light); const D = mode(dark);
+  if (brand.length < 10 || neutral.length < 10 || ![...Object.values(L), ...Object.values(D)].every((v) => HEX.test(v))) return null;
+  const status = ['success', 'warning', 'danger', 'info'].map((k) => ({ name: k, bg: light[`--color-${k}-bg`], on: light[`--color-${k}-text-on`] })).filter((x) => HEX.test(x.bg) && HEX.test(x.on));
+  const name = /^##\s+Design system:\s*(.+)$/m.exec(String(tokens.answer ?? ''))?.[1]?.trim() ?? null;
+  return { brand, neutral, status, brandHex: light['--color-brand'] ?? null, light: L, dark: D, name };
+};
+
 /** Which objects a skill draws, in order. A recipe draws every object its skills stand for. */
-export const KINDS = { 'copy-tight': ['toast'], 'changelog-writer': ['tag'], 'test-planner': ['clipboard'], 'skill-smith': ['folder'] };
-export const DEFAULT_LABELS = { before: 'BEFORE', after: 'AFTER', release: 'RELEASE', checklist: 'RETEST', more: 'more', folder: 'NEW SKILL' };
+export const KINDS = { 'copy-tight': ['toast'], 'changelog-writer': ['tag'], 'test-planner': ['clipboard'], 'skill-smith': ['folder'], 'design-system': ['swatches'] };
+export const DEFAULT_LABELS = { before: 'BEFORE', after: 'AFTER', release: 'RELEASE', checklist: 'RETEST', more: 'more', folder: 'NEW SKILL', brandScale: 'BRAND', neutral: 'NEUTRAL', status: 'STATUS', light: 'LIGHT', dark: 'DARK' };
 
 /**
  * The answer drawn as objects, or null when none of the kinds can be cut from it.
@@ -126,7 +205,7 @@ export function objectFigure(kinds, proof, labels = {}) {
   const L = { ...DEFAULT_LABELS, ...labels };
   const parts = [];
   for (const k of kinds) {
-    const data = k === 'toast' ? extract.toast(proof.prompt, proof.answer) : extract[k]?.(proof.answer);
+    const data = k === 'toast' ? extract.toast(proof.prompt, proof.answer) : k === 'swatches' ? extract.swatches(proof.tokens) : extract[k]?.(proof.answer);
     if (data) parts.push(draw[k](data, L));
   }
   if (!parts.length) return null;

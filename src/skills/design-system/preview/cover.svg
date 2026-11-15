@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="design-system cover">
+  <rect x="0" y="0" width="640" height="360" fill="var(--cover-bg)"/>
+  <rect x="96" y="72" width="448" height="216" rx="12" fill="none" stroke="currentColor" stroke-width="4"/>
+  <rect x="128" y="104" width="64" height="64" rx="6" fill="var(--cover-accent)" opacity="0.2"/>
+  <rect x="200" y="104" width="64" height="64" rx="6" fill="var(--cover-accent)" opacity="0.4"/>
+  <rect x="272" y="104" width="64" height="64" rx="6" fill="var(--cover-accent)" opacity="0.6"/>
+  <rect x="344" y="104" width="64" height="64" rx="6" fill="var(--cover-accent)" opacity="0.8"/>
+  <rect x="416" y="104" width="64" height="64" rx="6" fill="var(--cover-accent)"/>
+  <rect x="128" y="196" width="16" height="16" fill="currentColor" opacity="0.6"/>
+  <rect x="152" y="196" width="24" height="16" fill="currentColor" opacity="0.6"/>
+  <rect x="184" y="196" width="32" height="16" fill="currentColor" opacity="0.6"/>
+  <rect x="224" y="196" width="48" height="16" fill="currentColor" opacity="0.6"/>
+  <rect x="128" y="232" width="120" height="32" rx="6" fill="var(--cover-accent)"/>
+  <rect x="264" y="232" width="120" height="32" rx="6" fill="none" stroke="var(--cover-accent)" stroke-width="3"/>
+  <rect x="400" y="232" width="80" height="32" rx="6" fill="currentColor" opacity="0.15"/>
+</svg>

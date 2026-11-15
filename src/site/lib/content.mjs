@@ -6,7 +6,7 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { sanitizeSvg } from './svg.mjs';
 import { scoreLive } from '../../factory/live-evals.mjs';
-import { loadProof, docFigure } from './proof.mjs';
+import { loadProof, docFigure, loadTokens } from './proof.mjs';
 import { objectFigure, KINDS } from './objects.mjs';
 import { loadRecipes, checkRecipe } from '../../factory/recipe-run.mjs';
 import { DICTS } from './i18n.mjs';
@@ -117,6 +117,9 @@ export function loadSkills(root, opts = {}) {
       // What the showcase shows, in order of strength: a recorded figure run, else the real answer of a fresh agent
       // drawn as the object it stands for (or a document), else the hand-drawn preview cover, which is then labelled as a concept.
       const proof = loadProof(dir, { showcase: typeof r.showcase === 'string' ? r.showcase : undefined });
+      // design-system draws the colours of the tokens.css a fresh agent wrote in its pinned live case
+      const tokens = proof && (KINDS[r.name] ?? []).includes('swatches') ? loadTokens(dir, typeof r.showcase === 'string' ? r.showcase : undefined) : null;
+      if (tokens) proof.tokens = tokens;
       const coverKind = run?.svg ? 'run' : proof ? 'proof' : 'concept';
       const coverSvg = coverKind === 'run' ? run.svg
         : coverKind === 'proof' ? sanitizeSvg(objectFigure(KINDS[r.name] ?? [], proof) ?? docFigure(proof, { askLabel: DICTS.en['answer.asked'], moreLabel: DICTS.en['answer.more'] }))
@@ -137,6 +140,7 @@ export function loadSkills(root, opts = {}) {
         coverKind,
         factoryOnly: /^scope:\s*factory/m.test(md),
         proof,
+        tokens: tokens ? { prompt: tokens.prompt, run: tokens.run, caseId: tokens.caseId, sha256: tokens.sha256 } : null,
         procedure: parseProcedure(md),
         rules: { total: rules.length, machine, checklist },
         changelog: existsSync(join(dir, 'CHANGELOG.md')) ? read('CHANGELOG.md').replace(/\r\n?/g, '\n') : '',

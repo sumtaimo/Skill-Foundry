@@ -1,0 +1,6 @@
+You are running the skill in /home/user/Skill-Foundry/src/skills/design-system. Read /home/user/Skill-Foundry/src/skills/design-system/SKILL.md and every file it links to, then follow it step by step.
+Write every file you produce into /home/user/Skill-Foundry/runs/design-system/f73282c48f0aae4d/output and nowhere else. Produce the real output the skill describes, never a placeholder or mock.
+When done, reply with a short report: files produced, checks run and their results, open items.
+
+Input:
+Make design tokens for our plant-care app. Brand colour #0d9488; it should feel calm and friendly.

@@ -1,0 +1,7 @@
+{
+  "title": "design-system",
+  "tagline": "One design-token set from a hex, a style or your tokens: light, dark, contrast-checked.",
+  "prompt": "Build a design system for our invoicing app. Our brand colour is #0f766e.",
+  "outputs": ["design-tokens.json in the W3C format", "tokens.css with light and dark mode", "Report with every contrast ratio"],
+  "tags": ["design", "tokens", "css", "color", "dark mode"]
+}

@@ -1,0 +1,8 @@
+{
+  "case": "new-design-declined",
+  "prompt": "Design a new pricing page for our app from scratch, with three plans.",
+  "agent": "claude",
+  "recordedAt": "2026-11-15",
+  "output": "This skill polishes a finished UI; it does not design new screens.",
+  "files": []
+}

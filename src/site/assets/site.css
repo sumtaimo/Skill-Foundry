@@ -297,6 +297,9 @@ svg { --iso-top: var(--surface); --iso-a: var(--surface2); --iso-b: var(--line);
 .cover-tag[data-kind="concept"] { color: var(--fg); border-style: dashed; }
 .cover-tag[data-kind="run"]::before, .cover-tag[data-kind="proof"]::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--fg); margin-right: 6px; vertical-align: middle; }
 .doc-figure { display: block; width: 100%; height: auto; }
+.tokens-proof { margin: 0 0 24px; }
+.tokens-figure { max-width: 560px; border: 1px solid var(--line); border-radius: 8px; padding: 8px; background: var(--surface); }
+.tokens-proof figcaption { margin-top: 8px; font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
 /* The real answer, shown in full so it can be copied and used. */
 .proof { margin: 12px 0 20px; padding: 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
 .proof-ask { margin: 0 0 10px; font-size: 0.9rem; color: var(--muted); }

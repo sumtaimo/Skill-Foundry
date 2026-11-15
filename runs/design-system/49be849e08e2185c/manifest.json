@@ -1,0 +1,54 @@
+{
+  "skill": "design-system",
+  "version": "1.0.0",
+  "caseId": "no-input",
+  "inputSha256": "528bc811a93464f40514fa9d69d549a862878bc2ce2b8ed1f2cbe7b4e64e79bb",
+  "skillSha256": "a7c57b01f62c7f1b961c4aea2fa3216793460345c5f054b790179f752a08f3dd",
+  "key": "49be849e08e2185c3ef51298a2c2c9a32ed9b56ec18c931f09d632bf06010491",
+  "startedAt": "2026-11-15T01:40:30.404Z",
+  "finishedAt": "2026-11-15T01:40:49.729Z",
+  "runner": "claude",
+  "exitCode": 0,
+  "costUsd": 0.2836786,
+  "usage": {
+    "input_tokens": 8,
+    "cache_creation_input_tokens": 28677,
+    "cache_read_input_tokens": 173553,
+    "output_tokens": 976,
+    "output_tokens_details": {
+      "thinking_tokens": 453
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 28677,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 72,
+        "cache_read_input_tokens": 56868,
+        "cache_creation_input_tokens": 847,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 847
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [],
+  "checks": {
+    "expectations": 4,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "Give me a brand colour as a hex code (for example #2563eb), a few words about the style you want, or the path to your existing design tokens."
+}

@@ -14,5 +14,15 @@
   { "id": "r13", "prompt": "What should we retest after this change? We moved the invoice export button from the toolbar to the File menu.", "expect": "test-planner" },
   { "id": "r14", "prompt": "Here is the diff for our new login throttle. Give me a regression checklist for it.", "expect": "test-planner" },
   { "id": "r15", "prompt": "Write Jest unit tests for our promo code validator.", "expect": "none" },
-  { "id": "r16", "prompt": "Review this pull request for bugs and security problems.", "expect": "none" }
+  { "id": "r16", "prompt": "Review this pull request for bugs and security problems.", "expect": "none" },
+  { "id": "r17", "prompt": "Here is the HTML and CSS of our finished settings card. Spacing and contrast look off; do a final pixel pass before we ship.", "expect": "ui-polish" },
+  { "id": "r18", "prompt": "This React button bar looks cluttered, both buttons are the same blue. Make it look cleaner. (code pasted)", "expect": "ui-polish" },
+  { "id": "r19", "prompt": "Design a brand new pricing page for our app from scratch.", "expect": "none" },
+  { "id": "r20", "prompt": "The label on this button is too wordy: \"Click here to save all of your changes\". Shorten it.", "expect": "copy-tight" },
+  { "id": "r21", "prompt": "Our brand colour is #0d9488. Generate a full set of design tokens for us, with light and dark mode.", "expect": "design-system" },
+  { "id": "r22", "prompt": "We already have a tokens.css with colours and spacing. Add the missing dark mode and motion tokens without touching what is there.", "expect": "design-system" },
+  { "id": "r23", "prompt": "Give our meditation app a calm, soft colour palette and type scale that developers can use as tokens.", "expect": "design-system" },
+  { "id": "r24", "prompt": "Build me a complete landing page in our brand colour #0d9488.", "expect": "none" },
+  { "id": "r25", "prompt": "Our theme switch says \"Click here to switch between the light and the dark colour theme\". Make it shorter.", "expect": "copy-tight" },
+  { "id": "r26", "prompt": "Here is the CSS of our finished checkout card; the grey text is hard to read and the spacing is uneven. Do a final pixel pass.", "expect": "ui-polish" }
 ]

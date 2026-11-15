@@ -107,6 +107,8 @@ test('text skills are drawn as objects, and every word in an object is cut from 
     const source = flat(proof.prompt + ' ' + proof.answer);
     for (const m of svg.matchAll(/<text [^>]*class="([^"]+)"[^>]*>([^<]*)<\/text>/g)) {
       if (m[1] === 'obj-label') continue;
+      if (/\bobj-tok\b/.test(m[1])) { assert.ok(proof.tokens && (proof.tokens.css + ' ' + proof.tokens.answer).includes(unesc(m[2])), `${name}: "${m[2]}" is not in the recorded tokens.css or its report`); continue; }
+      if (m[1] === 's' && proof.tokens && /^\d+$/.test(m[2])) continue; // a scale step number, checked by the swatch test
       const t = unesc(m[2]).replace(/…$/, '');
       assert.ok(source.includes(t), `${name}: "${t}" is not in the recording`);
     }
@@ -152,4 +154,36 @@ test('banner text fits its column even with wide fallback fonts', async () => {
       assert.ok(Number(x) + w <= 72 + TEXT_MAX + 36, `${s.name}: "${t}" may run into the cover (${Math.round(Number(x) + w)})`);
     }
   }
+});
+
+test('design-system shows the real tokens.css a fresh agent wrote: every swatch colour comes from that recorded file', async () => {
+  const { resolveTokens } = await import('../src/site/lib/objects.mjs');
+  const { loadTokens } = await import('../src/site/lib/proof.mjs');
+  const { createHash } = await import('node:crypto');
+  const entry = registry.find((r) => r.name === 'design-system');
+  const dir = join(ROOT, 'src', 'skills', 'design-system');
+  const tok = loadTokens(dir, entry.showcase);
+  assert.ok(tok, 'the pinned live case has a passing recording with a hashed tokens.css');
+  const rec = JSON.parse(readFileSync(join(dir, 'evals', 'live', `${entry.showcase}.json`), 'utf8'));
+  assert.equal(tok.run, rec.run);
+  const file = readFileSync(join(ROOT, rec.run, 'output', 'tokens.css'));
+  const manifest = JSON.parse(readFileSync(join(ROOT, rec.run, 'manifest.json'), 'utf8'));
+  assert.equal(manifest.files.find((f) => f.path === 'tokens.css').sha256, createHash('sha256').update(file).digest('hex'), 'tokens.css is the file the run recorded');
+  assert.match(rec.agent, /fresh agent/);
+  const s = loadSkills(ROOT).find((x) => x.name === 'design-system');
+  assert.equal(s.coverKind, 'proof');
+  const { light, dark } = resolveTokens(tok.css);
+  const recorded = new Set([...Object.values(light), ...Object.values(dark)].map((v) => v.toLowerCase()));
+  const hexes = [...s.coverSvg.matchAll(/(?:fill|stroke)(?:="|:)(#[0-9a-f]{3,8})/gi)].map((m) => m[1].toLowerCase());
+  assert.ok(hexes.length >= 30, `swatches drawn (${hexes.length})`);
+  for (const h of hexes) assert.ok(recorded.has(h), `${h} on the cover is not a value of the recorded tokens.css`);
+  // brand, neutral and every status scale; primary and secondary buttons in light and dark
+  for (const n of ['--color-brand', '--color-primary-500', '--color-neutral-950', '--color-success-bg', '--color-danger-bg']) assert.ok(hexes.includes(light[n].toLowerCase()), n);
+  for (const m of [light, dark]) for (const r of ['action-primary-bg', 'action-primary-text', 'action-secondary-text', 'action-secondary-border', 'surface-default', 'text-default']) assert.ok(hexes.includes(m[`--color-${r}`].toLowerCase()), r);
+  assert.notEqual(light['--color-surface-default'], dark['--color-surface-default'], 'light and dark panels differ');
+  const page = readFileSync(join(await site(), 'skills', 'design-system', 'index.html'), 'utf8');
+  assert.ok(page.includes(`data-tokens-run="${rec.run}"`) && page.includes(`data-tokens-sha256="${tok.sha256}"`), 'the page names the recorded run');
+  assert.ok(page.includes(`${rec.run}/output/tokens.css`));
+  const index = readFileSync(join(await site(), 'index.html'), 'utf8');
+  assert.ok(index.includes(light['--color-brand']), 'the landing cover shows the recorded brand colour');
 });

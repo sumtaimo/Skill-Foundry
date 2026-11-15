@@ -1,0 +1,369 @@
+{
+  "$description": "Design tokens, archetype calm-workspace. Light and dark roles under color.role.light and color.role.dark.",
+  "color": {
+    "neutral": {
+      "50": {
+        "$type": "color",
+        "$value": "#f6f4f9"
+      },
+      "100": {
+        "$type": "color",
+        "$value": "#eceaef"
+      },
+      "200": {
+        "$type": "color",
+        "$value": "#d7d4dc"
+      },
+      "300": {
+        "$type": "color",
+        "$value": "#bebac5"
+      },
+      "400": {
+        "$type": "color",
+        "$value": "#a29ea9"
+      },
+      "500": {
+        "$type": "color",
+        "$value": "#857e91"
+      },
+      "600": {
+        "$type": "color",
+        "$value": "#6c6873"
+      },
+      "700": {
+        "$type": "color",
+        "$value": "#55515c"
+      },
+      "800": {
+        "$type": "color",
+        "$value": "#3c3843"
+      },
+      "900": {
+        "$type": "color",
+        "$value": "#26232b"
+      },
+      "950": {
+        "$type": "color",
+        "$value": "#151318"
+      }
+    },
+    "success": {
+      "50": {
+        "$type": "color",
+        "$value": "#f2fdf6"
+      },
+      "100": {
+        "$type": "color",
+        "$value": "#e0fbea"
+      },
+      "200": {
+        "$type": "color",
+        "$value": "#bdf6d2"
+      },
+      "300": {
+        "$type": "color",
+        "$value": "#91f0b4"
+      },
+      "400": {
+        "$type": "color",
+        "$value": "#5ce990"
+      },
+      "500": {
+        "$type": "color",
+        "$value": "#2ce26f"
+      },
+      "600": {
+        "$type": "color",
+        "$value": "#1ac258"
+      },
+      "700": {
+        "$type": "color",
+        "$value": "#16a34a"
+      },
+      "800": {
+        "$type": "color",
+        "$value": "#0f6e32"
+      },
+      "900": {
+        "$type": "color",
+        "$value": "#09421e"
+      }
+    },
+    "warning": {
+      "50": {
+        "$type": "color",
+        "$value": "#fff8f0"
+      },
+      "100": {
+        "$type": "color",
+        "$value": "#fdefdf"
+      },
+      "200": {
+        "$type": "color",
+        "$value": "#fddcb6"
+      },
+      "300": {
+        "$type": "color",
+        "$value": "#fdc482"
+      },
+      "400": {
+        "$type": "color",
+        "$value": "#faa94c"
+      },
+      "500": {
+        "$type": "color",
+        "$value": "#f98f15"
+      },
+      "600": {
+        "$type": "color",
+        "$value": "#d97706"
+      },
+      "700": {
+        "$type": "color",
+        "$value": "#ab5e05"
+      },
+      "800": {
+        "$type": "color",
+        "$value": "#774103"
+      },
+      "900": {
+        "$type": "color",
+        "$value": "#492802"
+      }
+    },
+    "danger": {
+      "50": {
+        "$type": "color",
+        "$value": "#fdf3f3"
+      },
+      "100": {
+        "$type": "color",
+        "$value": "#fae0e0"
+      },
+      "200": {
+        "$type": "color",
+        "$value": "#f4bbbb"
+      },
+      "300": {
+        "$type": "color",
+        "$value": "#ed9090"
+      },
+      "400": {
+        "$type": "color",
+        "$value": "#e56161"
+      },
+      "500": {
+        "$type": "color",
+        "$value": "#dc2626"
+      },
+      "600": {
+        "$type": "color",
+        "$value": "#bd1e1e"
+      },
+      "700": {
+        "$type": "color",
+        "$value": "#951818"
+      },
+      "800": {
+        "$type": "color",
+        "$value": "#691111"
+      },
+      "900": {
+        "$type": "color",
+        "$value": "#440b0b"
+      }
+    },
+    "info": {
+      "50": {
+        "$type": "color",
+        "$value": "#eef3fe"
+      },
+      "100": {
+        "$type": "color",
+        "$value": "#dce6fc"
+      },
+      "200": {
+        "$type": "color",
+        "$value": "#b9cdf9"
+      },
+      "300": {
+        "$type": "color",
+        "$value": "#8cadf5"
+      },
+      "400": {
+        "$type": "color",
+        "$value": "#5787f0"
+      },
+      "500": {
+        "$type": "color",
+        "$value": "#2563eb"
+      },
+      "600": {
+        "$type": "color",
+        "$value": "#124bc8"
+      },
+      "700": {
+        "$type": "color",
+        "$value": "#0f3c9f"
+      },
+      "800": {
+        "$type": "color",
+        "$value": "#0a2a70"
+      },
+      "900": {
+        "$type": "color",
+        "$value": "#061a46"
+      }
+    }
+  },
+  "control": {
+    "height-sm": {
+      "$type": "dimension",
+      "$value": "36px"
+    },
+    "height-md": {
+      "$type": "dimension",
+      "$value": "44px"
+    },
+    "height-lg": {
+      "$type": "dimension",
+      "$value": "52px"
+    },
+    "target-min": {
+      "$type": "dimension",
+      "$value": "44px",
+      "$description": "Smallest click or tap area; extend small controls with padding or a pseudo-element."
+    }
+  },
+  "shadow": {
+    "1": {
+      "$type": "shadow",
+      "$value": {
+        "color": "rgba(21, 19, 24, 0.06)",
+        "offsetX": "0px",
+        "offsetY": "1px",
+        "blur": "3px",
+        "spread": "0px"
+      }
+    },
+    "2": {
+      "$type": "shadow",
+      "$value": {
+        "color": "rgba(21, 19, 24, 0.08)",
+        "offsetX": "0px",
+        "offsetY": "4px",
+        "blur": "12px",
+        "spread": "-2px"
+      }
+    },
+    "3": {
+      "$type": "shadow",
+      "$value": {
+        "color": "rgba(21, 19, 24, 0.1)",
+        "offsetX": "0px",
+        "offsetY": "12px",
+        "blur": "32px",
+        "spread": "-8px"
+      }
+    }
+  },
+  "border-width": {
+    "hairline": {
+      "$type": "dimension",
+      "$value": "1px"
+    },
+    "thick": {
+      "$type": "dimension",
+      "$value": "2px"
+    },
+    "focus": {
+      "$type": "dimension",
+      "$value": "2px"
+    }
+  },
+  "motion": {
+    "duration-fast": {
+      "$type": "duration",
+      "$value": "150ms"
+    },
+    "duration-base": {
+      "$type": "duration",
+      "$value": "200ms"
+    },
+    "duration-slow": {
+      "$type": "duration",
+      "$value": "300ms"
+    },
+    "ease-standard": {
+      "$type": "cubicBezier",
+      "$value": [
+        0.2,
+        0,
+        0,
+        1
+      ]
+    },
+    "ease-enter": {
+      "$type": "cubicBezier",
+      "$value": [
+        0,
+        0,
+        0.2,
+        1
+      ]
+    },
+    "ease-exit": {
+      "$type": "cubicBezier",
+      "$value": [
+        0.4,
+        0,
+        1,
+        1
+      ]
+    }
+  },
+  "breakpoint": {
+    "sm": {
+      "$type": "dimension",
+      "$value": "640px",
+      "$description": "CSS variables do not work inside media queries; copy this number there."
+    },
+    "md": {
+      "$type": "dimension",
+      "$value": "768px",
+      "$description": "CSS variables do not work inside media queries; copy this number there."
+    },
+    "lg": {
+      "$type": "dimension",
+      "$value": "1024px",
+      "$description": "CSS variables do not work inside media queries; copy this number there."
+    },
+    "xl": {
+      "$type": "dimension",
+      "$value": "1280px",
+      "$description": "CSS variables do not work inside media queries; copy this number there."
+    }
+  },
+  "density": {
+    "control-x": {
+      "$type": "dimension",
+      "$value": "16px"
+    },
+    "control-y": {
+      "$type": "dimension",
+      "$value": "12px"
+    },
+    "row": {
+      "$type": "dimension",
+      "$value": "48px"
+    },
+    "stack": {
+      "$type": "dimension",
+      "$value": "16px"
+    },
+    "section": {
+      "$type": "dimension",
+      "$value": "48px"
+    }
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "skill": "design-system",
+  "version": "1.0.0",
+  "caseId": "like-brand",
+  "inputSha256": "a32b73758feabd5508327afc356ef8d6dcf55da13465b67e6a97a842afab6d35",
+  "skillSha256": "a7c57b01f62c7f1b961c4aea2fa3216793460345c5f054b790179f752a08f3dd",
+  "key": "77cce0815ee133218ba78533156e71c158dc83f7a6161051fb8c61858cd1b0dd",
+  "startedAt": "2026-11-15T01:40:30.502Z",
+  "finishedAt": "2026-11-15T01:41:14.799Z",
+  "runner": "claude",
+  "exitCode": 0,
+  "costUsd": 0.4701572,
+  "usage": {
+    "input_tokens": 16,
+    "cache_creation_input_tokens": 38357,
+    "cache_read_input_tokens": 438886,
+    "output_tokens": 3773,
+    "output_tokens_details": {
+      "thinking_tokens": 316
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 38357,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 1637,
+        "cache_read_input_tokens": 66224,
+        "cache_creation_input_tokens": 1171,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 1171
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [
+    {
+      "path": "design-system-report.md",
+      "bytes": 3391,
+      "sha256": "6af43f55b96d45103b89538e1305bac19542b587efa3a65b57454bfa3b59cddf"
+    },
+    {
+      "path": "design-tokens.json",
+      "bytes": 20144,
+      "sha256": "9ea8793d407987a9cdf7cdfb1f40b647d0a00c203d1ad7baacfd4ce25730ff36"
+    },
+    {
+      "path": "tokens.css",
+      "bytes": 13396,
+      "sha256": "9d53849462a885367482716d4844a493a29256faff8c683c2fb03dc130ed5dd0"
+    }
+  ],
+  "checks": {
+    "expectations": 20,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "## Design system: Your product\n\nPath a, from your colour. Archetype: precise-fintech. You compared it to an online bank, and a bank calls for precise, trustworthy numbers.\n\nThis report is the whole reply: the files written, the checks run with every result, and the open questions.\n\n### Files\n- design-tokens.json: W3C design tokens\n- tokens.css: CSS custom properties, light and dark\n- design-system-report.md: this report\n\n### Colours kept\n| Input | Hex | Hue | Placed at |\n|-------|-----|-----|-----------|\n| primary | #1e3a8a | 224° | primary-700 |\n\nStatus colours not given, defaults used: success #16a34a (success-700), warning #d97706 (warning-600), danger #dc2626 (danger-500), info #2563eb (info-500).\n\nHue check: each input hex is unchanged and every step aims at its exact hue; only lightness changes. Rounding to hex moves the hue at most 0.1° at steps 300 to 800 and 0.4° at the palest and darkest steps.\n\n### Contrast\nText needs 4.5:1; borders of controls and focus rings need 3:1; border-default is for dividers and is not checked. Every text role meets 4.5:1, so it is safe at any size.\n\n| Text | On | Light | Dark | Needs | Result |\n|------|----|-------|------|-------|--------|\n| text-default | all 4 surfaces | 13.25:1 | 10.57:1 | 4.5:1 | pass |\n| text-muted | all 4 surfaces | 4.82:1 | 5.94:1 | 4.5:1 | pass |\n| text-link | all 4 surfaces | 8.85:1 | 5.15:1 | 4.5:1 | pass |\n| selected-text | all 4 surfaces, selected-bg | 8.85:1 | 5.15:1 | 4.5:1 | pass |\n| text-inverse | surface-inverse | 14.23:1 | 14.23:1 | 4.5:1 | pass |\n| action-primary-text | action-primary-bg, action-primary-bg-hover, action-primary-bg-pressed | 10.36:1 | 10.36:1 | 4.5:1 | pass |\n| success-text | surface-default, success-bg-subtle | 6.11:1 | 7.47:1 | 4.5:1 | pass |\n| success-text-on | success-bg | 4.71:1 | 4.71:1 | 4.5:1 | pass |\n| warning-text | surface-default, warning-bg-subtle | 7.84:1 | 6.83:1 | 4.5:1 | pass |\n| warning-text-on | warning-bg | 4.87:1 | 4.87:1 | 4.5:1 | pass |\n| danger-text | surface-default, danger-bg-subtle | 5.73:1 | 6.93:1 | 4.5:1 | pass |\n| danger-text-on | danger-bg | 4.83:1 | 4.83:1 | 4.5:1 | pass |\n| info-text | surface-default, info-bg-subtle | 6.59:1 | 7.57:1 | 4.5:1 | pass |\n| info-text-on | info-bg | 5.17:1 | 5.17:1 | 4.5:1 | pass |\n| border-strong | surface-default, surface-subtle | 3.57:1 | 5.73:1 | 3:1 | pass |\n| border-focus | surface-default, surface-subtle | 9.50:1 | 4.46:1 | 3:1 | pass |\n\nLight and Dark give the lowest ratio of each role over the surfaces listed; 37 pairs checked in each mode.\n\n### How to use\n- Load tokens.css before your own styles. \n- Without a data-theme attribute the page follows the system setting; set data-theme=\"light\" or data-theme=\"dark\" on the html element to force one.\n- Spacing: 0, 4, 8, 12, 16, 24, 32, 48, 64 px. Type sizes: 12, 14, 16, 18, 20, 24, 30 px, body 16 px, line-height 1.5. Weights: 400 and 600.\n- Controls: 32, 40, 48 px high; every click or tap area at least 44 px. Breakpoints: 640, 768, 1024, 1280 px (copy the numbers into media queries).\n- Brand colour on at most 10% of a screen: primary action, links, focus ring, selected row.\n- Font: the system font stack. No font files, imports or links.\n\n### Open questions\n- Your primary colour is close to the info colour (#2563eb); should info use a different hue?\n- You did not name your own product; what should the report heading call it?"
+}

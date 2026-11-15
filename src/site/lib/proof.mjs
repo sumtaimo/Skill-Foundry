@@ -6,7 +6,8 @@
  * @governed-by PO_ARCHITECT
  */
 import { readFileSync, existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
+import { createHash } from 'node:crypto';
 import { checkRecording } from '../../factory/portable-check.mjs';
 import { scoreLive } from '../../factory/live-evals.mjs';
 
@@ -35,6 +36,29 @@ export function loadProof(skillDir, { showcase } = {}) {
     return { source: 'live', prompt: String(r.prompt), answer: r.output, agent: String(r.agent ?? ''), caseId: id };
   }
   return null;
+}
+
+/**
+ * The tokens.css a fresh agent wrote in the live run of one eval case, or null. It counts only when that case's live
+ * recording passes and the file is byte for byte the one the run manifest hashed, so nothing hand-written can be drawn.
+ * @param {string} skillDir @param {string} [caseId]
+ * @returns {{css:string, caseId:string, prompt:string, answer:string, run:string, sha256:string}|null}
+ */
+export function loadTokens(skillDir, caseId) {
+  if (typeof caseId !== 'string' || !caseId) return null;
+  const p = join(skillDir, 'evals', 'live', `${caseId}.json`);
+  if (!existsSync(p)) return null;
+  const rec = JSON.parse(readFileSync(p, 'utf8'));
+  if (typeof rec.run !== 'string' || !/^runs\/[a-z0-9-]+\/[0-9a-f]+$/.test(rec.run)) return null;
+  if (!scoreLive(skillDir).results.find((r) => r.id === caseId)?.ok) return null;
+  const runDir = join(resolve(skillDir, '..', '..', '..'), rec.run);
+  const mp = join(runDir, 'manifest.json'); const cp = join(runDir, 'output', 'tokens.css');
+  if (!existsSync(mp) || !existsSync(cp)) return null;
+  const m = JSON.parse(readFileSync(mp, 'utf8'));
+  const css = readFileSync(cp, 'utf8');
+  const sha256 = createHash('sha256').update(readFileSync(cp)).digest('hex');
+  if (m.status !== 'pass' || !m.files?.some((f) => f.path === 'tokens.css' && f.sha256 === sha256)) return null;
+  return { css, caseId, prompt: String(rec.prompt), answer: String(rec.output ?? ''), run: rec.run, sha256 };
 }
 
 const x = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
