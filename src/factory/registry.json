@@ -85,7 +85,7 @@
     "name": "a11y-audit",
     "version": "1.0.0",
     "purpose": "Audits pasted HTML or JSX for what users cannot see (names, labels, keyboard access, ARIA, status messages, language, tables, media, zoom) and lists numbered findings with element, rule id, WCAG 2.2 criterion, who is affected and the exact fix; never contrast, focus style, spacing, target size, flow or visible text.",
-    "status": "draft",
+    "status": "ready",
     "roles": [
       "QA_AUDITOR",
       "DEV_ENGINEER"

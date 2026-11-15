@@ -33,5 +33,15 @@
   { "id": "sw6", "prompt": "Write Playwright tests for the acceptance criteria below.", "expect": "none" },
   { "id": "sw7", "prompt": "Estimate the story points for these five tickets and tell me which to build first.", "expect": "none" },
   { "id": "sw8", "prompt": "We added password reset by email in 3.1.0. Write the changelog entry for that release.", "expect": "changelog-writer" },
-  { "id": "sw9", "prompt": "Our password reset error says \"We were unfortunately unable to reset your password at this point in time\". Tighten it.", "expect": "copy-tight" }
+  { "id": "sw9", "prompt": "Our password reset error says \"We were unfortunately unable to reset your password at this point in time\". Tighten it.", "expect": "copy-tight" },
+  { "id": "ay1", "prompt": "Audit this sign-in form for accessibility: <input type=\"email\" placeholder=\"Email\"> <div onclick=\"submitForm()\">Sign in</div>", "expect": "a11y-audit"},
+  { "id": "ay2", "prompt": "Can a screen reader and the keyboard use this React component? Here is the JSX, please check it.", "expect": "a11y-audit"},
+  { "id": "ay3", "prompt": "I think we overused ARIA roles in this modal markup (pasted). Review it.", "expect": "a11y-audit"},
+  { "id": "ay4", "prompt": "Here is the CSS of our finished card. The grey text contrast is too low and the focus ring looks weak; do a final polish pass.", "expect": "ui-polish"},
+  { "id": "ay5", "prompt": "This button label is too wordy for screen reader users: \"Click here to open the page where you can change your notification settings\". Shorten it.", "expect": "copy-tight"},
+  { "id": "ay6", "prompt": "Our page jumps from h1 to h4 and some images have no alt text. Check the markup I pasted and list the fixes.", "expect": "a11y-audit"},
+  { "id": "ay7", "prompt": "Write the accessibility statement for our public website.", "expect": "none"},
+  { "id": "ay8", "prompt": "Is our checkout flow confusing for first-time users? Tell me which steps are hard to understand.", "expect": "none"},
+  { "id": "ay9", "prompt": "Set up automated accessibility tests that run in our CI pipeline.", "expect": "none"},
+  { "id": "ay10", "prompt": "Design an accessible login screen from scratch for our app.", "expect": "none"}
 ]

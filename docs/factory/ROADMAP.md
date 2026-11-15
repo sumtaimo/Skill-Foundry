@@ -14,6 +14,7 @@ The project roadmap is in `docs/PROJECT.md` section 6. This file lists skills.
 | design-system | One design-token set (colour scales, type, spacing, control heights, radius, shadow, motion, light and dark) from a hex, a style description or existing tokens; five numeric style archetypes |
 | ui-polish | Final polish pass on finished UI code: on-scale spacing and type, contrast, one primary action, states; keeps every word and the brand hue |
 | spec-writer | Write testable Given-When-Then acceptance criteria as numbered clauses (AC-1 …) from a feature request, user story or requirement, each traced to a source phrase; gaps become open questions. Never a regression checklist (test-planner), test code, UI design, copy, estimates or priorities |
+| a11y-audit | Audit pasted HTML or JSX for what users cannot see (names, labels, keyboard access, ARIA, status messages, language, tables, media, zoom): numbered findings with element, rule id, WCAG 2.2 criterion, who is affected and the fix as a diff; a zero-dependency script lists the structural problems. Never contrast, focus style, spacing or target size (ui-polish), flow or usability, visible words (copy-tight) or a conformance certificate |
 
 All ready skills have the ten layer files (`src/factory/migration.json` lists none pending).
 
@@ -22,7 +23,6 @@ All ready skills have the ten layer files (`src/factory/migration.json` lists no
 | Skill | Kind | Purpose | Boundary (what it never does) |
 |-------|------|---------|-------------------------------|
 | ux-review | analysis | Review a screen or flow: affordance, feedback, mapping, error handling, choice count, target distance, memory load, familiar patterns; one severity per finding | Never fixes code (ui-polish), never semantics or ARIA (a11y-audit), never text (copy-tight) |
-| a11y-audit | analysis | Check what users cannot see: semantic HTML, labels, keyboard order, ARIA, screen reader output; list fixes | Never contrast, focus style or target size (ui-polish owns them) |
 
 Merged or dropped on 2026-11-15 (TAIMO approved): `usability-review` and `ux-laws-check` merged into `ux-review` (same input, same output, overlapping findings); `svg-cover` dropped (it is layer 04, step 10 of skill-smith).
 

@@ -9,7 +9,8 @@
     "test-planner": "Derives a numbered regression checklist, grouped by area, from a change description or a diff, so the team knows what to retest and nothing outside the change is added. Use when asked \"what should we retest after this change?\" or \"give me a regression checklist for this diff\". Do not use to write test code, to review a diff for bugs, or to plan tests for features the change does not describe; answer those in the chat instead.",
     "ui-polish": "Runs a final polish pass on the HTML and CSS (or JSX) of a finished UI, fixing spacing, type, contrast, visual hierarchy, interactive states and layout against fixed numeric rules, and returns the numbered fixes plus the polished code with every word of text kept. Use when asked for a \"final polish\", a \"pixel pass\", or to \"make this screen look cleaner\" on code the user pastes. Do not use to design a new screen from scratch, to rewrite UI copy (use copy-tight), or for a full accessibility audit.",
     "design-system": "Builds one complete, consistent design-token set from a brand hex colour, a description of the style, or the project's existing tokens (filling only the gaps, never overwriting), and writes design-tokens.json (W3C format), tokens.css with light and dark mode, and a report with every contrast ratio. Use when asked for a \"design system\", \"design tokens\", a \"colour palette from this hex\", a \"theme\" or \"dark mode tokens\". Do not use to design or build a screen or page, or to polish finished UI code (use ui-polish).",
-    "spec-writer": "Writes testable acceptance criteria as numbered Given-When-Then clauses (AC-1, AC-2 ...) from a feature request, user story or requirement text, each traced to a phrase of that text; what the text does not state becomes open questions for the Product Owner. Use when asked to \"write acceptance criteria\", \"turn this user story into Given-When-Then\" or \"spec this requirement\". Do not use for a regression checklist for a change or diff (use test-planner), test code, UI design, copy rewriting (use copy-tight), estimates or priorities."
+    "spec-writer": "Writes testable acceptance criteria as numbered Given-When-Then clauses (AC-1, AC-2 ...) from a feature request, user story or requirement text, each traced to a phrase of that text; what the text does not state becomes open questions for the Product Owner. Use when asked to \"write acceptance criteria\", \"turn this user story into Given-When-Then\" or \"spec this requirement\". Do not use for a regression checklist for a change or diff (use test-planner), test code, UI design, copy rewriting (use copy-tight), estimates or priorities.",
+    "a11y-audit": "Audits the HTML or JSX a user gives for what users cannot see (semantic elements and landmarks, heading order, page language and title, names for controls and form fields, errors and required state, keyboard access, ARIA, status messages, link purpose, tables, media, zoom) and returns numbered findings, each with the element, a rule id, the WCAG 2.2 success criterion (level A or AA), who is affected and the exact fix as a small code change. Use when asked for an \"accessibility audit\", \"a11y check\", \"screen reader check\" or \"ARIA review\" of code the user pastes. Do not use to fix contrast, focus style, spacing or target size (use ui-polish), to judge usability, to rewrite text (use copy-tight) or to certify conformance."
   },
   "answers": {
     "r1": "copy-tight",
@@ -46,6 +47,16 @@
     "sw6": "none",
     "sw7": "none",
     "sw8": "changelog-writer",
-    "sw9": "copy-tight"
+    "sw9": "copy-tight",
+    "ay1": "a11y-audit",
+    "ay2": "a11y-audit",
+    "ay3": "a11y-audit",
+    "ay4": "ui-polish",
+    "ay5": "copy-tight",
+    "ay6": "a11y-audit",
+    "ay7": "none",
+    "ay8": "none",
+    "ay9": "none",
+    "ay10": "none"
   }
 }
