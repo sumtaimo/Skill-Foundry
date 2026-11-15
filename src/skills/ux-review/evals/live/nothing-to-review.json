@@ -1,0 +1,8 @@
+{
+  "case": "nothing-to-review",
+  "prompt": "Can you do a UX review of our checkout?",
+  "agent": "claude",
+  "recordedAt": "2026-11-15",
+  "output": "Paste the screen's code or describe the flow step by step.",
+  "files": []
+}

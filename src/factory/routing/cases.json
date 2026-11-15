@@ -33,5 +33,14 @@
   { "id": "sw6", "prompt": "Write Playwright tests for the acceptance criteria below.", "expect": "none" },
   { "id": "sw7", "prompt": "Estimate the story points for these five tickets and tell me which to build first.", "expect": "none" },
   { "id": "sw8", "prompt": "We added password reset by email in 3.1.0. Write the changelog entry for that release.", "expect": "changelog-writer" },
-  { "id": "sw9", "prompt": "Our password reset error says \"We were unfortunately unable to reset your password at this point in time\". Tighten it.", "expect": "copy-tight" }
+  { "id": "sw9", "prompt": "Our password reset error says \"We were unfortunately unable to reset your password at this point in time\". Tighten it.", "expect": "copy-tight" },
+  { "id": "ux1", "prompt": "Here is our 5-step signup flow, described step by step. Do a usability review and tell me where users will get stuck.", "expect": "ux-review" },
+  { "id": "ux2", "prompt": "Review the UX of this settings screen (code pasted) and rate each problem by severity. Do not change the code.", "expect": "ux-review" },
+  { "id": "ux3", "prompt": "Users abandon our checkout at the payment step. Below is what each step shows and does; what is wrong with the flow?", "expect": "ux-review" },
+  { "id": "ux4", "prompt": "Here is the code of our finished profile screen. Fix the uneven spacing and add the missing hover states before we ship.", "expect": "ui-polish" },
+  { "id": "ux5", "prompt": "The error message on our payment form is long and confusing: \"We were unable to process the payment request at this time due to an error.\" Rewrite it shorter.", "expect": "copy-tight" },
+  { "id": "ux6", "prompt": "We added a review step to the checkout flow. What should we retest after this change?", "expect": "test-planner" },
+  { "id": "ux7", "prompt": "Design a new onboarding flow for our fitness app.", "expect": "none" },
+  { "id": "ux8", "prompt": "Run a full accessibility audit of this page: ARIA roles, form labels and screen reader output.", "expect": "none" },
+  { "id": "ux9", "prompt": "Write an interview guide for user research sessions about our checkout.", "expect": "none" }
 ]
