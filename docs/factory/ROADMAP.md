@@ -12,6 +12,7 @@ The project roadmap is in `docs/PROJECT.md` section 6. This file lists skills.
 | copy-tight | Rewrite UI copy to be short and plain without changing meaning (0.2.0) |
 | test-planner | Derive a numbered regression checklist from a change description or diff, never adding features the change does not name |
 | ui-polish | Final polish pass on finished UI code: on-scale spacing and type, contrast, one primary action, states; keeps every word and the brand hue |
+| ux-review | Review a screen or flow from code or a step description: 13 checkable usability rules, numbered findings with place, evidence, rule id, severity S1 to S4 and one recommendation in words; never fixes code, text, contrast or ARIA |
 
 `changelog-writer` and `copy-tight` do not have the ten layer files yet; they are listed in `src/factory/migration.json` and each is migrated in its own session.
 
@@ -20,7 +21,6 @@ The project roadmap is in `docs/PROJECT.md` section 6. This file lists skills.
 | Skill | Kind | Purpose | Boundary (what it never does) |
 |-------|------|---------|-------------------------------|
 | spec-writer | analysis | Write testable Given-When-Then acceptance criteria, as numbered clauses | Never a regression checklist (test-planner) |
-| ux-review | analysis | Review a screen or flow: affordance, feedback, mapping, error handling, choice count, target distance, memory load, familiar patterns; one severity per finding | Never fixes code (ui-polish), never semantics or ARIA (a11y-audit), never text (copy-tight) |
 | a11y-audit | analysis | Check what users cannot see: semantic HTML, labels, keyboard order, ARIA, screen reader output; list fixes | Never contrast, focus style or target size (ui-polish owns them) |
 
 Merged or dropped on 2026-11-15 (TAIMO approved): `usability-review` and `ux-laws-check` merged into `ux-review` (same input, same output, overlapping findings); `svg-cover` dropped (it is layer 04, step 10 of skill-smith).

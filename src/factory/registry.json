@@ -70,5 +70,15 @@
       "BA_ANALYST"
     ],
     "showcase": "midtone-teal"
+  },
+  {
+    "name": "ux-review",
+    "version": "1.0.0",
+    "purpose": "Reviews an existing screen or flow from its code or a step-by-step description and lists usability findings, each with its place, evidence, rule id, a severity from S1 to S4 and one recommendation in words; never changes code or text.",
+    "status": "ready",
+    "roles": [
+      "BA_ANALYST",
+      "QA_AUDITOR"
+    ]
   }
 ]

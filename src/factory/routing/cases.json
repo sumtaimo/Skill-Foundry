@@ -24,5 +24,14 @@
   { "id": "r23", "prompt": "Give our meditation app a calm, soft colour palette and type scale that developers can use as tokens.", "expect": "design-system" },
   { "id": "r24", "prompt": "Build me a complete landing page in our brand colour #0d9488.", "expect": "none" },
   { "id": "r25", "prompt": "Our theme switch says \"Click here to switch between the light and the dark colour theme\". Make it shorter.", "expect": "copy-tight" },
-  { "id": "r26", "prompt": "Here is the CSS of our finished checkout card; the grey text is hard to read and the spacing is uneven. Do a final pixel pass.", "expect": "ui-polish" }
+  { "id": "r26", "prompt": "Here is the CSS of our finished checkout card; the grey text is hard to read and the spacing is uneven. Do a final pixel pass.", "expect": "ui-polish" },
+  { "id": "ux1", "prompt": "Here is our 5-step signup flow, described step by step. Do a usability review and tell me where users will get stuck.", "expect": "ux-review" },
+  { "id": "ux2", "prompt": "Review the UX of this settings screen (code pasted) and rate each problem by severity. Do not change the code.", "expect": "ux-review" },
+  { "id": "ux3", "prompt": "Users abandon our checkout at the payment step. Below is what each step shows and does; what is wrong with the flow?", "expect": "ux-review" },
+  { "id": "ux4", "prompt": "Here is the code of our finished profile screen. Fix the uneven spacing and add the missing hover states before we ship.", "expect": "ui-polish" },
+  { "id": "ux5", "prompt": "The error message on our payment form is long and confusing: \"We were unable to process the payment request at this time due to an error.\" Rewrite it shorter.", "expect": "copy-tight" },
+  { "id": "ux6", "prompt": "We added a review step to the checkout flow. What should we retest after this change?", "expect": "test-planner" },
+  { "id": "ux7", "prompt": "Design a new onboarding flow for our fitness app.", "expect": "none" },
+  { "id": "ux8", "prompt": "Run a full accessibility audit of this page: ARIA roles, form labels and screen reader output.", "expect": "none" },
+  { "id": "ux9", "prompt": "Write an interview guide for user research sessions about our checkout.", "expect": "none" }
 ]
