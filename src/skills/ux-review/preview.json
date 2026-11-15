@@ -1,0 +1,7 @@
+{
+  "title": "ux-review",
+  "tagline": "Reviews a screen or flow and lists usability findings with a rule, a severity and a fix.",
+  "prompt": "Do a UX review of this flow: 1. Cart: a Delete link removes the item at once, with no undo. 2. Payment: after Pay the page stays the same for about 5 seconds.",
+  "outputs": ["Numbered usability findings with place, evidence, rule id, severity and recommendation", "Open questions for what the input does not show"],
+  "tags": ["ux", "usability", "review", "qa", "analysis"]
+}

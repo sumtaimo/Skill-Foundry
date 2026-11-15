@@ -1,0 +1,956 @@
+[
+  {
+    "id": "signup-form-code",
+    "prompt": "Do a UX review of this signup screen. The user wants to create an account.\n\n<form id=\"signup\">\n  <input id=\"email\" placeholder=\"Email\">\n  <input id=\"pw\" type=\"password\" placeholder=\"Password\">\n  <span class=\"go\" onclick=\"send()\">Create account</span>\n  <a href=\"#\" onclick=\"clearAll()\" style=\"margin-left:2px\">Reset</a>\n</form>\n<style>\n.go { color:#111; font-size:16px; cursor:default; }\n#signup input { height:28px; }\n</style>\n<script>\nasync function send() {\n  const r = await fetch('/api/signup', { method:'POST', body:new FormData(signup) });\n  if (!r.ok) { alert('Error'); signup.reset(); }\n  else location.href = '/welcome';\n}\nfunction clearAll() { signup.reset(); }\n</script>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## UX review:"
+      },
+      {
+        "type": "contains",
+        "value": "Main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Steps to main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Findings:"
+      },
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Not reviewed"
+      },
+      {
+        "type": "contains",
+        "value": "- Semantics, ARIA and screen-reader output: an accessibility audit."
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "### Severity scale"
+      },
+      {
+        "type": "contains",
+        "value": "- S1 Blocker: the user cannot complete the main goal, or loses data or money."
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "contains",
+        "value": "- Evidence: \""
+      },
+      {
+        "type": "contains",
+        "value": "- User experiences:"
+      },
+      {
+        "type": "contains",
+        "value": "- Recommendation:"
+      },
+      {
+        "type": "notContains",
+        "value": "This skill reviews usability; it does not change code."
+      },
+      {
+        "type": "notContains",
+        "value": "This skill reviews an existing screen or flow; it does not design new screens."
+      },
+      {
+        "type": "notContains",
+        "value": "This skill does not rewrite text; wording is quoted as written."
+      },
+      {
+        "type": "notContains",
+        "value": "Contrast, focus styles, spacing scales, semantics, ARIA and screen-reader output are not part of this review."
+      },
+      {
+        "type": "notContains",
+        "value": "Paste the screen's code or describe the flow step by step."
+      },
+      {
+        "type": "contains",
+        "value": "R-ux-review-2"
+      },
+      {
+        "type": "contains",
+        "value": "R-ux-review-6"
+      },
+      {
+        "type": "contains",
+        "value": "signup.reset()"
+      },
+      {
+        "type": "contains",
+        "value": "S1 Blocker |"
+      },
+      {
+        "type": "notContains",
+        "value": "aria-"
+      },
+      {
+        "type": "notContains",
+        "value": "role="
+      },
+      {
+        "type": "notContains",
+        "value": "4.5"
+      },
+      {
+        "type": "maxLines",
+        "value": 110
+      }
+    ]
+  },
+  {
+    "id": "checkout-flow-description",
+    "prompt": "Do a usability review of our checkout flow and rate each problem by severity. The user wants to pay for an order. The flow has 6 steps. 1. Cart: each item has a Remove link; clicking it removes the item at once and it cannot be brought back. A banner on this step shows a discount code, SAVE10. 2. Address: the user types the delivery address, then clicks Next. 3. Delivery: the user picks one of 3 delivery options, then clicks Continue. 4. Country: a plain list of 240 countries in alphabetical order, with nothing preselected and no search. 5. Discount: the user must type the discount code from the Cart banner; the banner is not shown on this step. 6. Payment: the user enters the card details and clicks Pay; the page stays the same for about 5 seconds, then the Receipt screen appears. No step shows which step the user is on.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## UX review:"
+      },
+      {
+        "type": "contains",
+        "value": "Main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Steps to main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Findings:"
+      },
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Not reviewed"
+      },
+      {
+        "type": "contains",
+        "value": "- Semantics, ARIA and screen-reader output: an accessibility audit."
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "### Severity scale"
+      },
+      {
+        "type": "contains",
+        "value": "- S1 Blocker: the user cannot complete the main goal, or loses data or money."
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "contains",
+        "value": "- Evidence: \""
+      },
+      {
+        "type": "contains",
+        "value": "- User experiences:"
+      },
+      {
+        "type": "contains",
+        "value": "- Recommendation:"
+      },
+      {
+        "type": "notContains",
+        "value": "This skill reviews usability; it does not change code."
+      },
+      {
+        "type": "notContains",
+        "value": "This skill reviews an existing screen or flow; it does not design new screens."
+      },
+      {
+        "type": "notContains",
+        "value": "This skill does not rewrite text; wording is quoted as written."
+      },
+      {
+        "type": "notContains",
+        "value": "Contrast, focus styles, spacing scales, semantics, ARIA and screen-reader output are not part of this review."
+      },
+      {
+        "type": "notContains",
+        "value": "Paste the screen's code or describe the flow step by step."
+      },
+      {
+        "type": "contains",
+        "value": "Steps to main goal: 6"
+      },
+      {
+        "type": "contains",
+        "value": "R-ux-review-5"
+      },
+      {
+        "type": "contains",
+        "value": "R-ux-review-7"
+      },
+      {
+        "type": "contains",
+        "value": "R-ux-review-10"
+      },
+      {
+        "type": "contains",
+        "value": "R-ux-review-13"
+      },
+      {
+        "type": "contains",
+        "value": "R-ux-review-2"
+      },
+      {
+        "type": "contains",
+        "value": "R-ux-review-3"
+      },
+      {
+        "type": "contains",
+        "value": "240"
+      },
+      {
+        "type": "notContains",
+        "value": "R-ux-review-8"
+      },
+      {
+        "type": "maxLines",
+        "value": 130
+      }
+    ]
+  },
+  {
+    "id": "code-and-description-conflict",
+    "prompt": "Review the usability of our notification settings screen. Description: the user turns email notifications on or off; after each change the screen shows a \"Saved\" message. Code:\n\n<label><input type=\"checkbox\" id=\"n\" onchange=\"save()\"> Email notifications</label>\n<script>\nfunction save() { fetch('/api/settings', { method:'POST', body:n.checked }); }\n</script>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## UX review:"
+      },
+      {
+        "type": "contains",
+        "value": "Main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Steps to main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Findings:"
+      },
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Not reviewed"
+      },
+      {
+        "type": "contains",
+        "value": "- Semantics, ARIA and screen-reader output: an accessibility audit."
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "### Severity scale"
+      },
+      {
+        "type": "contains",
+        "value": "- S1 Blocker: the user cannot complete the main goal, or loses data or money."
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "notContains",
+        "value": "This skill reviews usability; it does not change code."
+      },
+      {
+        "type": "notContains",
+        "value": "This skill reviews an existing screen or flow; it does not design new screens."
+      },
+      {
+        "type": "notContains",
+        "value": "This skill does not rewrite text; wording is quoted as written."
+      },
+      {
+        "type": "notContains",
+        "value": "Contrast, focus styles, spacing scales, semantics, ARIA and screen-reader output are not part of this review."
+      },
+      {
+        "type": "notContains",
+        "value": "Paste the screen's code or describe the flow step by step."
+      },
+      {
+        "type": "contains",
+        "value": "Conflict:"
+      },
+      {
+        "type": "contains",
+        "value": "Saved"
+      },
+      {
+        "type": "maxLines",
+        "value": 70
+      }
+    ]
+  },
+  {
+    "id": "not-shown-goes-to-open-questions",
+    "prompt": "UX review please. Flow to change a password, 2 steps. 1. Profile: the user clicks the Change password button and the Form step opens. 2. Form: the user types the old password and the new password, then clicks Save.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## UX review:"
+      },
+      {
+        "type": "contains",
+        "value": "Main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Steps to main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Findings:"
+      },
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Not reviewed"
+      },
+      {
+        "type": "contains",
+        "value": "- Semantics, ARIA and screen-reader output: an accessibility audit."
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "### Severity scale"
+      },
+      {
+        "type": "contains",
+        "value": "- S1 Blocker: the user cannot complete the main goal, or loses data or money."
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "notContains",
+        "value": "This skill reviews usability; it does not change code."
+      },
+      {
+        "type": "notContains",
+        "value": "This skill reviews an existing screen or flow; it does not design new screens."
+      },
+      {
+        "type": "notContains",
+        "value": "This skill does not rewrite text; wording is quoted as written."
+      },
+      {
+        "type": "notContains",
+        "value": "Contrast, focus styles, spacing scales, semantics, ARIA and screen-reader output are not part of this review."
+      },
+      {
+        "type": "notContains",
+        "value": "Paste the screen's code or describe the flow step by step."
+      },
+      {
+        "type": "contains",
+        "value": "Steps to main goal: 2"
+      },
+      {
+        "type": "contains",
+        "value": "Save"
+      },
+      {
+        "type": "notContains",
+        "value": "R-ux-review-2"
+      },
+      {
+        "type": "notContains",
+        "value": "R-ux-review-5"
+      },
+      {
+        "type": "notContains",
+        "value": "R-ux-review-6"
+      },
+      {
+        "type": "notContains",
+        "value": "R-ux-review-8"
+      },
+      {
+        "type": "notContains",
+        "value": "R-ux-review-9"
+      },
+      {
+        "type": "maxLines",
+        "value": 60
+      }
+    ]
+  },
+  {
+    "id": "fix-request",
+    "prompt": "Fix the usability problems in this code:\n\n<button onclick=\"deleteAccount()\">Delete my account</button>\n<script>\nfunction deleteAccount() { fetch('/api/account', { method:'DELETE' }).then(() => location.href = '/'); }\n</script>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "This skill reviews usability; it does not change code."
+      },
+      {
+        "type": "contains",
+        "value": "## UX review:"
+      },
+      {
+        "type": "contains",
+        "value": "Main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Steps to main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Findings:"
+      },
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Not reviewed"
+      },
+      {
+        "type": "contains",
+        "value": "- Semantics, ARIA and screen-reader output: an accessibility audit."
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "### Severity scale"
+      },
+      {
+        "type": "contains",
+        "value": "- S1 Blocker: the user cannot complete the main goal, or loses data or money."
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "contains",
+        "value": "- Evidence: \""
+      },
+      {
+        "type": "contains",
+        "value": "- User experiences:"
+      },
+      {
+        "type": "contains",
+        "value": "- Recommendation:"
+      },
+      {
+        "type": "contains",
+        "value": "R-ux-review-5"
+      },
+      {
+        "type": "contains",
+        "value": "Delete my account"
+      },
+      {
+        "type": "notContains",
+        "value": "confirm("
+      },
+      {
+        "type": "notContains",
+        "value": "<script"
+      },
+      {
+        "type": "notContains",
+        "value": "This skill reviews an existing screen or flow; it does not design new screens."
+      },
+      {
+        "type": "notContains",
+        "value": "Paste the screen's code or describe the flow step by step."
+      },
+      {
+        "type": "maxLines",
+        "value": 70
+      }
+    ]
+  },
+  {
+    "id": "design-request",
+    "prompt": "Design a new onboarding screen for our fitness app.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "This skill reviews an existing screen or flow; it does not design new screens."
+      },
+      {
+        "type": "notContains",
+        "value": "###"
+      },
+      {
+        "type": "notContains",
+        "value": "Findings"
+      },
+      {
+        "type": "notContains",
+        "value": "1."
+      },
+      {
+        "type": "maxLines",
+        "value": 2
+      }
+    ]
+  },
+  {
+    "id": "nothing-to-review",
+    "prompt": "Can you do a UX review of our checkout?",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "Paste the screen's code or describe the flow step by step."
+      },
+      {
+        "type": "notContains",
+        "value": "###"
+      },
+      {
+        "type": "notContains",
+        "value": "Findings"
+      },
+      {
+        "type": "notContains",
+        "value": "1."
+      },
+      {
+        "type": "maxLines",
+        "value": 2
+      }
+    ]
+  },
+  {
+    "id": "contrast-and-aria-out-of-scope",
+    "prompt": "Review this screen for usability, and also check the colour contrast and the ARIA attributes:\n\n<div style=\"color:#bbb;background:#fff\">\n  <p>You are on the Free plan.</p>\n  <div onclick=\"openPlans()\" style=\"color:#bbb\">Upgrade plan</div>\n</div>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "Contrast, focus styles, spacing scales, semantics, ARIA and screen-reader output are not part of this review."
+      },
+      {
+        "type": "contains",
+        "value": "## UX review:"
+      },
+      {
+        "type": "contains",
+        "value": "Main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Steps to main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Findings:"
+      },
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Not reviewed"
+      },
+      {
+        "type": "contains",
+        "value": "- Semantics, ARIA and screen-reader output: an accessibility audit."
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "### Severity scale"
+      },
+      {
+        "type": "contains",
+        "value": "- S1 Blocker: the user cannot complete the main goal, or loses data or money."
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "contains",
+        "value": "- Evidence: \""
+      },
+      {
+        "type": "contains",
+        "value": "- User experiences:"
+      },
+      {
+        "type": "contains",
+        "value": "- Recommendation:"
+      },
+      {
+        "type": "contains",
+        "value": "R-ux-review-1"
+      },
+      {
+        "type": "contains",
+        "value": "Upgrade plan"
+      },
+      {
+        "type": "notContains",
+        "value": "aria-"
+      },
+      {
+        "type": "notContains",
+        "value": "role="
+      },
+      {
+        "type": "notContains",
+        "value": "4.5"
+      },
+      {
+        "type": "notContains",
+        "value": "ratio"
+      },
+      {
+        "type": "notContains",
+        "value": "<button"
+      },
+      {
+        "type": "maxLines",
+        "value": 70
+      }
+    ]
+  },
+  {
+    "id": "rewrite-text-request",
+    "prompt": "Usability review of this payment form, and rewrite the error message so it is clearer:\n\n<form onsubmit=\"return check()\">\n  <p id=\"err\" style=\"position:fixed;top:0\"></p>\n  <label>Card number <input id=\"card\"></label>\n  <label>Name on card <input id=\"name\"></label>\n  <button>Pay</button>\n</form>\n<script>\nfunction check() {\n  if (card.value.length !== 16) { err.textContent = 'Invalid input.'; card.value = ''; name.value = ''; return false; }\n}\n</script>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "This skill does not rewrite text; wording is quoted as written."
+      },
+      {
+        "type": "contains",
+        "value": "## UX review:"
+      },
+      {
+        "type": "contains",
+        "value": "Main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Steps to main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Findings:"
+      },
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Not reviewed"
+      },
+      {
+        "type": "contains",
+        "value": "- Semantics, ARIA and screen-reader output: an accessibility audit."
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "### Severity scale"
+      },
+      {
+        "type": "contains",
+        "value": "- S1 Blocker: the user cannot complete the main goal, or loses data or money."
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "contains",
+        "value": "- Evidence: \""
+      },
+      {
+        "type": "contains",
+        "value": "- User experiences:"
+      },
+      {
+        "type": "contains",
+        "value": "- Recommendation:"
+      },
+      {
+        "type": "contains",
+        "value": "R-ux-review-6"
+      },
+      {
+        "type": "contains",
+        "value": "Invalid input."
+      },
+      {
+        "type": "notContains",
+        "value": "Rewritten"
+      },
+      {
+        "type": "notContains",
+        "value": "Suggested wording"
+      },
+      {
+        "type": "notContains",
+        "value": "should read"
+      },
+      {
+        "type": "notContains",
+        "value": "for example \""
+      },
+      {
+        "type": "maxLines",
+        "value": 80
+      }
+    ]
+  },
+  {
+    "id": "no-findings",
+    "prompt": "UX review of our newsletter signup. The user wants to subscribe. It is one screen and one step. There is one field with the visible label \"Email\" above it, marked as required, and under it the note \"Use the format name@example.com\". After the field comes one filled button, \"Subscribe\", 48 px high and 120 px wide, 16 px below the field. On click the button shows a spinner until the server answers; then the message \"You are subscribed\" appears under the button. If the email is wrong, the message \"Enter an email like name@example.com\" appears under the field and the typed email stays in the field.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## UX review:"
+      },
+      {
+        "type": "contains",
+        "value": "Main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Steps to main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Findings:"
+      },
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Not reviewed"
+      },
+      {
+        "type": "contains",
+        "value": "- Semantics, ARIA and screen-reader output: an accessibility audit."
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "### Severity scale"
+      },
+      {
+        "type": "contains",
+        "value": "- S1 Blocker: the user cannot complete the main goal, or loses data or money."
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "notContains",
+        "value": "This skill reviews usability; it does not change code."
+      },
+      {
+        "type": "notContains",
+        "value": "This skill reviews an existing screen or flow; it does not design new screens."
+      },
+      {
+        "type": "notContains",
+        "value": "This skill does not rewrite text; wording is quoted as written."
+      },
+      {
+        "type": "notContains",
+        "value": "Contrast, focus styles, spacing scales, semantics, ARIA and screen-reader output are not part of this review."
+      },
+      {
+        "type": "notContains",
+        "value": "Paste the screen's code or describe the flow step by step."
+      },
+      {
+        "type": "contains",
+        "value": "Findings: 0 (S1: 0, S2: 0, S3: 0, S4: 0)"
+      },
+      {
+        "type": "contains",
+        "value": "No findings."
+      },
+      {
+        "type": "contains",
+        "value": "Steps to main goal: 1"
+      },
+      {
+        "type": "notContains",
+        "value": "- Evidence:"
+      },
+      {
+        "type": "maxLines",
+        "value": 40
+      }
+    ]
+  },
+  {
+    "id": "design-tokens-cited",
+    "prompt": "UX review of this editor toolbar. Our token file has:\n\n:root { --size-6: 24px; --space-1: 4px; }\n\nCode:\n\n<div class=\"bar\">\n  <button class=\"ic\" title=\"Bold\">B</button>\n  <button class=\"ic\" title=\"Delete page\" onclick=\"deletePage()\">X</button>\n</div>\n<style>\n.ic { width: var(--size-6); height: var(--size-6); border: 1px solid; }\n.bar { display: flex; gap: var(--space-1); }\n</style>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## UX review:"
+      },
+      {
+        "type": "contains",
+        "value": "Main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Steps to main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Findings:"
+      },
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Not reviewed"
+      },
+      {
+        "type": "contains",
+        "value": "- Semantics, ARIA and screen-reader output: an accessibility audit."
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "### Severity scale"
+      },
+      {
+        "type": "contains",
+        "value": "- S1 Blocker: the user cannot complete the main goal, or loses data or money."
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "contains",
+        "value": "- Evidence: \""
+      },
+      {
+        "type": "contains",
+        "value": "- User experiences:"
+      },
+      {
+        "type": "contains",
+        "value": "- Recommendation:"
+      },
+      {
+        "type": "notContains",
+        "value": "This skill reviews usability; it does not change code."
+      },
+      {
+        "type": "notContains",
+        "value": "This skill reviews an existing screen or flow; it does not design new screens."
+      },
+      {
+        "type": "notContains",
+        "value": "This skill does not rewrite text; wording is quoted as written."
+      },
+      {
+        "type": "notContains",
+        "value": "Contrast, focus styles, spacing scales, semantics, ARIA and screen-reader output are not part of this review."
+      },
+      {
+        "type": "notContains",
+        "value": "Paste the screen's code or describe the flow step by step."
+      },
+      {
+        "type": "contains",
+        "value": "R-ux-review-8"
+      },
+      {
+        "type": "contains",
+        "value": "R-ux-review-9"
+      },
+      {
+        "type": "contains",
+        "value": "--size-6"
+      },
+      {
+        "type": "contains",
+        "value": "--space-1"
+      },
+      {
+        "type": "contains",
+        "value": "24"
+      },
+      {
+        "type": "maxLines",
+        "value": 80
+      }
+    ]
+  }
+]

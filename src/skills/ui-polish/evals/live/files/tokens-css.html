@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>tokens-css</title></head><body>
+<!-- The project's tokens.css, as pasted in the request, then the polished code copied word for word from evals/live/tokens-css.json -->
+<style>
+:root {
+  --color-brand: #0f766e;
+  --color-primary-50: #f0fdfc;
+  --color-primary-500: #52c0b7;
+  --color-primary-800: #0f766e;
+  --color-primary-900: #0c403c;
+  --color-neutral-50: #f4fbfa;
+  --color-neutral-100: #e9f2f1;
+  --color-neutral-200: #d2dfde;
+  --color-neutral-400: #96b0ae;
+  --color-neutral-500: #7a9492;
+  --color-neutral-600: #617b79;
+  --color-neutral-700: #4a6462;
+  --color-neutral-800: #364342;
+  --color-neutral-900: #202d2c;
+  --font-family-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 30px;
+  --line-height-body: 1.5;
+  --line-height-heading: 1.25;
+  --line-height-display: 1.2;
+  --font-weight-regular: 400;
+  --font-weight-strong: 600;
+  --measure: 65ch;
+  --space-0: 0px;
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-48: 48px;
+  --space-64: 64px;
+  --control-height-sm: 32px;
+  --control-height-md: 40px;
+  --control-height-lg: 48px;
+  --size-target-min: 44px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-full: 9999px;
+  --radius-control: var(--radius-md);
+  --shadow-1: 0 1px 2px 0px rgba(15, 25, 24, 0.08);
+  --border-width-hairline: 1px;
+  --border-width-thick: 2px;
+  --border-width-focus: 2px;
+  --duration-fast: 100ms;
+  --duration-base: 150ms;
+  --duration-slow: 200ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --color-surface-default: #ffffff;
+  --color-surface-subtle: var(--color-neutral-50);
+  --color-surface-raised: #ffffff;
+  --color-surface-sunken: var(--color-neutral-100);
+  --color-surface-inverse: var(--color-neutral-900);
+  --color-text-default: var(--color-neutral-900);
+  --color-text-muted: var(--color-neutral-700);
+  --color-text-disabled: var(--color-neutral-400);
+  --color-text-inverse: var(--color-neutral-50);
+  --color-text-link: var(--color-primary-800);
+  --color-text-link-hover: var(--color-primary-900);
+  --color-border-default: var(--color-neutral-200);
+  --color-border-strong: var(--color-neutral-600);
+  --color-border-focus: var(--color-primary-800);
+  --color-action-primary-bg: var(--color-primary-800);
+  --color-action-primary-bg-hover: var(--color-primary-900);
+  --color-action-primary-bg-pressed: var(--color-primary-900);
+  --color-action-primary-text: #ffffff;
+  --color-action-secondary-text: var(--color-primary-800);
+  --color-action-secondary-border: var(--color-primary-800);
+  --color-selected-bg: var(--color-primary-50);
+  --color-selected-text: var(--color-primary-800);
+}
+</style>
+<style>
+.card{padding:var(--space-12);background:var(--color-surface-raised);border:var(--border-width-hairline) solid var(--color-border-default);border-radius:var(--radius-md);font-family:var(--font-family-sans);transition:box-shadow var(--duration-slow)}
+.card h2{font-size:var(--font-size-2xl);line-height:var(--line-height-heading);font-weight:var(--font-weight-strong);margin:0 0 var(--space-4);color:var(--color-text-default)}
+.card p{font-size:var(--font-size-md);line-height:var(--line-height-body);max-width:var(--measure);color:var(--color-text-muted)}
+.card button{font-family:inherit;font-size:var(--font-size-md);padding:var(--space-8) var(--space-12);border-radius:var(--radius-control);min-height:var(--size-target-min);min-width:var(--size-target-min);cursor:pointer}
+.card button + button{margin-left:var(--space-8)}
+.card button:first-of-type{background:var(--color-action-primary-bg);color:var(--color-action-primary-text);border:var(--border-width-hairline) solid transparent}
+.card button:first-of-type:hover{background:var(--color-action-primary-bg-hover)}
+.card button:last-of-type{background:transparent;color:var(--color-action-secondary-text);border:var(--border-width-hairline) solid var(--color-action-secondary-border)}
+.card button:last-of-type:hover{background:var(--color-selected-bg)}
+.card button:focus-visible{outline:var(--border-width-focus) solid var(--color-border-focus);outline-offset:2px}
+.card button:disabled{opacity:0.5;cursor:not-allowed}
+@media (prefers-reduced-motion: reduce){.card{transition:none}}
+</style>
+<div class="card"><h2>Invoice 1042</h2><p>Due on 30 November. Pay by bank transfer or card.</p><button>Pay now</button><button>Download PDF</button></div>
+</body></html>

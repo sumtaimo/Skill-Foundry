@@ -1,0 +1,127 @@
+[
+  {
+    "id": "R-ux-review-1",
+    "text": "Affordance: every clickable control MUST look clickable, and an element that cannot be clicked MUST NOT look clickable.",
+    "checklist": "Each affordance finding quotes a control whose look and behaviour disagree."
+  },
+  {
+    "id": "R-ux-review-2",
+    "text": "Feedback: every action MUST be followed by a visible response; an action longer than 1 second MUST show a loading or progress state; a completed save, send, payment or delete MUST be confirmed on screen.",
+    "checklist": "Each feedback finding quotes an action whose handler or next step shows no response, loading state or confirmation."
+  },
+  {
+    "id": "R-ux-review-3",
+    "text": "System status: the screen MUST show the current step and the number of steps in a flow of 3 or more steps, what is selected, which filter or mode is on, and whether changes are saved.",
+    "checklist": "Each status finding names the state that is not visible."
+  },
+  {
+    "id": "R-ux-review-4",
+    "text": "Mapping: every control MUST sit inside or next to the thing it changes, and a set of controls MUST follow the same order as the things they control.",
+    "checklist": "Each mapping finding names the control and the thing it changes."
+  },
+  {
+    "id": "R-ux-review-5",
+    "text": "Error prevention: an action that deletes, pays, sends or overwrites MUST have a confirmation step or an undo; a field with a required format or limit MUST state it before the user submits.",
+    "checklist": "Each prevention finding quotes the destructive action or the field."
+  },
+  {
+    "id": "R-ux-review-6",
+    "text": "Error recovery: an error message MUST appear next to its cause, MUST say what to do next, and the screen MUST keep everything the user entered.",
+    "checklist": "Each recovery finding quotes the error path."
+  },
+  {
+    "id": "R-ux-review-7",
+    "text": "Choices: one step MUST offer at most 7 choices at one level; a longer list MUST have groups, a search or a preselected default.",
+    "checklist": "Each choice finding gives the count of choices."
+  },
+  {
+    "id": "R-ux-review-8",
+    "text": "Target size: every target MUST be at least 44 by 44 px.",
+    "checklist": "Each size finding gives the size in px from the input."
+  },
+  {
+    "id": "R-ux-review-9",
+    "text": "Target distance: two neighbouring targets MUST be at least 8 px apart, and targets used one after the other in the same step MUST be in the same visible group.",
+    "checklist": "Each distance finding gives the gap in px or names the two groups."
+  },
+  {
+    "id": "R-ux-review-10",
+    "text": "Memory load: the user MUST have 0 things to remember between steps; every value needed later is shown where it is needed, and nothing already entered is asked again.",
+    "checklist": "Each memory finding names the value and the two steps."
+  },
+  {
+    "id": "R-ux-review-11",
+    "text": "Consistency: the same action MUST have the same label and position on every screen of the input, and one label MUST NOT name two different actions.",
+    "checklist": "Each consistency finding quotes both labels or positions."
+  },
+  {
+    "id": "R-ux-review-12",
+    "text": "Familiar patterns: a control MUST behave as its row in the familiar-pattern table says.",
+    "checklist": "Each pattern finding matches a row P1 to P7 of the table."
+  },
+  {
+    "id": "R-ux-review-13",
+    "text": "Steps: the main goal MUST be reachable in at most 5 steps, and every step MUST collect or show something the main goal needs.",
+    "checklist": "The step count is stated and each steps finding names the step."
+  },
+  {
+    "id": "R-ux-review-14",
+    "text": "Every finding MUST quote evidence that is present in the input; what the input does not show MUST go under Open questions and is NEVER guessed.",
+    "checklist": "Each evidence quote appears in the input, and no finding rests on something not shown."
+  },
+  {
+    "id": "R-ux-review-15",
+    "text": "Every finding MUST carry exactly one severity: S1 Blocker, S2 Major, S3 Minor or S4 Note, chosen with the ordered questions.",
+    "checklist": "Each finding has one severity and it follows the ordered questions."
+  },
+  {
+    "id": "R-ux-review-16",
+    "text": "Every finding MUST have exactly one recommendation, one sentence in words; NEVER code, replacement wording or a new layout.",
+    "checklist": "Each recommendation is one sentence with no code and no replacement wording."
+  },
+  {
+    "id": "R-ux-review-17",
+    "text": "NEVER fix, rewrite or produce code; a request to fix the code MUST get the exact sentence \"This skill reviews usability; it does not change code.\".",
+    "checklist": "The reply has no code block, and a fix request starts with the exact sentence."
+  },
+  {
+    "id": "R-ux-review-18",
+    "text": "NEVER report contrast ratios, focus styles, spacing or type scales, semantics, ARIA or screen-reader output, and NEVER rewrite text; a request for one MUST get its exact sentence.",
+    "checklist": "The reply reports none of these and gives the exact sentence when one was asked for."
+  },
+  {
+    "id": "R-ux-review-19",
+    "text": "With no screen or flow in the message, the reply MUST be exactly \"Paste the screen's code or describe the flow step by step.\" and nothing else.",
+    "checklist": "With nothing to review, the reply is only the exact sentence."
+  },
+  {
+    "id": "R-ux-review-20",
+    "text": "A request to design a new screen MUST get the exact sentence \"This skill reviews an existing screen or flow; it does not design new screens.\" and no design.",
+    "checklist": "A design request gets the exact sentence and no design."
+  },
+  {
+    "id": "R-ux-review-21",
+    "text": "The reply MUST follow the output format; findings are numbered 1 to N, most severe first, one place and one rule per finding.",
+    "checklist": "The reply has every section in order, numbers 1 to N, and severities that never rise down the list."
+  },
+  {
+    "id": "R-ux-review-22",
+    "text": "The skill MUST have the ten core layers, each linked from SKILL.md.",
+    "check": "chk-layers"
+  },
+  {
+    "id": "R-ux-review-23",
+    "text": "The skill MUST be self-contained; NEVER name a repository path in SKILL.md, layers or references.",
+    "check": "chk-portable"
+  },
+  {
+    "id": "R-ux-review-24",
+    "text": "SKILL.md MUST stay within 150 lines, with frontmatter name, description and semver version.",
+    "check": "chk-size"
+  },
+  {
+    "id": "R-ux-review-25",
+    "text": "Every relative link MUST point to a file inside the skill folder.",
+    "check": "chk-links"
+  }
+]
