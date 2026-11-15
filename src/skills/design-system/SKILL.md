@@ -1,0 +1,84 @@
+---
+name: design-system
+description: Builds one complete, consistent design-token set from a brand hex colour, a description of the style, or the project's existing tokens (filling only the gaps, never overwriting), and writes design-tokens.json (W3C format), tokens.css with light and dark mode, and a report with every contrast ratio. Use when asked for a "design system", "design tokens", a "colour palette from this hex", a "theme" or "dark mode tokens". Do not use to design or build a screen or page, or to polish finished UI code (use ui-polish).
+version: 1.0.0
+---
+
+# design-system
+
+Turns the goal a user states into one token set any agent or developer can read: colour scales that keep
+the user's hue, semantic roles for light and dark mode with every text pair checked for contrast, type,
+spacing, control sizes, radius, shadow, border widths, motion, breakpoints and density.
+The numbers come from the engine in this folder, so the same input always gives the same tokens.
+
+## When to use
+
+- Use when someone gives one or more hex colours and asks for a design system, tokens, a palette or a theme.
+- Use when someone describes a mood or style ("calm", "bold and playful", "like a banking app") and wants tokens.
+- Use when a project already has tokens and someone asks to complete them (dark mode, motion, missing scales).
+- Do not use to design a screen, page or flow; reply with the fixed sentence in layer 06, step 2.
+- Do not use to polish finished screen code; that is ui-polish.
+- Without a colour, a style or an existing system, ask with the exact sentence in layer 03, step 7.
+
+## Procedure
+
+Follow the layers in order. Each layer file is the detailed chapter for that step.
+
+1. Intent: find the path (colour, style or existing system) and the defined terms. [layers/01-intent.md](layers/01-intent.md)
+2. Context: look for an existing design system in the project. [layers/02-context.md](layers/02-context.md)
+3. Inputs: colours with roles, archetype, font, product name; ask when nothing is given. [layers/03-inputs.md](layers/03-inputs.md)
+4. Flow: run the engine, or build by hand from the references when it cannot run. [layers/04-flow.md](layers/04-flow.md)
+5. Rules: the MUST / NEVER rules by id. [layers/05-rules.md](layers/05-rules.md)
+6. States and edge cases: no input, a screen request, "like a brand", many colours, existing files. [layers/06-states.md](layers/06-states.md)
+7. Checks: hue kept, every pair's ratio, files, no external links. [layers/07-checks.md](layers/07-checks.md)
+8. Output: the three files, the reply and the quality bar. [layers/08-output.md](layers/08-output.md)
+9. Handoff: how the user loads the tokens and what to use next. [layers/09-handoff.md](layers/09-handoff.md)
+10. Evidence: what to keep as proof. [layers/10-evidence.md](layers/10-evidence.md)
+
+The fixed scales, the contrast formula and the token names are in [references/README.md](references/README.md).
+The five style archetypes, each a set of numbers, are in [references/archetypes.md](references/archetypes.md).
+The engine is `engine/tokens.mjs` in this folder (Node.js, no dependencies).
+
+## Rules
+
+- R-design-system-1: The user's hex colour MUST appear unchanged in its scale, and every step MUST aim at its exact hue and saturation, changing only lightness; rounding to hex MAY move the hue at most 1 degree at steps 300 to 800 and 4 degrees at the other steps (inputs with 25% saturation or more). NEVER change a given hue.
+- R-design-system-2: Every colour scale MUST have the steps 50 to 900; the neutral scale MUST also have 950.
+- R-design-system-3: Every text role MUST reach 4.5:1 on every surface it is meant for, in light and in dark mode; borders and focus rings MUST reach 3:1; every ratio MUST be written as a number with ":1".
+- R-design-system-4: The output MUST be design-tokens.json in the W3C design tokens format ($type, $value, aliases in braces) and tokens.css with custom properties.
+- R-design-system-5: tokens.css MUST give dark values both under prefers-color-scheme: dark and under a data-theme="dark" attribute, and MUST let data-theme="light" force light.
+- R-design-system-6: The set MUST cover colour, typography, spacing, control heights with a 44 px minimum target, radius, shadow, border widths, motion with reduced motion, breakpoints and density.
+- R-design-system-7: Spacing MUST use the scale 0, 4, 8, 12, 16, 24, 32, 48, 64 px; font sizes MUST come from 12, 14, 16, 18, 20, 24, 30, 36, 48 px; body text MUST be 16 px or more with line-height 1.5; a set MUST use exactly two font weights.
+- R-design-system-8: NEVER add external fonts, imports, links or scripts; use the system font stack unless the user names a font, and then put that name first in the stack.
+- R-design-system-9: With an existing design system, NEVER change, rename or delete an existing token or file; write only the missing groups to design-tokens.gaps.json and tokens.gaps.css, and report existing pairs below 4.5:1 as kept.
+- R-design-system-10: A style MUST map to exactly one of the five archetypes in references/archetypes.md, and the report MUST name it and say why in one line.
+- R-design-system-11: NEVER write the name of a brand or product the user compares to ("like <brand>") in any file or in the reply; map it to an archetype and call it "the product you named".
+- R-design-system-12: With no colour, no style and no existing system, the skill MUST ask with the exact sentence of layer 03, step 7, and NEVER write files.
+- R-design-system-13: A request to design a screen, page or flow MUST get the exact decline sentence of layer 06, step 2, and no files and no markup.
+- R-design-system-14: The reply MUST be the report in the layer 08 format, ending with Open questions.
+- R-design-system-15: The skill MUST have the ten core layers, each linked from SKILL.md.
+- R-design-system-16: The skill MUST be self-contained; NEVER name a repository path in SKILL.md, layers or references.
+- R-design-system-17: SKILL.md MUST stay within 150 lines, with frontmatter name, description and semver version.
+- R-design-system-18: Every relative link MUST point to a file inside the skill folder.
+
+Each rule's check or reviewer item is in `RULES.json`.
+
+## Checks
+
+- Run the engine: it exits 0 only when every text pair meets its minimum, and prints every ratio.
+- Search design-tokens.json and tokens.css for each hex the user gave; each appears unchanged.
+- Search tokens.css for "prefers-color-scheme: dark", `[data-theme="dark"]` and "prefers-reduced-motion".
+- Search the output for "@import", "http" and "url(": none may appear.
+- Answer the reviewer items in [references/README.md](references/README.md); any "no" blocks the reply.
+
+## Review
+
+A designer reads the report and checks that the brand colour is untouched, the archetype fits the words the
+user used, and every contrast ratio passes; a developer loads tokens.css in a page and switches data-theme.
+
+## Output
+
+Three files in the folder the user names (else the current folder): `design-tokens.json`, `tokens.css`,
+`design-system-report.md` (with an existing system: `design-tokens.gaps.json`, `tokens.gaps.css` and the report).
+The reply is the report, word for word, with nothing before or after it. When a request asks for a short report of
+the files, checks and open items, this report is that report: it lists them in that order.
+The exact shape is in [layers/08-output.md](layers/08-output.md).

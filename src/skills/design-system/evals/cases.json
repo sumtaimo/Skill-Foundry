@@ -1,0 +1,734 @@
+[
+  {
+    "id": "hex-invoicing",
+    "prompt": "Build a design system for our invoicing app. Our brand colour is #0f766e.",
+    "expect": [
+      {
+        "type": "fileExists",
+        "value": "design-tokens.json"
+      },
+      {
+        "type": "fileExists",
+        "value": "tokens.css"
+      },
+      {
+        "type": "fileExists",
+        "value": "design-system-report.md"
+      },
+      {
+        "type": "contains",
+        "value": "## Design system:"
+      },
+      {
+        "type": "contains",
+        "value": "### Contrast"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "\"$type\": \"color\""
+      },
+      {
+        "type": "contains",
+        "value": "\"$value\""
+      },
+      {
+        "type": "contains",
+        "value": "prefers-color-scheme: dark"
+      },
+      {
+        "type": "contains",
+        "value": ":root[data-theme=\"dark\"]"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-reduced-motion: reduce"
+      },
+      {
+        "type": "contains",
+        "value": "--size-target-min: 44px"
+      },
+      {
+        "type": "notContains",
+        "value": "@import"
+      },
+      {
+        "type": "notContains",
+        "value": "<link"
+      },
+      {
+        "type": "notContains",
+        "value": "url("
+      },
+      {
+        "type": "contains",
+        "value": "--color-primary-800: #0f766e"
+      },
+      {
+        "type": "contains",
+        "value": "precise-fintech"
+      },
+      {
+        "type": "contains",
+        "value": "5.47:1"
+      },
+      {
+        "type": "contains",
+        "value": "--color-action-primary-bg: var(--color-primary-800)"
+      },
+      {
+        "type": "contains",
+        "value": "--space-64: 64px"
+      },
+      {
+        "type": "contains",
+        "value": "--color-neutral-950"
+      }
+    ]
+  },
+  {
+    "id": "two-hex-kids",
+    "prompt": "Set up design tokens for a learning app for kids. Primary #7c3aed, accent #f59e0b. It should feel fun and energetic.",
+    "expect": [
+      {
+        "type": "fileExists",
+        "value": "design-tokens.json"
+      },
+      {
+        "type": "fileExists",
+        "value": "tokens.css"
+      },
+      {
+        "type": "fileExists",
+        "value": "design-system-report.md"
+      },
+      {
+        "type": "contains",
+        "value": "## Design system:"
+      },
+      {
+        "type": "contains",
+        "value": "### Contrast"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "\"$type\": \"color\""
+      },
+      {
+        "type": "contains",
+        "value": "\"$value\""
+      },
+      {
+        "type": "contains",
+        "value": "prefers-color-scheme: dark"
+      },
+      {
+        "type": "contains",
+        "value": ":root[data-theme=\"dark\"]"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-reduced-motion: reduce"
+      },
+      {
+        "type": "contains",
+        "value": "--size-target-min: 44px"
+      },
+      {
+        "type": "notContains",
+        "value": "@import"
+      },
+      {
+        "type": "notContains",
+        "value": "<link"
+      },
+      {
+        "type": "notContains",
+        "value": "url("
+      },
+      {
+        "type": "contains",
+        "value": "--color-primary-500: #7c3aed"
+      },
+      {
+        "type": "contains",
+        "value": "--color-accent-500: #f59e0b"
+      },
+      {
+        "type": "contains",
+        "value": "bold-consumer"
+      },
+      {
+        "type": "contains",
+        "value": "5.70:1"
+      },
+      {
+        "type": "contains",
+        "value": "7.29:1"
+      },
+      {
+        "type": "contains",
+        "value": "--color-surface-brand"
+      },
+      {
+        "type": "contains",
+        "value": "--radius-control: var(--radius-full)"
+      }
+    ]
+  },
+  {
+    "id": "mood-calm",
+    "prompt": "We're building a quiet note-taking app and have no brand colour yet. It should feel calm, soft and friendly. Make us the design tokens.",
+    "expect": [
+      {
+        "type": "fileExists",
+        "value": "design-tokens.json"
+      },
+      {
+        "type": "fileExists",
+        "value": "tokens.css"
+      },
+      {
+        "type": "fileExists",
+        "value": "design-system-report.md"
+      },
+      {
+        "type": "contains",
+        "value": "## Design system:"
+      },
+      {
+        "type": "contains",
+        "value": "### Contrast"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "\"$type\": \"color\""
+      },
+      {
+        "type": "contains",
+        "value": "\"$value\""
+      },
+      {
+        "type": "contains",
+        "value": "prefers-color-scheme: dark"
+      },
+      {
+        "type": "contains",
+        "value": ":root[data-theme=\"dark\"]"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-reduced-motion: reduce"
+      },
+      {
+        "type": "contains",
+        "value": "--size-target-min: 44px"
+      },
+      {
+        "type": "notContains",
+        "value": "@import"
+      },
+      {
+        "type": "notContains",
+        "value": "<link"
+      },
+      {
+        "type": "notContains",
+        "value": "url("
+      },
+      {
+        "type": "contains",
+        "value": "calm-workspace"
+      },
+      {
+        "type": "contains",
+        "value": "archetype default"
+      },
+      {
+        "type": "contains",
+        "value": "#0f766e"
+      },
+      {
+        "type": "contains",
+        "value": "--control-height-md: 44px"
+      },
+      {
+        "type": "contains",
+        "value": "--duration-base: 200ms"
+      }
+    ]
+  },
+  {
+    "id": "like-brand",
+    "prompt": "Make our design tokens feel like Brightledger, the online bank everyone talks about. Our colour is #1e3a8a.",
+    "expect": [
+      {
+        "type": "fileExists",
+        "value": "design-tokens.json"
+      },
+      {
+        "type": "fileExists",
+        "value": "tokens.css"
+      },
+      {
+        "type": "fileExists",
+        "value": "design-system-report.md"
+      },
+      {
+        "type": "contains",
+        "value": "## Design system:"
+      },
+      {
+        "type": "contains",
+        "value": "### Contrast"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "\"$type\": \"color\""
+      },
+      {
+        "type": "contains",
+        "value": "\"$value\""
+      },
+      {
+        "type": "contains",
+        "value": "prefers-color-scheme: dark"
+      },
+      {
+        "type": "contains",
+        "value": ":root[data-theme=\"dark\"]"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-reduced-motion: reduce"
+      },
+      {
+        "type": "contains",
+        "value": "--size-target-min: 44px"
+      },
+      {
+        "type": "notContains",
+        "value": "@import"
+      },
+      {
+        "type": "notContains",
+        "value": "<link"
+      },
+      {
+        "type": "notContains",
+        "value": "url("
+      },
+      {
+        "type": "contains",
+        "value": "precise-fintech"
+      },
+      {
+        "type": "contains",
+        "value": "--color-primary-700: #1e3a8a"
+      },
+      {
+        "type": "contains",
+        "value": "10.36:1"
+      },
+      {
+        "type": "notContains",
+        "value": "Brightledger"
+      },
+      {
+        "type": "notContains",
+        "value": "brightledger"
+      }
+    ]
+  },
+  {
+    "id": "existing-gaps",
+    "prompt": "Our project already has these tokens in styles/brand.css. Fill in what is missing (dark mode, motion and so on), but don't change anything we already have:\n:root {\n  --brand-primary: #7c3aed;\n  --bg: #ffffff;\n  --text: #111827;\n  --text-muted: #9ca3af;\n  --border: #e5e7eb;\n  --space-1: 4px;\n  --space-2: 8px;\n  --space-3: 16px;\n  --radius-card: 6px;\n  --font-body: \"Helvetica Neue\", Arial, sans-serif;\n  --font-size-base: 16px;\n}",
+    "expect": [
+      {
+        "type": "fileExists",
+        "value": "tokens.gaps.css"
+      },
+      {
+        "type": "fileExists",
+        "value": "design-tokens.gaps.json"
+      },
+      {
+        "type": "fileExists",
+        "value": "design-system-report.md"
+      },
+      {
+        "type": "contains",
+        "value": "## Design system:"
+      },
+      {
+        "type": "contains",
+        "value": "Path c"
+      },
+      {
+        "type": "contains",
+        "value": "### Kept from your system"
+      },
+      {
+        "type": "contains",
+        "value": "### Added"
+      },
+      {
+        "type": "contains",
+        "value": "2.54:1"
+      },
+      {
+        "type": "contains",
+        "value": "(yours, kept)"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-color-scheme: dark"
+      },
+      {
+        "type": "contains",
+        "value": ":root[data-theme=\"dark\"]"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-reduced-motion: reduce"
+      },
+      {
+        "type": "contains",
+        "value": "--duration-fast"
+      },
+      {
+        "type": "contains",
+        "value": "Dark values for your existing role tokens"
+      },
+      {
+        "type": "notContains",
+        "value": "@import"
+      }
+    ]
+  },
+  {
+    "id": "yellow-brand",
+    "prompt": "Our food delivery brand is yellow, #facc15. Build the design tokens, bold and playful.",
+    "expect": [
+      {
+        "type": "fileExists",
+        "value": "design-tokens.json"
+      },
+      {
+        "type": "fileExists",
+        "value": "tokens.css"
+      },
+      {
+        "type": "fileExists",
+        "value": "design-system-report.md"
+      },
+      {
+        "type": "contains",
+        "value": "## Design system:"
+      },
+      {
+        "type": "contains",
+        "value": "### Contrast"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "\"$type\": \"color\""
+      },
+      {
+        "type": "contains",
+        "value": "\"$value\""
+      },
+      {
+        "type": "contains",
+        "value": "prefers-color-scheme: dark"
+      },
+      {
+        "type": "contains",
+        "value": ":root[data-theme=\"dark\"]"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-reduced-motion: reduce"
+      },
+      {
+        "type": "contains",
+        "value": "--size-target-min: 44px"
+      },
+      {
+        "type": "notContains",
+        "value": "@import"
+      },
+      {
+        "type": "notContains",
+        "value": "<link"
+      },
+      {
+        "type": "notContains",
+        "value": "url("
+      },
+      {
+        "type": "contains",
+        "value": "bold-consumer"
+      },
+      {
+        "type": "contains",
+        "value": "--color-primary-500: #facc15"
+      },
+      {
+        "type": "contains",
+        "value": "--color-action-primary-bg: var(--color-primary-500)"
+      },
+      {
+        "type": "contains",
+        "value": "--color-action-primary-text: var(--color-neutral-900)"
+      },
+      {
+        "type": "contains",
+        "value": "9.63:1"
+      }
+    ]
+  },
+  {
+    "id": "font-editorial",
+    "prompt": "Design tokens for our online magazine. Brand red is #be123c, and we use the font Atkinson Hyperlegible, which we host ourselves.",
+    "expect": [
+      {
+        "type": "fileExists",
+        "value": "design-tokens.json"
+      },
+      {
+        "type": "fileExists",
+        "value": "tokens.css"
+      },
+      {
+        "type": "fileExists",
+        "value": "design-system-report.md"
+      },
+      {
+        "type": "contains",
+        "value": "## Design system:"
+      },
+      {
+        "type": "contains",
+        "value": "### Contrast"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "\"$type\": \"color\""
+      },
+      {
+        "type": "contains",
+        "value": "\"$value\""
+      },
+      {
+        "type": "contains",
+        "value": "prefers-color-scheme: dark"
+      },
+      {
+        "type": "contains",
+        "value": ":root[data-theme=\"dark\"]"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-reduced-motion: reduce"
+      },
+      {
+        "type": "contains",
+        "value": "--size-target-min: 44px"
+      },
+      {
+        "type": "notContains",
+        "value": "@import"
+      },
+      {
+        "type": "notContains",
+        "value": "<link"
+      },
+      {
+        "type": "notContains",
+        "value": "url("
+      },
+      {
+        "type": "contains",
+        "value": "editorial"
+      },
+      {
+        "type": "contains",
+        "value": "--color-primary-600: #be123c"
+      },
+      {
+        "type": "contains",
+        "value": "Atkinson Hyperlegible"
+      },
+      {
+        "type": "contains",
+        "value": "6.29:1"
+      },
+      {
+        "type": "contains",
+        "value": "--font-size-md: 18px"
+      },
+      {
+        "type": "notContains",
+        "value": "fonts.googleapis"
+      },
+      {
+        "type": "notContains",
+        "value": "@font-face"
+      }
+    ]
+  },
+  {
+    "id": "dense-tool",
+    "prompt": "We need tokens for an internal admin tool full of tables; it has to be dense and compact. Colour #4f46e5.",
+    "expect": [
+      {
+        "type": "fileExists",
+        "value": "design-tokens.json"
+      },
+      {
+        "type": "fileExists",
+        "value": "tokens.css"
+      },
+      {
+        "type": "fileExists",
+        "value": "design-system-report.md"
+      },
+      {
+        "type": "contains",
+        "value": "## Design system:"
+      },
+      {
+        "type": "contains",
+        "value": "### Contrast"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "\"$type\": \"color\""
+      },
+      {
+        "type": "contains",
+        "value": "\"$value\""
+      },
+      {
+        "type": "contains",
+        "value": "prefers-color-scheme: dark"
+      },
+      {
+        "type": "contains",
+        "value": ":root[data-theme=\"dark\"]"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-reduced-motion: reduce"
+      },
+      {
+        "type": "contains",
+        "value": "--size-target-min: 44px"
+      },
+      {
+        "type": "notContains",
+        "value": "@import"
+      },
+      {
+        "type": "notContains",
+        "value": "<link"
+      },
+      {
+        "type": "notContains",
+        "value": "url("
+      },
+      {
+        "type": "contains",
+        "value": "dense-data-tool"
+      },
+      {
+        "type": "contains",
+        "value": "--color-primary-400: #4f46e5"
+      },
+      {
+        "type": "contains",
+        "value": "--control-height-sm: 24px"
+      },
+      {
+        "type": "contains",
+        "value": "--density-row: 32px"
+      },
+      {
+        "type": "contains",
+        "value": "6.29:1"
+      }
+    ]
+  },
+  {
+    "id": "no-input",
+    "prompt": "Make us a design system.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "Give me a brand colour as a hex code (for example #2563eb), a few words about the style you want, or the path to your existing design tokens."
+      },
+      {
+        "type": "notContains",
+        "value": "$value"
+      },
+      {
+        "type": "notContains",
+        "value": "### Contrast"
+      },
+      {
+        "type": "maxLines",
+        "value": 3
+      }
+    ]
+  },
+  {
+    "id": "screen-declined",
+    "prompt": "Design the full dashboard screen for our analytics app, with a sidebar, charts and a table.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "This skill builds design tokens, not screens. For finished screen code, use ui-polish."
+      },
+      {
+        "type": "notContains",
+        "value": "<div"
+      },
+      {
+        "type": "notContains",
+        "value": "$value"
+      },
+      {
+        "type": "maxLines",
+        "value": 3
+      }
+    ]
+  }
+]
