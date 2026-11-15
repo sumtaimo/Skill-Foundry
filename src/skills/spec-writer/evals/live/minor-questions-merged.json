@@ -1,0 +1,8 @@
+{
+  "case": "minor-questions-merged",
+  "prompt": "Acceptance criteria for this story: As a visitor, I want to subscribe to the newsletter from the page footer by entering my email. After subscribing, the footer shows \"Thanks for subscribing.\" Every newsletter has an unsubscribe link.",
+  "agent": "claude",
+  "recordedAt": "2026-11-15",
+  "output": "## Acceptance criteria: newsletter subscription\n\nRequirement: A visitor subscribes to the newsletter by entering their email in the page footer, the footer then shows \"Thanks for subscribing.\", and every newsletter has an unsubscribe link.\n\n### Main path\nAC-1. Given a visitor who has entered an email in the page footer, when the visitor subscribes, then that email is subscribed to the newsletter. _subscribe to the newsletter from the page footer by entering my email_\nAC-2. Given a visitor in the page footer, when the visitor subscribes, then the footer shows \"Thanks for subscribing.\" _After subscribing, the footer shows \"Thanks for subscribing.\"_\nAC-3. Given a newsletter that has been sent, when a subscriber views it, then it has an unsubscribe link. _Every newsletter has an unsubscribe link._\n\n### Open questions\n- [minor] Validation and errors: What does the footer show when the entered email is not a valid email address? Validation and errors: What happens when the visitor enters an email that is already subscribed?\n- [minor] Main path: What happens when a subscriber opens the unsubscribe link?\n\n### Out of scope\nNone stated.",
+  "files": []
+}

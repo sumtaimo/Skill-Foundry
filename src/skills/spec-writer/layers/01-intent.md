@@ -10,14 +10,16 @@ Defined terms, used by every layer:
 - **Heading**: one of six fixed groups, in this order: "Main path", "Validation and errors", "Permissions and roles", "Empty, loading and disabled states", "Persistence after reload", "Limits".
 - **Gap**: something a clause would need that the requirement text does not state.
 - **Vague word**: a quality word with no measure in the text, such as "fast", "easy", "simple", "secure", "intuitive", "user-friendly", "quickly", "reliable", "scalable".
-- **Open question**: a question to the Product Owner about a gap, a vague word or a conflict.
+- **Open question**: a question to the Product Owner about a gap, a vague word or a conflict. Every open question is either blocking or minor.
+- **Blocking question**: an open question whose answer a clause needs. Without it, a clause for a statement of the text cannot be written or cannot be tested: a value, a role, a state or a result is missing. It names the clause or the source phrase it blocks. A vague word and a conflict are always blocking.
+- **Minor question**: an open question about something no statement of the text points to (an edge case, an extra role, a screen state), or a detail the tester can settle without the Product Owner. It blocks no clause.
 - **Exclusion**: something the requirement text itself says is not included.
 
 Clauses:
 
 1. Read the user's message and find the goal in their words. The usual goals are "write acceptance criteria for this story" and "turn this requirement into Given-When-Then".
 2. Find the requirement text in the message. If there is none, go to layer 03.
-3. State the intent in one sentence: write the acceptance criteria for the named requirement as clauses AC-1 to AC-N, with every gap as an open question.
+3. State the intent in one sentence: write the acceptance criteria for the named requirement as clauses AC-1 to AC-N, with every blocking gap as a blocking question and the rest as a few merged minor lines.
 4. State the outcome that proves success: every clause traces to a source phrase, and a tester can answer each clause pass or fail.
 5. Ask one question only when the goal is unclear. Never guess the requirement.
 6. Hand the intent and the defined terms to layer 02.

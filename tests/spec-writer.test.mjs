@@ -29,6 +29,8 @@ const answers = {
   'title-only': 'Describe the requirement for the new export feature: who uses it, what they do and what must happen.',
   'negative-test-code': `${CODE}\n\n## Acceptance criteria: wishlist\n\n### Main path\nAC-1. Given a shopper on the product page, when the shopper saves an item, then it is in the wishlist. _save an item to my wishlist_\nAC-2. Given a saved item, when it is shown, then it shows a filled heart icon. _A saved item shows a filled heart icon._${END}`,
   'negative-regression-diff': DIFF,
+  'many-blocking-questions': '## Acceptance criteria: expense reports\n\nRequirement: expense approval.\n\n### Permissions and roles\nAC-1. Given an expense report above the approval limit, when it is submitted, then it goes to the finance team. _A report above the approval limit goes to the finance team._\n\n### Limits\nAC-2. Given an expense above the receipt threshold, when the report is submitted, then a receipt is required. _Receipts are required for expenses above the receipt threshold._\n\n### Open questions\n- [blocking] Permissions and roles: What amount is the approval limit? Blocks: AC-1\n- [blocking] Limits: What amount is the receipt threshold? Blocks: AC-2\n- [blocking] Limits: How much time passes before a report is escalated? Blocks: "A report that is not approved in time is escalated to the next manager"\n- [blocking] Limits: When is the next payment run? Blocks: "Approved reports are paid in the next payment run"\n\n### Out of scope\nNone stated.',
+  'minor-questions-merged': '## Acceptance criteria: newsletter\n\nRequirement: subscribe.\n\n### Main path\nAC-1. Given a visitor, when the visitor subscribes from the footer, then the footer shows "Thanks for subscribing." _After subscribing, the footer shows "Thanks for subscribing."_\nAC-2. Given a newsletter, when it is opened, then it has an unsubscribe link. _Every newsletter has an unsubscribe link._\n\n### Open questions\n- [minor] Validation and errors: What happens with an invalid email? Validation and errors: What happens with an email already subscribed?\n\n### Out of scope\nNone stated.',
   'negative-estimate-priority': `${EST}\n\n## Acceptance criteria: export\n\n### Main path\nAC-1. Given a user on the invoice list, when the user exports it, then the user receives a CSV. _Users can export the invoice list as CSV._\nAC-2. Given visible columns, when the user exports, then the export contains them. _The export contains the columns the user currently sees._${END}`,
 };
 
@@ -87,6 +89,41 @@ test('spec-writer live recordings: every clause is Given-When-Then with an id in
     }
   }
   assert.ok(clauses >= 15, `clauses checked: ${clauses}`);
+});
+
+test('spec-writer live recordings: open questions are tagged, blocking first, each blocking one names what it blocks, minor lines are few', () => {
+  const cases = JSON.parse(readFileSync(path.join(DIR, 'evals', 'cases.json'), 'utf8'));
+  const norm = (s) => s.toLowerCase().replace(/\s+/g, ' ').trim();
+  let blocking = 0; let minor = 0;
+  for (const c of cases) {
+    const rec = JSON.parse(readFileSync(path.join(DIR, 'evals', 'live', `${c.id}.json`), 'utf8'));
+    const part = rec.output.split('### Open questions')[1]?.split('### Out of scope')[0];
+    if (part === undefined) continue;
+    const ids = new Set([...rec.output.matchAll(/^(AC-\d+)\./gm)].map((m) => m[1]));
+    const lines = part.split('\n').map((l) => l.trim()).filter((l) => l.startsWith('- '));
+    let seenMinor = false; let minorLines = 0;
+    for (const l of lines) {
+      if (l.startsWith('- [minor] ')) {
+        seenMinor = true; minorLines++; minor++;
+        assert.ok((l.match(/\?/g) ?? []).length <= 2, `${c.id}: minor line has more than two questions: ${l}`);
+      } else {
+        assert.ok(l.startsWith('- [blocking] '), `${c.id}: untagged question: ${l}`);
+        assert.ok(!seenMinor, `${c.id}: blocking question after a minor one: ${l}`);
+        const m = /Blocks: (.+)$/.exec(l);
+        assert.ok(m, `${c.id}: no Blocks: in ${l}`);
+        const refs = m[1].match(/AC-\d+/g) ?? [];
+        const quotes = [...m[1].matchAll(/"([^"]+)"/g)].map((q) => q[1]);
+        assert.ok(refs.length + quotes.length > 0, `${c.id}: blocks nothing: ${l}`);
+        for (const r of refs) assert.ok(ids.has(r), `${c.id}: ${r} is not a clause`);
+        for (const q of quotes) assert.ok(norm(rec.prompt).includes(norm(q)), `${c.id}: blocked phrase "${q}" is not in the request`);
+        blocking++;
+      }
+    }
+    assert.ok(minorLines <= 3, `${c.id}: more than three minor lines`);
+  }
+  assert.ok(blocking >= 6 && minor >= 1);
+  const many = JSON.parse(readFileSync(path.join(DIR, 'evals', 'live', 'many-blocking-questions.json'), 'utf8')).output;
+  assert.ok((many.match(/^- \[blocking\]/gm) ?? []).length >= 4, 'many-blocking-questions keeps many blocking questions');
 });
 
 test('spec-writer version matches CHANGELOG and registry, with the BA and PO roles', () => {

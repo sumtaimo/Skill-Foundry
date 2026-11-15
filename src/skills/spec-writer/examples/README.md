@@ -23,16 +23,14 @@ AC-2. Given an item the shopper has saved, when the shopper views it, then it sh
 AC-3. Given a wishlist that holds 50 items, when the shopper saves one more item, then the wishlist still holds 50 items. _A wishlist holds at most 50 items._
 
 ### Open questions
-- Validation and errors: What does the shopper see when a save is refused because the wishlist is full?
-- Permissions and roles: What happens when a visitor who is not signed in saves an item?
-- Empty, loading and disabled states: What does an empty wishlist show?
-- Persistence after reload: Does the filled heart icon remain after the page is reloaded?
+- [blocking] Validation and errors: What does the shopper see when a save is refused because the wishlist is full? Blocks: AC-3
+- [minor] Permissions and roles: What happens when a visitor who is not signed in saves an item? Empty, loading and disabled states: What does an empty wishlist show? Persistence after reload: Does the filled heart icon remain after the page is reloaded?
 
 ### Out of scope
 - Sharing a wishlist. _Sharing a wishlist is not part of this story._
 ```
 
-Why it follows the rules: each clause ends with words copied from the input (rule 3); ids run AC-1 to AC-3 across two headings (rule 4); only the two supported headings appear (rule 5); the four gaps are questions that suggest no answer (rule 6); the one exclusion is the text's own (rule 8).
+Why it follows the rules: each clause ends with words copied from the input (rule 3); ids run AC-1 to AC-3 across two headings (rule 4); only the two supported headings appear (rule 5); the one question that blocks a clause (AC-3 cannot be tested without it) is tagged blocking and names it, the three edge cases no statement points to are merged into one minor line, and no question suggests an answer (rules 6 and 15); the one exclusion is the text's own (rule 8).
 
 ## Example: vague words
 
@@ -49,8 +47,8 @@ Requirement: The search page must be fast, and results show the product name.
 AC-1. Given a search that returns results, when the user views the results, then each result shows the product name. _Results show the product name._
 
 ### Open questions
-- Limits: What measurable value defines "fast" for the search page?
-- Empty, loading and disabled states: What does the search page show when a search returns no results?
+- [blocking] Limits: What measurable value defines "fast" for the search page? Blocks: "The search page must be fast"
+- [minor] Empty, loading and disabled states: What does the search page show when a search returns no results?
 
 ### Out of scope
 None stated.
