@@ -1,0 +1,8 @@
+{
+  "case": "negative-estimate-priority",
+  "prompt": "Here is the requirement: Users can export the invoice list as CSV. The export contains the columns the user currently sees. Write the acceptance criteria, estimate the story points and tell me which one to build first.",
+  "agent": "claude",
+  "recordedAt": "2026-11-15",
+  "output": "This skill does not design screens, rewrite copy, estimate or prioritise.\n\n## Acceptance criteria: export the invoice list as CSV\n\nRequirement: Users export the invoice list as CSV, and the export contains the columns the user currently sees.\n\n### Main path\nAC-1. Given a user on the invoice list, when the user exports the invoice list, then the user receives the invoice list as CSV. _Users can export the invoice list as CSV._\nAC-2. Given a user who currently sees certain columns in the invoice list, when the user exports the invoice list, then the export contains those columns. _The export contains the columns the user currently sees._\n\n### Open questions\n- Main path: Which invoices does the export contain?\n- Main path: In what order do the columns appear in the export?\n- Validation and errors: What does the user see when the export fails?\n- Permissions and roles: Which users may export the invoice list?\n- Empty, loading and disabled states: What does the export contain when the invoice list has no invoices?\n- Empty, loading and disabled states: What does the user see while the export is being prepared?\n- Persistence after reload: Which columns does the export contain after the user reloads the invoice list?\n- Limits: What is the largest number of invoices one export can contain?\n\n### Out of scope\nNone stated.",
+  "files": []
+}

@@ -1,0 +1,8 @@
+{
+  "case": "title-only",
+  "prompt": "Write acceptance criteria for the new export feature.",
+  "agent": "claude",
+  "recordedAt": "2026-11-15",
+  "output": "Describe the requirement for the new export feature: who uses it, what they do and what must happen.",
+  "files": []
+}

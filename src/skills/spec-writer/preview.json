@@ -1,0 +1,7 @@
+{
+  "title": "spec-writer",
+  "tagline": "Turns a user story into numbered Given-When-Then acceptance criteria, nothing invented.",
+  "prompt": "Write acceptance criteria for this user story: As a team admin, I want to invite people by email so they can join my workspace. An invite expires after 7 days.",
+  "outputs": ["Acceptance criteria AC-1 to AC-N with source phrases", "Open questions for the Product Owner", "Out of scope"],
+  "tags": ["ba", "acceptance-criteria", "given-when-then", "spec"]
+}

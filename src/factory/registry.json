@@ -70,5 +70,15 @@
       "BA_ANALYST"
     ],
     "showcase": "midtone-teal"
+  },
+  {
+    "name": "spec-writer",
+    "version": "1.0.0",
+    "purpose": "Writes testable acceptance criteria as numbered Given-When-Then clauses from a feature request, user story or requirement; what the text does not state becomes open questions, never invented clauses.",
+    "status": "ready",
+    "roles": [
+      "BA_ANALYST",
+      "PO_ARCHITECT"
+    ]
   }
 ]
