@@ -6,9 +6,11 @@ Checks anyone can run by search, in any project:
 2. Read the finding numbers in order: they run 1 to N with no gap and no repeat.
 3. Add the four counts in the "Findings:" line: the sum equals N.
 4. Read the severities down the list: S1 first, then S2, S3, S4; none rises further down.
-5. Search each finding for "R-ux-review-": exactly one id, between 1 and 13.
+5. Search each finding for "R-ux-review-": exactly one id, from 1 to 13 or from 26 to 30.
 6. Search the reply for a code fence. None may appear.
 7. Search the findings and open questions for a number followed by ":1", and for "aria-", "role=", "outline", "line-height" and "font-size". None may appear outside a quoted evidence line.
+7a. Search the "Reviewed:" line for "Layout input:": it names a measurement sheet, a screenshot description or none.
+7b. A finding ranked S1 or S2 does not rest on a script the input does not contain. A finding from a template lists its pages and is not repeated per page.
 8. Compare the three lines under "### Not reviewed" with layer 08: they are word for word the same.
 
 Reviewer checklist, answered yes or no (the same list is in the references):

@@ -17,7 +17,7 @@ The project roadmap is in `docs/PROJECT.md` section 6. This file lists skills.
 | ui-polish | Final polish pass on finished UI code: on-scale spacing and type, contrast, one primary action, states; uses the project's design tokens when present; keeps every word and the brand hue |
 | spec-writer | Write testable Given-When-Then acceptance criteria as numbered clauses (AC-1 …) from a feature request, user story or requirement, each traced to a source phrase; gaps become open questions. Never a regression checklist (test-planner), test code, UI design, copy, estimates or priorities |
 | a11y-audit | Audit pasted HTML or JSX for what users cannot see (names, labels, keyboard access, ARIA, status messages, language, tables, media, zoom): numbered findings with element, rule id, WCAG 2.2 criterion, who is affected and the fix as a diff; a zero-dependency script lists the structural problems. Never contrast, focus style, spacing or target size (ui-polish), flow or usability, visible words (copy-tight) or a conformance certificate |
-| ux-review | Review a screen or flow from code or a step description: 13 checkable usability rules, numbered findings with place, evidence, rule id, severity S1 to S4 and one recommendation in words; never fixes code, text, contrast or ARIA |
+| ux-review | Review a screen or flow from code or a step description: 18 checkable usability rules (13 on controls and steps, 5 on the shape of a screen; optional measurement sheet), numbered findings with place, evidence, rule id, severity S1 to S4 and one recommendation in words; never fixes code, text, contrast or ARIA |
 
 All ready skills have the ten layer files (`src/factory/migration.json` lists none pending).
 

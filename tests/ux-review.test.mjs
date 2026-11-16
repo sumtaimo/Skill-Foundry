@@ -34,6 +34,7 @@ test('ux-review has a severity scale of four levels and thirteen usability rules
   for (const s of ['S1 Blocker', 'S2 Major', 'S3 Minor', 'S4 Note']) assert.ok(read('layers/08-output.md').includes(s));
   const rules = JSON.parse(read('RULES.json'));
   for (let i = 1; i <= 13; i++) assert.ok(rules.some((r) => r.id === `R-ux-review-${i}`), `rule ${i}`);
+  for (let i = 26; i <= 32; i++) assert.ok(rules.some((r) => r.id === `R-ux-review-${i}`), `shape or cap rule ${i}`);
 });
 
 test('ux-review live recordings from real agents pass every case', () => {
@@ -50,7 +51,9 @@ test('ux-review evals reject answers that break the boundary', () => {
   assert.equal(bad('fix-request', `${FIX}\n\`\`\`html\n<button>x</button>\n\`\`\``), false, 'code in a fix request');
   assert.equal(bad('contrast-and-aria-out-of-scope', 'aria-label ratio 4.5'), false, 'contrast and ARIA reported');
   assert.equal(bad('rewrite-text-request', 'Suggested wording: Rewritten'), false, 'rewritten text');
-  assert.ok(cases.length >= 10);
+  assert.ok(cases.length >= 14);
+  for (const id of ['shape-rules-measurement-sheet', 'missing-script-capped-at-s3', 'template-repeated-reported-once']) assert.ok(cases.some((c) => c.id === id), id);
+  assert.equal(bad('missing-script-capped-at-s3', '## UX review: x\nLayout input: none site.js\n1. **a** | S2 Major | R-ux-review-10'), false, 'S2 on a missing script');
 });
 
 test('ux-review version matches CHANGELOG and registry', () => {

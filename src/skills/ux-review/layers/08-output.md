@@ -4,14 +4,14 @@ The reply is one Markdown document with this shape. Lines without angle brackets
 
     ## UX review: <screen or flow name in the input's words>
 
-    Reviewed: <one sentence: what was given (code, description or both) and what it covers>
+    Reviewed: <one sentence: what was given (code, description, measurement sheet, screenshot description or a mix) and what it covers>. Layout input: <measurement sheet, screenshot description or none>.
     Main goal: <the main goal, or "not stated">
     Steps to main goal: <number> (<step names in order>)
     Findings: <N> (S1: <a>, S2: <b>, S3: <c>, S4: <d>)
 
     ### Findings
 
-    1. **<Place>** | <S1 Blocker, S2 Major, S3 Minor or S4 Note> | R-ux-review-<n>
+    1. **<Place; for a template: "<template> on N pages: a, b, c">** | <S1 Blocker, S2 Major, S3 Minor or S4 Note> | R-ux-review-<n>
        - Evidence: "<words or code copied from the input>"
        - Shown absent: <only for a thing shown absent: one sentence saying what is missing at that place>
        - User experiences: <one sentence from the user's side>
@@ -37,8 +37,8 @@ The reply is one Markdown document with this shape. Lines without angle brackets
 Quality bar, applied to every reply:
 
 1. The sections stay in the order shown, and every heading is present.
-2. Each finding is one place, one rule and one severity, on the lines shown. The "Shown absent:" line is written only when the finding is about a missing thing; otherwise it is left out.
-3. The evidence is a copy from the input in double quotes, at most 15 words or one line of code, as plain text with no backticks.
+2. Each finding is one place (or one template with its pages), one rule and one severity, on the lines shown. The "Shown absent:" line is written only when the finding is about a missing thing; otherwise it is left out.
+3. The evidence is a copy from the input (a number from a measurement sheet counts) in double quotes, at most 15 words or one line of code, as plain text with no backticks.
 4. "User experiences" is one sentence of 30 words or fewer, in the present tense, with the user as its subject.
 5. "Recommendation" is one sentence of 30 words or fewer; it says what the screen must do or show.
 6. The reply has no code block, no replacement wording and no drawing of a layout.

@@ -952,5 +952,355 @@
         "value": 80
       }
     ]
+  },
+  {
+    "id": "shape-rules-measurement-sheet",
+    "prompt": "Do a UX review of our skill page from this description and measurement sheet. The visitor wants to install the skill. The page has these sections in this order: a cover picture, the title and a one-line purpose, \"What it does\" (a list of ten layers), \"What you type\" (one sentence), \"What you get\" (a sample answer), \"How you know\", \"Download\", \"Install\", and a share banner. Under \"What you get\" the same sample answer is shown a second time, with the same text, after a picture of it.\n\nMeasurement sheet (light theme, viewport 1440 by 900 px):\n- page height 7168 px\n- first element seen: the cover picture, about 680 by 670 px; the h1 \"ux-review\" top 866 px\n- sections, top and height in px: What it does 940 / 477; What you type 1417 / 173; What you get 1590 / 2919; How you know 4509 / 796; Download 5305 / 251; Install 5832 / 627; Banner 6459 / 533\n- clickable controls in the first screen: 9 (1 skip link, logo, 4 nav links, 2 toggles, 1 back link)\n- filled primary buttons in the first screen: 0; \"Copy install command\" is filled and appears once in the head area at top 1100 px and once in Install at top 5900 px",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## UX review:"
+      },
+      {
+        "type": "contains",
+        "value": "Main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Steps to main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Findings:"
+      },
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Not reviewed"
+      },
+      {
+        "type": "contains",
+        "value": "- Semantics, ARIA and screen-reader output: an accessibility audit."
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "### Severity scale"
+      },
+      {
+        "type": "contains",
+        "value": "- S1 Blocker: the user cannot complete the main goal, or loses data or money."
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "contains",
+        "value": "- Evidence: \""
+      },
+      {
+        "type": "contains",
+        "value": "- User experiences:"
+      },
+      {
+        "type": "contains",
+        "value": "- Recommendation:"
+      },
+      {
+        "type": "notContains",
+        "value": "This skill reviews usability; it does not change code."
+      },
+      {
+        "type": "notContains",
+        "value": "This skill reviews an existing screen or flow; it does not design new screens."
+      },
+      {
+        "type": "notContains",
+        "value": "This skill does not rewrite text; wording is quoted as written."
+      },
+      {
+        "type": "notContains",
+        "value": "Paste the screen's code or describe the flow step by step."
+      },
+      {
+        "type": "notContains",
+        "value": "aria-"
+      },
+      {
+        "type": "notContains",
+        "value": "role="
+      },
+      {
+        "type": "notContains",
+        "value": "4.5"
+      },
+      {
+        "type": "maxLines",
+        "value": 120
+      },
+      {
+        "type": "contains",
+        "value": "Layout input: measurement sheet"
+      },
+      {
+        "type": "contains",
+        "value": "R-ux-review-26"
+      },
+      {
+        "type": "contains",
+        "value": "R-ux-review-28"
+      },
+      {
+        "type": "contains",
+        "value": "R-ux-review-29"
+      },
+      {
+        "type": "contains",
+        "value": "866"
+      },
+      {
+        "type": "contains",
+        "value": "7168"
+      }
+    ]
+  },
+  {
+    "id": "missing-script-capped-at-s3",
+    "prompt": "Review the UX of the Install block of our skill page. The visitor wants to copy one command and install the skill. Here is the page code. The file site.js is not included; it is loaded on this page and I do not have it at hand.\n\n<section id=\"install\">\n  <h2>Install</h2>\n  <p>Copy this one command and run it in your project.</p>\n  <pre class=\"cmd\"><code id=\"cmd\">npx skill-foundry add &lt;skill&gt;</code></pre>\n  <button class=\"btn\" id=\"copy\" data-copy=\"unzip ux-review.zip\" style=\"height:48px;padding:0 20px\">Copy install command</button>\n  <span id=\"copied\" hidden>Copied</span>\n</section>\n<script src=\"site.js\"></script>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## UX review:"
+      },
+      {
+        "type": "contains",
+        "value": "Main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Steps to main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Findings:"
+      },
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Not reviewed"
+      },
+      {
+        "type": "contains",
+        "value": "- Semantics, ARIA and screen-reader output: an accessibility audit."
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "### Severity scale"
+      },
+      {
+        "type": "contains",
+        "value": "- S1 Blocker: the user cannot complete the main goal, or loses data or money."
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "contains",
+        "value": "- Evidence: \""
+      },
+      {
+        "type": "contains",
+        "value": "- User experiences:"
+      },
+      {
+        "type": "contains",
+        "value": "- Recommendation:"
+      },
+      {
+        "type": "notContains",
+        "value": "This skill reviews usability; it does not change code."
+      },
+      {
+        "type": "notContains",
+        "value": "This skill reviews an existing screen or flow; it does not design new screens."
+      },
+      {
+        "type": "notContains",
+        "value": "This skill does not rewrite text; wording is quoted as written."
+      },
+      {
+        "type": "notContains",
+        "value": "Paste the screen's code or describe the flow step by step."
+      },
+      {
+        "type": "notContains",
+        "value": "aria-"
+      },
+      {
+        "type": "notContains",
+        "value": "role="
+      },
+      {
+        "type": "notContains",
+        "value": "4.5"
+      },
+      {
+        "type": "maxLines",
+        "value": 80
+      },
+      {
+        "type": "contains",
+        "value": "Layout input: none"
+      },
+      {
+        "type": "contains",
+        "value": "site.js"
+      },
+      {
+        "type": "notContains",
+        "value": "S1 Blocker |"
+      },
+      {
+        "type": "notContains",
+        "value": "S2 Major |"
+      },
+      {
+        "type": "contains",
+        "value": "S3 Minor |"
+      }
+    ]
+  },
+  {
+    "id": "template-repeated-reported-once",
+    "prompt": "UX review of these three skill pages. They are built from one template. The visitor wants to install the skill shown on the page. Each page below is shown by its header and its first section only.\n\npage-a (skills/a11y-audit.html):\n<header><a href=\"../index.html\">Collection</a> <a href=\"../index.html#install\">Install</a> <a href=\"../index.html#proof\">Proof</a></header>\n<main><h1>a11y-audit</h1><p>Checks a page against accessibility rules.</p><section id=\"get\"><h2>Install</h2><button class=\"btn primary\">Copy install command</button></section></main>\n\npage-b (skills/copy-tight.html):\n<header><a href=\"../index.html\">Collection</a> <a href=\"../index.html#install\">Install</a> <a href=\"../index.html#proof\">Proof</a></header>\n<main><h1>copy-tight</h1><p>Rewrites UI copy to be short.</p><section id=\"get\"><h2>Install</h2><button class=\"btn primary\">Copy install command</button></section></main>\n\npage-c (skills/spec-writer.html):\n<header><a href=\"../index.html\">Collection</a> <a href=\"../index.html#install\">Install</a> <a href=\"../index.html#proof\">Proof</a></header>\n<main><h1>spec-writer</h1><p>Writes a spec from a request.</p><section id=\"get\"><h2>Install</h2><button class=\"btn primary\">Copy install command</button></section><section id=\"more\"><h2>Compare</h2><button class=\"btn primary\">Copy install command</button></section></main>\n\nMain goal: install the skill on the page.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## UX review:"
+      },
+      {
+        "type": "contains",
+        "value": "Main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Steps to main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Findings:"
+      },
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Not reviewed"
+      },
+      {
+        "type": "contains",
+        "value": "- Semantics, ARIA and screen-reader output: an accessibility audit."
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "### Severity scale"
+      },
+      {
+        "type": "contains",
+        "value": "- S1 Blocker: the user cannot complete the main goal, or loses data or money."
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "contains",
+        "value": "- Evidence: \""
+      },
+      {
+        "type": "contains",
+        "value": "- User experiences:"
+      },
+      {
+        "type": "contains",
+        "value": "- Recommendation:"
+      },
+      {
+        "type": "notContains",
+        "value": "This skill reviews usability; it does not change code."
+      },
+      {
+        "type": "notContains",
+        "value": "This skill reviews an existing screen or flow; it does not design new screens."
+      },
+      {
+        "type": "notContains",
+        "value": "This skill does not rewrite text; wording is quoted as written."
+      },
+      {
+        "type": "notContains",
+        "value": "Paste the screen's code or describe the flow step by step."
+      },
+      {
+        "type": "notContains",
+        "value": "aria-"
+      },
+      {
+        "type": "notContains",
+        "value": "role="
+      },
+      {
+        "type": "notContains",
+        "value": "4.5"
+      },
+      {
+        "type": "maxLines",
+        "value": 100
+      },
+      {
+        "type": "contains",
+        "value": "Layout input: none"
+      },
+      {
+        "type": "contains",
+        "value": "a11y-audit"
+      },
+      {
+        "type": "contains",
+        "value": "copy-tight"
+      },
+      {
+        "type": "contains",
+        "value": "spec-writer"
+      },
+      {
+        "type": "contains",
+        "value": "on 3 pages"
+      },
+      {
+        "type": "contains",
+        "value": "../index.html#install"
+      }
+    ]
   }
 ]

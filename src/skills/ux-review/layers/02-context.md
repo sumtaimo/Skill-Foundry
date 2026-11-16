@@ -9,4 +9,6 @@
 7. A token whose value is not shown is not shown (layer 01): its size goes to Open questions.
 8. Do not look up the product, its other screens or its users. The skill runs in any project, and only the input is known.
 9. Preserve everything: the review changes no file, no code and no text of the user's project.
-10. Hand the list of screens, steps, controls and stated sizes to layer 03.
+10. A layout input (measurement sheet or screenshot description) is a source for the shape of the screen only: heights, positions, counts of controls, the first element seen, repeated blocks. Quote its numbers as written. A number it does not give is not shown.
+11. A script, handler, data file or run-time content that the input refers to but does not contain (a script source, an imported module, a function that is called and not defined, a value filled in at run time) is not shown. Never assume what it does or does not do. When the page loads such a script, the text and state of every element it could set or replace (an element with an id or a data- attribute, a placeholder, a hidden message, what a copy control copies) are not shown either; the script may change them.
+12. Hand the list of screens, steps, controls, stated sizes and layout facts to layer 03.

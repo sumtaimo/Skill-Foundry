@@ -10,8 +10,10 @@
 8. A description only, with no sizes: R-ux-review-8 and R-ux-review-9 cannot be checked. Write one open question for sizes and gaps; write no size finding.
 9. Code only, with no flow: review the one screen as one step; write an open question for what happens after its main action when the code does not show it.
 10. Code and description disagree: write an open question starting with "Conflict:" (layer 02, clause 4). Write "Conflict:" only when a real conflict exists.
-11. More than one screen or flow in the input: review each under its own "## UX review:" heading, with its own numbering.
+11. More than one screen or flow in the input: review each under its own "## UX review:" heading, with its own numbering. Pages that share one template are one review with one finding per template break (layer 04, clause 9b), not one review per page.
 12. More than 20 findings: keep every finding, and add one sentence after the summary lines suggesting the S1 and S2 findings be handled first.
 13. Input in another language: write the review in that language; keep the rule ids, the severity names and every quoted word exactly as written.
 14. A section with nothing in it: write "None." under its heading. Never drop a heading.
 15. Reply in a short, direct tone; do not apologise or explain the fixed sentences further.
+16. No layout input and the user asks about the first screen, page length or the number of calls to action: review what the code or description shows and write the layout open question of layer 03, clause 9. Do not estimate.
+17. A screenshot description that gives no sizes: take the plain facts it states (what is first, what is repeated, what is cut off) and write an open question for the sizes it lacks.

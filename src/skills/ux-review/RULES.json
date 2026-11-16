@@ -123,5 +123,40 @@
     "id": "R-ux-review-25",
     "text": "Every relative link MUST point to a file inside the skill folder.",
     "check": "chk-links"
+  },
+  {
+    "id": "R-ux-review-26",
+    "text": "First screen: the first screen (1440 by 900 px or 390 by 844 px unless the layout input says otherwise) MUST say in words what the product or screen is and who it is for, and the first element seen MUST be that heading or its sentence; a cover, picture or sample output MUST NOT push the heading below the first screen.",
+    "checklist": "Each first-screen finding quotes the first element seen or the heading position from the layout input, or the first heading in the code."
+  },
+  {
+    "id": "R-ux-review-27",
+    "text": "Section order: sections MUST follow the order of the user's task (what it is, proof, the main action, then details); the section with the main action MUST start within the first 3 screens; a lead-in sentence MUST NOT sit above the heading it introduces.",
+    "checklist": "Each order finding names the two sections and quotes their tops or their order in the code."
+  },
+  {
+    "id": "R-ux-review-28",
+    "text": "Page length: a page MUST be at most 6 screens tall and no section taller than 2 screens, unless the extra part sits behind a control that opens it.",
+    "checklist": "Each length finding gives the page height or section height in px and in screens."
+  },
+  {
+    "id": "R-ux-review-29",
+    "text": "Duplicated blocks: the same content (the same text of 20 words or more, the same answer, list or picture) MUST NOT be shown twice on one page unless the second is a short link to the first.",
+    "checklist": "Each duplicate finding quotes the content and names both places."
+  },
+  {
+    "id": "R-ux-review-30",
+    "text": "Calls to action: a view MUST hold at most 1 primary action, and the first screen at most 7 clickable controls; a primary action repeated on every card of a list counts once per card in view.",
+    "checklist": "Each call-to-action finding gives the counts from the input and names the view."
+  },
+  {
+    "id": "R-ux-review-31",
+    "text": "A break that depends on a script, handler, data or run-time content that the input refers to but does not contain (this includes text and state the missing script could set or replace) MUST NOT be S1 or S2; it is S3 at most, with an open question naming the missing script, or only an open question.",
+    "checklist": "No S1 or S2 finding rests on a script that is not in the input."
+  },
+  {
+    "id": "R-ux-review-32",
+    "text": "Pages built from one template MUST give one finding for a break that comes from the template, naming the template and listing the pages; a break on one page is its own finding.",
+    "checklist": "A template break appears once and lists its pages."
   }
 ]

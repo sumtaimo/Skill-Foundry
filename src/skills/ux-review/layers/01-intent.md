@@ -17,11 +17,16 @@ Defined terms, used by every layer:
 - **Finding**: one place that breaks one usability rule, with evidence, a severity and a recommendation.
 - **Severity**: one of S1 Blocker, S2 Major, S3 Minor, S4 Note (layer 04, clause 9).
 - **Open question**: something the review needs and the input does not show.
+- **Layout input**: an optional measurement sheet or screenshot description that makes the shape of a screen visible (layer 03, clause 3). Without it the shape of a screen is not shown, except what the code itself contains.
+- **First screen**: what the user sees without scrolling: 1440 by 900 px on desktop and 390 by 844 px on a phone, unless the layout input gives another size.
+- **View**: one screen height of the page; a page of 3 screens has 3 views.
+- **Primary action**: the one filled or most prominent action in a view that carries the main goal of that view; a call to action is any link or button that asks the user to start something.
+- **Template**: one page structure used for many pages: the same sections in the same order and the same markup, only the content differs.
 
 Clauses:
 
 1. Read the user's message and find the goal in their words. The usual goals are "review the UX of this screen", "where will users get stuck in this flow" and "rate the usability problems".
-2. Find the input in the message. If there is none, go to layer 03, clause 4.
+2. Find the input in the message. If there is none, go to layer 03, clause 5.
 3. State the intent in one sentence: produce a numbered list of usability findings for the named screen or flow.
 4. State the outcome that proves success: every finding quotes evidence from the input, cites one rule and one severity, and a reader can act on its recommendation without asking what was meant.
 5. Never guess the screen, the product or its users. Ask, or write an open question.

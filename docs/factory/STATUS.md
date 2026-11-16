@@ -4,7 +4,7 @@ Every AI session reads this page first and updates it before it reports (lesson 
 It holds what is done, what is open, every decision TAIMO made, and every skill weakness found in real use,
 so no session has to guess and nothing found is forgotten. Details live in the linked files; this page only points.
 
-Last updated: 2026-11-16, by the orchestrator session (lab integration).
+Last updated: 2026-11-16, by the ux-review S4 session (branch `claude/ux-review-s4`).
 
 ## 1. Where we are
 
@@ -60,10 +60,12 @@ done in its own session for that skill only. Evidence: audit report section (c) 
 | S1 | all skills with `engine/` (design-system, ui-polish, a11y-audit, figure-craft). **ui-polish: done, on `lab`**; the other three still open | Agents chain `cd …; VAR=…; node engine/x.mjs`; sandboxes refuse chained shell, so agents fall back to hand work (audit: design-system twice; Phase A check: ui-polish three times) | Each skill tells the agent to run its script as one plain command from the skill folder (`node <skill>/engine/x.mjs --flag`), no `cd`, no variables | High |
 | S2 | ui-polish **(done, branch `claude/ui-polish-s1-s2-s3`, on `lab`)** | Lowered contrast: replaced a passing near-black primary button (16:1) with brand green (4.9:1); replaced the site's own values with preset token values the site does not load | Never lower the contrast of a passing pair; ask before replacing an existing value with a different token value; when tokens are not loaded, say so instead of rewriting | High |
 | S3 | ui-polish **(done, same branch)** | Cannot see order, page length, overflow or overlap; one patch per page for one shared stylesheet | Accept a screenshot or measurement sheet; rule for text overflowing its box; one patch for a shared stylesheet plus per-page deltas | Medium |
-| S4 | ux-review | None of its 13 rules can catch first-screen content, section order, page length, duplicated blocks or number of calls to action; ranks a finding S2 when the script it needs was not given | Add rules for those; accept a screenshot or measurements; cap at S3 or move to open questions when a needed script is missing; report a repeated template once | High |
+| S4 | ux-review **(done, branch `claude/ux-review-s4`; commit in the lab merge)** | None of its 13 rules can catch first-screen content, section order, page length, duplicated blocks or number of calls to action; ranks a finding S2 when the script it needs was not given | Add rules for those; accept a screenshot or measurements; cap at S3 or move to open questions when a needed script is missing; report a repeated template once | High |
 | S5 | design-system | With a partial token file one matching name hides a whole family (a single `--gutter` hid the spacing scale); the neutral scale ignores existing greys | Detect a family by several matching tokens; build neutrals from the project's greys | Medium |
 | S6 | a11y-audit | Khmer label without `lang` came out as a question, not a finding; a "0 findings" header hides that contrast and target size were skipped by rule | Add the language-of-parts check (WCAG 3.1.2); say in the header which checks were skipped by rule | Medium |
 | S7 | copy-tight **(done, branch `claude/copy-tight-s7`, final commit after `98a8aee`)** | Output format not stable (some answers listed part of the strings or dropped lines); "What changed" too generic; may reword a claim label | Fixed table (id, before, after, saved, reason); never drop an input line; let the user mark "keep as is" labels; split strings over about 25 words | High (weakest of the five) |
+
+S4 result: five shape rules (R-ux-review-26 to 30), optional measurement sheet or screenshot description (the "Reviewed:" line names it), S3 cap for a missing script (R-ux-review-31), one finding per template with pages listed (R-ux-review-32); 14 live cases and the portable check re-recorded by fresh agents. Weakness found while testing and fixed: a placeholder shown in a command was still ranked S2 although the missing script could replace it; the rule now covers text a missing script could set. Open for later: the shape thresholds (6 screens per page, 2 per section, 7 controls in the first screen, 3 screens to the main action) are the owner's call; TAIMO may tune them.
 
 Harness side (Step 2, not a skill change): roles `QA_AUDITOR` and `BA_ANALYST` cannot run `node`, so engine skills fail in those roles (`doctor` warns). Fix in Agentic-Harness role configs.
 
@@ -71,7 +73,7 @@ Harness side (Step 2, not a skill change): roles `QA_AUDITOR` and `BA_ANALYST` c
 
 1. ~~Skill page length~~ Answered by TAIMO: request shown once beside the result, full answer collapsed. Done on `claude/site-skill-page-length`: pages are 2900 to 3250 px at 1440 (about 3.2 screens, was 3500 to 4640). Open for TAIMO: cut more (Install block lower, or drop "What it does") or accept.
 2. Khmer strings added in Phase B and the new "Show the full answer" are drafts and need a native review.
-3. Skill backlog order: approved by TAIMO (per skill: ui-polish S1-S3 done, then copy-tight S7, ux-review S4, design-system S1+S5, a11y-audit S1+S6, figure-craft S1).
+3. Skill backlog order: approved by TAIMO (per skill: ui-polish S1-S3 done, then copy-tight S7, ux-review S4 (done), design-system S1+S5, a11y-audit S1+S6, figure-craft S1).
 
 ## 5b. After the current plan
 
