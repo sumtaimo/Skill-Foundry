@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>passing-dark-button</title></head><body>
+<!-- The project's tokens.css, as pasted in the request, then the polished code copied word for word from evals/live/passing-dark-button.json -->
+<style>
+:root {
+  --color-primary-800: #0f766e;
+  --color-primary-900: #0c403c;
+  --color-neutral-900: #202d2c;
+  --color-surface-default: #ffffff;
+  --color-text-default: var(--color-neutral-900);
+  --color-action-primary-bg: var(--color-primary-800);
+  --color-action-primary-bg-hover: var(--color-primary-900);
+  --color-action-primary-text: #ffffff;
+  --color-border-focus: var(--color-primary-800);
+  --font-family-sans: system-ui, sans-serif;
+  --font-size-md: 16px;
+  --font-size-xl: 20px;
+  --line-height-body: 1.5;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-24: 24px;
+  --size-target-min: 44px;
+  --border-width-focus: 2px;
+}
+</style>
+<style>
+.box{padding:var(--space-16);background:var(--color-surface-default);font-family:var(--font-family-sans)}
+.box h2{font-size:var(--font-size-xl);line-height:1.25;margin:0 0 var(--space-12);color:#1f2937}
+.box p{font-size:var(--font-size-md);line-height:var(--line-height-body);max-width:65ch;color:#1f2937}
+.pay{background:#111111;color:var(--color-action-primary-text);font-family:inherit;font-size:var(--font-size-md);padding:var(--space-12) var(--space-24);min-height:var(--size-target-min);min-width:var(--size-target-min);border:none}
+.pay:hover{background:#000000}
+.pay:focus-visible{outline:var(--border-width-focus) solid var(--color-border-focus);outline-offset:2px}
+.pay:disabled{opacity:0.5;cursor:not-allowed}
+</style>
+<div class="box"><h2>Order total</h2><p>You will be charged when you confirm.</p><button class="pay">Pay now</button></div>
+</body></html>

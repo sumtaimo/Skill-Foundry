@@ -4,7 +4,7 @@ Every AI session reads this page first and updates it before it reports (lesson 
 It holds what is done, what is open, every decision TAIMO made, and every skill weakness found in real use,
 so no session has to guess and nothing found is forgotten. Details live in the linked files; this page only points.
 
-Last updated: 2026-11-16, by the orchestrator session.
+Last updated: 2026-11-16, by the ui-polish S1-S3 session.
 
 ## 1. Where we are
 
@@ -52,9 +52,9 @@ done in its own session for that skill only. Evidence: audit report section (c) 
 
 | # | Skill | Weakness seen | Proposed fix | Priority |
 |---|---|---|---|---|
-| S1 | all skills with `engine/` (design-system, ui-polish, a11y-audit, figure-craft) | Agents chain `cd …; VAR=…; node engine/x.mjs`; sandboxes refuse chained shell, so agents fall back to hand work (audit: design-system twice; Phase A check: ui-polish three times) | Each skill tells the agent to run its script as one plain command from the skill folder (`node <skill>/engine/x.mjs --flag`), no `cd`, no variables | High |
-| S2 | ui-polish | Lowered contrast: replaced a passing near-black primary button (16:1) with brand green (4.9:1); replaced the site's own values with preset token values the site does not load | Never lower the contrast of a passing pair; ask before replacing an existing value with a different token value; when tokens are not loaded, say so instead of rewriting | High |
-| S3 | ui-polish | Cannot see order, page length, overflow or overlap; one patch per page for one shared stylesheet | Accept a screenshot or measurement sheet; rule for text overflowing its box; one patch for a shared stylesheet plus per-page deltas | Medium |
+| S1 | all skills with `engine/` (design-system, ui-polish, a11y-audit, figure-craft). **ui-polish: done** on `claude/ui-polish-s1-s2-s3`; the other three still open | Agents chain `cd …; VAR=…; node engine/x.mjs`; sandboxes refuse chained shell, so agents fall back to hand work (audit: design-system twice; Phase A check: ui-polish three times) | Each skill tells the agent to run its script as one plain command from the skill folder (`node <skill>/engine/x.mjs --flag`), no `cd`, no variables | High |
+| S2 | ui-polish **(done, branch `claude/ui-polish-s1-s2-s3`, waits for TAIMO's merge approval)** | Lowered contrast: replaced a passing near-black primary button (16:1) with brand green (4.9:1); replaced the site's own values with preset token values the site does not load | Never lower the contrast of a passing pair; ask before replacing an existing value with a different token value; when tokens are not loaded, say so instead of rewriting | High |
+| S3 | ui-polish **(done, same branch)** | Cannot see order, page length, overflow or overlap; one patch per page for one shared stylesheet | Accept a screenshot or measurement sheet; rule for text overflowing its box; one patch for a shared stylesheet plus per-page deltas | Medium |
 | S4 | ux-review | None of its 13 rules can catch first-screen content, section order, page length, duplicated blocks or number of calls to action; ranks a finding S2 when the script it needs was not given | Add rules for those; accept a screenshot or measurements; cap at S3 or move to open questions when a needed script is missing; report a repeated template once | High |
 | S5 | design-system | With a partial token file one matching name hides a whole family (a single `--gutter` hid the spacing scale); the neutral scale ignores existing greys | Detect a family by several matching tokens; build neutrals from the project's greys | Medium |
 | S6 | a11y-audit | Khmer label without `lang` came out as a question, not a finding; a "0 findings" header hides that contrast and target size were skipped by rule | Add the language-of-parts check (WCAG 3.1.2); say in the header which checks were skipped by rule | Medium |

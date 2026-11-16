@@ -83,13 +83,13 @@
 </style>
 <style>
 .empty{padding:var(--space-24);background:var(--color-surface-default);font-family:var(--font-family-sans);text-align:center}
-.empty h2{font-size:var(--font-size-xl);font-weight:var(--font-weight-strong);line-height:var(--line-height-heading);margin:0 0 var(--space-8);color:var(--color-text-default)}
+.empty h2{font-size:var(--font-size-xl);line-height:var(--line-height-heading);font-weight:var(--font-weight-strong);margin:0 0 var(--space-8);color:var(--color-text-default)}
 .empty p{font-size:var(--font-size-md);line-height:var(--line-height-body);max-width:var(--measure);color:var(--color-text-muted);margin:0 auto var(--space-16)}
-.empty button{font:inherit;font-size:var(--font-size-md);font-weight:var(--font-weight-strong);background:var(--color-action-primary-bg);color:var(--color-action-primary-text);padding:var(--space-8) var(--space-16);min-height:var(--size-target-min);min-width:var(--size-target-min);border:0;border-radius:var(--radius-control);cursor:pointer;transition:background-color var(--duration-base) var(--ease-standard)}
+.empty button{background:var(--color-action-primary-bg);color:var(--color-action-primary-text);padding:var(--space-8) var(--space-16);border:0;border-radius:var(--radius-control);font-family:inherit;font-size:var(--font-size-md);line-height:var(--line-height-body);font-weight:var(--font-weight-strong);min-height:var(--size-target-min);min-width:var(--size-target-min);cursor:pointer;transition:background-color var(--duration-base) var(--ease-standard)}
 .empty button:hover{background:var(--color-action-primary-bg-hover)}
 .empty button:active{background:var(--color-action-primary-bg-pressed)}
 .empty button:focus-visible{outline:var(--border-width-focus) solid var(--color-border-focus);outline-offset:2px}
-.empty button:disabled{opacity:0.5;cursor:not-allowed}
+.empty button:disabled{opacity:0.5;cursor:not-allowed;background:var(--color-action-primary-bg)}
 @media (prefers-reduced-motion: reduce){.empty button{transition:none}}
 </style>
 <div class="empty"><h2>No projects yet</h2><p>Create your first project to get started.</p><button>New project</button></div>

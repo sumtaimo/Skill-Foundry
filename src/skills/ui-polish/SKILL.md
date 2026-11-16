@@ -71,7 +71,7 @@ The contrast script is `engine/contrast.mjs` in this folder (Node.js, no depende
 
 - R-ui-polish-26: The contrast script MUST be run as ONE plain command with the full path to the script (`node <skill folder>/engine/contrast.mjs ...`), with no `cd`, no shell variable, no pipe and no `;` or `&&`; when it cannot run, the reply MUST say so plainly with the fixed sentence of layer 08, step 6.
 - R-ui-polish-27: NEVER lower the contrast of a pair that already passes rule 4: the ratio after a change MUST be equal to or higher than before; a passing pair is kept as written.
-- R-ui-polish-28: NEVER replace an existing value that passes with a different token value; keep it and list it under Open questions with both values, so the owner decides.
+- R-ui-polish-28: NEVER replace an existing value that passes with a different token value; keep it and list it under Open questions with both values, so the owner decides. A general request such as "use tokens, not raw values" is not that decision; only an answer that names the value is.
 - R-ui-polish-29: Token mode starts only when the user gives the token file or the page loads it; when a token file is found but the page does not load it, the skill MUST say so under Open questions and NEVER rewrite values to its tokens.
 - R-ui-polish-30: When a screenshot or measurement sheet is given, text that overflows or overlaps its box MUST be fixed (layer 04, step 12a) and each fix MUST cite the measurement; without one, the skill NEVER claims to have checked order, page length, overflow or overlap.
 - R-ui-polish-31: When several pages share one stylesheet, the reply MUST give one patch for the stylesheet plus a short delta per page, NEVER one full patch per page.

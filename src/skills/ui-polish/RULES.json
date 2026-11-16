@@ -136,7 +136,7 @@
   },
   {
     "id": "R-ui-polish-28",
-    "text": "NEVER replace an existing value that passes with a different token value; keep it and list it under Open questions with both values.",
+    "text": "NEVER replace an existing value that passes with a different token value; keep it and list it under Open questions with both values; a general request to use tokens is not the owner's decision on that value.",
     "checklist": "No passing value was replaced by a token with a different value; each such case is under Open questions with both values."
   },
   {
