@@ -8,7 +8,7 @@
     "Grep",
     "Bash(node:*)"
   ],
-  "recordedAt": "2026-11-15",
-  "output": "## UI polish: Invite your team\n\nNo fixes needed.\n\n### Fixes\nNone.\n\n### Contrast\n| Text | Before | After |\n|------|--------|-------|\n| Heading and body text | #374151 on #ffffff, 10.31:1 | Unchanged |\n| \"Send invite\" link | #ffffff on #1d4ed8, 6.70:1 | Unchanged |\n| \"Send invite\" link, hover | #ffffff on #2563eb, 5.17:1 | Unchanged |\n| Focus outline | #1d4ed8 on #ffffff, 6.70:1 | Unchanged |\n\nRatios computed with the contrast script.\n\n### Polished code\nUnchanged.\n\n### Not changed\n- All visible text, word for word.\n- Brand hue kept: #1d4ed8, #2563eb.\n\n### Open questions\n- None.",
+  "recordedAt": "2026-11-16",
+  "output": "## UI polish: Invite your team\n\nNo fixes needed.\n\n### Fixes\nNone.\n\n### Contrast\n| Text | Before | After |\n|------|--------|-------|\n| Body text \"Teammates can view and edit shared projects.\" | #374151 on #ffffff, 10.31:1 | #374151 on #ffffff, 10.31:1 |\n| Heading \"Invite your team\" | #374151 on #ffffff, 10.31:1 | #374151 on #ffffff, 10.31:1 |\n| \"Send invite\" link | #ffffff on #1d4ed8, 6.70:1 | #ffffff on #1d4ed8, 6.70:1 |\n| \"Send invite\" link, hover | #ffffff on #2563eb, 5.17:1 | #ffffff on #2563eb, 5.17:1 |\n\nRatios computed with the contrast script.\n\n### Polished code\nUnchanged.\n\n### Not changed\n- All visible text, word for word.\n- Brand hue kept: #1d4ed8, #2563eb.\n\n### Open questions\n- None.",
   "files": []
 }

@@ -101,7 +101,7 @@
   },
   {
     "id": "R-ui-polish-21",
-    "text": "With a token file, the one primary action MUST use the file's primary-fill tokens.",
+    "text": "With a token file, the one primary action MUST use the file's primary-fill tokens, unless its own pair already passes with a different value (rule 28).",
     "checklist": "With a token file, the primary action uses the primary-fill tokens of the file."
   },
   {
@@ -123,5 +123,35 @@
     "id": "R-ui-polish-25",
     "text": "The contrast script MUST use only the Node.js standard library, MUST never write a file, and MUST agree with the reference table.",
     "check": "chk-contrast-script"
+  },
+  {
+    "id": "R-ui-polish-26",
+    "text": "The contrast script MUST be run as ONE plain command with the full path to the script, with no cd, no shell variable, no pipe and no ; or &&; when it cannot run, the reply MUST say so plainly with the fixed sentence.",
+    "checklist": "The script was run as one plain command (or the reply plainly says it could not run), and no ratio was worked out by hand without the by-hand sentence."
+  },
+  {
+    "id": "R-ui-polish-27",
+    "text": "NEVER lower the contrast of a pair that already passes rule 4; the ratio after a change MUST be equal to or higher than before.",
+    "checklist": "No pair that passed before has a lower ratio after."
+  },
+  {
+    "id": "R-ui-polish-28",
+    "text": "NEVER replace an existing value that passes with a different token value; keep it and list it under Open questions with both values; a general request to use tokens is not the owner's decision on that value.",
+    "checklist": "No passing value was replaced by a token with a different value; each such case is under Open questions with both values."
+  },
+  {
+    "id": "R-ui-polish-29",
+    "text": "Token mode starts only when the user gives the token file or the page loads it; a token file that is found but not loaded by the page MUST be reported under Open questions and NEVER used to rewrite values.",
+    "checklist": "A found-but-not-loaded token file was reported under Open questions and no value was rewritten to it."
+  },
+  {
+    "id": "R-ui-polish-30",
+    "text": "When a screenshot or measurement sheet is given, text that overflows or overlaps its box MUST be fixed and cite the measurement; without one, NEVER claim to have checked order, page length, overflow or overlap.",
+    "checklist": "Each overflow fix cites its measurement; with no screenshot or sheet, no claim about order, length, overflow or overlap."
+  },
+  {
+    "id": "R-ui-polish-31",
+    "text": "When several pages share one stylesheet, the reply MUST give one patch for the stylesheet plus a short delta per page, NEVER one full patch per page.",
+    "checklist": "Pages that share a stylesheet got one stylesheet patch and per-page deltas only."
   }
 ]

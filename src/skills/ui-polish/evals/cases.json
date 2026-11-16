@@ -349,15 +349,7 @@
       },
       {
         "type": "contains",
-        "value": "var(--color-action-primary-bg)"
-      },
-      {
-        "type": "contains",
         "value": "var(--color-action-primary-text)"
-      },
-      {
-        "type": "contains",
-        "value": "var(--color-action-secondary-text)"
       },
       {
         "type": "contains",
@@ -390,6 +382,18 @@
       {
         "type": "notContains",
         "value": ":root"
+      },
+      {
+        "type": "contains",
+        "value": "--color-action-primary-bg"
+      },
+      {
+        "type": "contains",
+        "value": "#2563eb"
+      },
+      {
+        "type": "contains",
+        "value": "#0f766e"
       }
     ]
   },
@@ -584,6 +588,294 @@
       {
         "type": "notContains",
         "value": ":root"
+      }
+    ]
+  },
+  {
+    "id": "script-one-command",
+    "prompt": "final polish on this notes panel, several colours look washed out:\n<style>\n.note{background:#f9fafb;padding:16px;font-family:system-ui}\n.note h2{font-size:20px;margin:0 0 8px;color:#111827}\n.note p{font-size:16px;line-height:1.5;color:#9ca3af}\n.note .tag{font-size:14px;color:#f59e0b;background:#ffffff;padding:4px 8px}\n.note button{background:#0d9488;color:#ffffff;padding:12px 16px;min-height:44px;min-width:44px}\n</style>\n<div class=\"note\"><h2>Team notes</h2><p>Notes from the last planning call.</p><span class=\"tag\">Draft</span><button>Share notes</button></div>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## UI polish:"
+      },
+      {
+        "type": "contains",
+        "value": "### Fixes"
+      },
+      {
+        "type": "contains",
+        "value": "### Contrast"
+      },
+      {
+        "type": "contains",
+        "value": "### Polished code"
+      },
+      {
+        "type": "contains",
+        "value": "### Not changed"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Team notes"
+      },
+      {
+        "type": "contains",
+        "value": "Notes from the last planning call."
+      },
+      {
+        "type": "contains",
+        "value": "Draft"
+      },
+      {
+        "type": "contains",
+        "value": "Share notes"
+      },
+      {
+        "type": "contains",
+        "value": "2.43:1"
+      },
+      {
+        "type": "contains",
+        "value": "2.15:1"
+      },
+      {
+        "type": "contains",
+        "value": "3.74:1"
+      },
+      {
+        "type": "contains",
+        "value": "Ratios computed with the contrast script."
+      },
+      {
+        "type": "notContains",
+        "value": "by hand"
+      },
+      {
+        "type": "notContains",
+        "value": "could not run"
+      },
+      {
+        "type": "notContains",
+        "value": "var(--"
+      }
+    ]
+  },
+  {
+    "id": "passing-dark-button",
+    "prompt": "final polish for this checkout box, our tokens.css is below; use it.\n\ntokens.css:\n```css\n:root {\n  --color-primary-800: #0f766e;\n  --color-primary-900: #0c403c;\n  --color-neutral-900: #202d2c;\n  --color-surface-default: #ffffff;\n  --color-text-default: var(--color-neutral-900);\n  --color-action-primary-bg: var(--color-primary-800);\n  --color-action-primary-bg-hover: var(--color-primary-900);\n  --color-action-primary-text: #ffffff;\n  --color-border-focus: var(--color-primary-800);\n  --font-family-sans: system-ui, sans-serif;\n  --font-size-md: 16px;\n  --font-size-xl: 20px;\n  --line-height-body: 1.5;\n  --space-8: 8px;\n  --space-12: 12px;\n  --space-16: 16px;\n  --space-24: 24px;\n  --size-target-min: 44px;\n  --border-width-focus: 2px;\n}\n```\n\n<style>\n.box{padding:15px;background:#ffffff;font-family:system-ui}\n.box h2{font-size:20px;margin:0 0 12px;color:#1f2937}\n.box p{font-size:16px;line-height:1.5;color:#1f2937}\n.pay{background:#111111;color:#ffffff;padding:12px 24px;min-height:44px;min-width:44px;border:none}\n</style>\n<div class=\"box\"><h2>Order total</h2><p>You will be charged when you confirm.</p><button class=\"pay\">Pay now</button></div>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## UI polish:"
+      },
+      {
+        "type": "contains",
+        "value": "### Fixes"
+      },
+      {
+        "type": "contains",
+        "value": "### Contrast"
+      },
+      {
+        "type": "contains",
+        "value": "### Polished code"
+      },
+      {
+        "type": "contains",
+        "value": "### Not changed"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Order total"
+      },
+      {
+        "type": "contains",
+        "value": "You will be charged when you confirm."
+      },
+      {
+        "type": "contains",
+        "value": "Pay now"
+      },
+      {
+        "type": "contains",
+        "value": "#111111"
+      },
+      {
+        "type": "contains",
+        "value": "18.88:1"
+      },
+      {
+        "type": "contains",
+        "value": "#1f2937"
+      },
+      {
+        "type": "contains",
+        "value": "14.68:1"
+      },
+      {
+        "type": "contains",
+        "value": "#0f766e"
+      },
+      {
+        "type": "contains",
+        "value": "Tokens from tokens.css."
+      },
+      {
+        "type": "notContains",
+        "value": "var(--color-action-primary-bg)"
+      },
+      {
+        "type": "notContains",
+        "value": "var(--color-text-default)"
+      }
+    ]
+  },
+  {
+    "id": "shared-stylesheet",
+    "prompt": "polish these two pages, they share one stylesheet, site.css (pasted once below).\n\nsite.css:\n.page{padding:20px;font-family:system-ui;background:#ffffff}\n.page h1{font-size:26px;margin:0 0 10px;color:#111827}\n.page p{font-size:15px;color:#9ca3af}\n.page .go{background:#2563eb;color:#ffffff;padding:7px 14px;border:none}\n\npricing.html:\n<link rel=\"stylesheet\" href=\"site.css\">\n<div class=\"page\"><h1>Pricing</h1><p>Pick a plan that fits your team.</p><button class=\"go\">Choose plan</button></div>\n\nabout.html:\n<link rel=\"stylesheet\" href=\"site.css\">\n<div class=\"page\"><h1>About us</h1><p>We build small tools for teams.</p><button class=\"go\" style=\"margin-top:9px\">Contact us</button></div>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## UI polish:"
+      },
+      {
+        "type": "contains",
+        "value": "### Fixes"
+      },
+      {
+        "type": "contains",
+        "value": "### Contrast"
+      },
+      {
+        "type": "contains",
+        "value": "### Polished code"
+      },
+      {
+        "type": "contains",
+        "value": "### Not changed"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Pricing"
+      },
+      {
+        "type": "contains",
+        "value": "Choose plan"
+      },
+      {
+        "type": "contains",
+        "value": "About us"
+      },
+      {
+        "type": "contains",
+        "value": "Contact us"
+      },
+      {
+        "type": "contains",
+        "value": "site.css"
+      },
+      {
+        "type": "contains",
+        "value": "delta"
+      },
+      {
+        "type": "contains",
+        "value": "2.54:1"
+      },
+      {
+        "type": "contains",
+        "value": "Ratios computed with the contrast script."
+      },
+      {
+        "type": "notContains",
+        "value": "var(--"
+      },
+      {
+        "type": "contains",
+        "value": "#### site.css"
+      },
+      {
+        "type": "contains",
+        "value": "No page-specific changes."
+      }
+    ]
+  },
+  {
+    "id": "overflow-measured",
+    "prompt": "final polish on this card. I measured it in the browser at 390 px wide: .plan-name clientWidth 150, scrollWidth 212 (the text runs outside its box); .card has a fixed height of 96 and its content is 131 tall (the paragraph overlaps the button); the page scrollWidth is 428, wider than the 390 viewport.\n<style>.card{width:340px;height:96px;padding:12px;background:#ffffff;font-family:system-ui}.plan-name{display:block;width:150px;white-space:nowrap;font-size:18px}.card p{font-size:14px;color:#4b5563}.card button{background:#2563eb;color:#ffffff;padding:8px 16px;min-height:44px;min-width:44px}</style>\n<div class=\"card\"><span class=\"plan-name\">Professional team plan</span><p>Includes unlimited projects and priority support for your whole team.</p><button>Upgrade</button></div>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## UI polish:"
+      },
+      {
+        "type": "contains",
+        "value": "### Fixes"
+      },
+      {
+        "type": "contains",
+        "value": "### Contrast"
+      },
+      {
+        "type": "contains",
+        "value": "### Polished code"
+      },
+      {
+        "type": "contains",
+        "value": "### Not changed"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Professional team plan"
+      },
+      {
+        "type": "contains",
+        "value": "Includes unlimited projects and priority support for your whole team."
+      },
+      {
+        "type": "contains",
+        "value": "Upgrade"
+      },
+      {
+        "type": "contains",
+        "value": "**Layout**"
+      },
+      {
+        "type": "contains",
+        "value": "212"
+      },
+      {
+        "type": "contains",
+        "value": "131"
+      },
+      {
+        "type": "contains",
+        "value": "428"
+      },
+      {
+        "type": "contains",
+        "value": "min-height"
+      },
+      {
+        "type": "contains",
+        "value": "Ratios computed with the contrast script."
       }
     ]
   }

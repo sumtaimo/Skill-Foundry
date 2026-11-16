@@ -82,18 +82,18 @@
 }
 </style>
 <style>
-.card{padding:var(--space-12);background:var(--color-surface-raised);border:var(--border-width-hairline) solid var(--color-border-default);border-radius:var(--radius-md);font-family:var(--font-family-sans);transition:box-shadow var(--duration-slow)}
-.card h2{font-size:var(--font-size-2xl);line-height:var(--line-height-heading);font-weight:var(--font-weight-strong);margin:0 0 var(--space-4);color:var(--color-text-default)}
+.card{padding:var(--space-12);background:var(--color-surface-default);border:var(--border-width-hairline) solid #e5e7eb;border-radius:var(--radius-md);font-family:var(--font-family-sans);transition:box-shadow var(--duration-slow) var(--ease-standard)}
+.card h2{font-size:var(--font-size-2xl);line-height:var(--line-height-heading);margin:0 0 var(--space-4);color:var(--color-text-default)}
 .card p{font-size:var(--font-size-md);line-height:var(--line-height-body);max-width:var(--measure);color:var(--color-text-muted)}
-.card button{font-family:inherit;font-size:var(--font-size-md);padding:var(--space-8) var(--space-12);border-radius:var(--radius-control);min-height:var(--size-target-min);min-width:var(--size-target-min);cursor:pointer}
-.card button + button{margin-left:var(--space-8)}
-.card button:first-of-type{background:var(--color-action-primary-bg);color:var(--color-action-primary-text);border:var(--border-width-hairline) solid transparent}
-.card button:first-of-type:hover{background:var(--color-action-primary-bg-hover)}
-.card button:last-of-type{background:transparent;color:var(--color-action-secondary-text);border:var(--border-width-hairline) solid var(--color-action-secondary-border)}
-.card button:last-of-type:hover{background:var(--color-selected-bg)}
+.card button{font-family:inherit;font-size:var(--font-size-md);background:#2563eb;color:var(--color-action-primary-text);padding:var(--space-8) var(--space-12);min-height:var(--size-target-min);min-width:var(--size-target-min);border:var(--border-width-hairline) solid #2563eb;border-radius:var(--radius-control);cursor:pointer;transition:background-color var(--duration-fast) var(--ease-standard)}
+.card button:hover:not(:disabled){background:#1d4ed8;border-color:#1d4ed8}
+.card button + button{margin-left:var(--space-8);background:transparent;color:var(--color-action-secondary-text);border-color:var(--color-action-secondary-border)}
+.card button + button:hover:not(:disabled){background:var(--color-selected-bg);border-color:var(--color-action-secondary-border)}
 .card button:focus-visible{outline:var(--border-width-focus) solid var(--color-border-focus);outline-offset:2px}
 .card button:disabled{opacity:0.5;cursor:not-allowed}
-@media (prefers-reduced-motion: reduce){.card{transition:none}}
+@media (prefers-reduced-motion: reduce){
+  .card,.card button{transition:none}
+}
 </style>
 <div class="card"><h2>Invoice 1042</h2><p>Due on 30 November. Pay by bank transfer or card.</p><button>Pay now</button><button>Download PDF</button></div>
 </body></html>

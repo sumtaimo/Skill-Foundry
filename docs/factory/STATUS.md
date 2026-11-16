@@ -4,7 +4,7 @@ Every AI session reads this page first and updates it before it reports (lesson 
 It holds what is done, what is open, every decision TAIMO made, and every skill weakness found in real use,
 so no session has to guess and nothing found is forgotten. Details live in the linked files; this page only points.
 
-Last updated: 2026-11-16, by the site-skill-page-length session.
+Last updated: 2026-11-16, by the orchestrator session (lab integration).
 
 ## 1. Where we are
 
@@ -13,10 +13,10 @@ Last updated: 2026-11-16, by the site-skill-page-length session.
 | Skills | ui-polish, design-system, ux-review, a11y-audit, spec-writer, plus the earlier five | `master` | Done, released |
 | Audit | Our skills run on our own site by real agents | `claude/landing-audit` (`b8338eb`), report `docs/factory/notes/landing-audit-2026-11-16.md` | Done, input for Phase B |
 | A | CLI fixes: Edit-only deny rules, pointers that keep role tools, 8 roles, collision warning, `doctor` | `master` `2a27637` | Done, released |
-| B | Site: npx-first install, new layout from the reference TAIMO gave, 8 roles on the site | `claude/site-phase-b` | Built, gates READY; follow-ups W2-8, W2-9 in progress; waits for TAIMO's merge approval |
-| B2 | Site: shorter skill pages (request once, full answer collapsed), 10 pages 610 to 1557 px shorter at 1440 | `claude/site-skill-page-length`, note `docs/factory/notes/site-skill-page-length-2026-11-16.md` | Built, gates READY; waits for TAIMO's merge approval |
+| B | Site: npx-first install, new layout from the reference TAIMO gave, 8 roles on the site, W2-8, W2-9 | `master` `6d0c255` | Done, released |
+| B2 | Site: shorter skill pages (request once, full answer collapsed) | `lab` | On lab, checked; waits for TAIMO to release lab |
 | Step 2 | `sumtaimo/Agentic-Harness` repository, `lab` then `release` | other repository | Not started; brief: `docs/factory/HANDOFF-AGENTIC-HARNESS-SYNC.md` |
-| C | Re-update this repository's `.harness/` from the Agentic-Harness release | `docs/factory/notes/phase-c-harness-followup.md` | Waits for Step 2 (decision D1 b) |
+| C | ~~Re-update `.harness/` here~~ | none | Dropped by TAIMO on 2026-11-16 (L23: this project never changes the harness) |
 
 Handoff briefs written by TAIMO: `docs/factory/HANDOFF-SKILL-FOUNDRY-IMPROVEMENTS.md`, `docs/factory/HANDOFF-AGENTIC-HARNESS-SYNC.md`.
 
@@ -57,9 +57,9 @@ done in its own session for that skill only. Evidence: audit report section (c) 
 
 | # | Skill | Weakness seen | Proposed fix | Priority |
 |---|---|---|---|---|
-| S1 | all skills with `engine/` (design-system, ui-polish, a11y-audit, figure-craft) | Agents chain `cd …; VAR=…; node engine/x.mjs`; sandboxes refuse chained shell, so agents fall back to hand work (audit: design-system twice; Phase A check: ui-polish three times) | Each skill tells the agent to run its script as one plain command from the skill folder (`node <skill>/engine/x.mjs --flag`), no `cd`, no variables | High |
-| S2 | ui-polish | Lowered contrast: replaced a passing near-black primary button (16:1) with brand green (4.9:1); replaced the site's own values with preset token values the site does not load | Never lower the contrast of a passing pair; ask before replacing an existing value with a different token value; when tokens are not loaded, say so instead of rewriting | High |
-| S3 | ui-polish | Cannot see order, page length, overflow or overlap; one patch per page for one shared stylesheet | Accept a screenshot or measurement sheet; rule for text overflowing its box; one patch for a shared stylesheet plus per-page deltas | Medium |
+| S1 | all skills with `engine/` (design-system, ui-polish, a11y-audit, figure-craft). **ui-polish: done, on `lab`**; the other three still open | Agents chain `cd …; VAR=…; node engine/x.mjs`; sandboxes refuse chained shell, so agents fall back to hand work (audit: design-system twice; Phase A check: ui-polish three times) | Each skill tells the agent to run its script as one plain command from the skill folder (`node <skill>/engine/x.mjs --flag`), no `cd`, no variables | High |
+| S2 | ui-polish **(done, branch `claude/ui-polish-s1-s2-s3`, on `lab`)** | Lowered contrast: replaced a passing near-black primary button (16:1) with brand green (4.9:1); replaced the site's own values with preset token values the site does not load | Never lower the contrast of a passing pair; ask before replacing an existing value with a different token value; when tokens are not loaded, say so instead of rewriting | High |
+| S3 | ui-polish **(done, same branch)** | Cannot see order, page length, overflow or overlap; one patch per page for one shared stylesheet | Accept a screenshot or measurement sheet; rule for text overflowing its box; one patch for a shared stylesheet plus per-page deltas | Medium |
 | S4 | ux-review | None of its 13 rules can catch first-screen content, section order, page length, duplicated blocks or number of calls to action; ranks a finding S2 when the script it needs was not given | Add rules for those; accept a screenshot or measurements; cap at S3 or move to open questions when a needed script is missing; report a repeated template once | High |
 | S5 | design-system | With a partial token file one matching name hides a whole family (a single `--gutter` hid the spacing scale); the neutral scale ignores existing greys | Detect a family by several matching tokens; build neutrals from the project's greys | Medium |
 | S6 | a11y-audit | Khmer label without `lang` came out as a question, not a finding; a "0 findings" header hides that contrast and target size were skipped by rule | Add the language-of-parts check (WCAG 3.1.2); say in the header which checks were skipped by rule | Medium |
@@ -71,7 +71,7 @@ Harness side (Step 2, not a skill change): roles `QA_AUDITOR` and `BA_ANALYST` c
 
 1. ~~Skill page length~~ Answered by TAIMO: request shown once beside the result, full answer collapsed. Done on `claude/site-skill-page-length`: pages are 2900 to 3250 px at 1440 (about 3.2 screens, was 3500 to 4640). Open for TAIMO: cut more (Install block lower, or drop "What it does") or accept.
 2. Khmer strings added in Phase B and the new "Show the full answer" are drafts and need a native review.
-3. Order of the skill backlog in section 4 (proposed: S1 first because it blocks four skills, then S7, S2, S4).
+3. Skill backlog order: approved by TAIMO (per skill: ui-polish S1-S3 done, then copy-tight S7, ux-review S4, design-system S1+S5, a11y-audit S1+S6, figure-craft S1).
 
 ## 5b. After the current plan
 

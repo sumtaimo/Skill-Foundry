@@ -14,6 +14,11 @@ Checks anyone can run by search, in any project:
 8. Token mode: search the polished code for "#" colours. Each one left must be a value with no matching token, listed under "Open questions".
 9. Token mode: the polished code has no ":root" block and no line that sets a token of the token file.
 
+6a. For every colour pair that passed before (rule 4), compare its ratio before and after in the script output. The ratio after is equal or higher.
+6b. Search the reply for every raw value that was replaced by a token: its value is equal to the token's value, or it broke a rule. A passing raw value with a different token value is still in the polished code and in "Open questions".
+6c. Read how the script was run: one plain command with the full path. If it was not run, the reply says so plainly.
+6d. With several pages on one stylesheet, the stylesheet appears once in the polished code.
+
 Reviewer checklist, answered yes or no (the same list is in references/README.md):
 
 10. Every fix cites one rule id and gives the value before and after.
@@ -22,5 +27,6 @@ Reviewer checklist, answered yes or no (the same list is in references/README.md
 13. Every brand colour kept its hue.
 14. The reply follows the format in layer 08, with one ratio-source sentence.
 15. Token mode: tokens are used wherever one matches, no token name was invented, and the token file was not edited.
+16. No passing pair got a lower ratio, no passing value was replaced by a different token value, and the script was run as one plain command or the reply says it could not run.
 
 Hand the answers to layer 08 for the quality bar and to layer 10 for the record.

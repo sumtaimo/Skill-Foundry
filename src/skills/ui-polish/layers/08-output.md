@@ -37,10 +37,13 @@ Ratios computed with the contrast script.
    - "Ratios computed with the contrast script."
    - "Ratios from the reference table."
    - "Ratios computed by hand with the formula; run the contrast script to confirm them." (when any ratio was worked out by hand)
+   - When the script was tried and could not run (refused, failed, or no Node.js), add this plain sentence after the true one above, on the same line: "The contrast script could not run here: <reason in a few words>." Never leave a reader thinking the script ran when it did not (rule 26).
 7. Token mode changes four things in the shape, and nothing else:
    - The summary line ends with one more sentence, exactly "Tokens from <file name>." with the file name the user gave or the project file's name (for example "Tokens from tokens.css."). Pasted tokens with no name: "Tokens from the pasted tokens." Never add other words to it.
    - Fixes and the polished code name tokens: "`padding: 13px` is off the scale. Now `padding: var(--space-12)`. (R-ui-polish-1, R-ui-polish-20)".
    - Each contrast cell names the token and its value: "`--color-text-muted` (#4a6462) on `--color-surface-default` (#ffffff), 6.38:1". A pair that still fails ends with "fails".
    - "Not changed" has one more line: "- Token file: not edited."
-8. Quality bar: a front-end developer can paste the polished code and ship it; a designer reads each fix and sees the rule behind it; nobody can find a changed word, an invented token name or a ratio that a calculator disagrees with.
-9. Hand the reply to layer 09.
+8. Several pages that share one stylesheet (rule 31): under "### Polished code" write `#### <stylesheet name>` with one code block for the stylesheet, then `#### <page name>: delta` with one short block per page (only what differs, or "No page-specific changes."). The summary line says "<n> fixes across <areas>, <p> pages, one stylesheet." Everything else keeps the shape above.
+9. With a screenshot or measurement sheet, every overflow or overlap fix is a **Layout** fix that quotes the measurement. Without one, the reply has no sentence about order, page length, overflow or overlap, except the one "Open questions" line of layer 04, step 12a.
+10. Quality bar: a front-end developer can paste the polished code and ship it; a designer reads each fix and sees the rule behind it; nobody can find a changed word, an invented token name or a ratio that a calculator disagrees with.
+11. Hand the reply to layer 09.
