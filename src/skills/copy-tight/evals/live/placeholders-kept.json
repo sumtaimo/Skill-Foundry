@@ -1,8 +1,8 @@
 {
   "case": "placeholders-kept",
   "prompt": "tighten this text: Hello {name}, you currently have {{count}} new messages that are waiting for you in your Inbox.",
-  "agent": "claude",
-  "recordedAt": "2026-11-14",
-  "output": "Rewritten copy:\nHello {name}, you have {{count}} new messages waiting in your Inbox.\n\nWhat changed:\n- Cut filler\n- Shorter phrasing\n- Kept the placeholders and Inbox name",
+  "agent": "claude -p (fresh, only the skill folder; tools Read Glob Grep; cwd outside the repository)",
+  "recordedAt": "2026-11-16",
+  "output": "Rewritten copy:\nHello {name}, you have {{count}} new messages in your Inbox.\n\nWhat changed:\n- Dropped the time word before the verb.\n- Removed the clause after the noun, since \"new messages in your Inbox\" already says the same thing.\n- Kept both placeholders exactly as written, with the same brace styles.\n- Kept the greeting and the capital I in Inbox.",
   "files": []
 }

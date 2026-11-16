@@ -1,8 +1,8 @@
 {
   "case": "button-name-kept",
   "prompt": "make this plain: Click here in order to proceed to Checkout",
-  "agent": "claude",
-  "recordedAt": "2026-11-14",
-  "output": "Rewritten copy:\nGo to Checkout\n\nWhat changed:\n- Cut filler\n- Plain verb for the action",
+  "agent": "claude -p (fresh, only the skill folder; tools Read Glob Grep; cwd outside the repository)",
+  "recordedAt": "2026-11-16",
+  "output": "Rewritten copy:\nGo to Checkout\n\nWhat changed:\n- Dropped the opening instruction and the purpose phrase\n- Swapped the formal verb for a plain one, so the button starts with a verb\n- Kept Checkout with its capital C",
   "files": []
 }
