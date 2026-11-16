@@ -11,8 +11,8 @@ import { objectFigure, KINDS } from './objects.mjs';
 import { loadRecipes, checkRecipe } from '../../factory/recipe-run.mjs';
 import { DICTS } from './i18n.mjs';
 
-/** Agent roles a skill may declare; they match .harness/roles/. */
-export const ROLES = ['PO_ARCHITECT', 'BA_ANALYST', 'DEV_ENGINEER', 'QA_AUDITOR'];
+/** Agent roles a skill may declare; the same eight the install CLI (src/factory/foundry.mjs) accepts. */
+export const ROLES = ['PO_ARCHITECT', 'BA_ANALYST', 'DEV_ENGINEER', 'QA_AUDITOR', 'UX_DESIGNER', 'REVIEWER', 'SECURITY', 'COORDINATOR'];
 
 /** Real-agent eval result from evals/live/ recordings; null when the skill has none. */
 function liveResult(dir) {
@@ -68,6 +68,12 @@ export function latestRun(runsRoot, name, version, caseId) {
     };
   }
   return null;
+}
+
+/** The "Do not use for ..." sentence of a skill description (what the skill never does), or ''. */
+export function notFor(description) {
+  const m = /Do not use (?:it )?for\s+([^.]*)\./i.exec(description);
+  return m ? `Do not use for ${m[1].trim()}.` : '';
 }
 
 /** @param {string} md */
@@ -128,6 +134,8 @@ export function loadSkills(root, opts = {}) {
         name: r.name,
         roles,
         description: (/^description:\s*(.*)$/m.exec(md)?.[1] ?? '').trim(),
+        notFor: notFor((/^description:\s*(.*)$/m.exec(md)?.[1] ?? '').trim()),
+        ruleList: rules.filter((x) => x && typeof x.id === 'string' && typeof x.text === 'string').map((x) => ({ id: x.id, text: x.text, machine: !!x.check })),
         live: liveResult(dir),
         version: String(r.version),
         status: r.status,
