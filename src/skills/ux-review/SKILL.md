@@ -6,15 +6,15 @@ version: 1.0.0
 
 # ux-review
 
-Judges an existing screen or flow against thirteen checkable usability rules and reports what breaks them.
+Judges an existing screen or flow against eighteen checkable usability rules (thirteen about controls and steps, five about the shape of a screen) and reports what breaks them.
 Every finding quotes something present in the input, carries one severity from a fixed four-level scale and one recommendation in words.
 The skill reviews; it changes no code, writes no text and designs nothing.
 
 ## When to use
 
-- Use when someone gives the code of a screen, a step-by-step description of a flow, or both, and asks for a UX or usability review.
+- Use when someone gives the code of a screen, a step-by-step description of a flow, or both, and asks for a UX or usability review. An optional measurement sheet or screenshot description lets it judge the shape of the screen (first screen, order, length, repeats, calls to action).
 - Use when someone asks where users get stuck, or asks for usability problems rated by severity.
-- Do not use without a screen or flow to review; reply with the exact sentence in layer 03, clause 4.
+- Do not use without a screen or flow to review; reply with the exact sentence in layer 03, clause 5.
 - Do not use to fix code, to rewrite text, to check contrast, focus styles, spacing scales, semantics, ARIA or screen-reader output, or to design a new screen; reply with the exact sentences in layer 06, clauses 2 to 5.
 
 ## Procedure
@@ -23,7 +23,7 @@ Follow the layers in order. Each layer file is the detailed chapter for that ste
 
 1. Intent: the goal and the defined terms. [layers/01-intent.md](layers/01-intent.md)
 2. Context: the input is the only source; an optional design-token file. [layers/02-context.md](layers/02-context.md)
-3. Inputs: code or a flow description is required; ask when it is missing. [layers/03-inputs.md](layers/03-inputs.md)
+3. Inputs: code or a flow description is required; a measurement sheet or screenshot description is optional; ask when the screen is missing. [layers/03-inputs.md](layers/03-inputs.md)
 4. Flow: inventory, check each rule, write findings, set severity, order. [layers/04-flow.md](layers/04-flow.md)
 5. Rules: the MUST / NEVER rules by id. [layers/05-rules.md](layers/05-rules.md)
 6. States and edge cases: nothing to review, fix request, new design, out-of-scope checks, no findings. [layers/06-states.md](layers/06-states.md)
@@ -52,6 +52,14 @@ Usability rules (a finding cites the one it breaks):
 - R-ux-review-12 Familiar patterns: A control MUST behave as its row in the familiar-pattern table says.
 - R-ux-review-13 Steps: The main goal MUST be reachable in at most 5 steps, and every step MUST collect or show something the main goal needs.
 
+Shape rules (checked on a measurement sheet or screenshot description, or on what the code shows; without one, one open question):
+
+- R-ux-review-26 First screen: The first screen MUST say what the product or screen is and who it is for, and the heading MUST be the first thing seen, not a cover or a sample answer.
+- R-ux-review-27 Section order: Sections MUST follow the order of the task; the main action MUST start within the first 3 screens; a lead-in sentence MUST NOT sit above its heading.
+- R-ux-review-28 Page length: A page MUST be at most 6 screens tall and no section taller than 2 screens, unless the extra part is behind a control.
+- R-ux-review-29 Duplicated blocks: The same content of 20 words or more MUST NOT be shown twice on a page.
+- R-ux-review-30 Calls to action: A view MUST hold at most 1 primary action, and the first screen at most 7 clickable controls.
+
 Conduct rules:
 
 - R-ux-review-14: Every finding MUST quote evidence that is present in the input; what the input does not show MUST go under Open questions and is NEVER guessed.
@@ -66,6 +74,8 @@ Conduct rules:
 - R-ux-review-23: The skill MUST be self-contained; NEVER name a repository path in SKILL.md, layers or references.
 - R-ux-review-24: SKILL.md MUST stay within 150 lines, with frontmatter name, description and semver version.
 - R-ux-review-25: Every relative link MUST point to a file inside the skill folder.
+- R-ux-review-31: A break that depends on a script or run-time content the input does not contain MUST NOT be S1 or S2; S3 at most, or an open question.
+- R-ux-review-32: One template on many pages MUST give one finding that lists the pages.
 
 Each rule's check or reviewer item is in `RULES.json`.
 

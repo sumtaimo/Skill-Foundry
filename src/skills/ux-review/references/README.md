@@ -20,7 +20,36 @@ For every rule: what to look at, when it is broken, and when the fact is not sho
 | R-ux-review-12 Familiar patterns | Each control against the table below | The control behaves differently from its row | The behaviour of the control is not in the input |
 | R-ux-review-13 Steps | The count of steps to the main goal and the purpose of each step | More than 5 steps; or a step that collects nothing and shows nothing the main goal needs | The main goal is not stated or the steps cannot be counted |
 
+| R-ux-review-26 First screen | The heading and first sentence of the first screen; the first element seen (layout input) or the first heading in the code | The first screen does not say what the product or screen is and who it is for; a cover, picture or sample output comes before the heading, or the heading starts below the first screen (top at or beyond the screen height) | No layout input and the code does not show the order of the content |
+| R-ux-review-27 Section order | The order and tops of the sections; the section that holds the main action; each lead-in sentence and its heading | The main action section starts after 3 screens; details come before the action; a lead-in sentence sits above its heading | No layout input and the code gives no section order |
+| R-ux-review-28 Page length | Page height and section heights, divided by the screen height | Page above 6 screens; a section above 2 screens with its extra part not behind a control | No height is given; never estimate it from code |
+| R-ux-review-29 Duplicated blocks | Text, answers, lists and pictures of the whole page | The same content of 20 words or more, or the same picture or answer, appears twice on the page and the second is not a short link to the first | Only part of the page is given |
+| R-ux-review-30 Calls to action | Primary actions per view; clickable controls in the first screen | More than 1 primary action in one view (a repeated card button counts once per card in view); more than 7 clickable controls in the first screen | The code or sheet gives no count and no view |
+
 Counting rules: a step is a screen, dialog or stage at which the user must act before moving on. A confirmation dialog for a destructive action is required by R-ux-review-5 and is not counted as a step for R-ux-review-13.
+
+## Measurement sheet (optional layout input)
+
+Any form works when it gives facts and numbers. A useful one:
+
+| Item | Example |
+|------|---------|
+| Viewport | 1440 by 900 px (and 390 by 844 px) |
+| Page height | 9822 px |
+| Sections | name, top px, height px, in page order |
+| First element seen | what is largest or first in the first screen |
+| Controls | clickable controls in the first screen; primary actions per view |
+| Repeated blocks | the same content shown twice, and where |
+
+A screenshot description is plain words about what is seen (what is first, what is repeated, what is cut off); sizes it does not give are not shown.
+
+## Script or run-time content not given (R-ux-review-31)
+
+The input refers to it but does not contain it: a script source, an imported module, a function that is called but not defined, a value filled in at run time. A break that depends on what it does is S3 at most, or an open question For example, a page that loads a script not given: a placeholder in a command, what a copy button copies and a hidden "Copied" message may all be set by that script, so findings about them are S3 at most or open questions, never S2.
+
+## Pages from one template (R-ux-review-32)
+
+Pages with the same sections in the same order and the same markup, only the content differing. A template break is one finding; "Place" names the template and lists the pages ("on 10 pages: a, b, c"). A break on one page only is its own finding.
 
 ## Familiar-pattern table (R-ux-review-12)
 
@@ -69,10 +98,12 @@ The severity describes the effect on the user, never the effort of the fix.
 Answer each line yes or no. Any "no" blocks the reply until it is fixed.
 
 - [ ] Every finding quotes evidence that appears in the input.
-- [ ] Every finding names one place, one rule id from 1 to 13 and one severity.
+- [ ] Every finding names one place, one rule id (1 to 13 or 26 to 30) and one severity.
 - [ ] Every "User experiences" line says what happens to the user.
 - [ ] Every recommendation is one sentence in words, with no code and no replacement wording.
-- [ ] Every severity follows the ordered questions.
+- [ ] Every severity follows the ordered questions; no S1 or S2 rests on a script the input does not contain.
+- [ ] The "Reviewed:" line names the layout input (measurement sheet, screenshot description or none); with none, page height and first-screen facts are one open question, not findings.
+- [ ] Pages from one template give one finding that lists the pages.
 - [ ] Nothing that is not shown is reported as a finding; it is an open question.
 - [ ] There are at most 8 open questions, and none is about code correctness.
 - [ ] The findings are numbered 1 to N, most severe first, and the counts add up.
