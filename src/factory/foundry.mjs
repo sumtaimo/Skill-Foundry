@@ -81,8 +81,20 @@ const hasEngine = (s) => existsSync(join(s.dir, 'engine'));
 const pointerTools = (s) => (hasEngine(s) ? ['Edit', 'Write', 'Bash'] : []);
 
 /**
+ * Agentic-Harness starter copies of a skill Skill Foundry ships. Skill Foundry wins over them: they are replaced
+ * automatically and the original is kept as SKILL.md.orig. A copy is recognised by the starter marker or by its exact
+ * content (sha-256 of the text with LF line ends, trimmed), never by its name alone; any other file with the same name is the user's own.
+ */
+const STARTER_MARK = 'starter-stub: agentic-harness';
+const STARTER_SHA = { 'spec-writer': ['7fb11973a154c1caa78e5451d023eeb203a62208d6c0066a22d8195319546ebd'] };
+export function isStarterStub(name, text) {
+  if (text.includes(STARTER_MARK)) return true;
+  return (STARTER_SHA[name] ?? []).includes(sha(Buffer.from(text.replace(/\r\n?/g, '\n').trim())));
+}
+
+/**
  * Register the skill with the project's agentic harness (`.harness/skills/<name>/SKILL.md`).
- * @returns {null | {path:string, status:'written'|'collision'|'replaced'}}  null when the project has no harness skills folder
+ * @returns {null | {path:string, status:'written'|'collision'|'replaced'|'replaced-starter'}}  null when the project has no harness skills folder
  */
 function harnessPointer(project, s, { syncHarness = false } = {}) {
   const dir = join(project, '.harness', 'skills');
@@ -91,10 +103,11 @@ function harnessPointer(project, s, { syncHarness = false } = {}) {
   const rel = relative(project, file).split(sep).join('/');
   let status = 'written';
   if (existsSync(file) && !readFileSync(file, 'utf8').includes(MARK)) {
-    if (!syncHarness) return { path: rel, status: 'collision' }; // the project's own skill wins unless the user passes --sync-harness
+    const starter = isStarterStub(s.name, readFileSync(file, 'utf8'));
+    if (!syncHarness && !starter) return { path: rel, status: 'collision' }; // the project's own skill wins unless the user passes --sync-harness
     const keep = `${file}.orig`;
     if (!existsSync(keep)) copyFileSync(file, keep); // never lose the original
-    status = 'replaced';
+    status = starter ? 'replaced-starter' : 'replaced';
   }
   mkdirSync(dirname(file), { recursive: true });
   // The harness injects a skill into a worker only when its role matches AND (autoApply OR a keyword is in the prompt),
@@ -102,7 +115,7 @@ function harnessPointer(project, s, { syncHarness = false } = {}) {
   const tags = (() => { try { return JSON.parse(readFileSync(join(s.dir, 'preview.json'), 'utf8')).tags ?? []; } catch { return []; } })();
   const tools = pointerTools(s);
   writeFileSync(file, `---\nname: ${s.name}\ndescription: ${s.description}\nroles: ${JSON.stringify(s.roles)}\n${tools.length ? `allowedTools: ${JSON.stringify(tools)}\n` : ''}keywords: ${JSON.stringify(tags)}\nautoApply: true\n${MARK} ${s.version}\n---\n` +
-    `# ${s.name}\n\nWhen the task matches this skill (${s.description.split('. ')[0]}.), read \`.claude/skills/${s.name}/SKILL.md\` and follow it with its layers, starting from the goal the user states. When the task does not match, ignore this skill.\n`);
+    `# ${s.name}\n\nWhen the task matches this skill (${s.description.split('. ')[0]}.), read \`.claude/skills/${s.name}/SKILL.md\` and follow it, starting from the goal the user states. When the task does not match, ignore this skill.\n`);
   return { path: rel, status };
 }
 
@@ -142,12 +155,12 @@ const CLI = 'npx github:sumtaimo/Skill-Foundry';
 function rulesBlock({ project, root }) {
   const cat = new Map(catalog({ root }).map((s) => [s.name, s]));
   const rows = checkProject({ project, root }).map((x) => cat.get(x.name)).filter(Boolean);
-  const text = `${BEGIN}\n## Skills\n\nThis project has these skills in \`.claude/skills/\`. When a task matches one, read its \`SKILL.md\` first and follow its steps and layers, starting from the goal the user states. Use one skill per step; when a request needs several, use them in the order the request gives.\n\n` +
+  const text = `${BEGIN}\n## Skills\n\nThis project has these skills in \`.claude/skills/\`. When a task matches one, read its \`SKILL.md\` first and follow it, starting from the goal the user states. Use one skill per step; when a request needs several, use them in the order the request gives.\n\n` +
     `**When you chain skills, keep the context small:**\n` +
-    `1. Load only the active skill's \`SKILL.md\` and the layers that step needs. When the step is done, stop following that skill.\n` +
+    `1. Load only the active skill's \`SKILL.md\` and the files that step needs. When the step is done, stop following that skill.\n` +
     `2. Hand off through files, not text: save each step's result to a file and give the next step only its path and the key facts. Never paste raw file contents, search logs or long reasoning into the next step.\n` +
     `3. End each step with one compact JSON note: \`{"step_completed":"<skill>","verified_facts":["<fact + file or line>"],"gaps_or_risks":["<blocker or edge case>"],"next_skill_input":{"target_scope":"<files>","action_required":"<one sentence>"}}\`\n` +
-    `4. If a harness rule, a role's tool limit or a deny rule blocks a skill, report it with the exact fix; do not edit harness or permission files yourself. \`${CLI} doctor\` shows what to fix.\n\n` +
+    `4. If something blocks a skill, tell the user and point to \`${CLI} doctor\`; do not edit harness or permission files yourself.\n\n` +
     `**Never edit, delete or overwrite anything under \`.claude/skills/\` or \`.harness/skills/\`.** Skills are changed only by the user, with \`${CLI} update\`. If a skill seems wrong, say so in your answer instead of editing it.\n\n` +
     rows.map((s) => `- **${s.name}** (\`.claude/skills/${s.name}/SKILL.md\`): ${s.description}`).join('\n') + `\n\nUpdate them with \`${CLI} update\`. Check the setup with \`${CLI} doctor\`.\n${END}\n`;
   return { block: text, skills: rows.map((s) => s.name) };
@@ -290,10 +303,10 @@ export function doctorProject({ project = process.cwd(), root = REPO } = {}) {
       const deny = Array.isArray(cfg.permissions?.deny) ? cfg.permissions.deny : [];
       const legacy = LEGACY_DENY.filter((d) => deny.includes(d));
       if (legacy.length) add('problem', '.claude/settings.json', `invalid rule(s) ${legacy.join(', ')}: Claude Code reports Write(path) rules as invalid (Edit(path) covers every file tool)`, `${CLI} doctor --fix   (replaces them with the Edit(...) rules)`);
-      else if (installed.length && DENY.some((d) => !deny.includes(d))) add('warn', '.claude/settings.json', 'agents are not denied edit rights on the installed skills', `${CLI} update   (or add: ${DENY.filter((d) => !deny.includes(d)).join(', ')} to permissions.deny)`);
-      else if (installed.length) add('ok', '.claude/settings.json', 'skills are protected with Edit(...) deny rules');
+      else if (installed.length && DENY.some((d) => !deny.includes(d))) add('warn', '.claude/settings.json', 'the installed skills are not protected from edits by agents', `${CLI} update   (or add: ${DENY.filter((d) => !deny.includes(d)).join(', ')} to permissions.deny)`);
+      else if (installed.length) add('ok', '.claude/settings.json', 'skills are protected from edits by agents');
     }
-  } else if (installed.length) add('warn', '.claude/settings.json', 'missing: agents are not denied edit rights on the installed skills', `${CLI} update`);
+  } else if (installed.length) add('warn', '.claude/settings.json', 'missing: the installed skills are not protected from edits by agents', `${CLI} update`);
 
   if (harness) {
     // ── Case A: the project has an agentic harness
@@ -379,7 +392,7 @@ export function main(argv, log = console.log) {
   const ri = rest.indexOf('--role');
   const names = rest.filter((a, i) => !a.startsWith('--') && !(ri >= 0 && i === ri + 1));
   const show = (r) => {
-    log(`${r.action.padEnd(8)} ${r.name}${r.kept.length ? `  (kept your changes: ${r.kept.join(', ')})` : ''}${r.harness ? `  → harness: ${r.harness}${r.harnessStatus === 'replaced' ? ' (replaced yours; original kept as SKILL.md.orig)' : ''}` : ''}`);
+    log(`${r.action.padEnd(8)} ${r.name}${r.kept.length ? `  (kept your changes: ${r.kept.join(', ')})` : ''}${r.harness ? `  → harness: ${r.harness}${r.harnessStatus === 'replaced' ? ' (replaced yours; original kept as SKILL.md.orig)' : r.harnessStatus === 'replaced-starter' ? ' (replaced the harness starter copy; original kept as SKILL.md.orig)' : ''}` : ''}`);
     if (r.harnessStatus === 'collision') log(`harness  ! ${r.name}: ${r.harnessPath} already exists without skill-foundry marker — pointer skipped (use --sync-harness to wrap/replace or keep yours)`);
   };
   if (cmd === 'list') {
@@ -396,7 +409,7 @@ export function main(argv, log = console.log) {
     if (!list.length) throw new Error('usage: add <skill…> | add --all | add --role <ROLE>');
     list.forEach((n) => show(addSkill(n, { force, syncHarness })));
     if (!rest.includes('--no-rules')) log(`rules    AGENTS.md lists ${writeRules().skills.join(', ')}`);
-    if (!rest.includes('--no-protect')) { const g = protectSkills(); log(`protect  ${g.file}: ${g.skipped ?? (g.added.length || g.removed.length ? `${g.added.length} deny rules added${g.removed.length ? `, ${g.removed.length} invalid Write(...) rules removed` : ''}` : 'already in place')}`); }
+    if (!rest.includes('--no-protect')) { const g = protectSkills(); log(`protect  ${g.file}: ${g.skipped ?? (g.added.length || g.removed.length ? `${g.added.length} protection rule(s) added${g.removed.length ? `, ${g.removed.length} invalid rule(s) removed` : ''}` : 'already in place')}`); }
     if (!rest.includes('--quiet')) summary(log, project);
     log('Restart your agent (Claude Code) so it loads the skills.');
   } else if (cmd === 'check') {
@@ -410,7 +423,7 @@ export function main(argv, log = console.log) {
   } else if (cmd === 'doctor') {
     if (rest.includes('--fix')) {
       const g = protectSkills();
-      if (g.skipped) log(`fix      ${g.file}: ${g.skipped}`); else if (g.added.length || g.removed.length) log(`fix      ${g.file}: ${g.added.length} deny rules added, ${g.removed.length} invalid Write(...) rules removed`);
+      if (g.skipped) log(`fix      ${g.file}: ${g.skipped}`); else if (g.added.length || g.removed.length) log(`fix      ${g.file}: ${g.added.length} protection rule(s) added, ${g.removed.length} invalid rule(s) removed`);
       if (checkProject().length) { writeRules(); log('fix      AGENTS.md block refreshed'); }
     }
     const r = doctorProject({ project });

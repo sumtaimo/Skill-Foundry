@@ -9,7 +9,7 @@ import { join, resolve, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
-import { addSkill, checkProject, catalog, main } from '../src/factory/foundry.mjs';
+import { addSkill, checkProject, catalog, main, removeSkill } from '../src/factory/foundry.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
@@ -241,4 +241,64 @@ test('add and update print a short doctor summary unless --quiet', () => {
   try { main(['add', 'copy-tight'], (l) => a.push(l)); main(['update', '--quiet'], (l) => b.push(l)); } finally { process.chdir(cwd); }
   assert.ok(a.some((l) => /^doctor   /.test(l)), a.join('\n'));
   assert.ok(!b.some((l) => /^doctor/.test(l)));
+});
+
+const STARTER_SPEC_WRITER = `---
+name: spec-writer
+description: Makes BA specs short, testable and directly usable by DEV and QA.
+roles: ["BA_ANALYST"]
+allowedTools: ["Read", "Edit", "Write"]
+keywords: ["spec", "requirement", "acceptance", "docs", "document"]
+autoApply: false
+---
+# Spec Writer Rules
+1. Start with one sentence: what the feature does and for whom.
+2. List acceptance criteria as numbered Given / When / Then lines; each must be testable.
+3. List edge cases and error states explicitly.
+4. Copy the exact names, signatures and formats from the shared interface contract; do not invent new ones.
+5. Keep it under one page. No code.
+`;
+
+test('Skill Foundry wins over a recognised Agentic-Harness starter copy: replaced without --sync-harness, original kept, idempotent, remove restores', () => {
+  for (const [label, text] of [['known content', STARTER_SPEC_WRITER], ['starter marker', `---\nname: spec-writer\nstarter-stub: agentic-harness\n---\nanything\n`], ['CRLF line ends', STARTER_SPEC_WRITER.replace(/\n/g, '\r\n')]]) {
+    const p = mkdtempSync(join(tmpdir(), 'sf-starter-'));
+    const f = join(p, '.harness', 'skills', 'spec-writer', 'SKILL.md');
+    mkdirSync(join(p, '.harness', 'skills', 'spec-writer'), { recursive: true });
+    writeFileSync(f, text);
+    const r = addSkill('spec-writer', { project: p });
+    assert.equal(r.harnessStatus, 'replaced-starter', label);
+    assert.match(readFileSync(f, 'utf8'), /installed-by: skill-foundry/, label);
+    assert.equal(readFileSync(`${f}.orig`, 'utf8'), text, `${label}: original kept byte for byte`);
+    assert.equal(addSkill('spec-writer', { project: p }).harnessStatus, 'written', `${label}: second run keeps our pointer`);
+    assert.equal(readFileSync(`${f}.orig`, 'utf8'), text, `${label}: .orig not overwritten`);
+    removeSkill('spec-writer', { project: p });
+    assert.equal(readFileSync(f, 'utf8'), text, `${label}: remove restores the original`);
+    assert.ok(!existsSync(`${f}.orig`));
+  }
+});
+
+test('an unknown skill with the same name is never replaced without --sync-harness; the name alone proves nothing', () => {
+  const p = mkdtempSync(join(tmpdir(), 'sf-custom-'));
+  const f = join(p, '.harness', 'skills', 'spec-writer', 'SKILL.md');
+  mkdirSync(join(p, '.harness', 'skills', 'spec-writer'), { recursive: true });
+  const mine = STARTER_SPEC_WRITER.replace('Keep it under one page.', 'Keep it under two pages.');
+  writeFileSync(f, mine);
+  const r = addSkill('spec-writer', { project: p });
+  assert.equal(r.harnessStatus, 'collision');
+  assert.equal(readFileSync(f, 'utf8'), mine, 'your skill is untouched');
+  assert.ok(!existsSync(`${f}.orig`));
+  assert.equal(addSkill('spec-writer', { project: p, syncHarness: true }).harnessStatus, 'replaced', '--sync-harness still replaces it, keeping the original');
+  assert.equal(readFileSync(`${f}.orig`, 'utf8'), mine);
+});
+
+test('user-facing text stays short and plain: no layers, evals, deny rules or internal skill mechanics in AGENTS.md, doctor or the add summary', async () => {
+  const p = mkdtempSync(join(tmpdir(), 'sf-plain-')); const out = [];
+  const cwd = process.cwd(); process.chdir(p);
+  try { main(['add', 'copy-tight'], (l) => out.push(l)); main(['doctor'], (l) => out.push(l)); } finally { process.chdir(cwd); }
+  const md = readFileSync(join(p, 'AGENTS.md'), 'utf8');
+  const bad = /\blayers?\b|\bevals?\b|deny rule|RULES\.json|machine-check|autoApply/i;
+  assert.doesNotMatch(md, bad, 'AGENTS.md block');
+  assert.doesNotMatch(out.join('\n'), bad, 'add and doctor output');
+  assert.match(md, /Never edit, delete or overwrite anything under/, 'the one instruction agents need is kept');
+  assert.match(md, /npx github:sumtaimo\/Skill-Foundry doctor/, 'exact fix command kept');
 });
