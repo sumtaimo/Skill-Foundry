@@ -1,0 +1,19 @@
+You are running the skill in /home/user/Skill-Foundry/src/skills/design-system. Read /home/user/Skill-Foundry/src/skills/design-system/SKILL.md and every file it links to, then follow it step by step.
+Write every file you produce into /home/user/Skill-Foundry/runs/design-system/dbd794d9bba4ff37/output and nowhere else. Produce the real output the skill describes, never a placeholder or mock.
+When done, reply with a short report: files produced, checks run and their results, open items.
+
+Input:
+Our project already has these tokens in styles/brand.css. Fill in what is missing (dark mode, motion and so on), but don't change anything we already have:
+:root {
+  --brand-primary: #7c3aed;
+  --bg: #ffffff;
+  --text: #111827;
+  --text-muted: #9ca3af;
+  --border: #e5e7eb;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --radius-card: 6px;
+  --font-body: "Helvetica Neue", Arial, sans-serif;
+  --font-size-base: 16px;
+}
