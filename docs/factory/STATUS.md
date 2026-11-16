@@ -11,12 +11,12 @@ Last updated: 2026-11-16, by the ux-review S4 session (branch `claude/ux-review-
 | Phase | What | Branch / commit | Status |
 |---|---|---|---|
 | Skills | ui-polish, design-system, ux-review, a11y-audit, spec-writer, plus the earlier five | `master` | Done, released |
-| Audit | Our skills run on our own site by real agents | `claude/landing-audit` (`b8338eb`), report `docs/factory/notes/landing-audit-2026-11-16.md` | Done, input for Phase B |
+| Audit | Our skills run on our own site by real agents | report `docs/factory/notes/landing-audit-2026-11-16.md` (evidence now on `lab`) | Done, input for Phase B |
 | A | CLI fixes: Edit-only deny rules, pointers that keep role tools, 8 roles, collision warning, `doctor` | `master` `2a27637` | Done, released |
 | B | Site: npx-first install, new layout from the reference TAIMO gave, 8 roles on the site, W2-8, W2-9 | `master` `6d0c255` | Done, released |
 | B2 | Site: shorter skill pages (request once, full answer collapsed) | `lab` | On lab, checked; waits for TAIMO to release lab |
 | Step 2 | `sumtaimo/Agentic-Harness` repository, `lab` then `release` | other repository | Not started; brief: `docs/factory/HANDOFF-AGENTIC-HARNESS-SYNC.md` |
-| C | ~~Re-update `.harness/` here~~ | none | Dropped by TAIMO on 2026-11-16 (L23: this project never changes the harness) |
+| C | Re-update this repository's `.harness/` from the Agentic-Harness release | `docs/factory/notes/phase-c-harness-followup.md` | **Unclear, TAIMO to decide**: L23 says this project never changes the harness, but TAIMO's handoff briefs still list Phase C. Not started either way; it can only start after Step 2 and TAIMO's approval. |
 
 Handoff briefs written by TAIMO: `docs/factory/HANDOFF-SKILL-FOUNDRY-IMPROVEMENTS.md`, `docs/factory/HANDOFF-AGENTIC-HARNESS-SYNC.md`.
 
@@ -71,6 +71,7 @@ Harness side (Step 2, not a skill change): roles `QA_AUDITOR` and `BA_ANALYST` c
 
 ## 5. Open questions for TAIMO
 
+0. Phase C (row C in section 1): drop it (L23) or keep it as a one-time installer run when TAIMO orders it? Until TAIMO answers, nothing touches `.harness/` here.
 1. ~~Skill page length~~ Answered by TAIMO: request shown once beside the result, full answer collapsed. Done on `claude/site-skill-page-length`: pages are 2900 to 3250 px at 1440 (about 3.2 screens, was 3500 to 4640). Open for TAIMO: cut more (Install block lower, or drop "What it does") or accept.
 2. Khmer strings added in Phase B and the new "Show the full answer" are drafts and need a native review.
 3. Skill backlog order: approved by TAIMO (per skill: ui-polish S1-S3 done, then copy-tight S7, ux-review S4 (done), design-system S1+S5, a11y-audit S1+S6, figure-craft S1).
