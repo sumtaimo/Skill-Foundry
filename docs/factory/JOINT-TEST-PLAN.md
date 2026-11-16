@@ -14,7 +14,7 @@ Whoever finds a problem in the other project **reports it and never edits it**.
 
 | Step | Command | Expected |
 |---|---|---|
-| 0.1 Vendor the harness snapshots (blocked until a session may read `sumtaimo/Agentic-Harness`) | Clone `release` at `15bd31e` and `lab` at `bf8b43c`; copy only what the gate needs into `tests/fixtures/agentic-harness/release-v1.0.6/` and `lab-v1.0.9/` (laid out like a project root: `.harness/lib/*.mjs`, `.harness/roles/*.json`, default `.harness/team.json`, `.harness/config.json`, `.harness/MANIFEST.json`, `.harness/skills/*/SKILL.md`, `.claude/settings.json`, `.claude/commands/`); add a `README.md` in each: source repo, branch, commit, "snapshot, do not edit"; under 1 MB total | `du -sh tests/fixtures/agentic-harness` below 1 MB |
+| 0.1 Vendor the harness snapshots | **Done 2026-11-16** by the orchestrator: `tests/fixtures/agentic-harness/release-v1.0.6-15bd31e/` and `lab-v1.0.15-0f39c98/` (read-only copies; refresh by replacing the whole folder from the harness repository). | Both folders have a README naming source, branch and commit; `node --test tests/factory-foundry-gate.test.mjs` passes. |
 | 0.2 Run the gate on everything | `npm test` | every gate and ownership test runs once per snapshot plus once for this repository's copy; the skipped test "vendored snapshots of both versions are present" now passes |
 | 0.3 Replace the install simulation | in `tests/helpers/harness-project.mjs` `installHarness()` run the snapshot's real `install.mjs` in the temp folder | same results as 0.2 (finding AH-A5) |
 

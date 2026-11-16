@@ -46,7 +46,8 @@ function noStrip(p, label) {
 
 test('gate: vendored snapshots of both Agentic-Harness versions are present', { skip: !existsSync(FIXTURES) && 'tests/fixtures/agentic-harness/ is not vendored yet (needs read access to sumtaimo/Agentic-Harness: release 15bd31e and lab bf8b43c)' }, () => {
   const names = harnessSources().filter((s) => s.snapshot).map((s) => s.label);
-  assert.ok(names.some((n) => /1\.0\.6/.test(n)) && names.some((n) => /1\.0\.9/.test(n)), `both release v1.0.6 and lab v1.0.9 snapshots exist, found: ${names.join(', ')}`);
+  const labMinor = names.map((n) => /lab-v1\.0\.(\d+)/.exec(n)).filter(Boolean).map((m) => Number(m[1]));
+  assert.ok(names.some((n) => /release-v1\.0\.6/.test(n)) && labMinor.some((v) => v >= 9), `a release v1.0.6 snapshot and a lab snapshot at 1.0.9 or newer exist, found: ${names.join(', ')}`);
   for (const s of harnessSources().filter((x) => x.snapshot)) assert.ok(existsSync(join(s.dir, 'README.md')), `${s.label} has a README naming its source`);
 });
 
