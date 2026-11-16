@@ -349,15 +349,7 @@
       },
       {
         "type": "contains",
-        "value": "var(--color-action-primary-bg)"
-      },
-      {
-        "type": "contains",
         "value": "var(--color-action-primary-text)"
-      },
-      {
-        "type": "contains",
-        "value": "var(--color-action-secondary-text)"
       },
       {
         "type": "contains",
@@ -390,6 +382,18 @@
       {
         "type": "notContains",
         "value": ":root"
+      },
+      {
+        "type": "contains",
+        "value": "--color-action-primary-bg"
+      },
+      {
+        "type": "contains",
+        "value": "#2563eb"
+      },
+      {
+        "type": "contains",
+        "value": "#0f766e"
       }
     ]
   },
