@@ -53,6 +53,7 @@ test('design-system eval cases pass on the engine output and the exact sentences
   out['existing-gaps'] = engineText(['--existing', 'brand.css'], (d) => writeFileSync(path.join(d, 'brand.css'), EXISTING));
   const partial = JSON.parse(readFileSync(path.join(DIR, 'evals', 'cases.json'), 'utf8')).find((c) => c.id === 'existing-partial').prompt;
   out['existing-partial'] = engineText(['--existing', 'base.css'], (d) => writeFileSync(path.join(d, 'base.css'), /:root \{[\s\S]*?\n\}/.exec(partial)[0]));
+  out['engine-unavailable'] = engineText(['--primary', '#7c3aed', '--archetype', 'calm-workspace', '--open', 'The engine could not run (running commands is not allowed in this session), so the tokens were built by hand; run the engine to confirm the numbers.']);
   out['no-input'] = { text: ASK };
   out['screen-declined'] = { text: SCREEN };
   assert.equal(cases.length, Object.keys(out).length);

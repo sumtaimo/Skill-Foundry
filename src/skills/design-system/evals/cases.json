@@ -964,5 +964,43 @@
         "value": "@import"
       }
     ]
+  },
+  {
+    "id": "engine-unavailable",
+    "prompt": "Our brand colour is #7c3aed and we want a calm, trustworthy feel. Please build our design tokens with light and dark mode. Heads-up: this session does not allow running any commands (no node, no shell), so do not run any.",
+    "expect": [
+      {
+        "type": "fileExists",
+        "value": "design-tokens.json"
+      },
+      {
+        "type": "fileExists",
+        "value": "tokens.css"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "The engine could not run ("
+      },
+      {
+        "type": "contains",
+        "value": "so the tokens were built by hand; run the engine to confirm the numbers."
+      },
+      {
+        "type": "contains",
+        "value": "#7c3aed"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-color-scheme: dark"
+      },
+      {
+        "type": "notContains",
+        "value": "@import"
+      }
+    ]
   }
 ]

@@ -1,0 +1,1 @@
+Our brand colour is #7c3aed and we want a calm, trustworthy feel. Please build our design tokens with light and dark mode. Heads-up: this session does not allow running any commands (no node, no shell), so do not run any.
