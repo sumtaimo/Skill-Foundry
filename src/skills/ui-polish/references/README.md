@@ -48,7 +48,7 @@ White text on a colour has the same ratio as that colour on #ffffff.
 
 ## Contrast script
 
-`engine/contrast.mjs` in this skill folder computes exact ratios. Node.js only, no installs, read-only. Run it with `node` from the skill folder (or give its full path).
+`engine/contrast.mjs` in this skill folder computes exact ratios. Node.js only, no installs, read-only. Run it with `node` and the full path to the script (the folder that holds SKILL.md plus `engine/contrast.mjs`). Write it as ONE plain command: no `cd`, no shell variable, no pipe, no `;`, no `&&`. The examples below use the short form `engine/contrast.mjs`; put the full path in front of it.
 
 | What | Command |
 |------|---------|
@@ -87,5 +87,6 @@ Answer each line yes or no. Any "no" blocks the reply until it is fixed.
 - [ ] No visible text changed, and no element was added or removed.
 - [ ] Every brand colour kept its hue.
 - [ ] No external font, script, stylesheet, image or link was added.
+- [ ] No pair that passed before has a lower ratio after, no passing value was swapped for a different token value (each is an Open question with both values), and the script was run as one plain command or the reply says it could not run.
 - [ ] The reply follows the format in layer 08, with one true ratio-source sentence under the contrast table.
 - [ ] With a token file: no raw value is left where a token matches, every var(--name) is in the token file or the input, the primary action uses the primary-fill tokens, and the token file was not edited.

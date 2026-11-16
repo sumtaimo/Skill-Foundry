@@ -39,7 +39,7 @@ Follow the layers in order. Each layer file is the detailed chapter for that ste
 
 The default scales, the contrast table and the reviewer checklist are in [references/README.md](references/README.md).
 How a token file is read and which token each value gets is in [references/tokens.md](references/tokens.md).
-The contrast script is `engine/contrast.mjs` in this folder (Node.js, no dependencies, read-only).
+The contrast script is `engine/contrast.mjs` in this folder (Node.js, no dependencies, read-only). Run it exactly as in references/README.md, "Contrast script".
 
 ## Rules
 
@@ -63,11 +63,18 @@ The contrast script is `engine/contrast.mjs` in this folder (Node.js, no depende
 - R-ui-polish-18: SKILL.md MUST stay within 150 lines, with frontmatter name, description and semver version.
 - R-ui-polish-19: Every relative link MUST point to a file inside the skill folder.
 - R-ui-polish-20: With a token file, every colour, spacing, font size, line-height, font weight, radius, control size, focus width and duration in the polished code that has a matching token MUST be written as var(--name) of that token, chosen by references/tokens.md; the token scales replace the default scales of rules 1 to 3.
-- R-ui-polish-21: With a token file, the one primary action MUST use the file's primary-fill tokens (in a design-system file: --color-action-primary-bg with --color-action-primary-text).
+- R-ui-polish-21: With a token file, the one primary action MUST use the file's primary-fill tokens (in a design-system file: --color-action-primary-bg with --color-action-primary-text), unless its own pair already passes with a different value (rule 28).
 - R-ui-polish-22: NEVER write a token name that is not in the token file; a value with no matching token MUST stay a plain value and MUST be listed under Open questions.
 - R-ui-polish-23: NEVER edit, rewrite or redefine the token file or a token; a token pair below its ratio MUST be reported with its ratio under Contrast and under Open questions.
 - R-ui-polish-24: Every ratio MUST come from the contrast script when commands can be run, else from the reference table; the reply MUST say which with the fixed sentence of layer 08, step 6.
 - R-ui-polish-25: The contrast script MUST use only the Node.js standard library, MUST never write a file, and MUST agree with the reference table.
+
+- R-ui-polish-26: The contrast script MUST be run as ONE plain command with the full path to the script (`node <skill folder>/engine/contrast.mjs ...`), with no `cd`, no shell variable, no pipe and no `;` or `&&`; when it cannot run, the reply MUST say so plainly with the fixed sentence of layer 08, step 6.
+- R-ui-polish-27: NEVER lower the contrast of a pair that already passes rule 4: the ratio after a change MUST be equal to or higher than before; a passing pair is kept as written.
+- R-ui-polish-28: NEVER replace an existing value that passes with a different token value; keep it and list it under Open questions with both values, so the owner decides.
+- R-ui-polish-29: Token mode starts only when the user gives the token file or the page loads it; when a token file is found but the page does not load it, the skill MUST say so under Open questions and NEVER rewrite values to its tokens.
+- R-ui-polish-30: When a screenshot or measurement sheet is given, text that overflows or overlaps its box MUST be fixed (layer 04, step 12a) and each fix MUST cite the measurement; without one, the skill NEVER claims to have checked order, page length, overflow or overlap.
+- R-ui-polish-31: When several pages share one stylesheet, the reply MUST give one patch for the stylesheet plus a short delta per page, NEVER one full patch per page.
 
 Each rule's check or reviewer item is in `RULES.json`.
 
@@ -76,7 +83,8 @@ Each rule's check or reviewer item is in `RULES.json`.
 - Every visible text string in the input appears unchanged in the polished code.
 - Every spacing and font-size number in the polished code is on its scale, or is a token of the token file.
 - Every var(--name) in the polished code is in the token file or was in the input code.
-- Run `node engine/contrast.mjs <text> <background>` for every colour pair; use the table only when commands cannot run.
+- Run `node <skill folder>/engine/contrast.mjs <text> <background> ...` (one plain command, no `cd`, no variables, no pipe) for every colour pair; use the table only when commands cannot run, and say so.
+- No pair that passed before has a lower ratio after; no passing value was replaced by a different token value.
 - Every changed colour pair has its ratio written, and it meets rule 4.
 - Answer the reviewer items in [references/README.md](references/README.md); any "no" blocks the reply.
 
