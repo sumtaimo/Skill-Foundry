@@ -1,5 +1,7 @@
 # Roadmap: skills
 
+Current state, decisions and the skill backlog: `docs/factory/STATUS.md` (read it first).
+
 The project roadmap is in `docs/PROJECT.md` section 6. This file lists skills.
 
 ## Built (status `ready` in `src/factory/registry.json`)
