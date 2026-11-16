@@ -4,7 +4,7 @@ Every AI session reads this page first and updates it before it reports (lesson 
 It holds what is done, what is open, every decision TAIMO made, and every skill weakness found in real use,
 so no session has to guess and nothing found is forgotten. Details live in the linked files; this page only points.
 
-Last updated: 2026-11-16, by the ux-review S4 session (branch `claude/ux-review-s4`).
+Last updated: 2026-11-16, by the platform A2 session (branch `claude/platform-a2`).
 
 ## 1. Where we are
 
@@ -15,6 +15,7 @@ Last updated: 2026-11-16, by the ux-review S4 session (branch `claude/ux-review-
 | A | CLI fixes: Edit-only deny rules, pointers that keep role tools, 8 roles, collision warning, `doctor` | `master` `2a27637` | Done, released |
 | B | Site: npx-first install, new layout from the reference TAIMO gave, 8 roles on the site, W2-8, W2-9 | `master` `6d0c255` | Done, released |
 | B2 | Site: shorter skill pages (request once, full answer collapsed) | `lab` | On lab, checked; waits for TAIMO to release lab |
+| A2 | Platform: scope note on Install and For-agents (en + kh draft, done); ownership-line tests; gate over three user situations and every harness source; joint-test plan | `claude/platform-a2` | Code done; **open: vendored snapshots of the real harness** (blocked, see below) |
 | Handoff | Both handoff briefs corrected to the real state (A and B done, lab workflow, dropped Phase C, real-use findings AH-8 to AH-11, questions H7 to H9) | `docs/factory/HANDOFF-*.md` on `lab` | Done 2026-11-16; TAIMO pastes the Agentic-Harness one into that repository |
 | Guide | Paste-ready guide + kickoff prompt + sync loop for the Agentic-Harness repository | `docs/factory/GUIDE-FOR-AGENTIC-HARNESS.md` on `lab` | Done 2026-11-16 |
 | Step 2 | `sumtaimo/Agentic-Harness` repository, `lab` then `release` | other repository | Not started; brief: `docs/factory/HANDOFF-AGENTIC-HARNESS-SYNC.md` |
@@ -43,6 +44,14 @@ Release path (2026-11-16): `claude/...` work branch → **`lab`** (integrate and
 | Lab branch | All finished work goes to `lab` first and is checked there; release `lab` → `master` only after TAIMO confirms (another agent may verify `lab` a second time). |
 | Harness feedback | This project never changes the Agentic Harness; it only reports issues to TAIMO (private doc "Agentic Harness feedback" on claude.ai, items H1-H9); fixes happen in the separate `sumtaimo/Agentic-Harness` project. |
 | Model choice | The orchestrator picks the model for child sessions by job and cost; not a fixed rule. |
+
+### A2 details (2026-11-16)
+
+- **Ownership line as tests:** `tests/factory-foundry-ownership.test.mjs` (byte-for-byte: after `add --all`, `update`, `remove`, `doctor --fix` only `.claude/skills/<name>/`, `.harness/skills/<name>/SKILL.md(.orig)`, our `AGENTS.md` block and our deny rules change; after a harness install or update our deny rules, skills, pointers stay and `check`/`doctor` are healthy; worst case "harness overwrites settings.json" is detected and repaired by `doctor --fix`). Skill Foundry did not break the line in any scenario.
+- **Gate:** `tests/factory-foundry-gate.test.mjs` runs S1 (Skill Foundry only), S2 (harness then Skill Foundry), S3 (Skill Foundry then harness install and update) for every harness source, every role must keep `Bash(npm test:*)`, `Bash(node --test:*)` and its Edit/Write rules. Sources today: this repository's own `.harness/` copy. Helpers: `tests/helpers/harness-project.mjs`.
+- **Blocked (real blocker):** vendoring the `release` `15bd31e` (v1.0.6) and `lab` `bf8b43c` (v1.0.9) snapshots needs read access to `sumtaimo/Agentic-Harness`; `add_repo` was denied by the permission classifier. Needed: TAIMO allows `add_repo` (read) for that repository in a session, or pastes the files. The gate already picks up `tests/fixtures/agentic-harness/<name>/` and one test is skipped until they exist (step 0 of the plan). Until then the harness-install step is a simulation (finding AH-A5).
+- **Harness findings (reports only):** `docs/factory/notes/harness-findings-2026-11-16.md`.
+- **Joint test plan:** `docs/factory/JOINT-TEST-PLAN.md`.
 
 ## 3. How we work (summary; the rules are in `.harness/memory/lessons.md`)
 
