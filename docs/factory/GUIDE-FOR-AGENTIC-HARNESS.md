@@ -2,8 +2,16 @@
 
 For TAIMO to paste into the `sumtaimo/Agentic-Harness` repository (session on branch `lab`). Self-contained: that
 repository cannot see this one. The full engineering brief is `docs/factory/HANDOFF-AGENTIC-HARNESS-SYNC.md` (paste it
-under this guide, or give the raw URL). Written 2026-11-16; the current state of the other repository is in
+first, then this guide's prompt; or give the raw URL). Written 2026-11-16; the current state of the other repository is in
 `docs/factory/STATUS.md` of Skill Foundry.
+
+## 0. Paste order (TAIMO)
+
+Send two things to the session in `sumtaimo/Agentic-Harness`, in this order:
+1. **First:** the whole file `docs/factory/HANDOFF-AGENTIC-HARNESS-SYNC.md` (the handoff).
+2. **Then, in a second message:** section 2 of this guide (the kickoff prompt). It tells the session to use the handoff
+   that was already sent.
+Sections 3 to 5 of this guide are for TAIMO to read; they do not need to be pasted.
 
 ## 1. One paragraph
 
@@ -12,15 +20,17 @@ Skill Foundry ships only domain skills (`npx github:sumtaimo/Skill-Foundry`). Ag
 install order. When a skill is duplicated, Skill Foundry wins. Skill Foundry never changes the harness; the harness is
 changed only here, in this repository.
 
-## 2. Ready-to-paste kickoff prompt (for a session in `sumtaimo/Agentic-Harness`, branch `lab`)
+## 2. Ready-to-paste kickoff prompt (second message; the handoff was pasted first)
 
 ```text
 Repo: sumtaimo/Agentic-Harness. Work on branch `lab` only; never edit `release` directly.
 Skill Foundry reference: master 6d0c255 (https://github.com/sumtaimo/Skill-Foundry/commit/6d0c255). Its staging branch
 `lab` holds later skill fixes until TAIMO releases it; pin `master`.
 
-Read AGENTS.md, docs/MAINTAINING.md and the handoff brief HANDOFF-AGENTIC-HARNESS-SYNC.md (pasted below or at
-https://raw.githubusercontent.com/sumtaimo/Skill-Foundry/lab/docs/factory/HANDOFF-AGENTIC-HARNESS-SYNC.md).
+Read AGENTS.md, docs/MAINTAINING.md and the handoff brief HANDOFF-AGENTIC-HARNESS-SYNC.md that I pasted in my previous
+message (it is also at
+https://raw.githubusercontent.com/sumtaimo/Skill-Foundry/lab/docs/factory/HANDOFF-AGENTIC-HARNESS-SYNC.md). If you cannot
+find it above, stop and ask me to paste it; do not guess its content.
 
 Decisions already made by TAIMO (do not ask again): Skill Foundry installs are npx-first; eight roles are known and
 UX_DESIGNER writes CSS only; recognised harness starter copies (for example the 15-line spec-writer stub) are replaced
