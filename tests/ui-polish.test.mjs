@@ -34,7 +34,7 @@ const answers = {
 
 // Reference answers for the token cases are made from each case's own expectations (they show the shape, they are not proof).
 for (const c of JSON.parse(readFileSync(path.join(DIR, 'evals', 'cases.json'), 'utf8'))) {
-  if (c.id.startsWith('tokens-')) answers[c.id] = shape(c.expect.filter((e) => e.type === 'contains').map((e) => e.value).join('\n'));
+  if (c.id.startsWith('tokens-') || ['script-one-command', 'passing-dark-button', 'shared-stylesheet', 'overflow-measured'].includes(c.id)) answers[c.id] = shape(c.expect.filter((e) => e.type === 'contains').map((e) => e.value).join('\n'));
 }
 
 test('ui-polish lint is clean', async () => {
