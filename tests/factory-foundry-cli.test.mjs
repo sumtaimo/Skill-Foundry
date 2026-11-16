@@ -8,6 +8,7 @@ import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, cpSync, existsSync
 import { join, resolve, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
 import { addSkill, checkProject, catalog, main } from '../src/factory/foundry.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -114,7 +115,8 @@ test('by default add lists the skills in AGENTS.md and denies agents edit rights
   const cfg = JSON.parse(readFileSync(join(p, '.claude', 'settings.json'), 'utf8'));
   assert.equal(cfg.model, 'x'); assert.deepEqual(cfg.permissions.allow, ['Bash(ls:*)']);
   assert.deepEqual(cfg.permissions.deny, ['Read(.env)', ...DENY], 'user rules kept, ours added once');
-  assert.ok(DENY.some((d) => d.startsWith('Edit(.claude/skills')) && DENY.some((d) => d.startsWith('Write(.claude/skills')));
+  assert.ok(DENY.some((d) => d.startsWith('Edit(.claude/skills')) && DENY.some((d) => d.startsWith('Edit(.harness/skills')));
+  assert.ok(DENY.every((d) => !d.startsWith('Write(')), 'Claude Code reports Write(path) rules as invalid: Edit(path) only');
   const md = readFileSync(join(p, 'AGENTS.md'), 'utf8');
   assert.match(md, /Never edit, delete or overwrite anything under/);
   assert.deepEqual(protectSkills({ project: p }).added, [], 'idempotent');
@@ -144,4 +146,99 @@ test('add --all, check reports local edits, remove cleans up only what we instal
   assert.doesNotMatch(readFileSync(join(p, 'AGENTS.md'), 'utf8'), /\*\*copy-tight\*\*/);
   assert.equal(readFileSync(join(p, '.claude', 'skills', 'mine', 'SKILL.md'), 'utf8'), 'mine', 'the user skill is untouched');
   assert.throws(() => main(['remove', 'mine'], () => {}), /not installed by skill-foundry/);
+});
+
+test('an old install upgrades cleanly: legacy Write(...) deny rules are removed, ours kept once, the user\'s rules untouched', async () => {
+  const { protectSkills, LEGACY_DENY, DENY } = await import('../src/factory/foundry.mjs');
+  const p = mkdtempSync(join(tmpdir(), 'sf-legacy-')); mkdirSync(join(p, '.claude'), { recursive: true });
+  const old = ['Read(.env)', 'Edit(.claude/skills/**)', 'Write(.claude/skills/**)', 'Edit(.harness/skills/**)', 'Write(.harness/skills/**)', 'Bash(npx github:sumtaimo/Skill-Foundry update*)', 'Bash(npx github:sumtaimo/Skill-Foundry add*)'];
+  writeFileSync(join(p, '.claude', 'settings.json'), JSON.stringify({ permissions: { allow: ['Bash(ls:*)'], deny: old } }));
+  const r = protectSkills({ project: p });
+  assert.deepEqual(r.removed, LEGACY_DENY); assert.deepEqual(r.added, []);
+  const deny = JSON.parse(readFileSync(join(p, '.claude', 'settings.json'), 'utf8')).permissions.deny;
+  assert.deepEqual(deny, ['Read(.env)', ...DENY]);
+  assert.deepEqual(protectSkills({ project: p }), { file: '.claude/settings.json', added: [], removed: [] }, 'second run changes nothing');
+});
+
+test('the AGENTS.md block teaches lazy loading, file handoff without raw dumps, and the doctor command', async () => {
+  const { writeRules } = await import('../src/factory/foundry.mjs');
+  const p = mkdtempSync(join(tmpdir(), 'sf-block-')); addSkill('copy-tight', { project: p });
+  writeFileSync(join(p, 'AGENTS.md'), '# Mine\n\nkeep me\n');
+  writeRules({ project: p }); const first = readFileSync(join(p, 'AGENTS.md'), 'utf8'); writeRules({ project: p });
+  const md = readFileSync(join(p, 'AGENTS.md'), 'utf8');
+  assert.equal(md, first, 'refresh is idempotent'); assert.ok(md.startsWith('# Mine\n\nkeep me\n'));
+  assert.match(md, /Load only the active skill's `SKILL\.md`/); assert.match(md, /Never paste raw file contents/);
+  assert.match(md, /"step_completed"/); assert.match(md, /npx github:sumtaimo\/Skill-Foundry doctor/);
+  assert.match(md, /Never edit, delete or overwrite anything under/);
+  assert.equal(md.match(/skill-foundry:begin/g).length, 1);
+});
+
+test('roles: the harness roles are accepted, and so is any role the project defines; an unknown one is refused', () => {
+  const p = mkdtempSync(join(tmpdir(), 'sf-roles-')); mkdirSync(join(p, '.harness', 'roles'), { recursive: true });
+  writeFileSync(join(p, '.harness', 'roles', 'docs.json'), JSON.stringify({ name: 'DOCS_BOT', allowedTools: ['Read'] }));
+  const cwd = process.cwd(); process.chdir(p); const out = [];
+  try {
+    for (const r of ['UX_DESIGNER', 'REVIEWER', 'SECURITY', 'COORDINATOR', 'DOCS_BOT']) assert.equal(main(['add', '--role', r, '--quiet'], (l) => out.push(l)), 0, r);
+    assert.throws(() => main(['add', '--role', 'NOPE'], () => {}), /--role must be one of .*UX_DESIGNER.*DOCS_BOT/);
+  } finally { process.chdir(cwd); }
+  assert.ok(out.some((l) => /no ready skill is registered for SECURITY yet/.test(l)), 'a valid role without skills is not an error, so installers can call it');
+});
+
+test('collision: a project\'s own .harness/skills/<name> is kept with a warning; --sync-harness replaces it and remove brings it back', () => {
+  const p = mkdtempSync(join(tmpdir(), 'sf-coll-')); mkdirSync(join(p, '.harness', 'skills', 'spec-writer'), { recursive: true });
+  const stub = '---\nname: spec-writer\nroles: ["BA_ANALYST"]\n---\n# stub\n'; const f = join(p, '.harness', 'skills', 'spec-writer', 'SKILL.md');
+  writeFileSync(f, stub);
+  const cwd = process.cwd(); process.chdir(p); const out = [];
+  try {
+    main(['add', 'spec-writer', '--quiet'], (l) => out.push(l));
+    assert.ok(out.some((l) => /^harness  ! spec-writer: \.harness\/skills\/spec-writer\/SKILL\.md already exists without skill-foundry marker — pointer skipped \(use --sync-harness/.test(l)), out.join('\n'));
+    assert.equal(readFileSync(f, 'utf8'), stub, 'kept untouched without the flag');
+    main(['update', 'spec-writer', '--sync-harness', '--quiet'], (l) => out.push(l));
+    assert.match(readFileSync(f, 'utf8'), /installed-by: skill-foundry/);
+    assert.equal(readFileSync(`${f}.orig`, 'utf8'), stub, 'the original is kept');
+    main(['remove', 'spec-writer'], () => {});
+  } finally { process.chdir(cwd); }
+  assert.equal(readFileSync(f, 'utf8'), stub, 'remove restores the project\'s own skill');
+  assert.ok(!existsSync(`${f}.orig`));
+});
+
+test('pointers: ordinary skills declare no allowedTools; skills with an engine/ folder declare bare Edit, Write, Bash (never a literal Bash(node:*))', () => {
+  const p = mkdtempSync(join(tmpdir(), 'sf-ptr-')); mkdirSync(join(p, '.harness', 'skills'), { recursive: true });
+  const cwd = process.cwd(); process.chdir(p);
+  try { main(['add', '--all', '--quiet'], () => {}); } finally { process.chdir(cwd); }
+  for (const s of catalog().filter((x) => x.scope !== 'factory')) {
+    const raw = readFileSync(join(p, '.harness', 'skills', s.name, 'SKILL.md'), 'utf8');
+    if (existsSync(join(s.dir, 'engine'))) assert.match(raw, /^allowedTools: \["Edit","Write","Bash"\]$/m, s.name);
+    else assert.doesNotMatch(raw, /allowedTools/, s.name);
+    assert.doesNotMatch(raw, /Bash\(node:\*\)/, 'a literal Bash(node:*) would replace the role\'s whole Bash rule set');
+  }
+  assert.ok(['a11y-audit', 'design-system', 'ui-polish', 'figure-craft'].every((n) => /allowedTools/.test(readFileSync(join(p, '.harness', 'skills', n, 'SKILL.md'), 'utf8'))), 'engine skills found');
+});
+
+test('doctor: exit 1 on usage error, 0 when healthy, 2 with findings; --json is machine readable', () => {
+  const p = mkdtempSync(join(tmpdir(), 'sf-doc-')); spawnSync('git', ['init', '-q'], { cwd: p });
+  const cwd = process.cwd(); process.chdir(p); const out = [];
+  try {
+    assert.equal(main(['bogus'], () => {}), 1);
+    assert.equal(main(['doctor'], () => {}), 2, 'nothing installed is a finding');
+    main(['add', 'copy-tight', '--quiet'], () => {});
+    assert.equal(main(['doctor'], (l) => out.push(l)), 0, out.join('\n'));
+    assert.match(out.join('\n'), /Healthy\./);
+    writeFileSync(join(p, '.claude', 'settings.json'), JSON.stringify({ permissions: { deny: ['Write(.claude/skills/**)'] } }));
+    const j = []; assert.equal(main(['doctor', '--json'], (l) => j.push(l)), 2);
+    const r = JSON.parse(j.join('\n'));
+    assert.equal(r.case, 'B'); assert.equal(r.healthy, false);
+    const bad = r.items.find((i) => i.level === 'problem'); assert.match(bad.message, /Write\(path\)/); assert.match(bad.fix, /doctor --fix/);
+    assert.equal(main(['doctor', '--fix'], () => {}), 0, 'fix repairs what the foundry wrote');
+    assert.deepEqual(JSON.parse(readFileSync(join(p, '.claude', 'settings.json'), 'utf8')).permissions.deny, DENY_LIST());
+  } finally { process.chdir(cwd); }
+});
+const DENY_LIST = () => ['Edit(.claude/skills/**)', 'Edit(.harness/skills/**)', 'Bash(npx github:sumtaimo/Skill-Foundry update*)', 'Bash(npx github:sumtaimo/Skill-Foundry add*)'];
+
+test('add and update print a short doctor summary unless --quiet', () => {
+  const p = mkdtempSync(join(tmpdir(), 'sf-sum-')); spawnSync('git', ['init', '-q'], { cwd: p });
+  const cwd = process.cwd(); process.chdir(p); const a = []; const b = [];
+  try { main(['add', 'copy-tight'], (l) => a.push(l)); main(['update', '--quiet'], (l) => b.push(l)); } finally { process.chdir(cwd); }
+  assert.ok(a.some((l) => /^doctor   /.test(l)), a.join('\n'));
+  assert.ok(!b.some((l) => /^doctor/.test(l)));
 });
