@@ -39,7 +39,7 @@ Release path (2026-11-16): `claude/...` work branch → **`lab`** (integrate and
 | Layout | First screen guides a first-time visitor; the real recorded result is the biggest thing on a skill page; one primary action per view; structure (not text or art) from https://skills.wheresryan.sh/anatomy . |
 | Books and brands | Use principles only; never name books, authors or outside brands (L10, L15). |
 | Lab branch | All finished work goes to `lab` first and is checked there; release `lab` → `master` only after TAIMO confirms (another agent may verify `lab` a second time). |
-| Harness feedback | When the orchestrator notices an Agentic Harness bug, it tells TAIMO in chat first; it is written down only where TAIMO says. |
+| Harness feedback | This project never changes the Agentic Harness; it only reports issues to TAIMO (private doc "Agentic Harness feedback" on claude.ai, items H1-H9); fixes happen in the separate `sumtaimo/Agentic-Harness` project. |
 | Model choice | The orchestrator picks the model for child sessions by job and cost; not a fixed rule. |
 
 ## 3. How we work (summary; the rules are in `.harness/memory/lessons.md`)
@@ -72,6 +72,10 @@ Harness side (Step 2, not a skill change): roles `QA_AUDITOR` and `BA_ANALYST` c
 1. ~~Skill page length~~ Answered by TAIMO: request shown once beside the result, full answer collapsed. Done on `claude/site-skill-page-length`: pages are 2900 to 3250 px at 1440 (about 3.2 screens, was 3500 to 4640). Open for TAIMO: cut more (Install block lower, or drop "What it does") or accept.
 2. Khmer strings added in Phase B and the new "Show the full answer" are drafts and need a native review.
 3. Order of the skill backlog in section 4 (proposed: S1 first because it blocks four skills, then S7, S2, S4).
+
+## 5b. After the current plan
+
+- Two-way gap loop with the Agentic Harness: a clear, shared way for this project's AI and the Agentic Harness project's AI to hand issues to each other (report, fix, confirm) without confusion. Design it with TAIMO after the skill backlog is done.
 
 ## 6. Cost log (list price reported by child sessions)
 
