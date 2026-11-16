@@ -16,4 +16,6 @@ step 0) the gate tests re-check items 1 to 3 automatically.
 | AH-A4 | (missing) `.harness/MANIFEST.json` | This copy has no manifest, so the Skill Foundry `doctor` cannot tell which harness version it is looking at. | Phase C was dropped (L24); the Agentic-Harness project updates this copy when TAIMO orders. |
 | AH-A5 | `tests/helpers/harness-project.mjs` `installHarness()` (our simulation, not the real installer) | We could not read `install.mjs`, so the "harness install or update on top of Skill Foundry" tests simulate it from the documented contract (own files written, project-owned files kept, `settings.json` permissions merged, `AGENTS.md` marker appended once). Real behaviour is unproven. | Vendor the real snapshots, and replace the simulation with the real `install.mjs` run in a temp folder (offline). |
 
+Already known in the handoff brief: AH-A1 is AH-1, AH-A2 is AH-3, AH-A3 and AH-A4 are in section 6 (stale `gemini`/`orca`, manifest). They are repeated here because this session saw them in a real run, with line numbers.
+
 Nothing was found where Skill Foundry has to change: in every scenario run here the ownership line held (see the ownership tests).
