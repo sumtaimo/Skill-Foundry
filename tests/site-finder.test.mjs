@@ -217,3 +217,17 @@ test('skill page: hero Install jumps to its own install block, which holds the n
   const smith = readFileSync(join(await site(), 'skills', 'skill-smith', 'index.html'), 'utf8');
   assert.doesNotMatch(smith, /npx-cmd/, 'factory-only skills are zip-only');
 });
+
+test('Install and For-agents sections both say Skill Foundry installs only the skills and wires into an existing harness (en + kh)', async () => {
+  const html = readFileSync(join(await site(), 'index.html'), 'utf8');
+  const install = html.slice(html.indexOf('<section id="install"'), html.indexOf('<section id="agents"'));
+  const agents = html.slice(html.indexOf('<section id="agents"'), html.indexOf('<section id="limits"'));
+  for (const [name, part] of [['install', install], ['agents', agents]]) {
+    assert.match(part, /data-i18n="install\.scope"/, `${name} section carries the scope note`);
+  }
+  assert.match(DICTS.en['install.scope'], /only the skills/);
+  assert.match(DICTS.en['install.scope'], /existing agentic harness/);
+  assert.match(DICTS.en['install.scope'], /Agentic-Harness/);
+  assert.match(DICTS.kh['install.scope'], /Agentic-Harness/);
+  assert.match(DICTS.kh['install.scope'], /[ក-៿]/);
+});
