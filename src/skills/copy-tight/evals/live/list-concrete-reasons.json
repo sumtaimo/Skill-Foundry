@@ -1,0 +1,8 @@
+{
+  "case": "list-concrete-reasons",
+  "prompt": "make these plain, ids in front:\nA1: We were unable to process your payment of $49.00 at this time.\nA2: Please click here in order to download your invoice\nA3: Save changes\nA4: There are currently no results that match your search for {query}.",
+  "agent": "claude -p (fresh, only the skill folder; tools Read Glob Grep; cwd outside the repository)",
+  "recordedAt": "2026-11-16",
+  "output": "Rewritten copy:\n\n| ID | Before | After | Saved | Reason |\n|---|---|---|---|---|\n| A1 | We were unable to process your payment of $49.00 at this time. | We couldn't process your payment of $49.00. | 19 | Contraction for the negative; dropped the closing clause about when; amount kept |\n| A2 | Please click here in order to download your invoice | Download your invoice | 30 | Starts with the verb; polite lead-in and redundant link instruction gone |\n| A3 | Save changes | Save changes | 0 | Kept: already tight |\n| A4 | There are currently no results that match your search for {query}. | No results for {query}. | 43 | Leads with the empty state; dropped the present-moment adverb and relative clause; placeholder kept |\n\nWhat changed:\n- 4 strings in, 4 rows out: 3 changed, 1 kept.\n- Total characters saved: 92.",
+  "files": []
+}

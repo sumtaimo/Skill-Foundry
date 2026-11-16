@@ -1,8 +1,8 @@
 {
   "case": "error-message",
   "prompt": "shorten this copy: We were unable to process your payment of $49.00 at this time. Please try again later.",
-  "agent": "claude",
-  "recordedAt": "2026-11-14",
-  "output": "Rewritten copy:\nWe couldn't process your $49.00 payment. Try again later.\n\nWhat changed:\n- Active voice\n- Cut filler\n- Kept the amount and the next step",
+  "agent": "claude -p (fresh, only the skill folder; tools Read Glob Grep; cwd outside the repository)",
+  "recordedAt": "2026-11-16",
+  "output": "Rewritten copy:\nWe couldn't process your $49.00 payment. Please try again later.\n\nWhat changed:\n- Swapped the wordy negative verb phrase for a contraction\n- Dropped the trailing phrase about the present moment\n- Moved the amount in front, $49.00 kept exactly\n- Kept the original next step",
   "files": []
 }

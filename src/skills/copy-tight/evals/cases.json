@@ -190,5 +190,321 @@
         "value": 10
       }
     ]
+  },
+  {
+    "id": "list-all-lines",
+    "prompt": "tighten these UI strings (one per line, id then colon then the text). A line ending in [keep as is] must stay exactly as written:\nbtn.save: Click here in order to save all of your changes\nbtn.cancel: Cancel\nbtn.next: Please click here to proceed to the next step\nbtn.checkout: Click here in order to proceed to Checkout\nlbl.email: Please enter your email address in the field below\nlbl.name: Full name\nerr.save: An unexpected error has occurred while attempting to save your changes.\nerr.pay: We were unable to process your payment of $49.00 at this time.\nerr.net: It appears that you are currently not connected to the internet.\nerr.size: The file that you selected is larger than the maximum of 25 MB that is allowed.\nempty.inbox: You currently do not have any new messages in your Inbox at this time.\nempty.projects: There are no projects that have been created yet.\ntip.share: Click this button in order to share the document with other people.\ntip.lock: Please note that locked items cannot be edited by anyone.\nok.saved: Your changes have been successfully saved.\nok.sent: Your message has been sent to {name}.\nwarn.leave: You have unsaved changes that will be lost if you leave this page.\nwarn.delete: Are you sure that you would like to delete this item?\nlbl.proof: Real output from an agent [keep as is]\nlegal.terms: By continuing you agree to the Terms of Service.\nhint.trial: Your free trial of the Pro plan will end in 7 days.\nbtn.retry: Retry",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "Rewritten copy:"
+      },
+      {
+        "type": "contains",
+        "value": "What changed:"
+      },
+      {
+        "type": "contains",
+        "value": "Reason"
+      },
+      {
+        "type": "contains",
+        "value": "Kept"
+      },
+      {
+        "type": "contains",
+        "value": "btn.save"
+      },
+      {
+        "type": "contains",
+        "value": "btn.cancel"
+      },
+      {
+        "type": "contains",
+        "value": "btn.next"
+      },
+      {
+        "type": "contains",
+        "value": "btn.checkout"
+      },
+      {
+        "type": "contains",
+        "value": "lbl.email"
+      },
+      {
+        "type": "contains",
+        "value": "lbl.name"
+      },
+      {
+        "type": "contains",
+        "value": "err.save"
+      },
+      {
+        "type": "contains",
+        "value": "err.pay"
+      },
+      {
+        "type": "contains",
+        "value": "err.net"
+      },
+      {
+        "type": "contains",
+        "value": "err.size"
+      },
+      {
+        "type": "contains",
+        "value": "empty.inbox"
+      },
+      {
+        "type": "contains",
+        "value": "empty.projects"
+      },
+      {
+        "type": "contains",
+        "value": "tip.share"
+      },
+      {
+        "type": "contains",
+        "value": "tip.lock"
+      },
+      {
+        "type": "contains",
+        "value": "ok.saved"
+      },
+      {
+        "type": "contains",
+        "value": "ok.sent"
+      },
+      {
+        "type": "contains",
+        "value": "warn.leave"
+      },
+      {
+        "type": "contains",
+        "value": "warn.delete"
+      },
+      {
+        "type": "contains",
+        "value": "lbl.proof"
+      },
+      {
+        "type": "contains",
+        "value": "legal.terms"
+      },
+      {
+        "type": "contains",
+        "value": "hint.trial"
+      },
+      {
+        "type": "contains",
+        "value": "btn.retry"
+      },
+      {
+        "type": "contains",
+        "value": "$49.00"
+      },
+      {
+        "type": "contains",
+        "value": "25 MB"
+      },
+      {
+        "type": "contains",
+        "value": "7 days"
+      },
+      {
+        "type": "contains",
+        "value": "Checkout"
+      },
+      {
+        "type": "contains",
+        "value": "Inbox"
+      },
+      {
+        "type": "contains",
+        "value": "{name}"
+      },
+      {
+        "type": "contains",
+        "value": "Pro plan"
+      },
+      {
+        "type": "contains",
+        "value": "Real output from an agent"
+      },
+      {
+        "type": "contains",
+        "value": "By continuing you agree to the Terms of Service."
+      },
+      {
+        "type": "contains",
+        "value": "Legal text is returned unchanged."
+      },
+      {
+        "type": "notContains",
+        "value": "Cut filler"
+      },
+      {
+        "type": "notContains",
+        "value": "Plainer words"
+      },
+      {
+        "type": "notContains",
+        "value": "Try again"
+      },
+      {
+        "type": "notContains",
+        "value": "Contact support"
+      }
+    ]
+  },
+  {
+    "id": "keep-marked-label",
+    "prompt": "shorten these strings. Keep the label in quotes exactly as it is, do not reword it.\n1. \"Real output from an agent\"\n2. Click here in order to see the full answer that was recorded by the agent\n3. Please wait while we load your results",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "Rewritten copy:"
+      },
+      {
+        "type": "contains",
+        "value": "What changed:"
+      },
+      {
+        "type": "contains",
+        "value": "Real output from an agent"
+      },
+      {
+        "type": "notContains",
+        "value": "Real agent output"
+      },
+      {
+        "type": "contains",
+        "value": "Kept"
+      },
+      {
+        "type": "contains",
+        "value": "Saved"
+      },
+      {
+        "type": "notContains",
+        "value": "Cut filler"
+      },
+      {
+        "type": "notContains",
+        "value": "Plainer words"
+      },
+      {
+        "type": "maxLines",
+        "value": 14
+      }
+    ]
+  },
+  {
+    "id": "long-string-split",
+    "prompt": "shorten this copy: Your subscription will renew automatically on 3 January 2027 for $12.00 unless you cancel it before that date from the Billing page, and we will email you a receipt after every payment that we take from your account.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "Rewritten copy:"
+      },
+      {
+        "type": "contains",
+        "value": "What changed:"
+      },
+      {
+        "type": "contains",
+        "value": "3 January 2027"
+      },
+      {
+        "type": "contains",
+        "value": "$12.00"
+      },
+      {
+        "type": "contains",
+        "value": "Billing"
+      },
+      {
+        "type": "contains",
+        "value": "receipt"
+      },
+      {
+        "type": "notContains",
+        "value": "Try again"
+      },
+      {
+        "type": "notContains",
+        "value": "Cut filler"
+      },
+      {
+        "type": "maxLines",
+        "value": 10
+      }
+    ]
+  },
+  {
+    "id": "list-concrete-reasons",
+    "prompt": "make these plain, ids in front:\nA1: We were unable to process your payment of $49.00 at this time.\nA2: Please click here in order to download your invoice\nA3: Save changes\nA4: There are currently no results that match your search for {query}.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "Rewritten copy:"
+      },
+      {
+        "type": "contains",
+        "value": "What changed:"
+      },
+      {
+        "type": "contains",
+        "value": "A1"
+      },
+      {
+        "type": "contains",
+        "value": "A2"
+      },
+      {
+        "type": "contains",
+        "value": "A3"
+      },
+      {
+        "type": "contains",
+        "value": "A4"
+      },
+      {
+        "type": "contains",
+        "value": "$49.00"
+      },
+      {
+        "type": "contains",
+        "value": "{query}"
+      },
+      {
+        "type": "contains",
+        "value": "Kept"
+      },
+      {
+        "type": "contains",
+        "value": "Reason"
+      },
+      {
+        "type": "notContains",
+        "value": "Cut filler"
+      },
+      {
+        "type": "notContains",
+        "value": "Plainer words"
+      },
+      {
+        "type": "notContains",
+        "value": "Shortened"
+      },
+      {
+        "type": "notContains",
+        "value": "Try again"
+      },
+      {
+        "type": "maxLines",
+        "value": 14
+      }
+    ]
   }
 ]
