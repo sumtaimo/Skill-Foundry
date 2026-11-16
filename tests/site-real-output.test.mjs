@@ -46,7 +46,17 @@ test('the answer on each skill page is the recording, word for word, with the re
     const shown = /<pre class="proof-answer" lang="en">([\s\S]*?)<\/pre>/.exec(page);
     assert.ok(shown, `${name}: the real answer is not on the page`);
     assert.equal(unesc(shown[1]), proof.answer, `${name}: the answer on the page differs from the recording`);
-    assert.ok(page.includes(`<code lang="en">${proof.prompt.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')}</code>`), `${name}: the request is not shown`);
+    const askHtml = `<code lang="en">${proof.prompt.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')}</code>`;
+    const result = page.slice(page.indexOf('id="result"'), page.indexOf('id="install"'));
+    // A skill whose cover is a recorded run shows that run's request beside it; the answer of a different recording then names its own request.
+    const sameRequest = loadSkills(ROOT).find((x) => x.name === name).prompt === proof.prompt;
+    assert.equal(page.split(askHtml).length - 1, 1, `${name}: the request is shown exactly once`);
+    assert.ok(!sameRequest || result.includes(askHtml), `${name}: the request sits beside the real result`);
+    if (!sameRequest) assert.equal(result.split(askHtml).length - 1, 1, `${name}: the recording's own request sits with its answer`);
+    assert.doesNotMatch(page.slice(0, page.indexOf('</svg>', page.indexOf('class="cover cover-lg"'))), /class="doc-ask"/, `${name}: the cover does not repeat the request`);
+    const acc = /<details class="acc answer-acc" id="answer"[^>]*>/.exec(page);
+    assert.ok(acc && !/\sopen/.test(acc[0]), `${name}: the full answer is a closed accordion`);
+    assert.ok(result.includes('<pre class="proof-answer"'), `${name}: the full answer stays in the HTML, under the result`);
     assert.match(page, /data-proof-source="(portable|live)"/);
     const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     assert.ok(page.includes(`<button type="button" class="btn copy" data-copy="${esc(proof.answer)}"><span data-i18n="answer.copy">`), `${name}: the copy button does not copy the exact answer`);

@@ -76,7 +76,7 @@ test('cards: small and named, one quiet install action, real-agent line, no mete
 
 test('skill pages: install block, then six numbered sections in order, each opening with its heading', async () => {
   const out = await site();
-  const ids = ['install', 'what-it-does', 'how-to-ask', 'proven', 'rules', 'examples', 'limits', 'questions'];
+  const ids = ['install', 'what-it-does', 'proven', 'rules', 'examples', 'limits', 'questions'];
   for (const s of ready) {
     const html = readFileSync(join(out, 'skills', s.name, 'index.html'), 'utf8');
     assert.match(html, /<nav class="qbar[^"]*"/, s.name);
@@ -91,7 +91,7 @@ test('skill pages: install block, then six numbered sections in order, each open
       const after = html.slice(at).replace(/^<section[^>]*>\s*/, '');
       assert.match(after, /^<h2\b/, `${s.name} #${id}: the heading comes first, no lead-in before it`);
     }
-    assert.equal((html.match(/<section[^>]*class="[^"]*numbered/g) || []).length, 7, `${s.name}: seven numbered sections`);
+    assert.equal((html.match(/<section[^>]*class="[^"]*numbered/g) || []).length, 6, `${s.name}: six numbered sections`);
     const r = rules(s.name);
     const hk = html.slice(html.indexOf('id="proven"'));
     assert.match(hk.slice(0, hk.indexOf('</section>')), new RegExp(`data-machine="${r.machine}" data-total="${r.total}"`));

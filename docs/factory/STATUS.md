@@ -4,7 +4,7 @@ Every AI session reads this page first and updates it before it reports (lesson 
 It holds what is done, what is open, every decision TAIMO made, and every skill weakness found in real use,
 so no session has to guess and nothing found is forgotten. Details live in the linked files; this page only points.
 
-Last updated: 2026-11-16, by the orchestrator session.
+Last updated: 2026-11-16, by the site-skill-page-length session.
 
 ## 1. Where we are
 
@@ -14,6 +14,7 @@ Last updated: 2026-11-16, by the orchestrator session.
 | Audit | Our skills run on our own site by real agents | `claude/landing-audit` (`b8338eb`), report `docs/factory/notes/landing-audit-2026-11-16.md` | Done, input for Phase B |
 | A | CLI fixes: Edit-only deny rules, pointers that keep role tools, 8 roles, collision warning, `doctor` | `master` `2a27637` | Done, released |
 | B | Site: npx-first install, new layout from the reference TAIMO gave, 8 roles on the site | `claude/site-phase-b` | Built, gates READY; follow-ups W2-8, W2-9 in progress; waits for TAIMO's merge approval |
+| B2 | Site: shorter skill pages (request once, full answer collapsed), 10 pages 610 to 1557 px shorter at 1440 | `claude/site-skill-page-length`, note `docs/factory/notes/site-skill-page-length-2026-11-16.md` | Built, gates READY; waits for TAIMO's merge approval |
 | Step 2 | `sumtaimo/Agentic-Harness` repository, `lab` then `release` | other repository | Not started; brief: `docs/factory/HANDOFF-AGENTIC-HARNESS-SYNC.md` |
 | C | Re-update this repository's `.harness/` from the Agentic-Harness release | `docs/factory/notes/phase-c-harness-followup.md` | Waits for Step 2 (decision D1 b) |
 
@@ -68,8 +69,8 @@ Harness side (Step 2, not a skill change): roles `QA_AUDITOR` and `BA_ANALYST` c
 
 ## 5. Open questions for TAIMO
 
-1. Skill page length: it is 4.5 screens at 1440 (target about 3). Drop the "How to ask" section (the request already sits beside the result) or collapse the full word-for-word answer?
-2. Khmer strings added in Phase B are drafts and need a native review.
+1. ~~Skill page length~~ Answered by TAIMO: request shown once beside the result, full answer collapsed. Done on `claude/site-skill-page-length`: pages are 2900 to 3250 px at 1440 (about 3.2 screens, was 3500 to 4640). Open for TAIMO: cut more (Install block lower, or drop "What it does") or accept.
+2. Khmer strings added in Phase B and the new "Show the full answer" are drafts and need a native review.
 3. Order of the skill backlog in section 4 (proposed: S1 first because it blocks four skills, then S7, S2, S4).
 
 ## 6. Cost log (list price reported by child sessions)

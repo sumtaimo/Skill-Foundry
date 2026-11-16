@@ -229,4 +229,14 @@
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
+
+  /* A link such as skills/x/index.html#answer opens the closed accordion it points into. */
+  function openHash() {
+    var id = (location.hash || '').slice(1);
+    var el = id ? document.getElementById(id) : null;
+    var d = el && (el.tagName === 'DETAILS' ? el : el.closest('details'));
+    if (d) { d.open = true; el.scrollIntoView(); }
+  }
+  window.addEventListener('hashchange', openHash);
+  openHash();
 })();
