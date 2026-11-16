@@ -311,3 +311,13 @@ table.proof { width: 100%; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+/* states a real ui-polish run found missing: hover on chips, summaries and the search field; disabled controls */
+.chip:hover { border-color: var(--line-strong); }
+.acc > summary:hover { text-decoration: underline; text-underline-offset: 3px; }
+.find:hover { border-color: var(--fg); }
+.btn:disabled, .rolechip:disabled, .find:disabled { opacity: .5; cursor: not-allowed; }
+.brand:hover { text-decoration: underline; text-underline-offset: 3px; }
+.btn:active { background: var(--line); }
+.btn.primary:active { background: var(--fg); border-color: var(--fg); opacity: .85; }
+.changelog h3 { font-size: 1rem; margin: 12px 0 4px; }

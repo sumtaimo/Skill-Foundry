@@ -272,7 +272,7 @@ export function renderRecipes(recipes, skills) {
   if (!recipes.length) return '';
   const titleOf = (n) => skills.find((s) => s.name === n)?.title ?? n;
   const items = recipes.map((r) => `<article class="recipe" data-recipe="${esc(r.id)}">
-<h4 lang="en">${esc(r.title)}</h4>
+<h3 lang="en">${esc(r.title)}</h3>
 <p class="recipe-chain">${t('recipe.used', 'span', 'class="proof-label"')} ${r.used.map((n, i) => `${i ? '<span class="recipe-arrow" aria-hidden="true">→</span> ' : ''}<a class="chip" href="skills/${esc(n)}/index.html" lang="en">${esc(titleOf(n))}</a>`).join(' ')}</p>
 <div class="recipe-body">
 <div class="cover" data-cover="proof">${r.svg.replace(/^<svg\b/, '<svg aria-hidden="true" focusable="false"')}${t('cover.real', 'span', 'class="cover-tag" data-kind="proof"')}</div>
@@ -416,7 +416,7 @@ function renderChangelog(md) {
     }
     if (list) { out.push('</ul>'); list = false; }
     if (/^#\s/.test(line)) continue;
-    if (h) out.push(`<h4>${esc(h[1])}</h4>`);
+    if (h) out.push(`<h3>${esc(h[1])}</h3>`);
     else if (line.trim()) out.push(`<p>${esc(line.trim())}</p>`);
   }
   if (list) out.push('</ul>');
