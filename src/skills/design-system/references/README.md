@@ -113,6 +113,13 @@ color-roles: surface, background, bg, text, fg, foreground, border (with a hex v
 spacing: space, spacing, gap, gutter; control: control, input-height, button-height, target; radius: radius, rounded; shadow: shadow, elevation;
 border-width: border-width; motion: duration, ease, easing, motion, transition; breakpoint: breakpoint, screen; density: density;
 dark-mode: a prefers-color-scheme: dark block or a data-theme selector.
+A group is present only when at least 3 distinct tokens match it (a colour group counts colour values, hex or rgb, hsl, oklch, var() or an alias). One or two matches make it partly present:
+its missing tokens are written to the gap files, so a single `--gutter` does not hide the spacing scale and a single `--radius-card` does not hide the radius scale.
+A token is "missing" by name: the family's tokens whose name the user already has are skipped, in the light root, the dark blocks, the reduced-motion block and the density blocks.
+Neutral scale: the project's greys are colour tokens with a spread of at most 12% between the largest and smallest channel and a lightness from 4% to 98.5%, found by value and not by name
+(brand, accent and status names are never greys). Each grey sits unchanged at the step whose lightness is nearest (the nearer one when two compete); the palest and darkest steps come from a tint of the greys' mean hue
+and median saturation (at most 25%); the other steps are linear mixes between their two neighbours by the lightness table. The scale must run strictly lighter to darker and every role built on it must reach its minimum;
+otherwise the default tinted scale is used and the report says why.
 Missing groups are written to the gap files. Existing names are never written again. When dark mode is missing,
 existing background, text and border tokens get dark values under the same names, in the dark blocks only.
 

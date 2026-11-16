@@ -8,7 +8,9 @@ Checks anyone can run by search, in any project:
 4. Search every output file for "@import", "http", "url(" and "<link". None may appear.
 5. Read every ratio in the report: each is a number with ":1", each text row says pass, and the Needs column is 4.5:1 for text and 3:1 for borders and focus rings.
 6. Search every output file and the reply for the name of any brand the user compared to. It must not appear.
-7. On path c, compare each existing file with how it was before: it must be byte for byte the same.
+7. On path c, compare each existing file with how it was before: it must be byte for byte the same, and no gap file may define a name the existing files define (also not in a dark, reduced-motion or density block).
+7a. On path c, a family with 1 or 2 of the user's tokens is listed in the report as partly present, with the tokens that were added; the neutral scale lists the project's greys and their steps, or says why the default scale was used.
+7b. The engine ran as one plain command; if it could not, the open question says so plainly.
 
 Reviewer checklist, answered yes or no (the same list is in references/README.md):
 

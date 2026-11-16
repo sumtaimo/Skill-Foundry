@@ -88,5 +88,20 @@
     "id": "R-design-system-18",
     "text": "Every relative link MUST point to a file inside the skill folder.",
     "check": "chk-links"
+  },
+  {
+    "id": "R-design-system-19",
+    "text": "The engine MUST be run as ONE plain command with the path of the script: no cd, no shell variable, no pipe, no ; or &&; when it cannot run, the reply MUST say so plainly in an open question.",
+    "checklist": "The engine ran as one plain command; if it could not run, an open question says so plainly and the numbers are marked as built by hand."
+  },
+  {
+    "id": "R-design-system-20",
+    "text": "On path c a family is present only when at least 3 of the user's tokens match it; with 1 or 2 its missing tokens MUST be written to the gap files by name and NEVER over a user token, also not in dark, reduced-motion or density blocks.",
+    "checklist": "A file with one spacing token still gets the spacing scale in the gap files; no user token name is defined again anywhere in the gap files."
+  },
+  {
+    "id": "R-design-system-21",
+    "text": "On path c the neutral scale MUST keep the project's own greys at their value, fill the other steps by interpolation and be contrast-checked; when it cannot pass, the default scale is used and the report says why.",
+    "checklist": "The report names the project's greys and the step each sits at, or says why the default scale was used."
   }
 ]

@@ -6,6 +6,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, mkdtempSync, writeFileSync, existsSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -37,6 +38,7 @@ const INPUTS = {
   'font-editorial': ['--primary', '#be123c', '--archetype', 'editorial', '--font', 'Atkinson Hyperlegible'],
   'dense-tool': ['--primary', '#4f46e5', '--archetype', 'dense-data-tool'],
   'midtone-teal': ['--primary', '#0d9488', '--archetype', 'calm-workspace', '--name', 'Plant-care app'],
+  'engine-one-command': ['--primary', '#2563eb', '--archetype', 'precise-fintech', '--name', 'Project-planning tool'],
 };
 
 test('design-system lint is clean', async () => {
@@ -49,6 +51,8 @@ test('design-system eval cases pass on the engine output and the exact sentences
   const out = {};
   for (const [id, args] of Object.entries(INPUTS)) out[id] = engineText(args);
   out['existing-gaps'] = engineText(['--existing', 'brand.css'], (d) => writeFileSync(path.join(d, 'brand.css'), EXISTING));
+  const partial = JSON.parse(readFileSync(path.join(DIR, 'evals', 'cases.json'), 'utf8')).find((c) => c.id === 'existing-partial').prompt;
+  out['existing-partial'] = engineText(['--existing', 'base.css'], (d) => writeFileSync(path.join(d, 'base.css'), /:root \{[\s\S]*?\n\}/.exec(partial)[0]));
   out['no-input'] = { text: ASK };
   out['screen-declined'] = { text: SCREEN };
   assert.equal(cases.length, Object.keys(out).length);
@@ -186,6 +190,105 @@ test('engine path c: the existing file is untouched, no existing name is written
   const none = E.run(['--existing', 'tokens.css'], full);
   assert.match(none.md, /No gaps found/);
   assert.deepEqual(none.files, ['design-system-report.md']);
+});
+
+/** Run path c on a token file in a new folder; returns the folder and the result. */
+function pathC(css, args = []) {
+  const dir = mkdtempSync(path.join(tmpdir(), 'ds-s5-'));
+  writeFileSync(path.join(dir, 'mine.css'), css);
+  const r = E.run(['--existing', 'mine.css', ...args], dir);
+  return { dir, r, gaps: readFileSync(path.join(dir, 'tokens.gaps.css'), 'utf8'), json: JSON.parse(readFileSync(path.join(dir, 'design-tokens.gaps.json'), 'utf8')) };
+}
+const lightRoot = (gaps) => gaps.split('\n:root[data-theme="light"]')[0].split('@media')[0];
+
+test('S5: one --gutter does not hide the spacing scale; every family it does not cover is still written; the user file stays byte for byte', () => {
+  const css = ':root {\n  --gutter: 24px;\n}\n';
+  const { dir, r, gaps, json } = pathC(css);
+  assert.equal(readFileSync(path.join(dir, 'mine.css'), 'utf8'), css);
+  for (const n of E.SPACING) assert.match(gaps, new RegExp(`--space-${n}: ${n}px;`));
+  assert.deepEqual(Object.keys(json.space).sort(), E.SPACING.map(String).sort());
+  for (const s of ['--radius-md:', '--duration-fast:', '--shadow-1:', 'prefers-reduced-motion: reduce', ':root[data-theme="dark"]']) assert.ok(gaps.includes(s), s);
+  assert.ok(!gaps.includes('--gutter'), 'the user token is never written again');
+  assert.match(r.md, /spacing is only partly present \(--gutter\)/);
+});
+
+test('S5: a family is present only with at least 3 matching tokens', () => {
+  const three = pathC(':root {\n  --space-1: 4px;\n  --space-2: 8px;\n  --space-3: 16px;\n  --radius-card: 6px;\n}\n');
+  assert.ok(!/--space-\d+:/.test(lightRoot(three.gaps)), 'three spacing tokens are a scale: nothing added');
+  assert.match(lightRoot(three.gaps), /--radius-md:/, 'one radius token is not a family');
+  assert.equal(E.FAMILY_MIN, 3);
+  const two = pathC(':root {\n  --space-1: 4px;\n  --space-2: 8px;\n}\n');
+  assert.match(lightRoot(two.gaps), /--space-16: 16px;/, 'two spacing tokens are only partly present');
+});
+
+test('S5: a partly present family never overwrites a user token, in the light root, the dark blocks, reduced motion or density', () => {
+  const css = ':root {\n  --space-16: 20px;\n  --shadow-1: 0 0 1px red;\n  --duration-fast: 90ms;\n  --density-row: 30px;\n  --radius-md: 5px;\n}\n';
+  const { gaps, json } = pathC(css);
+  for (const n of ['--space-16', '--shadow-1', '--duration-fast', '--density-row', '--radius-md']) assert.ok(!gaps.includes(`${n}:`), `${n} written by the gap file`);
+  assert.ok(!json.space?.['16'] && !json.radius?.md && !json.shadow?.['1'] && !json.motion?.['duration-fast'] && !json.density?.row, 'JSON gap file has no user token');
+  assert.match(gaps, /--space-8: 8px;/);
+  assert.match(gaps, /--shadow-2:/);
+  assert.match(gaps, /--duration-base:/);
+  assert.match(gaps, /--duration-base: 0ms;/);
+  assert.match(gaps, /--density-control-x:/);
+});
+
+test('S5: the neutral scale keeps the project greys, fills the missing steps and every pair still passes', () => {
+  const css = ':root {\n  --ink: #1f2933;\n  --line: #cbd2d9;\n  --mute: #616e7c;\n  --paper: #f5f7fa;\n  --brand: #0d9488;\n}\n';
+  const { dir, r, gaps, json } = pathC(css);
+  assert.equal(r.bad.length, 0, JSON.stringify(r.bad));
+  const n = r.b.scales.neutral;
+  assert.deepEqual(n.fromGreys.kept.map((k) => [k.hex, k.step]), [['#f5f7fa', 50], ['#cbd2d9', 200], ['#616e7c', 600], ['#1f2933', 900]]);
+  for (const [hex, st] of [['#f5f7fa', 50], ['#cbd2d9', 200], ['#616e7c', 600], ['#1f2933', 900]]) {
+    assert.match(gaps, new RegExp(`--color-neutral-${st}: ${hex};`));
+    assert.equal(json.color.neutral[st].$value, hex);
+  }
+  assert.deepEqual(n.fromGreys.interpolated, [100, 300, 400, 500, 700, 800]);
+  const lums = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950].map((st) => E.luminance(n.scale[st]));
+  assert.ok(lums.every((v, i) => i === 0 || v < lums[i - 1]), 'lighter to darker');
+  assert.match(r.md, /Neutral scale: built from your own greys/);
+  assert.equal(readFileSync(path.join(dir, 'mine.css'), 'utf8'), css);
+  const plain = E.build({ primary: '#0d9488' });
+  assert.notEqual(plain.scales.neutral.scale[900], n.scale[900], 'the default tint is not used when the project has greys');
+});
+
+test('S5: greys are found by value, not by name, and brand, status, white and black are not greys', () => {
+  const greys = E.findGreys([
+    { name: 'brand-grey', value: '#888888' }, { name: 'bg', value: '#ffffff' }, { name: 'ink', value: '#000000' },
+    { name: 'text', value: '#111827' }, { name: 'danger', value: '#999999' }, { name: 'blue', value: '#2563eb' }, { name: 'rule', value: '#e5e7eb' }, { name: 'rule2', value: '#E5E7EB' },
+  ]);
+  assert.deepEqual(greys.map((g) => g.name), ['text', 'rule']);
+});
+
+test('S5: running the same gap request twice gives byte-identical files (idempotent) and never touches the user file', () => {
+  const css = ':root {\n  --gutter: 24px;\n  --ink: #1f2933;\n  --paper: #f5f7fa;\n}\n';
+  const a = pathC(css);
+  const first = ['tokens.gaps.css', 'design-tokens.gaps.json', 'design-system-report.md'].map((f) => readFileSync(path.join(a.dir, f), 'utf8'));
+  E.run(['--existing', 'mine.css', '--force'], a.dir);
+  const second = ['tokens.gaps.css', 'design-tokens.gaps.json', 'design-system-report.md'].map((f) => readFileSync(path.join(a.dir, f), 'utf8'));
+  assert.deepEqual(second, first);
+  assert.equal(readFileSync(path.join(a.dir, 'mine.css'), 'utf8'), css);
+});
+
+test('S1: the engine tells the agent to run it as one plain command and how to reply when it cannot run', () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'ds-s1-'));
+  const bad = spawnSync(process.execPath, [path.join(DIR, 'engine', 'tokens.mjs'), '--primary', 'teal'], { cwd: dir, encoding: 'utf8' });
+  assert.equal(bad.status, 2);
+  assert.match(bad.stderr, /ONE plain command/);
+  assert.match(bad.stderr, /no cd, no shell variable, no pipe/);
+  assert.match(bad.stderr, /The engine could not run \(<say plainly why>\), so the tokens were built by hand/);
+  const ok = spawnSync(process.execPath, [path.join(DIR, 'engine', 'tokens.mjs'), '--primary', '#0f766e'], { cwd: dir, encoding: 'utf8' });
+  assert.equal(ok.status, 0);
+  assert.match(ok.stdout, /Reply to the user with the report above, word for word/);
+  assert.ok(existsSync(path.join(dir, 'tokens.css')), 'with no cd the engine writes into the current folder');
+});
+
+test('S1: SKILL.md and layer 04 tell the agent to run the engine as one plain command and to say plainly when it could not run', () => {
+  const skill = readFileSync(path.join(DIR, 'SKILL.md'), 'utf8');
+  const flow = readFileSync(path.join(DIR, 'layers', '04-flow.md'), 'utf8');
+  assert.match(skill, /R-design-system-19: .*ONE plain command/);
+  for (const w of ['no `cd`', 'no shell variable', 'no pipe']) assert.ok(skill.includes(w) && flow.includes(w), w);
+  assert.match(flow, /The engine could not run \(<say plainly why>\)/);
 });
 
 test('design-system version matches CHANGELOG and registry', () => {
