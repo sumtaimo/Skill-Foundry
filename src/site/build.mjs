@@ -85,11 +85,14 @@ export async function buildSite({ root = REPO_ROOT, out = join(REPO_ROOT, 'dist'
   return { pages, skills: skills.length, downloads };
 }
 
+const NPX = 'npx github:sumtaimo/Skill-Foundry';
+
 /** Machine index for agents: every ready skill with what an agent needs to choose, fetch and verify it. Paths are relative to the site root. */
 export function agentIndex(skills, checksums) {
   return {
     name: 'Skill Foundry',
-    install: 'Replace {base} in installCommand with the URL of the folder this file was fetched from (ending in /), run it in the project root, then restart the agent. The command stops if the SHA-256 does not match.',
+    install: `Primary: run npxInstallCommand in the project root (needs Node.js and git); it installs the skill, wires it to matching harness roles and protects it from edits. Then run \`${NPX} doctor\` to check the setup, \`${NPX} check\` to see what is out of date and \`${NPX} update\` to update. Skills with npxInstallCommand null are factory-only: use the zip. Fallback for environments without Node.js: replace {base} in zipInstallCommand with the URL of the folder this file was fetched from (ending in /), run it in the project root, then restart the agent; it stops if the SHA-256 does not match.`,
+    npx: { add: `${NPX} add <skill>`, addRole: `${NPX} add --role <ROLE>`, addAll: `${NPX} add --all`, doctor: `${NPX} doctor`, check: `${NPX} check`, update: `${NPX} update`, remove: `${NPX} remove <skill>` },
     skills: skills.map((s) => ({
       name: s.name,
       title: s.title,
@@ -103,7 +106,9 @@ export function agentIndex(skills, checksums) {
       zip: `downloads/${zipName(s)}`,
       sha256: checksums[zipName(s)].sha256,
       bytes: checksums[zipName(s)].bytes,
-      installCommand: installOneLiner(s, checksums[zipName(s)].sha256, `{base}downloads/${zipName(s)}`),
+      installCommand: s.factoryOnly ? null : `${NPX} add ${s.name}`,
+      npxInstallCommand: s.factoryOnly ? null : `${NPX} add ${s.name}`,
+      zipInstallCommand: installOneLiner(s, checksums[zipName(s)].sha256, `{base}downloads/${zipName(s)}`),
       liveEvals: s.live ? { passed: s.live.passed, total: s.live.total } : null,
     })),
   };
@@ -111,10 +116,11 @@ export function agentIndex(skills, checksums) {
 
 /** Plain-text index (llms.txt convention): one block per ready skill. */
 export function llmsTxt(skills, checksums) {
-  const lines = ['# Skill Foundry', '', '> Reusable AI agent skills. Each is a folder to unzip into .claude/skills/. Paths are relative to this file. In each install command, replace {base} with the URL of the folder this file came from (ending in /) and run it in the project root; it stops if the SHA-256 does not match.', '', '## Skills', ''];
+  const lines = ['# Skill Foundry', '', `> Reusable AI agent skills. Install with one command in the project root (needs Node.js and git): \`${NPX} add <skill>\`. Other commands: \`add --role <ROLE>\`, \`add --all\`, \`doctor\`, \`check\`, \`update\`, \`remove <skill>\`. No Node.js: each skill is also a zip; in its zip-fallback line replace {base} with the URL of the folder this file came from (ending in /) and run it in the project root; it stops if the SHA-256 does not match. Paths are relative to this file.`, '', '## Skills', ''];
   for (const s of skills) {
     lines.push(`- [${s.name} ${s.version}](skills/${s.name}/index.html): ${s.description}`);
-    lines.push(`  install: ${installOneLiner(s, checksums[zipName(s)].sha256, `{base}downloads/${zipName(s)}`)}`);
+    lines.push(s.factoryOnly ? '  install: factory-only skill, not installed with npx; use the zip-fallback line' : `  install: ${NPX} add ${s.name}`);
+    lines.push(`  zip-fallback: ${installOneLiner(s, checksums[zipName(s)].sha256, `{base}downloads/${zipName(s)}`)}`);
     lines.push(`  roles: ${s.roles.join(', ') || '-'}; zip: downloads/${zipName(s)}; sha256: ${checksums[zipName(s)].sha256}; real-agent evals: ${s.live ? `${s.live.passed}/${s.live.total}` : 'not yet'}`);
   }
   lines.push('', '## Machine index', '', '- [skills.json](skills.json)', '');

@@ -59,47 +59,45 @@ test('no rail, no 01 / 05 numbering in any page', async () => {
   }
 });
 
-test('cards: plate index, type, get and honest meter', async () => {
+test('cards: small and named, one quiet install action, real-agent line, no meter or download button', async () => {
   const html = readFileSync(join(await site(), 'index.html'), 'utf8');
-  const plates = [...html.matchAll(/<article class="plate[^"]*" data-skill="([^"]+)"[\s\S]*?<\/article>/g)];
+  const plates = [...html.matchAll(/<article class="plate"[\s\S]*?<\/article>/g)].map((m) => m[0]);
   assert.equal(plates.length, ready.length);
-  const names = plates.map((p) => p[1]);
-  for (const [i, s] of ready.entries()) {
-    const idx = names.indexOf(s.name);
-    assert.ok(idx >= 0, s.name);
-    const p = plates[idx][0];
-    const ix = p.match(/<span class="plate-index">([^<]*)<\/span>/);
-    assert.ok(ix && /^No\. \d\d$/.test(ix[1].trim()), s.name);
-    assert.equal(ix[1].trim(), `No. ${String(i + 1).padStart(2, '0')}`);
-    assert.match(p, /<p class="plate-type">You type: <code>[^<]+<\/code><\/p>/, s.name);
-    assert.match(p, /<p class="plate-get">You get: [^<]/, s.name);
-    const r = rules(s.name);
-    const m = p.match(/<div class="meter" data-machine="(\d+)" data-total="(\d+)"[^>]*>/);
-    assert.ok(m, `${s.name} meter`);
-    assert.equal(Number(m[1]), r.machine);
-    assert.equal(Number(m[2]), r.total);
-    assert.ok(text(p).includes(`${r.machine} of ${r.total} rules machine-checked`), s.name);
+  for (const s of ready) {
+    const p = plates.find((x) => x.includes(`data-skill="${s.name}"`));
+    assert.ok(p, s.name);
+    assert.match(p, /<h3 lang="en"><a href="skills\/[^"]+\/index\.html">[^<]+<\/a><\/h3>/, `${s.name} title link`);
+    assert.match(p, /<p class="plate-tag" lang="en">[^<]+[.!?]<\/p>/, `${s.name} one-sentence tagline`);
+    assert.equal((p.match(/<button\b/g) || []).length, 1, `${s.name}: exactly one action on the card`);
+    assert.doesNotMatch(p, /btn primary|class="meter"|<a [^>]*\sdownload/, `${s.name}: no primary button, meter or download on a card`);
+    assert.match(p, /class="live live-(yes|no)"/, s.name);
   }
 });
 
-test('skill pages: four questions in order with takeaways', async () => {
+test('skill pages: install block, then six numbered sections in order, each opening with its heading', async () => {
   const out = await site();
-  const ids = ['what-it-does', 'what-you-type', 'what-you-get', 'how-you-know'];
+  const ids = ['install', 'what-it-does', 'how-to-ask', 'proven', 'rules', 'examples', 'limits', 'questions'];
   for (const s of ready) {
     const html = readFileSync(join(out, 'skills', s.name, 'index.html'), 'utf8');
     assert.match(html, /<nav class="qbar[^"]*"/, s.name);
     assert.match(html, /class="qbar-progress"/, s.name);
+    assert.match(html, /<header class="skill-head">[\s\S]*?<a class="btn primary" href="#install">/, `${s.name}: hero Install button jumps to the page's own Install`);
+    assert.match(html, /<a href="#install"><span data-i18n="nav\.install">Install<\/span><\/a>/, `${s.name}: top bar Install stays on the page`);
     let last = -1;
     for (const id of ids) {
       const at = html.search(new RegExp(`<section[^>]*id="${id}"[^>]*>`));
       assert.ok(at > last, `${s.name} #${id} order`);
       last = at;
       const after = html.slice(at).replace(/^<section[^>]*>\s*/, '');
-      assert.match(after, /^<p class="takeaway"><strong>[^<]+[.!?]<\/strong><\/p>/, `${s.name} #${id} takeaway`);
+      assert.match(after, /^<h2\b/, `${s.name} #${id}: the heading comes first, no lead-in before it`);
     }
+    assert.equal((html.match(/<section[^>]*class="[^"]*numbered/g) || []).length, 7, `${s.name}: seven numbered sections`);
     const r = rules(s.name);
-    const hk = html.slice(html.indexOf('id="how-you-know"'));
+    const hk = html.slice(html.indexOf('id="proven"'));
     assert.match(hk.slice(0, hk.indexOf('</section>')), new RegExp(`data-machine="${r.machine}" data-total="${r.total}"`));
+    const rulesSec = html.slice(html.indexOf('id="rules"'), html.indexOf('id="examples"'));
+    assert.equal((rulesSec.match(/<details class="acc">/g) || []).length, 3, `${s.name}: layers, rules and files are accordions`);
+    assert.doesNotMatch(rulesSec, /<details[^>]*\sopen/, `${s.name}: accordions are closed by default`);
   }
 });
 
@@ -122,7 +120,7 @@ test('download buttons name skill, version and size in KB', async () => {
   assert.ok(seen >= ready.length);
 });
 
-test('site.css: reduced motion disables hero animation', async () => {
+test('site.css: reduced motion switches every animation and transition off', async () => {
   const css = readFileSync(join(await site(), 'assets', 'site.css'), 'utf8');
   const blocks = [...css.matchAll(/@media[^{]*prefers-reduced-motion:\s*reduce[^{]*\{/g)];
   assert.ok(blocks.length > 0);
@@ -130,9 +128,10 @@ test('site.css: reduced motion disables hero animation', async () => {
     let i = b.index + b[0].length, depth = 1;
     while (i < css.length && depth) { if (css[i] === '{') depth++; else if (css[i] === '}') depth--; i++; }
     const body = css.slice(b.index, i);
-    return body.includes('.hero-part') && body.includes('.hero-prompt') && /animation\s*:\s*none/.test(body);
+    return /\*[^{]*\{[^}]*animation\s*:\s*none/.test(body) && /transition\s*:\s*none/.test(body);
   });
-  assert.ok(ok, 'reduced-motion block covering .hero-part and .hero-prompt with animation: none');
+  assert.ok(ok, 'reduced-motion block with animation: none and transition: none on every element');
+  assert.doesNotMatch(css, /@keyframes/, 'the page has no animation at all');
 });
 
 /** @param {string} html @param {string} id @returns {string} */
@@ -175,14 +174,14 @@ test('example frame: no lazy loading, sandbox allow-scripts, open link', async (
   }
 });
 
-test('what you get: skills without example show get-cover svg', async () => {
+test('real result: every skill page shows its cover big, right after the hero, before the install block', async () => {
   const out = await site();
   for (const s of ready) {
-    let hasEx = true;
-    try { statSync(join(ROOT, 'src/skills', s.name, 'preview', 'example.html')); } catch { hasEx = false; }
-    if (hasEx) continue;
-    const sec = section(readFileSync(join(out, 'skills', s.name, 'index.html'), 'utf8'), 'what-you-get');
-    assert.match(sec, /<svg\b[^>]*class="[^"]*get-cover|class="[^"]*get-cover[^"]*"[^>]*>\s*<svg\b/, s.name);
+    const html = readFileSync(join(out, 'skills', s.name, 'index.html'), 'utf8');
+    const sec = section(html, 'result');
+    assert.match(sec, /class="cover cover-lg" data-cover="(run|proof)"[^>]*><svg\b/, s.name);
+    assert.match(sec, /<code lang="en">/, `${s.name}: the exact request is beside the result`);
+    assert.ok(html.indexOf('id="result"') < html.indexOf('id="install"'), `${s.name}: result before install`);
   }
 });
 
@@ -199,6 +198,7 @@ test('theme and language buttons say what they do', async () => {
     assert.ok(/^Switch to (dark|light) theme$/.test(tt), `${f} theme: ${tt}`);
     // Pages are built in English; the language button names its target in that language's own script.
     assert.equal(text(lang[1]), 'អានជាភាសាខ្មែរ', `${f} lang`);
+    assert.match(html.match(/<button\b[^>]*data-action="lang"[^>]*>/)[0], /\slang="km"/, `${f}: the Khmer label is marked lang="km"`);
     checked++;
   }
   assert.ok(checked > 0, 'checked at least one page');
@@ -231,5 +231,32 @@ test('plate covers do not repeat the skill title', async () => {
       assert.notEqual(v, s.name.toLowerCase(), s.name);
       if (s.title) assert.notEqual(v, String(s.title).toLowerCase(), s.name);
     }
+  }
+});
+
+test('site.css: text is 16px or more except captions, controls are 44px or more', async () => {
+  const css = readFileSync(join(await site(), 'assets', 'site.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  const captions = /cover-tag|proof-label|tokens-proof figcaption/;
+  for (const m of css.matchAll(/([^{}]*)\{([^{}]*)\}/g)) {
+    const fs = /font-size:\s*([\d.]+)(rem|px)/.exec(m[2]);
+    if (!fs) continue;
+    const px = fs[2] === 'rem' ? Number(fs[1]) * 16 : Number(fs[1]);
+    if (px < 16) assert.match(m[1], captions, `font-size ${fs[0]} under 16px outside a caption rule: ${m[1].trim()}`);
+  }
+  assert.match(css, /--target:\s*44px/);
+  for (const sel of ['\\.btn \\{', '\\.rolechip \\{', '\\.find \\{', '\\.acc > summary \\{']) {
+    const m = new RegExp(`${sel}[^}]*`).exec(css);
+    assert.ok(m && /min-height:\s*var\(--target\)/.test(m[0]), `${sel} needs min-height: var(--target)`);
+  }
+});
+
+test('faint and muted text pass 4.5:1 on every surface, light and dark', async () => {
+  const css = readFileSync(join(await site(), 'assets', 'site.css'), 'utf8');
+  const lum = (hex) => { const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+  const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+  const blocks = [css.match(/:root \{[^}]*\}/)[0], css.match(/\[data-theme=dark\] \{[^}]*\}/)[0]];
+  for (const b of blocks) {
+    const v = (n) => new RegExp(`--${n}:\\s*(#[0-9a-f]{6})`, 'i').exec(b)[1];
+    for (const fg of ['muted', 'faint']) for (const bg of ['bg', 'surface', 'surface2']) assert.ok(ratio(v(fg), v(bg)) >= 4.5, `${fg} on ${bg}: ${ratio(v(fg), v(bg)).toFixed(2)}`);
   }
 });

@@ -66,8 +66,9 @@
     "purpose": "Builds one complete design-token set (W3C JSON and CSS, light and dark, every contrast ratio checked) from a hex, a style or the project's existing tokens; keeps the user's hue and never overwrites existing tokens.",
     "status": "ready",
     "roles": [
+      "BA_ANALYST",
       "DEV_ENGINEER",
-      "BA_ANALYST"
+      "UX_DESIGNER"
     ],
     "showcase": "midtone-teal"
   },
@@ -88,7 +89,8 @@
     "status": "ready",
     "roles": [
       "BA_ANALYST",
-      "QA_AUDITOR"
+      "QA_AUDITOR",
+      "UX_DESIGNER"
     ]
   },
   {

@@ -60,5 +60,5 @@ test('ux-review version matches CHANGELOG and registry', () => {
   const reg = JSON.parse(readFileSync(path.join(ROOT, 'src', 'factory', 'registry.json'), 'utf8'));
   const e = reg.find((x) => x.name === 'ux-review');
   assert.equal(e.version, v);
-  assert.deepEqual(e.roles, ['BA_ANALYST', 'QA_AUDITOR']);
+  assert.deepEqual(e.roles, ['BA_ANALYST', 'QA_AUDITOR', 'UX_DESIGNER']);
 });
