@@ -1,114 +1,122 @@
-# Handoff Brief: `sumtaimo/Agentic-Harness` ↔ `Skill-Foundry` Bi-Directional Default Sync
+# Handoff Brief: `sumtaimo/Agentic-Harness` ↔ `Skill-Foundry` Bi-Directional Sync
 
-> **Document Purpose:** Self-contained engineering handoff brief written for **Claude Code** inside the **`sumtaimo/Agentic-Harness`** repository (`lab` branch → `release` flow per `docs/MAINTAINING.md`).
-> Stored inside `Skill-Foundry/docs/factory/` so it is never forgotten and can be copied directly into an `Agentic-Harness` session later.
-> **Investigation Status:** Read-only cross-repo verification completed against `sumtaimo/Agentic-Harness` branches **`release` (`15bd31e`, v1.0.6)** and **`lab` (`bf8b43c`, v1.0.9)** + `sumtaimo/Skill-Foundry` (`src/factory/foundry.mjs`). **0 files modified.**
+> **Document Purpose:** Self-contained engineering handoff brief written for **Claude Code** inside **`sumtaimo/Agentic-Harness`** (`lab` branch → `release` flow per `docs/MAINTAINING.md`).
+> Stored inside `Skill-Foundry/docs/factory/` so nothing is forgotten and it can be pasted directly into an `Agentic-Harness` session after `Skill-Foundry` Phase B.
+> **Investigation Status:** Cross-repo verified against `sumtaimo/Agentic-Harness` **`release` (`15bd31e`, v1.0.6)** & **`lab` (`bf8b43c`, v1.0.9)** AND `sumtaimo/Skill-Foundry` **`origin/master` (`c8e0e9a` — Phase A `2a27637` shipped)**.
 > **Companion Doc (for `Skill-Foundry`):** [`docs/factory/HANDOFF-SKILL-FOUNDRY-IMPROVEMENTS.md`](HANDOFF-SKILL-FOUNDRY-IMPROVEMENTS.md)
 
 ---
 
 ## 0. Ready-to-Paste Kickoff Prompt for Claude Code (Inside `sumtaimo/Agentic-Harness`)
 
-> **Important:** Because `sumtaimo/Agentic-Harness` is a **separate repository**, Claude Code inside `Agentic-Harness` cannot see `Skill-Foundry/docs/factory/` automatically unless you either copy **this entire document** below the prompt or give it the file path / GitHub link to `Skill-Foundry`'s `HANDOFF-AGENTIC-HARNESS-SYNC.md`.
+> **Important:** Because `sumtaimo/Agentic-Harness` is a **separate repository**, Claude Code inside `Agentic-Harness` cannot see `Skill-Foundry/docs/factory/` automatically unless you paste **this entire document** below the prompt (or give it the path / raw GitHub URL to this file).
 
-When opening `sumtaimo/Agentic-Harness` (`lab` branch) in Claude Code **after finishing Step 1 in `Skill-Foundry`**, fill in the 2 placeholders below and paste this prompt together with the rest of this document:
+When opening `sumtaimo/Agentic-Harness` (`lab` branch) in Claude Code **after finishing Phase B in `Skill-Foundry`**, fill in the 2 placeholders below and paste this prompt together with the rest of this document:
 
 ```text
 Completed Skill-Foundry reference (branch/commit/PR link): <PASTE_COMPLETED_SKILL_FOUNDRY_LINK_HERE>
-Agreed Skill-Foundry Decisions from Step 1 (D3 roles, D4 spec-writer, D5 tools, D7 one-link default): <PASTE_STEP_1_DECISIONS_SUMMARY>
+Agreed Skill-Foundry Decisions from Phase B (D3 roles, D4b stub precedence): <PASTE_PHASE_B_DECISIONS_SUMMARY>
 
 Read `AGENTS.md`, `docs/MAINTAINING.md`, and the Handoff Brief pasted below (`HANDOFF-AGENTIC-HARNESS-SYNC`).
 Note that edits belong ONLY on the `lab` branch (never directly on `release` or a consuming project).
 
 Work in this exact order:
-1. Inspect `.harness/lib/governance.mjs`, `.harness/doctor.mjs`, `.harness/team.json`, `.harness/roles/*.json`, `.harness/skills/*/SKILL.md`, and `install.mjs` in this repository, AND inspect the completed Skill-Foundry CLI (`foundry.mjs` at the link above).
-2. Ask TAIMO to confirm PO Decisions H1–H5 in plain Khmer (pre-filling what already aligns with Step 1) before changing governance/team/installer defaults (never guess).
-3. Implement only the approved changes on `lab`, add unit + Dual-Order Cross-Repo Verification tests in `test/run-tests.mjs` and `test/audit.mjs`, run `npm test` and `npm run audit`, and report honestly for PO/QA release review (`lab` → `release`).
+1. Inspect `.harness/lib/governance.mjs`, `.harness/doctor.mjs`, `.harness/team.json`, `.harness/roles/*.json`, `.harness/skills/*/SKILL.md`, `install.mjs`, and `watch.mjs` / `daemon.mjs` in this repository, AND inspect the completed `Skill-Foundry` (`foundry.mjs` at the link above).
+2. Strictly enforce the Product Boundary & Skill-Foundry Precedence Rules in Section 1 (`Agentic-Harness` provides ONLY the harness + at most 1 harness-operational skill; delete/retire duplicate domain skills; `Skill-Foundry` ALWAYS wins on conflicts/doubles; keep user-facing skill suggestions smooth without leaking protected skill internals).
+3. Ask TAIMO to confirm PO Decisions H1–H6 in plain Khmer before changing governance/skills/installer/schedule defaults (never guess).
+4. Implement only the approved changes on `lab`, add unit + Dual-Order Cross-Repo Integration tests + L19 schedule tests in `test/run-tests.mjs` and `test/audit.mjs`, run `npm test` and `npm run audit`, and report honestly for PO/QA release review (`lab` → `release`).
 ```
 
 ---
 
-## 1. Goal: Bi-Directional Default Sync (One-Link Smart Integration)
+## 1. Core Architectural Rules & Goal (TAIMO Confirmed 2026-11-16)
 
-Make **`sumtaimo/Agentic-Harness`** and **`sumtaimo/Skill-Foundry`** work together smoothly out of the box via a **single source of truth** (never copy-paste stale skill folders manually between repos):
-1. Installing `Agentic-Harness` (`npx github:sumtaimo/Agentic-Harness#release .`) can **intelligently sync `Skill-Foundry` skills via `npx github:sumtaimo/Skill-Foundry`** (idempotent, conflict-free, safe offline fallback) so users do not need separate brittle wiring.
-2. Matching workers/leads actually **receive and run** Skill Foundry skills without losing `Bash(npm test:*)`, `Bash(node:*)`, or write permissions — even when combined with built-in template skills (`code-craft`, `ui-craft`, `test-champion`).
-3. `node .harness/doctor.mjs` automatically detects Skill Foundry installations (`.claude/skills/*/.foundry.json`) and surfaces actionable health checks (outdated skills, role tool mismatches, `team.json` blocking `autoApply`, pointer gaps).
-4. Re-updating `.harness/` via `npx github:sumtaimo/Agentic-Harness#release .` never breaks Skill Foundry pointers, `.foundry.json`, or legacy `AGENTS.md` files.
+Both repositories work cleanly together under a strict **division of responsibility**:
+
+1. **Product Split (No Bloated Overlap):**
+   - **`Skill-Foundry`** (`npx github:sumtaimo/Skill-Foundry`) provides **only domain skills** (`.claude/skills/` + `.foundry.json` + `AGENTS.md` + `Edit(...)` guard rails + `doctor`) — it **never** installs `Agentic-Harness`.
+   - **`sumtaimo/Agentic-Harness`** (`npx github:sumtaimo/Agentic-Harness`) provides **only the Agentic Harness** (controller, charter, roles, team hierarchy, verification loop, session tracking) — it must **not** carry a competing library of domain skills! Keep **only 1 minimal harness-matched skill** (for running/operating within the harness itself — exact survivor confirmed via Decision `H3`) and delete/retire duplicate or conflicting domain skills (`spec-writer` stub, `ui-craft`, `test-champion`, etc.).
+2. **`Skill-Foundry` ALWAYS Wins on Double or Conflicting Skills:**
+   - Whenever an older `.harness/skills/<name>` from `Agentic-Harness` duplicates or conflicts with a `Skill-Foundry` skill, **`Skill-Foundry` wins**: clean/delete old duplicate harness skills on upgrade (`lab` → `release`) and let `Skill-Foundry` replace/update `.harness/skills/<name>/SKILL.md` cleanly without silent collisions.
+3. **Default Two-Way Support Inside `Agentic-Harness`:**
+   - Because `Agentic-Harness` is TAIMO's harness, it supports `Skill-Foundry` **by default**: when installed or run, workers can seamlessly receive and execute `Skill-Foundry` skills (`autoApply`, non-stripping `computeAllowedTools`, `engine/*.mjs` scripts, optional one-link `npx github:sumtaimo/Skill-Foundry` pull per Decision `H4`) without breaking `Bash(npm test:*)`.
+4. **Smooth UX & Protected Skill Info:**
+   - During skill execution or setup checks, keep compatibility/fix suggestions **smooth, plain, and task-focused** — **do not unnecessarily mention internal skill names, internal rules, or expose Skill Foundry's protection internals** in user deliverables ("we protect this information too — just tell them how to make it run smoothly").
 
 ---
 
-## 2. Shared Cross-Repo Interface Contract (Confirmed Facts)
+## 2. Shared Cross-Repo Interface Contract (Synced With `Skill-Foundry` `origin/master` `2a27637`)
 
-Both repositories must agree on this lightweight, zero-dependency file contract:
+`Skill-Foundry` Phase A (`foundry.mjs` on `origin/master`) ALREADY implements this exact side of the contract:
 
 1. **Skill Foundry Install Stamp:** `.claude/skills/<name>/.foundry.json`
-   - Contains `name`, `version`, `hash`, `source: "github:sumtaimo/Skill-Foundry"`, `files: { "<relpath>": "<sha256>" }`.
-2. **Harness Pointer Frontmatter:** `.harness/skills/<name>/SKILL.md`
-   - YAML frontmatter keys read by `Agentic-Harness` `.harness/lib/governance.mjs` (`loadSkills()`):
-     - `name`, `description`, `roles[]`, `allowedTools[]` (optional/empty when preserving role tools), `toolsByRole`, `keywords[]`, `autoApply: true`
-     - Marker key: `installed-by: skill-foundry <version>`
-3. **Valid Claude Code Permission Rules:**
-   - Only `Edit(<path>)` rules are valid for file edits (never `Write(<path>)`, per `Agentic-Harness/install.mjs:250-256`).
-4. **Roles Shared Across Both Repos:**
-   - Base (`release` v1.0.6): `PO_ARCHITECT`, `BA_ANALYST`, `DEV_ENGINEER`, `QA_AUDITOR`, `COORDINATOR`
-   - Extended (`lab` v1.0.9): `UX_DESIGNER` (note: CSS/SCSS/LESS `writablePaths`), `REVIEWER`, `SECURITY`
+   - Fields: `name`, `version`, `hash`, `source: "github:sumtaimo/Skill-Foundry"`, `files: { "<relpath>": "<sha256>" }`.
+2. **Harness Pointer Frontmatter (`foundry.mjs:74-107`):** `.harness/skills/<name>/SKILL.md`
+   - Ordinary skills **omit `allowedTools`** (`[]`), so `computeAllowedTools` preserves all role tools untouched.
+   - Skills with local `engine/*.mjs` scripts declare bare names `allowedTools: ["Edit", "Write", "Bash"]` so existing role `Edit`/`Write`/`Bash` permissions stay intact (`foundry.mjs:81`).
+   - Sets `roles`, `keywords`, `autoApply: true`, and marker `installed-by: skill-foundry <version>`.
+3. **Valid Claude Code Permission Rules (`foundry.mjs:170-189`):**
+   - Writes only `Edit(.claude/skills/**)` & `Edit(.harness/skills/**)` and auto-strips legacy `Write(...)` rules.
+4. **Roles (`foundry.mjs:31,62-72`):**
+   - `PO_ARCHITECT`, `BA_ANALYST`, `DEV_ENGINEER`, `QA_AUDITOR`, `UX_DESIGNER`, `REVIEWER`, `SECURITY`, `COORDINATOR` + any custom roles defined in `.harness/roles/*.json`.
 
 ---
 
-## 3. Verified Gaps & Hidden Traps in `sumtaimo/Agentic-Harness` to Fix (`lab` Branch)
+## 3. Verified Gaps & New Requirements in `sumtaimo/Agentic-Harness` (`lab` Branch)
 
-| ID | File in `Agentic-Harness` | Verified Current Behavior (`release` `v1.0.6` / `lab` `v1.0.9`) | Root Impact on `Skill-Foundry` | Proposed Change on `lab` |
+| ID | File in `Agentic-Harness` | Verified Current Behavior (`release` `v1.0.6` / `lab` `v1.0.9`) | Root Impact | Required Change on `lab` |
 |---|---|---|---|---|
-| **AH-1** | `.harness/lib/governance.mjs` (`matchSkills`, lines ~244–264 in `lab`) & `.harness/team.json` (`lead-dev`, `lead-qa`, `lead-ux`) | `matchSkills()` checks `if (Array.isArray(sub.skills) && sub.skills.length)` → ignores all `autoApply: true` / keyword skills! Meanwhile default `team.json` sets `"skills": ["code-craft"]` on `lead-dev` & `lead-qa`, and `"skills": ["ui-craft"]` on `lead-ux` (`lab`). | **Any Skill Foundry skill installed into `.harness/skills/` with `autoApply: true` is silently skipped** whenever work delegates through `lead-dev`, `lead-qa`, or `lead-ux`! | Update `matchSkills()` so explicit lead `skills` (like `code-craft`/`ui-craft`) **compose with** matching `autoApply: true` / keyword-triggered skills (especially `installed-by: skill-foundry`), rather than shutting down auto-injection completely. Keep role filtering strict (`fits(s)` still blocks wrong roles!). |
-| **AH-1b** | `.harness/lib/governance.mjs` (`computeAllowedTools`, lines ~146–174) + `.harness/skills/code-craft/SKILL.md` | **CRITICAL MULTI-SKILL BUG:** `computeAllowedTools` iterates sequentially: *"Tools the skill does not mention are dropped."* Currently: (a) if Skill 1 (`code-craft`) allows `Bash(npm test:*)` and Skill 2 omits `Bash`, **Skill 2 WIPES OUT `Bash(npm test:*)` completely!** (b) `code-craft` sets `allowedTools.DEV_ENGINEER: [..., "Bash(npm test:*)", "Bash(node --test:*)"]` + *"Do not use other commands"*, which **strips `Bash(node:*)`** needed by Skill Foundry `engine/*.mjs` scripts (`ui-polish`, `design-system`, `a11y-audit`, `figure-craft`)! | Even after fixing `matchSkills()`, composing `code-craft` + any Skill Foundry skill breaks either `npm test` OR `node .claude/skills/.../engine/*.mjs`! | Make `computeAllowedTools` safe for multi-skill composition (empty/unspecified `allowedTools` doesn't strip; audit union vs intersection semantics cleanly OR verify Skill Foundry pointers omit `allowedTools` when non-restrictive + ensure `code-craft` / `UX_DESIGNER` rules don't block Skill Foundry `engine/*.mjs` runs). Add explicit regression tests! |
-| **AH-2** | `.harness/doctor.mjs` (section `Governance`, lines ~151–160) | Checks `.harness/skills/*` + `skillRulesNotGranted()`, but has **zero awareness** of `.claude/skills/*/.foundry.json`. | If a user installed Skill Foundry skills via `zip`, forgot pointers, has stale versions, or has a role/team config blocking Skill Foundry skills, `.harness/doctor.mjs` says everything is fine. | Scan `.claude/skills/*/.foundry.json` if present: verify each Foundry skill has a matching `.harness/skills/<name>/SKILL.md` pointer (unless `scope: factory`), check `skillRulesNotGranted` clearly with tool suggestions, warn if explicit `team.json` `skills` disables `autoApply`, and print helpful commands (`npx github:sumtaimo/Skill-Foundry doctor` / `check` / `update`). |
-| **AH-3** | `.harness/roles/ba-analyst.json`, `qa-auditor.json`, `ux-designer.json` + `skills/ui-craft` | Only `DEV_ENGINEER` allows `Bash(npm:*)` & `Bash(node:*)`; `BA_ANALYST` & `UX_DESIGNER` allow `Bash(git status)` and `QA_AUDITOR` allows `Bash(npm test:*)`. Also `UX_DESIGNER` `writablePaths` is CSS/SCSS/LESS only (`ui-craft` says "Style only"). | Skill Foundry's deterministic scripts (`engine/*.mjs` in `design-system`, `ui-polish`, `figure-craft`, `a11y-audit`) lose `Bash(node:*)` outside `DEV_ENGINEER`, and `ui-polish` / `a11y-audit` also target `.html`/`.jsx` beyond CSS. | Decide via Decision **H2**: either grant safe script execution (`Bash(node .claude/skills/*)` / `Bash(node:*)`) or teach `doctor.mjs` + roles cleanly which role executes `engine/` vs review/CSS (`UX_DESIGNER` tokens/CSS vs `DEV_ENGINEER` markup/scripts). |
-| **AH-4** | `.harness/skills/spec-writer/SKILL.md` (`15` lines) & other built-in skills (`ui-craft`, `test-champion`) | Template ships a 15-line `spec-writer` stub (same exact name as Skill Foundry's 10-layer `spec-writer`), while `ui-craft` vs `ui-polish`/`design-system` and `test-champion` vs `test-planner` need clear non-overlapping roles. | `spec-writer` collides silently (`foundry.mjs:61`); `ui-craft` and `test-champion` could confuse agents if boundaries aren't clear. | Decide via Decision **H3**: mark starter `spec-writer` stub so Skill Foundry's deeper tested `spec-writer` supersedes it cleanly when installed, and clearly document non-overlapping roles (`test-planner` = regression checklist vs `test-champion` = writing test code; `ui-craft` = general CSS rules vs `design-system`/`ui-polish` = token generation & final polish). |
-| **AH-5** | `install.mjs` (one-link smart integration + traps to avoid!) | Installer ends with next steps (`doctor.mjs`, `engines.mjs`, `charter.md`, `/harness:run`), with no `Skill-Foundry` sync. **Traps if coded naively:** running floating `npx` blindly breaks offline environments, slows/breaks `test/run-tests.mjs`, or hits network failures! | Users who install `Agentic-Harness` with one link still have to manually discover & debug Skill Foundry sync. | Implement **One-Link Smart Integration** via Decision **H4**: wire `npx github:sumtaimo/Skill-Foundry add --all` (with offline/network error fallback, `--no-skills` / `--with-skills` flag control, idempotency on re-installs, and `HARNESS_OFFLINE=1` / test isolation so `test/run-tests.mjs` never hits GitHub in unit tests!). Also optionally invoke `foundry doctor` check at end if Foundry exists. |
-| **AH-6** | `install.mjs` (upgrade path for pre-marker projects) | In projects that installed an older harness before `<!-- agentic-harness -->` marker existed (`install.mjs:174-184`), re-installing appends a duplicate `# Agentic harness` section in `AGENTS.md` and duplicate pointers in `CLAUDE.md`/`GEMINI.md`. *(Observed directly in `Skill-Foundry`!)* | Re-updating older projects creates duplicate prompt instructions and noisy diffs. | Harden `install.mjs` detection so existing legacy `# AGENTS.md — instructions for any AI working in this folder` / `Agentic Harness` blocks add the marker or upgrade in place without appending duplicates. |
+| **AH-1** | `.harness/lib/governance.mjs` (`matchSkills`, ~244–264) & `.harness/team.json` | `if (Array.isArray(sub.skills) && sub.skills.length)` ignores ALL `autoApply: true` skills! Default `team.json` sets `"skills": ["code-craft"]` on `lead-dev`/`lead-qa` and `"skills": ["ui-craft"]` on `lead-ux`. | **Every `Skill-Foundry` skill with `autoApply: true` is skipped** whenever delegating through `lead-dev`, `lead-qa`, or `lead-ux`. | Compose explicit harness skill (if any kept per `H3`) **together with** matching `autoApply: true` / keyword skills (`installed-by: skill-foundry`), keeping strict role matching (`fits(s)`). |
+| **AH-1b** | `.harness/lib/governance.mjs` (`computeAllowedTools`, ~146–174) + `.harness/skills/code-craft/SKILL.md` | If Skill 1 allows `Bash(npm test:*)` and Skill 2 omits `Bash`, Skill 2 **wipes `Bash`**! Plus `code-craft` narrows `DEV_ENGINEER`'s `Bash` down to `npm test` / `node --test`, **blocking `Bash(node:*)` for Skill Foundry `engine/*.mjs` scripts** (`design-system`, `ui-polish`, `a11y-audit`, `figure-craft`). | Composing `code-craft` + any Skill Foundry skill breaks either project tests or `engine/*.mjs` runs. | Fix `computeAllowedTools` so empty/unspecified `allowedTools` never strips role tools, ensure `code-craft` (if kept) never blocks `Bash(node:*)` / `engine/*.mjs` runs, keep suggestion messages smooth & clean, and add regression tests. |
+| **AH-2** | `.harness/doctor.mjs` (~151–160) | Has zero awareness of `.claude/skills/*/.foundry.json` or smooth compatibility guidance. | Misses stale skills, missing harness pointers, `team.json` overrides blocking `autoApply`, or role/tool mismatches. | Scan `.claude/skills/*/.foundry.json` if present: verify `.harness/skills/<name>/SKILL.md` pointer exists (`Skill-Foundry` wins on conflict), verify tool coverage & `team.json`, and emit smooth, actionable fixes (without leaking internal Foundry rules/secrets). |
+| **AH-3** | `.harness/roles/ba-analyst.json`, `qa-auditor.json`, `ux-designer.json` | `BA_ANALYST` & `UX_DESIGNER` lack `Bash(npm:*)`/`Bash(node:*)`; `QA_AUDITOR` lacks `Bash(node:*)`; `UX_DESIGNER` `writablePaths` is CSS/SCSS/LESS only (`ui-polish` & `a11y-audit` inspect/fix `.html`/`.jsx` too). | `engine/*.mjs` scripts in `design-system`, `ui-polish`, `a11y-audit`, `figure-craft` fail outside `DEV_ENGINEER`. | Decide via Decision **`H2`** (`Bash(node .claude/skills/*)` vs delegating engine step to `DEV_ENGINEER` cleanly). |
+| **AH-4** | `.harness/skills/` (all 6 built-in skills on `lab`: `spec-writer`, `ui-craft`, `test-champion`, `api-craft`, `security-guard`, `code-craft`) | Template ships 6 skills overlapping/duplicating `Skill-Foundry` (notably 15-line `spec-writer` stub, `ui-craft`, `test-champion`), AND installer `KEEP_IF_PRESENT` leaves old template skills behind when updating older repos! | Violates PO rule *"Agentic-Harness provides ONLY the harness (+ 1 harness-matched skill); Skill-Foundry ALWAYS wins on duplicates/conflicts"*. | Per Decision **`H3`**: remove/retire duplicate domain skills (`spec-writer`, `ui-craft`, `test-champion`, etc.), retain ONLY the 1 approved harness-operational skill, AND teach `install.mjs` (on upgrade of older `.harness/`) to cleanly delete/migrate retired template skills (while marking/cleaning old stubs so `Skill-Foundry` wins). |
+| **AH-5** | `install.mjs` (default `Skill-Foundry` support + offline traps) | Ends with harness steps only; naive floating `npx` calls fail offline or break CI (`test/run-tests.mjs`). | `Agentic-Harness` should support `Skill-Foundry` smoothly out of the box per TAIMO's goal. | Implement via Decision **`H4`**: auto-sync `npx github:sumtaimo/Skill-Foundry add --all` cleanly (or `--with-skills`), with `--no-skills`, `HARNESS_OFFLINE=1`, idempotent re-runs, and graceful offline warning (exit 0). Also protect confidential UX wording per Section 1 #4. |
+| **AH-6** | `install.mjs` (~174–184) | Projects installed before `<!-- agentic-harness -->` marker existed get duplicate `# Agentic harness` blocks on re-install *(confirmed on `Skill-Foundry`)*. | Re-updating older projects creates duplicate root prompt blocks (`AGENTS.md`, `CLAUDE.md`, `GEMINI.md`). | Detect legacy harness headers and insert/upgrade inside markers cleanly in place without appending duplicates. |
+| **AH-7** | `watch.mjs` / `daemon.mjs`, `/harness:run`, `/harness:auto`, `AGENTS.md` | Orchestrator/daemon wait loops do not implement TAIMO's shrinking check-in schedule (`L19` captured in `Skill-Foundry/docs/factory/notes/phase-c-harness-followup.md`). | Long worker jobs/usage-limit waits use fixed/inefficient intervals. | Implement **Shrinking Follow-Up Schedule (`L19`)**: check at **30 min** after start → if not done, **15 min** later → then every **5 min** until done/stopped/blocked (usage-limit counts as not done: resume after reset time and continue schedule). Document in `/harness:run`, `/harness:auto`, `AGENTS.md`, and add simulation test (`H6`). |
 
 ---
 
-## 4. Open PO Decisions Required Before Implementation (`H1`–`H5`)
+## 4. Open PO Decisions Required Before Implementation (`H1`–`H6`)
 
-Claude Code in `sumtaimo/Agentic-Harness` MUST confirm these with TAIMO before editing `lab` (no guessing!):
+Claude Code in `sumtaimo/Agentic-Harness` MUST confirm these with TAIMO in plain Khmer before editing `lab`:
 
-1. **`H1` — How should `matchSkills()` + `computeAllowedTools()` compose explicit `skills` (like `"code-craft"`, `"ui-craft"`) with Skill Foundry `autoApply: true` skills?**
-   - *(a — Recommended)* Additive merge in `matchSkills()` + fix `computeAllowedTools()` so a skill with empty `allowedTools` (or non-tool-restricting pointer) NEVER drops `Bash(npm test:*)` from the role/lead, while allowing `engine/*.mjs` scripts when approved.
-   - *(b)* Remove hardcoded `"skills"` arrays from default `team.json` (`lead-dev`, `lead-qa`, `lead-ux`) and set `autoApply: true` on `code-craft` / `ui-craft` instead.
-2. **`H2` — Security rule for Skill Foundry `engine/` scripts (`node .claude/skills/<name>/engine/...`) in non-`DEV` roles (`BA_ANALYST`, `QA_AUDITOR`, `UX_DESIGNER`):**
-   - *(a — Recommended, tighter security)* Allow narrow prefix `Bash(node .claude/skills/*)` (verify exact `covers()` matching in `governance.mjs:125` + real Claude CLI syntax first!) or `Bash(node:*)` for roles assigned engine skills.
-   - *(b)* Keep `BA_ANALYST`/`QA_AUDITOR`/`UX_DESIGNER` without `Bash(node:*)`, and make `doctor.mjs` warn clearly which skills require `DEV_ENGINEER` (or ask user to enable `Bash(node:*)` per project).
-3. **`H3` — `spec-writer` stub coexistence & overlapping starter skills (`ui-craft`, `test-champion`):**
-   - Should `.harness/skills/spec-writer/SKILL.md` carry a marker like `starter-stub: agentic-harness` so `Skill-Foundry` safely replaces it with the 10-layer tested `spec-writer` when installed — while `code-craft`, `api-craft`, `security-guard`, `test-champion`, `ui-craft` stay harness-owned with clear boundary lines?
-4. **`H4` — Default behavior of One-Link Integration in `Agentic-Harness` `install.mjs`:**
-   - *(a)* Auto-run `npx github:sumtaimo/Skill-Foundry add --all` **by default** at the end of `install.mjs` (skip if `--no-skills` or offline/no-git, warn nicely if offline so install still succeeds!).
-   - *(b)* Opt-in via `--with-skills` flag, and print a clear 1-line next-step suggestion during normal install (zero surprise network call unless requested).
-5. **`H5` — Exact target link / branch of `Skill-Foundry` to pull from (`#master` vs tagged release):**
-   - Should `Agentic-Harness` call `npx github:sumtaimo/Skill-Foundry add --all` (default branch `master` after TAIMO approves release) or pin a branch/tag?
-
----
-
-## 5. Verification Checklist Inside `sumtaimo/Agentic-Harness` (Cross-Repo Guarantee)
-
-Before TAIMO approves copying `lab` → `release` (`docs/MAINTAINING.md`):
-1. `npm test` and `npm run audit` pass cleanly (`test/run-tests.mjs` stays offline-safe and cleans temp dirs).
-2. Add unit regression tests covering:
-   - `matchSkills()` with lead `"skills": ["code-craft"]` + Skill Foundry `autoApply: true` pointer.
-   - **`computeAllowedTools()` multi-skill test:** composing `code-craft` (`Bash(npm test:*)`, `Bash(node --test:*)`) + Skill Foundry skill NEVER drops `Bash(npm test:*)`, and `engine/` skills preserve `Bash(node:*)` as designed.
-   - `doctor.mjs` detecting `.claude/skills/*/.foundry.json` (healthy vs missing pointer vs tool deficit vs blocked by `team.json`).
-   - `install.mjs` legacy `AGENTS.md` upgrade without duplicate sections.
-3. **Mandatory Live Dual-Order Integration Test (against TAIMO's completed `Skill-Foundry` link):**
-   - **Order 1 (`Agentic-Harness` first → `Skill-Foundry` second):** Install `Agentic-Harness` into clean temp project, run `Skill-Foundry add --all` (or automatic `--with-skills`), then run `node .harness/doctor.mjs` + `node .harness/team.mjs validate` + `Skill-Foundry doctor` → **exit 0, zero conflicts, zero invalid `Write(...)` rules**.
-   - **Order 2 (`Skill-Foundry` first → `Agentic-Harness` update second):** Install `Skill-Foundry` first, then run `Agentic-Harness` `install.mjs` on top → confirm `.claude/skills/*/.foundry.json`, `.harness/skills/*`, and `AGENTS.md` survive cleanly without duplicates or lost pointers!
+1. **`H1` — Multi-Skill Composition & `Bash` Rules (`matchSkills` + `computeAllowedTools`):**
+   - Compose explicit harness skill cleanly with `Skill-Foundry` `autoApply: true` pointers AND ensure `computeAllowedTools` preserves `Bash(npm test:*)` and `Bash(node:*)` for `engine/*.mjs` — OK?
+2. **`H2` — Security Rule for `engine/*.mjs` Outside `DEV_ENGINEER` (`BA_ANALYST`, `QA_AUDITOR`, `UX_DESIGNER`):**
+   - *(a — Recommended)* Grant narrow `Bash(node .claude/skills/*)` (verify exact `covers()` prefix match in `governance.mjs` + Claude CLI first!) to roles using engine skills.
+   - *(b)* Keep `Bash(node:*)` on `DEV_ENGINEER` only and have `doctor.mjs` advise delegating engine runs smoothly.
+3. **`H3` — Exact Cleanup of `Agentic-Harness` Built-In Skills (Only 1 Harness Skill Kept; `Skill-Foundry` Wins Duplicates):**
+   - Confirm: out of `lab`'s 6 current built-in skills (`code-craft`, `ui-craft`, `spec-writer`, `test-champion`, `api-craft`, `security-guard`), **which exact `1` harness-matched skill stays** (e.g., a slimmed `code-craft` stripped of `Bash(node:*)` conflicts, or a dedicated harness-worker loop skill), and approve deleting the duplicate/conflicting ones (`spec-writer`, `ui-craft`, `test-champion`, etc.) + deleting retired copies on older project upgrades?
+4. **`H4` — Default One-Link Auto-Pull Behavior in `Agentic-Harness` `install.mjs`:**
+   - *(a — Matches PO default-support goal)* Auto-run `npx github:sumtaimo/Skill-Foundry add --all` **by default** at the end of `Agentic-Harness` install (with `--no-skills` opt-out + graceful offline fallback so install still exits 0 without internet), keeping messaging smooth & protected.
+   - *(b)* Opt-in via `--with-skills` flag only.
+5. **`H5` — Target Reference of `Skill-Foundry` (`master` vs pinned tag):**
+   - Call `npx github:sumtaimo/Skill-Foundry add --all` (default `master` after `Skill-Foundry` Phase B ships) or pin a release tag?
+6. **`H6` — Shrinking Follow-Up Schedule (`L19` — `30 → 15 → 5` min in `AH-7`):**
+   - Confirm applying the `30 → 15 → 5` minute schedule cleanly to `daemon.mjs` / `watch.mjs` + `/harness:run` + `/harness:auto` + `AGENTS.md` (and exact handling on usage-limit cooldown wait).
 
 ---
 
-## 6. After `Agentic-Harness` Is Done (Final Closure Steps Across Both Repos)
+## 5. Verification Checklist Inside `sumtaimo/Agentic-Harness` (Before `lab` → `release`)
 
-Once TAIMO approves merging `Agentic-Harness` `lab` → `release` (`v1.0.9+` / `v1.1.0`):
-1. **Release `Skill-Foundry` to `master` (if still on `claude/foundry-harness-sync`):** Follow `docs/factory/PUBLISHING.md` in `Skill-Foundry` (`npm run release:check` READY → TAIMO approves → merge working branch → `master`), so `npx github:sumtaimo/Skill-Foundry` (without `#branch`) serves the updated CLI & site!
-2. **Sync `Skill-Foundry/.harness/` cleanly (if deferred via Decision D1):** Inside `Skill-Foundry`, run `npx github:sumtaimo/Agentic-Harness#release .` **without `--reset`**, dedup `AGENTS.md` if needed, clean any stale `gemini`/`orca` entries, and verify `node .harness/doctor.mjs` + `npm test`.
-3. **One-Command Empty-Folder Smoke Test:** In a brand-new empty folder (`mkdir /tmp/test-sync && cd /tmp/test-sync && git init`), run the single command `npx github:sumtaimo/Agentic-Harness#release .` and verify both `.harness/` and `Skill-Foundry` skills install, protect (`Edit(...)`), inject, and pass `doctor` without manual fixing!
+1. `npm test` and `npm run audit` pass cleanly (`test/run-tests.mjs` stays 100% offline-safe via `HARNESS_OFFLINE=1` / mocks and cleans temp dirs).
+2. Regression tests cover:
+   - `matchSkills()` composing the retained harness skill + `Skill-Foundry` `autoApply: true` pointers.
+   - **`computeAllowedTools()` multi-skill test:** composing retained skill + `Skill-Foundry` pointer (with & without `engine/`) NEVER strips `Bash(npm test:*)`, `Bash(node --test:*)`, or `Bash(node:*)`.
+   - Old duplicate harness skills (`spec-writer`, `ui-craft`, etc.) cleaned up on upgrade and `Skill-Foundry` winning on collision.
+   - `doctor.mjs` scanning `.claude/skills/*/.foundry.json` cleanly + smooth output.
+   - `install.mjs` legacy `AGENTS.md` marker upgrade without duplicate blocks + graceful offline fallback.
+   - **`L19` long-job schedule test:** asserts check times `30, 45, 50, 55...` minutes and stops cleanly on completion (`phase-c-harness-followup.md:25-26`).
+3. **Mandatory Live Dual-Order Integration Test (against completed `Skill-Foundry`):**
+   - **Order 1 (`Agentic-Harness` first → `Skill-Foundry` second)** & **Order 2 (`Skill-Foundry` first → `Agentic-Harness` update second)** both exit `0` with zero duplicates, zero invalid `Write(...)` rules, working pointers, and `doctor` healthy.
 
+---
+
+## 6. After `Agentic-Harness` Releases (`lab` → `release`) — Final Closure (Phase C)
+
+1. Merge `Skill-Foundry` Phase B working branch to `master` (if not merged yet) per `docs/factory/PUBLISHING.md`.
+2. Return to `Skill-Foundry` for **Phase C (`Workstream 3`)**: run `npx github:sumtaimo/Agentic-Harness#release .` **without `--reset`**, verify zero duplicate `AGENTS.md` headers, remove stale `gemini`/`orca` entries, and confirm `node .harness/doctor.mjs` + `npm test` pass cleanly.
+3. Smoke-test in a clean temporary folder:
+   - `Skill-Foundry`-only user (`npx github:sumtaimo/Skill-Foundry add --all`) → gets ONLY skills + protection + `AGENTS.md`, no `.harness/` installed.
+   - `Agentic-Harness` user (`npx github:sumtaimo/Agentic-Harness#release .`) → gets harness + seamless default `Skill-Foundry` integration with zero duplicate skills or tool conflicts.
