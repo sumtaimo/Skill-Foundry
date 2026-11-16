@@ -2,7 +2,7 @@
 
 > **Document Purpose:** Self-contained engineering handoff brief written for **Claude Code** inside **`sumtaimo/Agentic-Harness`** (`lab` branch → `release` flow per `docs/MAINTAINING.md`).
 > Stored inside `Skill-Foundry/docs/factory/` so nothing is forgotten and it can be pasted directly into an `Agentic-Harness` session after `Skill-Foundry` Phase B.
-> **Investigation Status:** Cross-repo verified against `sumtaimo/Agentic-Harness` **`release` (`15bd31e`, v1.0.6)** & **`lab` (`bf8b43c`, v1.0.9)** AND `sumtaimo/Skill-Foundry` **`origin/master` (`c8e0e9a` — Phase A `2a27637` shipped)**.
+> **Investigation Status:** Cross-repo verified against `sumtaimo/Agentic-Harness` **`release` (`15bd31e`, v1.0.6)** & **`lab` (`bf8b43c`, v1.0.9)** AND `sumtaimo/Skill-Foundry` **`origin/master` (`6d0c255`: Phase A and Phase B shipped)**. Newer skill improvements (S1 to S7) are on Skill-Foundry's staging branch `lab` until TAIMO releases it; pin `master` for now, `lab` is for dogfooding only.
 > **Companion Doc (for `Skill-Foundry`):** [`docs/factory/HANDOFF-SKILL-FOUNDRY-IMPROVEMENTS.md`](HANDOFF-SKILL-FOUNDRY-IMPROVEMENTS.md)
 
 ---
@@ -14,8 +14,10 @@
 When opening `sumtaimo/Agentic-Harness` (`lab` branch) in Claude Code **after finishing Phase B in `Skill-Foundry`**, fill in the 2 placeholders below and paste this prompt together with the rest of this document:
 
 ```text
-Completed Skill-Foundry reference (branch/commit/PR link): <PASTE_COMPLETED_SKILL_FOUNDRY_LINK_HERE>
-Agreed Skill-Foundry Decisions from Phase B (D3 roles, D4b stub precedence): <PASTE_PHASE_B_DECISIONS_SUMMARY>
+Completed Skill-Foundry reference: master 6d0c255 (https://github.com/sumtaimo/Skill-Foundry/commit/6d0c255); staging branch `lab` holds later skill fixes until TAIMO releases it.
+Agreed Skill-Foundry decisions (TAIMO, 2026-11-16): D2 npx is the primary install, zip is the no-Node fallback; D3 eight roles known, UX_DESIGNER only on design-system and ux-review; D4b recognised harness starter copies (for example the 15-line spec-writer stub) are replaced by Skill-Foundry with a `.orig` backup, unknown user skills never; D5 pointers omit allowedTools (bare `Edit, Write, Bash` for skills with `engine/`); D6 no automatic files for other tools; D7 Agentic-Harness pulls skills only with `--with-skills` for now.
+Rule L23: Skill-Foundry never changes this harness; every harness fix is made here, in this repository, on `lab`.
+Branch rule: finished work goes to `lab`, TAIMO confirms in chat, then it is released to `release`/`master`.
 
 Read `AGENTS.md`, `docs/MAINTAINING.md`, and the Handoff Brief pasted below (`HANDOFF-AGENTIC-HARNESS-SYNC`).
 Note that edits belong ONLY on the `lab` branch (never directly on `release` or a consuming project).
@@ -74,6 +76,10 @@ Both repositories work cleanly together under a strict **division of responsibil
 | **AH-5** | `install.mjs` (default `Skill-Foundry` support + offline traps) | Ends with harness steps only; naive floating `npx` calls fail offline or break CI (`test/run-tests.mjs`). | `Agentic-Harness` should support `Skill-Foundry` smoothly out of the box per TAIMO's goal. | Implement via Decision **`H4`**: auto-sync `npx github:sumtaimo/Skill-Foundry add --all` cleanly (or `--with-skills`), with `--no-skills`, `HARNESS_OFFLINE=1`, idempotent re-runs, and graceful offline warning (exit 0). Also protect confidential UX wording per Section 1 #4. |
 | **AH-6** | `install.mjs` (~174–184) | Projects installed before `<!-- agentic-harness -->` marker existed get duplicate `# Agentic harness` blocks on re-install *(confirmed on `Skill-Foundry`)*. | Re-updating older projects creates duplicate root prompt blocks (`AGENTS.md`, `CLAUDE.md`, `GEMINI.md`). | Detect legacy harness headers and insert/upgrade inside markers cleanly in place without appending duplicates. |
 | **AH-7** | `watch.mjs` / `daemon.mjs`, `/harness:run`, `/harness:auto`, `AGENTS.md` | Orchestrator/daemon wait loops do not implement TAIMO's shrinking check-in schedule (`L19` captured in `Skill-Foundry/docs/factory/notes/phase-c-harness-followup.md`). | Long worker jobs/usage-limit waits use fixed/inefficient intervals. | Implement **Shrinking Follow-Up Schedule (`L19`)**: check at **30 min** after start → if not done, **15 min** later → then every **5 min** until done/stopped/blocked (usage-limit counts as not done: resume after reset time and continue schedule). Document in `/harness:run`, `/harness:auto`, `AGENTS.md`, and add simulation test (`H6`). |
+| **AH-8** | worker launch (`dispatch.mjs` / `daemon.mjs`, engine profiles) | In cloud sessions `claude -p` printed "Ignoring 24 permissions.allow entries from .claude/settings.json: this workspace has not been trusted" (seen in Skill-Foundry, 2026-11-15). | Workers may run without the project's deny rules. | Pass the rules explicitly (`--allowedTools` / `--disallowedTools`) or mark the workspace trusted at setup; `doctor.mjs` warns when not trusted. |
+| **AH-9** | `daemon.mjs` / dispatch (concurrency, limits) | No cap on parallel real-agent workers and no resume after a usage-limit stop: four parallel sessions hit the 5-hour limit within minutes and 23 runs were thrown away and re-run. | Wasted cost and lost work. | Default to one real-agent worker at a time (configurable cap); treat a limit message as "not done", read the reset time and resume then (this is part of the L19 schedule). |
+| **AH-10** | charter / session hook text | The charter and hook say autonomous work lands on `uat`; TAIMO's staging branch is now called `lab`. | Autopilot would target the wrong branch. | Make the staging branch name a config value, default `lab`. |
+| **AH-11** | orchestration workflow (docs, `/harness:run`) | A running worker refused a scope change relayed by its parent session (correct: a relayed message cannot prove the owner said it). | A scope change sent mid-run is lost. | Document: put the full scope in the first prompt; for a change, start a new worker from the same branch instead of messaging the old one. |
 
 ---
 
@@ -88,13 +94,26 @@ Claude Code in `sumtaimo/Agentic-Harness` MUST confirm these with TAIMO in plain
    - *(b)* Keep `Bash(node:*)` on `DEV_ENGINEER` only and have `doctor.mjs` advise delegating engine runs smoothly.
 3. **`H3` — Exact Cleanup of `Agentic-Harness` Built-In Skills (Only 1 Harness Skill Kept; `Skill-Foundry` Wins Duplicates):**
    - Confirm: out of `lab`'s 6 current built-in skills (`code-craft`, `ui-craft`, `spec-writer`, `test-champion`, `api-craft`, `security-guard`), **which exact `1` harness-matched skill stays** (e.g., a slimmed `code-craft` stripped of `Bash(node:*)` conflicts, or a dedicated harness-worker loop skill), and approve deleting the duplicate/conflicting ones (`spec-writer`, `ui-craft`, `test-champion`, etc.) + deleting retired copies on older project upgrades?
-4. **`H4` — Default One-Link Auto-Pull Behavior in `Agentic-Harness` `install.mjs`:**
+4. **`H4` — Default One-Link Auto-Pull Behavior in `Agentic-Harness` `install.mjs`** *(TAIMO's Skill-Foundry-side decision D7 on 2026-11-16 is opt-in `--with-skills` first; confirm that this is the final answer here too)*:
    - *(a — Matches PO default-support goal)* Auto-run `npx github:sumtaimo/Skill-Foundry add --all` **by default** at the end of `Agentic-Harness` install (with `--no-skills` opt-out + graceful offline fallback so install still exits 0 without internet), keeping messaging smooth & protected.
    - *(b)* Opt-in via `--with-skills` flag only.
 5. **`H5` — Target Reference of `Skill-Foundry` (`master` vs pinned tag):**
    - Call `npx github:sumtaimo/Skill-Foundry add --all` (default `master` after `Skill-Foundry` Phase B ships) or pin a release tag?
 6. **`H6` — Shrinking Follow-Up Schedule (`L19` — `30 → 15 → 5` min in `AH-7`):**
    - Confirm applying the `30 → 15 → 5` minute schedule cleanly to `daemon.mjs` / `watch.mjs` + `/harness:run` + `/harness:auto` + `AGENTS.md` (and exact handling on usage-limit cooldown wait).
+
+7. **`H7` — Staging branch name (`AH-10`):** make it a config value with default `lab` (TAIMO's name for UAT); keep `uat` working for old projects?
+8. **`H8` — Worker permissions in cloud sessions (`AH-8`):** pass deny/allow rules explicitly to workers and warn in `doctor.mjs` when the workspace is not trusted — OK?
+9. **`H9` — Concurrency and limit resume (`AH-9`):** default to one real-agent worker at a time with a configurable cap, and resume after the usage-limit reset — OK?
+
+---
+
+## 4b. Working Rules Learned in Real Use (apply while doing this task)
+
+- **Cost:** the cost a child session reports leaves out the `claude -p` agents it runs, so real spend is higher; keep real-agent runs few, one at a time, and reuse recorded results.
+- **L19 follow-up:** check a started worker after 30 minutes, then 15 minutes later, then every 5 minutes until done; a usage-limit stop counts as not done.
+- **Scope changes:** put the full scope in a worker's first prompt (see `AH-11`).
+- **Report-only rule:** problems found in this harness while working in Skill-Foundry are reported to TAIMO and fixed here; Skill-Foundry never edits the harness.
 
 ---
 
@@ -113,10 +132,10 @@ Claude Code in `sumtaimo/Agentic-Harness` MUST confirm these with TAIMO in plain
 
 ---
 
-## 6. After `Agentic-Harness` Releases (`lab` → `release`) — Final Closure (Phase C)
+## 6. After `Agentic-Harness` Releases (`lab` → `release`): Closure
 
-1. Merge `Skill-Foundry` Phase B working branch to `master` (if not merged yet) per `docs/factory/PUBLISHING.md`.
-2. Return to `Skill-Foundry` for **Phase C (`Workstream 3`)**: run `npx github:sumtaimo/Agentic-Harness#release .` **without `--reset`**, verify zero duplicate `AGENTS.md` headers, remove stale `gemini`/`orca` entries, and confirm `node .harness/doctor.mjs` + `npm test` pass cleanly.
+1. TAIMO releases Skill-Foundry's `lab` to `master` (see `docs/factory/PUBLISHING.md` section 3b) if that has not happened yet.
+2. The old "Phase C" is **dropped** (TAIMO, 2026-11-16, rule L23): Skill-Foundry does not update its own `.harness/` copy. When TAIMO wants it updated, TAIMO or a session inside `Agentic-Harness` runs the installer there (`npx github:sumtaimo/Agentic-Harness#release .` without `--reset`), checks `AGENTS.md` for duplicate harness blocks, cleans stale `gemini`/`orca` entries, and confirms `node .harness/doctor.mjs` and `npm test`.
 3. Smoke-test in a clean temporary folder:
    - `Skill-Foundry`-only user (`npx github:sumtaimo/Skill-Foundry add --all`) → gets ONLY skills + protection + `AGENTS.md`, no `.harness/` installed.
    - `Agentic-Harness` user (`npx github:sumtaimo/Agentic-Harness#release .`) → gets harness + seamless default `Skill-Foundry` integration with zero duplicate skills or tool conflicts.

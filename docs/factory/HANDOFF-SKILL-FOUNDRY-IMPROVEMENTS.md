@@ -1,10 +1,12 @@
 # Handoff Brief: Skill Foundry Platform, Site `npx` UX, Auto-Positioning `doctor`, and Agentic-Harness Sync
 
 > **Document Purpose:** Executable engineering handoff brief prepared for **Claude Code** on `sumtaimo/Skill-Foundry`.
-> **Current Repo State (`origin/master` `c8e0e9a`):**
+> **Current Repo State (corrected 2026-11-16; branches `master` = released, `lab` = staging, see `docs/factory/STATUS.md`):**
 > - **Phase A (`Workstream 2` core CLI + `doctor` + Cross-Repo Gate):** **`[DONE on master 2a27637]`** (`src/factory/foundry.mjs`, `tests/factory-foundry-cli.test.mjs`, `tests/factory-foundry-gate.test.mjs`).
-> - **Phase B (`Workstream 1` Website `npx` UX + remaining stub-precedence/confidentiality refinements):** **`[PENDING]`** (`src/site/**`, `tests/site-*.test.mjs`, `src/factory/registry.json`, optional `foundry.mjs` follow-ups).
-> - **Phase C (`Workstream 3` Safe `.harness/` re-update in this repo):** **`[SCHEDULED AFTER Step 2]`** (TAIMO approved Decision `D1 (b)` on 2026-11-16; see [`docs/factory/notes/phase-c-harness-followup.md`](notes/phase-c-harness-followup.md)).
+> - **Phase B (`Workstream 1` site `npx` UX, new layout, 8 roles, `W2-8`, `W2-9`):** **`[DONE on master 6d0c255]`**. Shorter skill pages are **on `lab`** and wait for the release.
+> - **Phase C (`Workstream 3`, re-update `.harness/` here):** **`[DROPPED by TAIMO 2026-11-16]`**. Rule L23: this project never changes the Agentic Harness; the `.harness/` copy here is updated from the `Agentic-Harness` project by TAIMO or its own session.
+> - **Skill backlog from real use (S1 to S7):** in progress on `lab`; the list and status are in `docs/factory/STATUS.md` section 4.
+> - **Release path:** work branch, then `lab`, then TAIMO confirms in chat, then `master` (`docs/factory/PUBLISHING.md` section 3b).
 > **Scope Boundary:** Does **not** modify any skill folder under `src/skills/**` (one skill per session rule, `AGENTS.md` SKILL QUALITY LAW #8) or `src/factory/locks.json`.
 > **Companion Doc (for `sumtaimo/Agentic-Harness`):** [`docs/factory/HANDOFF-AGENTIC-HARNESS-SYNC.md`](HANDOFF-AGENTIC-HARNESS-SYNC.md)
 
@@ -130,7 +132,7 @@ Every visitor (human developer/PO/QA or AI agent) should see **`npx github:sumta
 
 ---
 
-## 4. Workstream 3 (Phase C — Deferred Per `D1 (b)`): Safe `.harness/` Re-Update Inside `Skill-Foundry`
+## 4. Workstream 3 (Phase C): **DROPPED (TAIMO, 2026-11-16; rule L23)**. Kept below for reference only, do not execute
 
 > **Execution Timing:** Run **ONLY after** Step 2 (`sumtaimo/Agentic-Harness` `lab` → `release`) ships! TAIMO approved **`D1 (b)`** on 2026-11-16 (`docs/factory/notes/phase-c-harness-followup.md:3`).
 
@@ -148,9 +150,9 @@ Every visitor (human developer/PO/QA or AI agent) should see **`npx github:sumta
 | Phase | Target Files | Deterministic Checks |
 |---|---|---|
 | **Phase A** | ~~`foundry.mjs`, `factory-foundry-cli.test.mjs`, `factory-foundry-gate.test.mjs`~~ | **`[DONE on master 2a27637]`** |
-| **Phase B** *(Next in Claude Code)* | `src/site/**`, `tests/site-*.test.mjs`, `src/factory/registry.json` (`D3`), optional `foundry.mjs` `W2-8` / `W2-9` (`D4b`) | `npm test`, `node src/site/build.mjs --check`, `npm run guard`, Playwright `1440`/`390` visual check (if installed), `npm run release:check` |
+| **Phase B** *(`[DONE on master 6d0c255]`)* | `src/site/**`, `tests/site-*.test.mjs`, `src/factory/registry.json` (`D3`), optional `foundry.mjs` `W2-8` / `W2-9` (`D4b`) | `npm test`, `node src/site/build.mjs --check`, `npm run guard`, Playwright `1440`/`390` visual check (if installed), `npm run release:check` |
 | **Step 2** *(Separate repo `sumtaimo/Agentic-Harness` `lab`)* | Execute [`HANDOFF-AGENTIC-HARNESS-SYNC.md`](HANDOFF-AGENTIC-HARNESS-SYNC.md) with completed `Skill-Foundry` link (`D1 (b)` includes `L19` + pruning duplicate harness skills) | `npm test`, `npm run audit`, Dual-Order Integration Test, release `lab` → `release` |
-| **Phase C** *(Back in `Skill-Foundry`)* | Safe `.harness/` sync from `Agentic-Harness#release`, dedup `AGENTS.md`, clean stale `gemini`/`orca` | `node .harness/team.mjs validate`, `node .harness/doctor.mjs`, `npm test` |
+| **Phase C** *(`[DROPPED]`, L23)* | Safe `.harness/` sync from `Agentic-Harness#release`, dedup `AGENTS.md`, clean stale `gemini`/`orca` | `node .harness/team.mjs validate`, `node .harness/doctor.mjs`, `npm test` |
 
 ### End-of-Phase-B Deliverable (So TAIMO Can Jump Straight Into Step 2 `Agentic-Harness`)
 At completion of Phase B, Claude Code MUST print for TAIMO:
@@ -159,7 +161,9 @@ At completion of Phase B, Claude Code MUST print for TAIMO:
 
 ---
 
-## 6. Remaining Open PO Decisions Before Coding Phase B (`D2`, `D3`, `D4b`, `D6`)
+## 6. PO Decisions (`D2`, `D3`, `D4b`, `D6`): ALL RESOLVED 2026-11-16 (kept as record)
+
+> Resolved as: D2 (a) npx primary; D3 8 roles, `UX_DESIGNER` only on design-system and ux-review; D4b recognised harness starter copies are replaced automatically with `.orig` kept; D6 keep read-only advice; D7 opt-in `--with-skills`. Full table: `docs/factory/STATUS.md` section 2.
 
 Claude Code MUST confirm only these remaining items with TAIMO in plain Khmer (already resolved: `D1 = b`, `D5 = bare/omitted pointerTools shipped`, `D7` belongs in `Agentic-Harness` `H4`):
 

@@ -1,4 +1,6 @@
-# Phase C item: shrinking follow-up schedule in the Agentic Harness
+# Shrinking follow-up schedule for the Agentic Harness (Phase C itself is DROPPED, 2026-11-16)
+
+> Phase C (re-updating `.harness/` in this repository) was dropped by TAIMO (rule L23). This note stays because it holds the L19 schedule spec, which is item AH-7 in `HANDOFF-AGENTIC-HARNESS-SYNC.md`.
 
 Approved by TAIMO on 2026-11-16 for Phase C (the `.harness/` sync, done in `sumtaimo/Agentic-Harness`
 after its release, decision D1 b). Add it to `docs/factory/HANDOFF-AGENTIC-HARNESS-SYNC.md` when Phase C starts.
