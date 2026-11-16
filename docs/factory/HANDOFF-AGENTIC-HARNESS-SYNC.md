@@ -81,6 +81,23 @@ Both repositories work cleanly together under a strict **division of responsibil
 | **AH-10** | charter / session hook text | The charter and hook say autonomous work lands on `uat`; TAIMO's staging branch is now called `lab`. | Autopilot would target the wrong branch. | Make the staging branch name a config value, default `lab`. |
 | **AH-11** | orchestration workflow (docs, `/harness:run`) | A running worker refused a scope change relayed by its parent session (correct: a relayed message cannot prove the owner said it). | A scope change sent mid-run is lost. | Document: put the full scope in the first prompt; for a change, start a new worker from the same branch instead of messaging the old one. |
 
+
+### 3a. Verified against the real harness (Skill Foundry orchestrator, read-only, 2026-11-16)
+
+Checked in a read-only clone of `release` `15bd31e` (v1.0.6) and `lab` `0f39c98` (v1.0.15). Skill Foundry's tests now run against vendored copies of both
+(`tests/fixtures/agentic-harness/` in Skill-Foundry; each folder has a README with its source commit). `lab` has moved past the `bf8b43c` named earlier in this brief.
+
+| Item | `release` `15bd31e` | `lab` `0f39c98` | Result |
+|---|---|---|---|
+| **AH-1** explicit `skills` on leads; `matchSkills` takes only the explicit list | `.harness/team.json:47,67`; `.harness/lib/governance.mjs:247` | `.harness/team.json:48,68,87`; `.harness/lib/governance.mjs:249` | **Confirmed in both.** A lead with an explicit list does not get Skill Foundry pointers (`autoApply: true`). |
+| **AH-3** roles without `Bash(node...)` | `qa-auditor`, `ba-analyst` have none; only `dev-engineer` has | same, and `ux-designer` has none | **Confirmed in both.** Skills with an `engine/` folder cannot run their script in those roles. |
+| `gemini` / `orca` leftovers | `team.json` has none; `config.json` has 8 mentions | same | `team.json` is clean in the real harness (the stale entries were only in Skill-Foundry's own old copy). The 8 mentions in `config.json` were not analysed; check whether they are the removed-profile list. |
+| `MANIFEST.json` | not in the repository tree | not in the repository tree | Not a harness bug: the installer creates it at install time. |
+| Real `install.mjs` | not executed by Skill Foundry's tests (the install is simulated from its contract) | same | **Open.** Run the real installer in the joint test (`docs/factory/JOINT-TEST-PLAN.md` in Skill-Foundry). |
+
+Skill Foundry's gate result against both versions: harness first then Skill Foundry, Skill Foundry first then harness, and Skill Foundry alone all pass,
+and the ownership line holds (Skill Foundry changes only its own skills, pointers, agent-instruction block and Edit deny rules; a harness install or update keeps them).
+
 ---
 
 ## 4. Open PO Decisions Required Before Implementation (`H1`–`H6`)
