@@ -66,6 +66,18 @@ You are orchestrating a multi-step workflow across sequential skills (`Skill 1` 
 ### Goal
 Every visitor (human developer/PO/QA or AI agent) should see **`npx github:sumtaimo/Skill-Foundry`** as the unified, primary install & lifecycle path across the landing page, cards, skill detail pages, `"Give this to your agent"` prompt, `skills.json`, and `llms.txt` — while keeping `.zip` + SHA-256 + `curl/unzip` available cleanly as an explicit fallback for environments without Node.js/git.
 
+### Expected User Outcome: What Copying & Running `npx` Delivers
+When a user or agent copies `npx github:sumtaimo/Skill-Foundry add <skill>` (or `--role <ROLE>` / `--all`) and runs it in a project, here is the exact outcome guaranteed by [`foundry.mjs`](../../src/factory/foundry.mjs):
+
+| Deliverable in Target Project | What the User Gets Today (`foundry.mjs`) | Current Bug / What Target Fixes Deliver |
+|---|---|---|
+| **Skill files (`.claude/skills/<name>/`)** | Copies `SKILL.md`, 10 layers, `references/`, `engine/`, `examples/`, `preview.json` (excludes `evals/`, `_template/`, `skill-smith`). Writes `.foundry.json` SHA-256 stamp so `update` preserves user edits (`--force` resets). | Site card/header `"Copy install command"` (`render.mjs:56-59`) currently copies `curl/unzip`, **bypassing** `.foundry.json`, `.harness/`, `AGENTS.md`, and protection! (`W1-3` fixes this to copy `npx`). |
+| **Universal agent rules (`AGENTS.md`)** | Adds/refreshes one managed block (`<!-- skill-foundry:begin --> ... <!-- skill-foundry:end -->`) telling Codex, Cursor, Gemini, and Copilot when to read each skill while keeping user text untouched (`--no-rules` opt-out). | `W2-5` upgrades the managed block with lazy skill loading + compact JSON handoff + `doctor` reminder. |
+| **Edit guard rails (`.claude/settings.json`)** | Merges `permissions.deny` into existing JSON so Claude Code cannot overwrite skills or self-run `add`/`update` (`--no-protect` opt-out). | `W2-1` replaces invalid `Write(...)` deny rules (`foundry.mjs:118`) with valid `Edit(...)` rules and strips legacy `Write(...)` entries. |
+| **Harness auto-positioning (`.harness/skills/`)** | When `.harness/skills/` exists, auto-creates pointer `SKILL.md` files (`roles`, `keywords`, `autoApply: true`, `installed-by: skill-foundry`). | `W2-2` stops stripping `Bash(npm test:*)`; `W2-3` expands roles (`lab` v1.0.9); `W2-4` handles `spec-writer` stub collision cleanly; `W2-6` adds `doctor` diagnostics. |
+| **Non-harness projects (`.cursor/`, `GEMINI.md`, etc.)** | Installs `.claude/skills/` + `AGENTS.md` + `.claude/settings.json` cleanly without errors. | `W2-6` (`doctor`) auto-detects other AI tool configs, warns on conflicts/gaps, and prints exact setup/harness advice (per Decision `D6`). |
+| **One-link harness install (`Agentic-Harness`)** | Separate manual step today. | `W2-7` + `HANDOFF-AGENTIC-HARNESS-SYNC.md` enable `npx github:sumtaimo/Agentic-Harness#release .` to install harness + pull `Skill-Foundry` cleanly together. |
+
 ### Confirmed Findings & Line Evidence
 
 | ID | Area | File:Line Evidence | Current Problem | Required Fix / Target Behavior |
