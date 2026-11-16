@@ -366,6 +366,7 @@ ${t('install.lead', 'p')}
 ${npxRows()}
 </ol>
 ${t('install.npx', 'p', 'class="note"')}
+${t('install.scope', 'p', 'class="note"')}
 <details class="acc">
 <summary>${t('install.fallback')}</summary>
 ${t('install.fallback.p', 'p')}
@@ -379,6 +380,7 @@ ${Number.isFinite(opts.allBytes) && opts.allBytes > 0 ? `<p>${allLink(opts.allBy
 <section id="agents" class="col numbered" aria-labelledby="agents-title">
 ${t('agents.title', 'h2', 'id="agents-title"')}
 ${t('agents.p', 'p')}
+${t('install.scope', 'p', 'class="note"')}
 <ul class="agent-files">
 <li><a href="skills.json">${t('agents.json')}</a></li>
 <li><a href="llms.txt">${t('agents.txt')}</a></li>
