@@ -19,6 +19,8 @@ Last updated: 2026-11-16, by the orchestrator session.
 
 Handoff briefs written by TAIMO: `docs/factory/HANDOFF-SKILL-FOUNDRY-IMPROVEMENTS.md`, `docs/factory/HANDOFF-AGENTIC-HARNESS-SYNC.md`.
 
+Release path (2026-11-16): `claude/...` work branch → **`lab`** (integrate and check, like UAT) → TAIMO confirms in chat → `master`. Details: `docs/factory/PUBLISHING.md` section 3b.
+
 ## 2. Decisions TAIMO made (do not ask again)
 
 | Id | Decision |
@@ -35,6 +37,8 @@ Handoff briefs written by TAIMO: `docs/factory/HANDOFF-SKILL-FOUNDRY-IMPROVEMENT
 | D7 | Agentic-Harness pulls skills only with `--with-skills` (opt-in) for now. |
 | Layout | First screen guides a first-time visitor; the real recorded result is the biggest thing on a skill page; one primary action per view; structure (not text or art) from https://skills.wheresryan.sh/anatomy . |
 | Books and brands | Use principles only; never name books, authors or outside brands (L10, L15). |
+| Lab branch | All finished work goes to `lab` first and is checked there; release `lab` → `master` only after TAIMO confirms (another agent may verify `lab` a second time). |
+| Harness feedback | When the orchestrator notices an Agentic Harness bug, it tells TAIMO in chat first; it is written down only where TAIMO says. |
 | Model choice | The orchestrator picks the model for child sessions by job and cost; not a fixed rule. |
 
 ## 3. How we work (summary; the rules are in `.harness/memory/lessons.md`)

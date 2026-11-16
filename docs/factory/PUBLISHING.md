@@ -4,8 +4,11 @@ This repository is the **lab**. A skill reaches other people only through this p
 Every agent follows it; nobody skips a step. Owner approvals happen in chat with TAIMO.
 
 ```
-1 BUILD (lab branch)  →  2 PROVE (real agents)  →  3 RELEASE CHECK  →  4 OWNER OK  →  5 MASTER  →  6 USERS UPDATE
+1 BUILD (claude/... branch) → 2 PROVE (real agents) → 3 RELEASE CHECK → 4 LAB (integrate + check) → 5 OWNER OK → 6 MASTER → 7 USERS UPDATE
 ```
+
+Branches: `claude/...` = one piece of work; **`lab`** = the staging branch where finished work is integrated and checked
+before a release (TAIMO's name for UAT, set 2026-11-16); `master` = the release (GitHub Pages and `npx` read it).
 
 ## 1. Build, on a `claude/...` working branch, never on master
 
@@ -35,14 +38,22 @@ It runs every gate: tests (including stale-recording, real-output site and CLI t
 every ready skill, site build, and the skill guard. It prints `READY` or `NOT READY`. Only `READY` may go further.
 Set `status: ready` in the registry only when this passes.
 
+## 3b. Lab (staging) before master
+
+- Merge each finished, verified `claude/...` branch into `lab` (merge commit), one at a time; resolve shared files there
+  (`registry.json`, routing cases, ROADMAP, PROJECT, STATUS) and re-record routing once after combining descriptions.
+- On `lab`, run `npm run release:check` (must print READY) and the site check (`node src/site/build.mjs --check`, screenshots).
+- `lab` may be verified a second time by another agent before release. Pushing to `lab` needs no extra approval;
+  pushing to `master` does.
+
 ## 4. Owner approval
 
-Report to TAIMO in Khmer: what changed, which results came from real agents, the `release:check` output, open items.
+Ask TAIMO in chat to release `lab` to `master`, listing what `lab` holds. Report in Khmer: what changed, which results came from real agents, the `release:check` output, open items.
 Merge only after TAIMO approves **in chat**. Never merge, push to master, or force-push on your own.
 
 ## 5. Master = the release
 
-A merge to `master` (merge commit) is the release. `.github/workflows/pages.yml` runs the tests again and publishes the
+A merge of `lab` into `master` (merge commit, or fast-forward when `master` has nothing new) is the release. `.github/workflows/pages.yml` runs the tests again and publishes the
 site at https://sumtaimo.github.io/Skill-Foundry/. Check the workflow run succeeded and the page opens.
 
 ## 6. Users get it
