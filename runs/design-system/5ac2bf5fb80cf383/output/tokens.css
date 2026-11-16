@@ -1,12 +1,14 @@
-/* Design tokens: calm-workspace archetype, brand #7c3aed.
-   Load this file before your own styles. Set data-theme="dark" or data-theme="light" on the html element to force a mode.
-   Set data-density="compact", "comfortable" or "spacious" on any element to change density. */
+/* Design tokens. Archetype: calm-workspace. Brand: #7c3aed.
+   Light is the default; dark follows the system setting, and data-theme on the html element forces a mode. */
 
 :root {
   color-scheme: light dark;
 
-  /* Primary scale (hue 262, brand at 500) */
-  --color-primary-50: #f6f2fc;
+  /* Brand */
+  --color-brand: #7c3aed;
+
+  /* Primary scale (given colour at 500) */
+  --color-primary-50: #f6f2fd;
   --color-primary-100: #eae1fa;
   --color-primary-200: #d1bcf5;
   --color-primary-300: #b28df2;
@@ -14,52 +16,51 @@
   --color-primary-500: #7c3aed;
   --color-primary-600: #5719c3;
   --color-primary-700: #440f9f;
-  --color-primary-800: #300d6e;
+  --color-primary-800: #310d6e;
   --color-primary-900: #1f0a42;
-  --color-brand: #7c3aed;
 
-  /* Neutral scale (primary hue, 6% saturation) */
+  /* Neutral scale */
   --color-neutral-50: #f7f6f9;
   --color-neutral-100: #edecef;
-  --color-neutral-200: #d9d7dc;
-  --color-neutral-300: #bfbcc4;
+  --color-neutral-200: #d8d6db;
+  --color-neutral-300: #bebbc3;
   --color-neutral-400: #a29ea9;
   --color-neutral-500: #85808e;
   --color-neutral-600: #6c6774;
   --color-neutral-700: #55515c;
-  --color-neutral-800: #3d3a42;
+  --color-neutral-800: #3c3941;
   --color-neutral-900: #262429;
   --color-neutral-950: #141316;
 
-  /* Success scale (given step 700 = #16a34a) */
+  /* Success scale (default colour at 700) */
   --color-success-50: #f3fcf6;
   --color-success-100: #e2f9ea;
-  --color-success-200: #bff3d2;
+  --color-success-200: #bef3d2;
   --color-success-300: #91edb3;
-  --color-success-400: #67df93;
-  --color-success-500: #48c776;
-  --color-success-600: #2bb15c;
+  --color-success-400: #68df94;
+  --color-success-500: #49c777;
+  --color-success-600: #2cb15d;
   --color-success-700: #16a34a;
   --color-success-800: #116a32;
   --color-success-900: #0d4020;
 
-  /* Warning scale (given step 600 = #d97706) */
+  /* Warning scale (default colour at 600) */
   --color-warning-50: #fdf8f2;
-  --color-warning-100: #fbeedf;
+  --color-warning-100: #fceedf;
   --color-warning-200: #f9dbb8;
   --color-warning-300: #f9c386;
   --color-warning-400: #faa94c;
-  --color-warning-500: #e68e28;
+  --color-warning-500: #e58e28;
   --color-warning-600: #d97706;
-  --color-warning-700: #a95c05;
+  --color-warning-700: #a95d05;
   --color-warning-800: #744106;
-  --color-warning-900: #462806;
+  --color-warning-900: #462906;
 
-  /* Danger scale (given step 500 = #dc2626) */
+  /* Danger scale (default colour at 500) */
   --color-danger-50: #fcf3f3;
   --color-danger-100: #f8e2e2;
   --color-danger-200: #f2c0c0;
-  --color-danger-300: #eb9494;
+  --color-danger-300: #eb9393;
   --color-danger-400: #e66161;
   --color-danger-500: #dc2626;
   --color-danger-600: #bd1e1e;
@@ -67,8 +68,8 @@
   --color-danger-800: #671313;
   --color-danger-900: #3f0e0e;
 
-  /* Info scale (given step 500 = #2563eb) */
-  --color-info-50: #f2f5fd;
+  /* Info scale (default colour at 500) */
+  --color-info-50: #f2f5fc;
   --color-info-100: #e0e8fa;
   --color-info-200: #bccef5;
   --color-info-300: #8dacf2;
@@ -98,10 +99,10 @@
   --color-action-primary-text: #ffffff;
   --color-action-primary-bg-hover: var(--color-primary-600);
   --color-action-primary-bg-pressed: var(--color-primary-700);
-  --color-action-secondary-text: var(--color-text-link);
-  --color-action-secondary-border: var(--color-border-focus);
+  --color-action-secondary-text: var(--color-primary-500);
+  --color-action-secondary-border: var(--color-primary-500);
   --color-selected-bg: var(--color-primary-50);
-  --color-selected-text: var(--color-primary-600);
+  --color-selected-text: var(--color-primary-500);
   --color-success-bg-subtle: var(--color-success-50);
   --color-success-border: var(--color-success-200);
   --color-success-text: var(--color-success-800);
@@ -152,7 +153,7 @@
   --space-48: 48px;
   --space-64: 64px;
 
-  /* Control sizes */
+  /* Controls */
   --control-height-sm: 36px;
   --control-height-md: 44px;
   --control-height-lg: 52px;
@@ -166,9 +167,9 @@
   --radius-control: var(--radius-md);
 
   /* Shadow (light) */
-  --shadow-1: 0 1px 3px 0 rgb(0 0 0 / 0.06);
-  --shadow-2: 0 4px 12px -2px rgb(0 0 0 / 0.08);
-  --shadow-3: 0 12px 32px -8px rgb(0 0 0 / 0.10);
+  --shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.06);
+  --shadow-2: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
+  --shadow-3: 0 12px 32px -8px rgba(0, 0, 0, 0.10);
 
   /* Border widths */
   --border-width-hairline: 1px;
@@ -183,13 +184,13 @@
   --ease-enter: cubic-bezier(0, 0, 0.2, 1);
   --ease-exit: cubic-bezier(0.4, 0, 1, 1);
 
-  /* Breakpoints (custom properties do not work in media queries; copy the numbers there) */
+  /* Breakpoints (copy the numbers into media queries; custom properties do not work there) */
   --breakpoint-sm: 640px;
   --breakpoint-md: 768px;
   --breakpoint-lg: 1024px;
   --breakpoint-xl: 1280px;
 
-  /* Density (default: spacious) */
+  /* Density: spacious by default */
   --density-control-x: 16px;
   --density-control-y: 12px;
   --density-row: 48px;
@@ -197,9 +198,10 @@
   --density-section: 48px;
 }
 
-/* Dark mode: follows the system unless the page forces light */
+/* Dark mode: follows the system unless data-theme="light" is set */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
+    color-scheme: dark;
     --color-surface-default: var(--color-neutral-950);
     --color-surface-subtle: var(--color-neutral-900);
     --color-surface-raised: var(--color-neutral-800);
@@ -218,8 +220,8 @@
     --color-action-primary-text: #ffffff;
     --color-action-primary-bg-hover: var(--color-primary-600);
     --color-action-primary-bg-pressed: var(--color-primary-700);
-    --color-action-secondary-text: var(--color-text-link);
-    --color-action-secondary-border: var(--color-border-focus);
+    --color-action-secondary-text: var(--color-primary-200);
+    --color-action-secondary-border: var(--color-primary-300);
     --color-selected-bg: var(--color-primary-900);
     --color-selected-text: var(--color-primary-200);
     --color-success-bg-subtle: var(--color-success-900);
@@ -242,13 +244,13 @@
     --color-info-text: var(--color-info-300);
     --color-info-bg: var(--color-info-500);
     --color-info-text-on: #ffffff;
-    --shadow-1: 0 1px 3px 0 rgb(0 0 0 / 0.18);
-    --shadow-2: 0 4px 12px -2px rgb(0 0 0 / 0.24);
-    --shadow-3: 0 12px 32px -8px rgb(0 0 0 / 0.30);
+    --shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.18);
+    --shadow-2: 0 4px 12px -2px rgba(0, 0, 0, 0.24);
+    --shadow-3: 0 12px 32px -8px rgba(0, 0, 0, 0.30);
   }
 }
 
-/* Dark mode: forced by the page */
+/* Dark mode forced by attribute */
 :root[data-theme="dark"] {
   color-scheme: dark;
   --color-surface-default: var(--color-neutral-950);
@@ -269,8 +271,8 @@
   --color-action-primary-text: #ffffff;
   --color-action-primary-bg-hover: var(--color-primary-600);
   --color-action-primary-bg-pressed: var(--color-primary-700);
-  --color-action-secondary-text: var(--color-text-link);
-  --color-action-secondary-border: var(--color-border-focus);
+  --color-action-secondary-text: var(--color-primary-200);
+  --color-action-secondary-border: var(--color-primary-300);
   --color-selected-bg: var(--color-primary-900);
   --color-selected-text: var(--color-primary-200);
   --color-success-bg-subtle: var(--color-success-900);
@@ -293,16 +295,17 @@
   --color-info-text: var(--color-info-300);
   --color-info-bg: var(--color-info-500);
   --color-info-text-on: #ffffff;
-  --shadow-1: 0 1px 3px 0 rgb(0 0 0 / 0.18);
-  --shadow-2: 0 4px 12px -2px rgb(0 0 0 / 0.24);
-  --shadow-3: 0 12px 32px -8px rgb(0 0 0 / 0.30);
+  --shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.18);
+  --shadow-2: 0 4px 12px -2px rgba(0, 0, 0, 0.24);
+  --shadow-3: 0 12px 32px -8px rgba(0, 0, 0, 0.30);
 }
 
+/* Light mode forced by attribute */
 :root[data-theme="light"] {
   color-scheme: light;
 }
 
-/* Reduced motion: every duration becomes zero */
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   :root {
     --duration-fast: 0ms;
@@ -319,6 +322,7 @@
   --density-stack: 8px;
   --density-section: 24px;
 }
+
 [data-density="comfortable"] {
   --density-control-x: 12px;
   --density-control-y: 8px;
@@ -326,6 +330,7 @@
   --density-stack: 12px;
   --density-section: 32px;
 }
+
 [data-density="spacious"] {
   --density-control-x: 16px;
   --density-control-y: 12px;

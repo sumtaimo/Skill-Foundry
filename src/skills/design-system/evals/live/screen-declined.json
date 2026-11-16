@@ -2,8 +2,8 @@
   "case": "screen-declined",
   "prompt": "Design the full dashboard screen for our analytics app, with a sidebar, charts and a table.",
   "agent": "custom via run-skill (fresh agent, skill folder and the case prompt only)",
-  "recordedAt": "2026-11-15",
+  "recordedAt": "2026-11-16",
   "output": "This skill builds design tokens, not screens. For finished screen code, use ui-polish.",
   "files": [],
-  "run": "runs/design-system/78040ff57a9f939b"
+  "run": "runs/design-system/076b5f48f6be73df"
 }

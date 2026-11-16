@@ -2,8 +2,8 @@
   "case": "no-input",
   "prompt": "Make us a design system.",
   "agent": "custom via run-skill (fresh agent, skill folder and the case prompt only)",
-  "recordedAt": "2026-11-15",
-  "output": "Give me a brand colour as a hex code (for example #2563eb), a few words about the style you want, or the path to your existing design tokens.",
+  "recordedAt": "2026-11-16",
+  "output": "No hex, no style words, no existing system: the skill's fixed reply applies, and no files are written.\n\nGive me a brand colour as a hex code (for example #2563eb), a few words about the style you want, or the path to your existing design tokens.",
   "files": [],
-  "run": "runs/design-system/c0056667bfba9f99"
+  "run": "runs/design-system/d36411ddbda21620"
 }

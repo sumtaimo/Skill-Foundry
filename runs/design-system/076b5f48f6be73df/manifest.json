@@ -1,0 +1,21 @@
+{
+  "skill": "design-system",
+  "version": "1.0.0",
+  "caseId": "screen-declined",
+  "inputSha256": "4239e12fb36c1aab2904c4b9725548f3f50342325190b0c37ec5cacefb00520d",
+  "skillSha256": "891b805858aeeb46774b146163d4278d2e939f6610db4c0c443b456e2bd5fe80",
+  "key": "076b5f48f6be73df8aa7d8c3e2b40c4eeacab4cd82ee5faa5599829cf59dcbf5",
+  "startedAt": "2026-11-16T23:46:52.340Z",
+  "finishedAt": "2026-11-16T23:46:59.531Z",
+  "runner": "custom",
+  "exitCode": 0,
+  "costUsd": null,
+  "usage": null,
+  "files": [],
+  "checks": {
+    "expectations": 4,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "This skill builds design tokens, not screens. For finished screen code, use ui-polish."
+}
