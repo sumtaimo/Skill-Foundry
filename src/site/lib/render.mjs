@@ -84,9 +84,9 @@ function rolesList(skill) {
   return `<p class="roles">${t('plate.roles')} ${skill.roles.map((r) => t(`role.${r}`, 'span', `class="role" data-role="${esc(r)}"`)).join(' ')}</p>`;
 }
 
-function coverSvg(skill) {
+function coverSvg(skill, bare = false) {
   const label = `${skill.title} cover`;
-  return skill.coverSvg.replace(/^<svg\b([^>]*)>/i, (m, attrs) => {
+  return (bare && skill.coverSvgBare ? skill.coverSvgBare : skill.coverSvg).replace(/^<svg\b([^>]*)>/i, (m, attrs) => {
     const a = attrs.replace(/\s(role|aria-label|width|height)\s*=\s*("[^"]*"|'[^']*')/gi, '');
     return `<svg${a} role="img" aria-label="${esc(label)}" focusable="false">`;
   });
@@ -98,8 +98,8 @@ function coverTag(skill) {
   return t(kind === 'concept' ? 'cover.concept' : 'cover.real', 'span', `class="cover-tag" data-kind="${esc(kind)}"`);
 }
 
-function cover(skill, cls) {
-  return `<div class="${cls}" data-cover="${esc(skill.coverKind ?? 'concept')}">${coverSvg(skill)}${coverTag(skill)}</div>`;
+function cover(skill, cls, bare = false) {
+  return `<div class="${cls}" data-cover="${esc(skill.coverKind ?? 'concept')}">${coverSvg(skill, bare)}${coverTag(skill)}</div>`;
 }
 
 /** The real answer a fresh agent gave, word for word, with the request it was given. */
@@ -107,24 +107,26 @@ function cover(skill, cls) {
 function tokensBlock(skill) {
   const k = skill.tokens;
   if (!k) return '';
-  return `${t('tokens.title', 'h3')}
+  return `<details class="acc tokens-acc">
+<summary>${t('tokens.title')}</summary>
 ${t('tokens.note', 'p', 'class="run-note"')}
 <figure class="tokens-proof" data-tokens-run="${esc(k.run)}" data-tokens-sha256="${esc(k.sha256)}">
 <div class="tokens-figure">${coverSvg(skill)}</div>
-<figcaption><span class="proof-label" data-i18n="answer.asked">${esc(EN['answer.asked'])}</span> <code lang="en">${esc(k.prompt)}</code> <code lang="en">${esc(k.run)}/output/tokens.css</code></figcaption>
-</figure>`;
+<figcaption><code lang="en">${esc(k.run)}/output/tokens.css</code></figcaption>
+</figure>
+</details>`;
 }
 
-function proofBlock(skill) {
+/** The full word-for-word answer, closed by default; it stays in the HTML so it reads without JavaScript. The request is not repeated: it sits beside the result. */
+function answerAccordion(skill) {
   const p = skill.proof;
   if (!p) return '';
-  return `${t('answer.title', 'h3')}
+  return `<details class="acc answer-acc" id="answer" data-proof-source="${esc(p.source)}">
+<summary>${t('answer.show')}</summary>
 ${t(p.source === 'portable' ? 'answer.note.portable' : 'answer.note.live', 'p', 'class="run-note"')}
-<figure class="proof" id="answer" data-proof-source="${esc(p.source)}">
-<p class="proof-ask">${t('answer.asked', 'span', 'class="proof-label"')} <code lang="en">${esc(p.prompt)}</code></p>
-<pre class="proof-answer" lang="en">${esc(p.answer)}</pre>
+${p.prompt === skill.prompt ? '' : `<p class="proof-ask">${t('answer.asked', 'span', 'class="proof-label"')} <code lang="en">${esc(p.prompt)}</code></p>\n`}<pre class="proof-answer" lang="en">${esc(p.answer)}</pre>
 ${copyButton(p.answer, 'answer.copy')}
-</figure>`;
+</details>`;
 }
 
 function copyButton(text, key = 'copy.copy') {
@@ -436,7 +438,6 @@ export function fullResultHref(skill, up = '') {
 
 const SECTIONS = [
   { id: 'what-it-does', key: 'sk.does' },
-  { id: 'how-to-ask', key: 'sk.ask' },
   { id: 'proven', key: 'sk.proven' },
   { id: 'rules', key: 'sk.rules' },
   { id: 'examples', key: 'sk.examples' },
@@ -476,9 +477,12 @@ ${toc}
 </nav>
 <section id="result" class="real-result" aria-labelledby="result-title">
 ${t('result.skill', 'h2', 'id="result-title"')}
-${cover(s, 'cover cover-lg')}
+${cover(s, 'cover cover-lg', true)}
+<div class="result-side">
 <p class="proof-ask">${t('answer.asked', 'span', 'class="proof-label"')} <code lang="en">${esc(s.prompt)}</code></p>
-<p><a class="btn" href="${s.example ? 'example.html' : '#answer'}">${t('result.full')}</a></p>
+<p class="result-actions">${copyButton(s.prompt)}${s.example ? ` <a class="btn" href="example.html">${t('result.full')}</a>` : ''}</p>
+</div>
+${answerAccordion(s)}
 </section>`);
   const factoryNote = s.factoryOnly ? t('install.factory', 'p', 'class="note"') : '';
   const zipBlock = `<ol class="steps">
@@ -510,11 +514,6 @@ ${t('sk.does', 'h2', 'id="h-does"')}
 <h3 data-i18n="sk.gets">${esc(EN['sk.gets'])}</h3>
 <ul class="outputs" lang="en">${s.outputs.map((o) => `<li>${esc(o)}</li>`).join('')}</ul>
 ${s.notFor ? `<h3 data-i18n="sk.does.no">${esc(EN['sk.does.no'])}</h3>\n<p lang="en">${esc(s.notFor)}</p>` : ''}
-</section>`);
-  parts.push(`<section id="how-to-ask" class="numbered" aria-labelledby="h-ask">
-${t('sk.ask', 'h2', 'id="h-ask"')}
-${t('take.type', 'p')}
-<div class="codebox"><pre lang="en"><code>${esc(s.prompt)}</code></pre>${copyButton(s.prompt)}</div>
 </section>`);
   const runFacts = s.run ? `<p class="run-facts" data-run="${esc(s.run.key)}" lang="en"><code>${esc(s.name)} ${esc(s.version)}</code> <code>run ${esc(s.run.key)}</code></p>` : '';
   parts.push(`<section id="proven" class="numbered" aria-labelledby="h-know">
@@ -557,12 +556,13 @@ ${(s.ruleList ?? []).map((r) => `<li><code>${esc(r.id)}</code> ${esc(r.text)}</l
   parts.push(`<section id="examples" class="numbered" aria-labelledby="h-examples">
 ${t('sk.examples', 'h2', 'id="h-examples"')}
 ${tokensBlock(s)}
-${proofBlock(s)}
-${s.example ? `${t(s.run ? (s.run.reference ? 'ref.title' : 'run.title') : 'skill.example', 'h3')}
+${s.example ? `<details class="acc example-acc">
+<summary>${t(s.run ? (s.run.reference ? 'ref.title' : 'run.title') : 'skill.example')}</summary>
 ${s.run ? t(s.run.reference ? 'ref.note' : 'run.note', 'p', 'class="run-note"') : ''}
 ${t('example.note', 'p')}
 <iframe class="example" sandbox="allow-scripts" src="example.html" title="${esc(s.title)} example"></iframe>
-${t('example.open', 'a', 'class="example-open" href="example.html"')}` : ''}
+${t('example.open', 'a', 'class="example-open" href="example.html"')}
+</details>` : ''}
 <details id="banner" class="acc">
 <summary>${t('banner.title')}</summary>
 ${t('banner.note', 'p')}

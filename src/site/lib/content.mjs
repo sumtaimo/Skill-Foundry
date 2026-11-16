@@ -130,6 +130,10 @@ export function loadSkills(root, opts = {}) {
       const coverSvg = coverKind === 'run' ? run.svg
         : coverKind === 'proof' ? sanitizeSvg(objectFigure(KINDS[r.name] ?? [], proof) ?? docFigure(proof, { askLabel: DICTS.en['answer.asked'], moreLabel: DICTS.en['answer.more'] }))
         : sanitizeSvg(read('preview/cover.svg'));
+      // The skill page shows the request once, beside the result, so its cover is the same figure without the request block.
+      const coverSvgBare = coverKind === 'proof' && !objectFigure(KINDS[r.name] ?? [], proof)
+        ? sanitizeSvg(docFigure(proof, { askLabel: DICTS.en['answer.asked'], moreLabel: DICTS.en['answer.more'], showAsk: false }))
+        : coverSvg;
       return {
         name: r.name,
         roles,
@@ -145,6 +149,7 @@ export function loadSkills(root, opts = {}) {
         outputs: Array.isArray(preview.outputs) ? preview.outputs.map(String) : [],
         tags: Array.isArray(preview.tags) ? preview.tags.map(String) : [],
         coverSvg,
+        coverSvgBare,
         coverKind,
         factoryOnly: /^scope:\s*factory/m.test(md),
         proof,

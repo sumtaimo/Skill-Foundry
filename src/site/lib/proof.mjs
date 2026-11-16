@@ -98,13 +98,13 @@ export function figureLines(answer, width = 41, max = 15) {
  * A sheet of paper with the request on top and the agent's real answer below, in site tokens only.
  * @param {{prompt:string, answer:string}} proof @param {{askLabel?:string, moreLabel?:string}} [labels]
  */
-export function docFigure(proof, { askLabel = 'Request', moreLabel = 'continues on the page' } = {}) {
+export function docFigure(proof, { askLabel = 'Request', moreLabel = 'continues on the page', showAsk = true } = {}) {
   const W = 360; const pad = 22; const lh = 15;
   // Monospace at 11px is about 6.6 units a character; the text column is about 280 units wide.
-  const askAll = wrap(String(proof.prompt).replace(/\s+/g, ' ').trim(), 42);
+  const askAll = !showAsk ? [] : wrap(String(proof.prompt).replace(/\s+/g, ' ').trim(), 42);
   const ask = askAll.length > 2 ? [askAll[0], `${askAll[1].slice(0, 40)}…`] : askAll;
   const { lines, cut } = figureLines(proof.answer);
-  const askTop = 52; const bodyTop = askTop + ask.length * 14 + 26;
+  const askTop = 52; const bodyTop = showAsk ? askTop + ask.length * 14 + 26 : 34;
   const H = bodyTop + lines.length * lh + (cut ? lh + 6 : 0) + pad;
   const fold = 22;
   const sheet = `M${pad} 10 H${W - pad - fold} L${W - pad} ${10 + fold} V${H - 6} H${pad} Z`;
@@ -121,10 +121,12 @@ export function docFigure(proof, { askLabel = 'Request', moreLabel = 'continues 
     `<path d="${sheet}" transform="translate(4 5)" fill="var(--line)" opacity="0.5"/>` +
     `<path d="${sheet}" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="0.8"/>` +
     `<path d="M${W - pad - fold} 10 V${10 + fold} H${W - pad}" fill="var(--surface2)" stroke="var(--line-strong)" stroke-width="0.8"/>` +
-    `<rect x="${pad}" y="${askTop - 22}" width="${W - 2 * pad - fold}" height="${ask.length * 14 + 16}" fill="var(--surface2)"/>` +
-    `<text x="${pad + 16}" y="${askTop - 8}" class="doc-label">${x(askLabel.toUpperCase())}</text>` +
-    ask.map((l, i) => `<text x="${pad + 16}" y="${askTop + 6 + i * 14}" class="doc-ask">${x(l)}</text>`).join('') +
-    `<path d="M${pad + 16} ${bodyTop - 14} H${W - pad - 16}" stroke="var(--line)" stroke-width="0.8"/>` +
+    (showAsk
+      ? `<rect x="${pad}" y="${askTop - 22}" width="${W - 2 * pad - fold}" height="${ask.length * 14 + 16}" fill="var(--surface2)"/>` +
+        `<text x="${pad + 16}" y="${askTop - 8}" class="doc-label">${x(askLabel.toUpperCase())}</text>` +
+        ask.map((l, i) => `<text x="${pad + 16}" y="${askTop + 6 + i * 14}" class="doc-ask">${x(l)}</text>`).join('') +
+        `<path d="M${pad + 16} ${bodyTop - 14} H${W - pad - 16}" stroke="var(--line)" stroke-width="0.8"/>`
+      : '') +
     `<rect x="${pad}" y="${bodyTop - 10}" width="3" height="${lines.length * lh}" fill="var(--line-strong)"/>` +
     body +
     (cut ? text(bodyTop + lines.length * lh + 4, `… ${moreLabel}`, 'doc-more') : '') +
