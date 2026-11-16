@@ -26,8 +26,7 @@ test('index and a skill page render cleanly', async (t) => {
       t.skip(SKIP_REASON);
       return;
     }
-    const bad = r.problems.filter((x) => x.kind === 'console-error' || x.kind === 'horizontal-scroll');
-    assert.deepEqual(bad, [], p);
+    assert.deepEqual(r.problems, [], p);
   }
 });
 
@@ -35,28 +34,37 @@ async function loadPw() {
   try { const mod = 'playwright'; const pw = await import(mod); return pw.chromium ?? pw.default?.chromium; } catch { return null; }
 }
 
-test('hero layout, qbar progress and no horizontal scroll', async (t) => {
+test('hero then real result, qbar progress, no horizontal scroll, every control 44px or more', async (t) => {
   const chromium = await loadPw();
   if (!chromium) { t.skip(SKIP_REASON); return; }
   const out = mkdtempSync(join(tmpdir(), 'sf-visual2-'));
   await buildSite({ root: ROOT, out });
   const ready = JSON.parse(readFileSync(join(ROOT, 'src/factory/registry.json'), 'utf8')).filter((s) => s.status === 'ready');
   const browser = await chromium.launch();
+  const small = () => [...document.querySelectorAll('a, button, input, summary')].filter((e) => {
+    const r = e.getBoundingClientRect();
+    return r.width > 0 && r.height > 0 && getComputedStyle(e).visibility !== 'hidden' && !e.closest('svg') && (r.height < 44 - 0.5 || r.width < 44 - 0.5) && e.getAttribute('class') !== 'skip';
+  }).map((e) => `${e.tagName} ${(e.textContent || '').trim().slice(0, 20)} ${Math.round(e.getBoundingClientRect().width)}x${Math.round(e.getBoundingClientRect().height)}`);
   try {
     for (const width of [1440, 390]) {
       const ctx = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: 'reduce' });
       const page = await ctx.newPage();
       await page.goto(pathToFileURL(join(out, 'index.html')).href, { waitUntil: 'load' });
       const r = await page.evaluate(() => {
-        const a = document.querySelector('.hero .hero-prompt')?.getBoundingClientRect();
-        const b = document.querySelector('.hero .hero-figure')?.getBoundingClientRect();
+        const h = document.querySelector('.hero').getBoundingClientRect();
+        const res = document.querySelector('.real-result .cover-lg')?.getBoundingClientRect();
+        const ask = document.querySelector('.real-result .proof-ask')?.getBoundingClientRect();
         const d = document.documentElement;
-        return { a: a && { top: a.top, bottom: a.bottom, right: a.right }, b: b && { top: b.top, left: b.left }, scroll: d.scrollWidth > d.clientWidth };
+        return { heroBottom: h.bottom, res: res && { top: res.top, left: res.left, right: res.right, bottom: res.bottom }, ask: ask && { top: ask.top, left: ask.left }, scroll: d.scrollWidth > d.clientWidth, cta: [...document.querySelectorAll('.btn.primary')].length };
       });
-      assert.ok(r.a && r.b, 'hero-prompt and hero-figure present');
-      if (width === 1440) assert.ok(r.b.left >= r.a.right - 1 && r.b.top < r.a.bottom, 'side by side at 1440');
-      else assert.ok(r.b.top >= r.a.bottom - 1, 'stacked at 390');
+      assert.ok(r.res && r.ask, 'real result and its request present');
+      assert.ok(r.res.top >= r.heroBottom - 1, 'the real result sits under the hero');
+      assert.ok(r.res.top < 900, 'the real result starts on the first screen');
+      if (width === 1440) assert.ok(r.ask.left >= r.res.right - 1, 'request beside the result at 1440');
+      else assert.ok(r.ask.top >= r.res.bottom - 1, 'request under the result at 390');
       assert.equal(r.scroll, false, `horizontal scroll index ${width}`);
+      assert.equal(r.cta, 1, 'one primary action');
+      assert.deepEqual(await page.evaluate(small), [], `targets under 44px on index at ${width}`);
 
       await page.goto(pathToFileURL(join(out, 'skills', ready[0].name, 'index.html')).href, { waitUntil: 'load' });
       const w0 = await page.evaluate(() => document.querySelector('.qbar-progress')?.getBoundingClientRect().width ?? -1);
@@ -66,6 +74,7 @@ test('hero layout, qbar progress and no horizontal scroll', async (t) => {
       const w1 = await page.evaluate(() => document.querySelector('.qbar-progress').getBoundingClientRect().width);
       assert.ok(w1 > w0, `qbar-progress grows (${w0} -> ${w1})`);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth), false);
+      assert.deepEqual(await page.evaluate(small), [], `targets under 44px on a skill page at ${width}`);
       await ctx.close();
     }
   } finally {
@@ -73,25 +82,18 @@ test('hero layout, qbar progress and no horizontal scroll', async (t) => {
   }
 });
 
-test('reduced motion: hero parts are static and visible', async (t) => {
+test('no JavaScript: the visible text has no raw placeholder', async (t) => {
   const chromium = await loadPw();
   if (!chromium) { t.skip(SKIP_REASON); return; }
   const out = mkdtempSync(join(tmpdir(), 'sf-visual3-'));
   await buildSite({ root: ROOT, out });
   const browser = await chromium.launch();
   try {
-    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, javaScriptEnabled: false });
     const page = await ctx.newPage();
     await page.goto(pathToFileURL(join(out, 'index.html')).href, { waitUntil: 'load' });
-    const parts = await page.evaluate(() => [...document.querySelectorAll('.hero-part')].map((e) => {
-      const cs = getComputedStyle(e);
-      return { name: cs.animationName, opacity: cs.opacity };
-    }));
-    assert.ok(parts.length > 0, '.hero-part present');
-    for (const p of parts) {
-      assert.equal(p.name, 'none');
-      assert.equal(Number(p.opacity), 1);
-    }
+    const body = await page.evaluate(() => document.body.innerText);
+    assert.doesNotMatch(body, /\{site\}|\{base\}/);
     await ctx.close();
   } finally {
     await browser.close();

@@ -1,0 +1,844 @@
+{
+ "landing-light-1440": {
+  "docH": 9822,
+  "screens": 10.9,
+  "hScroll": false,
+  "h1Top": 143,
+  "controlsAboveFold": 24,
+  "ctaList": [
+   "Skip to content",
+   "Skill Foundry",
+   "Collection",
+   "Install",
+   "For agents",
+   "Proof",
+   "Switch to dark theme",
+   "អានជាភាសាខ្មែរ",
+   "",
+   "All roles",
+   "Product owner / architect",
+   "Business analyst",
+   "Developer",
+   "QA auditor",
+   "a11y-audit",
+   "changelog-writer",
+   "Copy Tight",
+   "design-system",
+   "figure-craft",
+   "skill-smith",
+   "spec-writer",
+   "test-planner",
+   "ui-polish",
+   "ux-review"
+  ],
+  "primaryBtns": 10,
+  "smallText": 263,
+  "smallSvgText": 179,
+  "smallSizes": [
+   11.52,
+   12,
+   12.25,
+   12.6,
+   12.8,
+   13.6,
+   14,
+   14.4,
+   15.2
+  ],
+  "tapUnder44": 77,
+  "tapEx": [
+   {
+    "tag": "A",
+    "w": 114,
+    "h": 26,
+    "t": "Skip to content"
+   },
+   {
+    "tag": "A",
+    "w": 99,
+    "h": 26,
+    "t": "Skill Foundry"
+   },
+   {
+    "tag": "A",
+    "w": 68,
+    "h": 23,
+    "t": "Collection"
+   },
+   {
+    "tag": "A",
+    "w": 40,
+    "h": 23,
+    "t": "Install"
+   },
+   {
+    "tag": "A",
+    "w": 72,
+    "h": 23,
+    "t": "For agents"
+   },
+   {
+    "tag": "A",
+    "w": 37,
+    "h": 23,
+    "t": "Proof"
+   }
+  ],
+  "contrastFails": 11,
+  "contrastEx": [
+   {
+    "t": "No. 01",
+    "cr": 2.76,
+    "fs": 12.8
+   },
+   {
+    "t": "No. 02",
+    "cr": 2.76,
+    "fs": 12.8
+   },
+   {
+    "t": "No. 03",
+    "cr": 2.76,
+    "fs": 12.8
+   },
+   {
+    "t": "No. 04",
+    "cr": 2.76,
+    "fs": 12.8
+   },
+   {
+    "t": "No. 05",
+    "cr": 2.76,
+    "fs": 12.8
+   }
+  ],
+  "sections": {
+   "collection-title": 790,
+   "together-title": 4240,
+   "install-title": 7302,
+   "agents-title": 8052,
+   "proof-title": 8436,
+   "made": 9272,
+   "limits": 9488
+  },
+  "cls": 0.0645
+ },
+ "landing-light-390": {
+  "docH": 17169,
+  "screens": 20.3,
+  "hScroll": false,
+  "h1Top": 158,
+  "controlsAboveFold": 14,
+  "ctaList": [
+   "Skip to content",
+   "Skill Foundry",
+   "Collection",
+   "Install",
+   "For agents",
+   "Proof",
+   "Switch to dark theme",
+   "អានជាភាសាខ្មែរ",
+   "",
+   "All roles",
+   "Product owner / architect",
+   "Business analyst",
+   "Developer",
+   "QA auditor"
+  ],
+  "primaryBtns": 10,
+  "smallText": 263,
+  "smallSvgText": 179,
+  "smallSizes": [
+   11.52,
+   12,
+   12.25,
+   12.6,
+   12.8,
+   13.6,
+   14,
+   14.4,
+   15.2
+  ],
+  "tapUnder44": 73,
+  "tapEx": [
+   {
+    "tag": "A",
+    "w": 114,
+    "h": 26,
+    "t": "Skip to content"
+   },
+   {
+    "tag": "A",
+    "w": 99,
+    "h": 26,
+    "t": "Skill Foundry"
+   },
+   {
+    "tag": "A",
+    "w": 68,
+    "h": 23,
+    "t": "Collection"
+   },
+   {
+    "tag": "A",
+    "w": 40,
+    "h": 23,
+    "t": "Install"
+   },
+   {
+    "tag": "A",
+    "w": 72,
+    "h": 23,
+    "t": "For agents"
+   },
+   {
+    "tag": "A",
+    "w": 37,
+    "h": 23,
+    "t": "Proof"
+   }
+  ],
+  "contrastFails": 11,
+  "contrastEx": [
+   {
+    "t": "No. 01",
+    "cr": 2.76,
+    "fs": 12.8
+   },
+   {
+    "t": "No. 02",
+    "cr": 2.76,
+    "fs": 12.8
+   },
+   {
+    "t": "No. 03",
+    "cr": 2.76,
+    "fs": 12.8
+   },
+   {
+    "t": "No. 04",
+    "cr": 2.76,
+    "fs": 12.8
+   },
+   {
+    "t": "No. 05",
+    "cr": 2.76,
+    "fs": 12.8
+   }
+  ],
+  "sections": {
+   "collection-title": 1280,
+   "together-title": 9364,
+   "install-title": 13832,
+   "agents-title": 14824,
+   "proof-title": 15302,
+   "made": 16392,
+   "limits": 16736
+  },
+  "cls": 0.195
+ },
+ "landing-dark-1440": {
+  "docH": 9822,
+  "screens": 10.9,
+  "hScroll": false,
+  "h1Top": 143,
+  "controlsAboveFold": 24,
+  "ctaList": [
+   "Skip to content",
+   "Skill Foundry",
+   "Collection",
+   "Install",
+   "For agents",
+   "Proof",
+   "Switch to light theme",
+   "អានជាភាសាខ្មែរ",
+   "",
+   "All roles",
+   "Product owner / architect",
+   "Business analyst",
+   "Developer",
+   "QA auditor",
+   "a11y-audit",
+   "changelog-writer",
+   "Copy Tight",
+   "design-system",
+   "figure-craft",
+   "skill-smith",
+   "spec-writer",
+   "test-planner",
+   "ui-polish",
+   "ux-review"
+  ],
+  "primaryBtns": 10,
+  "smallText": 263,
+  "smallSvgText": 179,
+  "smallSizes": [
+   11.52,
+   12,
+   12.25,
+   12.6,
+   12.8,
+   13.6,
+   14,
+   14.4,
+   15.2
+  ],
+  "tapUnder44": 77,
+  "tapEx": [
+   {
+    "tag": "A",
+    "w": 114,
+    "h": 26,
+    "t": "Skip to content"
+   },
+   {
+    "tag": "A",
+    "w": 99,
+    "h": 26,
+    "t": "Skill Foundry"
+   },
+   {
+    "tag": "A",
+    "w": 68,
+    "h": 23,
+    "t": "Collection"
+   },
+   {
+    "tag": "A",
+    "w": 40,
+    "h": 23,
+    "t": "Install"
+   },
+   {
+    "tag": "A",
+    "w": 72,
+    "h": 23,
+    "t": "For agents"
+   },
+   {
+    "tag": "A",
+    "w": 37,
+    "h": 23,
+    "t": "Proof"
+   }
+  ],
+  "contrastFails": 11,
+  "contrastEx": [
+   {
+    "t": "No. 01",
+    "cr": 3.68,
+    "fs": 12.8
+   },
+   {
+    "t": "No. 02",
+    "cr": 3.68,
+    "fs": 12.8
+   },
+   {
+    "t": "No. 03",
+    "cr": 3.68,
+    "fs": 12.8
+   },
+   {
+    "t": "No. 04",
+    "cr": 3.68,
+    "fs": 12.8
+   },
+   {
+    "t": "No. 05",
+    "cr": 3.68,
+    "fs": 12.8
+   }
+  ],
+  "sections": {
+   "collection-title": 790,
+   "together-title": 4240,
+   "install-title": 7302,
+   "agents-title": 8052,
+   "proof-title": 8436,
+   "made": 9272,
+   "limits": 9488
+  },
+  "cls": 0.0642
+ },
+ "landing-dark-390": {
+  "docH": 17169,
+  "screens": 20.3,
+  "hScroll": false,
+  "h1Top": 158,
+  "controlsAboveFold": 14,
+  "ctaList": [
+   "Skip to content",
+   "Skill Foundry",
+   "Collection",
+   "Install",
+   "For agents",
+   "Proof",
+   "Switch to light theme",
+   "អានជាភាសាខ្មែរ",
+   "",
+   "All roles",
+   "Product owner / architect",
+   "Business analyst",
+   "Developer",
+   "QA auditor"
+  ],
+  "primaryBtns": 10,
+  "smallText": 263,
+  "smallSvgText": 179,
+  "smallSizes": [
+   11.52,
+   12,
+   12.25,
+   12.6,
+   12.8,
+   13.6,
+   14,
+   14.4,
+   15.2
+  ],
+  "tapUnder44": 73,
+  "tapEx": [
+   {
+    "tag": "A",
+    "w": 114,
+    "h": 26,
+    "t": "Skip to content"
+   },
+   {
+    "tag": "A",
+    "w": 99,
+    "h": 26,
+    "t": "Skill Foundry"
+   },
+   {
+    "tag": "A",
+    "w": 68,
+    "h": 23,
+    "t": "Collection"
+   },
+   {
+    "tag": "A",
+    "w": 40,
+    "h": 23,
+    "t": "Install"
+   },
+   {
+    "tag": "A",
+    "w": 72,
+    "h": 23,
+    "t": "For agents"
+   },
+   {
+    "tag": "A",
+    "w": 37,
+    "h": 23,
+    "t": "Proof"
+   }
+  ],
+  "contrastFails": 11,
+  "contrastEx": [
+   {
+    "t": "No. 01",
+    "cr": 3.68,
+    "fs": 12.8
+   },
+   {
+    "t": "No. 02",
+    "cr": 3.68,
+    "fs": 12.8
+   },
+   {
+    "t": "No. 03",
+    "cr": 3.68,
+    "fs": 12.8
+   },
+   {
+    "t": "No. 04",
+    "cr": 3.68,
+    "fs": 12.8
+   },
+   {
+    "t": "No. 05",
+    "cr": 3.68,
+    "fs": 12.8
+   }
+  ],
+  "sections": {
+   "collection-title": 1280,
+   "together-title": 9364,
+   "install-title": 13832,
+   "agents-title": 14824,
+   "proof-title": 15302,
+   "made": 16392,
+   "limits": 16736
+  },
+  "cls": 0.195
+ },
+ "skills_ux-review-light-1440": {
+  "docH": 7168,
+  "screens": 8,
+  "hScroll": false,
+  "h1Top": 866,
+  "controlsAboveFold": 9,
+  "ctaList": [
+   "Skip to content",
+   "Skill Foundry",
+   "Collection",
+   "Install",
+   "For agents",
+   "Proof",
+   "Switch to dark theme",
+   "អានជាភាសាខ្មែរ",
+   "All skills"
+  ],
+  "primaryBtns": 2,
+  "smallText": 76,
+  "smallSvgText": 30,
+  "smallSizes": [
+   11.52,
+   12,
+   12.25,
+   12.6,
+   12.8,
+   13.6,
+   14,
+   14.4,
+   15.2
+  ],
+  "tapUnder44": 17,
+  "tapEx": [
+   {
+    "tag": "A",
+    "w": 114,
+    "h": 26,
+    "t": "Skip to content"
+   },
+   {
+    "tag": "A",
+    "w": 99,
+    "h": 26,
+    "t": "Skill Foundry"
+   },
+   {
+    "tag": "A",
+    "w": 68,
+    "h": 23,
+    "t": "Collection"
+   },
+   {
+    "tag": "A",
+    "w": 40,
+    "h": 23,
+    "t": "Install"
+   },
+   {
+    "tag": "A",
+    "w": 72,
+    "h": 23,
+    "t": "For agents"
+   },
+   {
+    "tag": "A",
+    "w": 37,
+    "h": 23,
+    "t": "Proof"
+   }
+  ],
+  "contrastFails": 1,
+  "contrastEx": [
+   {
+    "t": "Skill Foundry. Static site generated fro",
+    "cr": 2.62,
+    "fs": 13.6
+   }
+  ],
+  "sections": {
+   "h-does": 1263,
+   "h-type": 1730,
+   "h-get": 1903,
+   "h-know": 4822,
+   "h-download": 5607,
+   "h-install": 5872,
+   "h-banner": 6499
+  },
+  "cls": 0
+ },
+ "skills_ux-review-light-390": {
+  "docH": 7926,
+  "screens": 9.4,
+  "hScroll": false,
+  "h1Top": 597,
+  "controlsAboveFold": 14,
+  "ctaList": [
+   "Skip to content",
+   "Skill Foundry",
+   "Collection",
+   "Install",
+   "For agents",
+   "Proof",
+   "Switch to dark theme",
+   "អានជាភាសាខ្មែរ",
+   "All skills",
+   "Copy install command",
+   "What it does",
+   "What you type",
+   "What you get",
+   "How you know"
+  ],
+  "primaryBtns": 2,
+  "smallText": 76,
+  "smallSvgText": 30,
+  "smallSizes": [
+   11.52,
+   12,
+   12.25,
+   12.6,
+   12.8,
+   13.6,
+   14,
+   14.4,
+   15.2
+  ],
+  "tapUnder44": 17,
+  "tapEx": [
+   {
+    "tag": "A",
+    "w": 114,
+    "h": 26,
+    "t": "Skip to content"
+   },
+   {
+    "tag": "A",
+    "w": 99,
+    "h": 26,
+    "t": "Skill Foundry"
+   },
+   {
+    "tag": "A",
+    "w": 68,
+    "h": 23,
+    "t": "Collection"
+   },
+   {
+    "tag": "A",
+    "w": 40,
+    "h": 23,
+    "t": "Install"
+   },
+   {
+    "tag": "A",
+    "w": 72,
+    "h": 23,
+    "t": "For agents"
+   },
+   {
+    "tag": "A",
+    "w": 37,
+    "h": 23,
+    "t": "Proof"
+   }
+  ],
+  "contrastFails": 1,
+  "contrastEx": [
+   {
+    "t": "Skill Foundry. Static site generated fro",
+    "cr": 2.62,
+    "fs": 13.6
+   }
+  ],
+  "sections": {
+   "h-does": 1005,
+   "h-type": 1652,
+   "h-get": 1891,
+   "h-know": 4935,
+   "h-download": 6171,
+   "h-install": 6462,
+   "h-banner": 7371
+  },
+  "cls": 0
+ },
+ "skills_ux-review-dark-1440": {
+  "docH": 7168,
+  "screens": 8,
+  "hScroll": false,
+  "h1Top": 866,
+  "controlsAboveFold": 9,
+  "ctaList": [
+   "Skip to content",
+   "Skill Foundry",
+   "Collection",
+   "Install",
+   "For agents",
+   "Proof",
+   "Switch to light theme",
+   "អានជាភាសាខ្មែរ",
+   "All skills"
+  ],
+  "primaryBtns": 2,
+  "smallText": 76,
+  "smallSvgText": 30,
+  "smallSizes": [
+   11.52,
+   12,
+   12.25,
+   12.6,
+   12.8,
+   13.6,
+   14,
+   14.4,
+   15.2
+  ],
+  "tapUnder44": 17,
+  "tapEx": [
+   {
+    "tag": "A",
+    "w": 114,
+    "h": 26,
+    "t": "Skip to content"
+   },
+   {
+    "tag": "A",
+    "w": 99,
+    "h": 26,
+    "t": "Skill Foundry"
+   },
+   {
+    "tag": "A",
+    "w": 68,
+    "h": 23,
+    "t": "Collection"
+   },
+   {
+    "tag": "A",
+    "w": 40,
+    "h": 23,
+    "t": "Install"
+   },
+   {
+    "tag": "A",
+    "w": 72,
+    "h": 23,
+    "t": "For agents"
+   },
+   {
+    "tag": "A",
+    "w": 37,
+    "h": 23,
+    "t": "Proof"
+   }
+  ],
+  "contrastFails": 1,
+  "contrastEx": [
+   {
+    "t": "Skill Foundry. Static site generated fro",
+    "cr": 3.94,
+    "fs": 13.6
+   }
+  ],
+  "sections": {
+   "h-does": 1263,
+   "h-type": 1730,
+   "h-get": 1903,
+   "h-know": 4822,
+   "h-download": 5607,
+   "h-install": 5872,
+   "h-banner": 6499
+  },
+  "cls": 0
+ },
+ "skills_ux-review-dark-390": {
+  "docH": 7926,
+  "screens": 9.4,
+  "hScroll": false,
+  "h1Top": 597,
+  "controlsAboveFold": 14,
+  "ctaList": [
+   "Skip to content",
+   "Skill Foundry",
+   "Collection",
+   "Install",
+   "For agents",
+   "Proof",
+   "Switch to light theme",
+   "អានជាភាសាខ្មែរ",
+   "All skills",
+   "Copy install command",
+   "What it does",
+   "What you type",
+   "What you get",
+   "How you know"
+  ],
+  "primaryBtns": 2,
+  "smallText": 76,
+  "smallSvgText": 30,
+  "smallSizes": [
+   11.52,
+   12,
+   12.25,
+   12.6,
+   12.8,
+   13.6,
+   14,
+   14.4,
+   15.2
+  ],
+  "tapUnder44": 17,
+  "tapEx": [
+   {
+    "tag": "A",
+    "w": 114,
+    "h": 26,
+    "t": "Skip to content"
+   },
+   {
+    "tag": "A",
+    "w": 99,
+    "h": 26,
+    "t": "Skill Foundry"
+   },
+   {
+    "tag": "A",
+    "w": 68,
+    "h": 23,
+    "t": "Collection"
+   },
+   {
+    "tag": "A",
+    "w": 40,
+    "h": 23,
+    "t": "Install"
+   },
+   {
+    "tag": "A",
+    "w": 72,
+    "h": 23,
+    "t": "For agents"
+   },
+   {
+    "tag": "A",
+    "w": 37,
+    "h": 23,
+    "t": "Proof"
+   }
+  ],
+  "contrastFails": 1,
+  "contrastEx": [
+   {
+    "t": "Skill Foundry. Static site generated fro",
+    "cr": 3.94,
+    "fs": 13.6
+   }
+  ],
+  "sections": {
+   "h-does": 1005,
+   "h-type": 1652,
+   "h-get": 1891,
+   "h-know": 4935,
+   "h-download": 6171,
+   "h-install": 6462,
+   "h-banner": 7371
+  },
+  "cls": 0
+ }
+}
