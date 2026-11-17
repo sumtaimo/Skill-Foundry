@@ -113,7 +113,8 @@ for (const src of harnessSources()) {
     (hasFlag(src.dir) ? assert.doesNotMatch : assert.match)(msgs, /team\.json: "lead-dev" lists skills/);
     assert.match(msgs, /gemini \(team\.json orchestrator\)/); assert.match(msgs, /orca \(config\.json profiles\)/);
     const qa = roles.QA_AUDITOR; const qaNode = (qa?.allowedTools ?? []).some((x) => x === 'Bash(node:*)');
-    if (qa && !qaNode) assert.match(msgs, /a11y-audit runs engine\/\*\.mjs scripts but role QA_AUDITOR may not run node/);
+    const infos = r.items.filter((i) => i.level === 'info').map((i) => i.message).join('\n');
+    if (qa && !qaNode) { assert.match(infos, /a11y-audit has an engine\/\*\.mjs script; role QA_AUDITOR may not run node, so it uses the documented script-less fallback/); assert.doesNotMatch(msgs, /runs engine\/\*\.mjs scripts but role/, 'an engine: optional skill is an info note, not a warning'); }
     assert.ok(r.items.filter((i) => i.level !== 'ok').every((i) => i.level === 'info' || i.fix), 'every warning carries an exact fix');
 
     const s = run(p, ['update', 'spec-writer', '--sync-harness', '--quiet']);
@@ -293,4 +294,23 @@ test('doctor: a harness starter copy that was left in place is reported with the
   assert.ok(it, 'the starter copy is named'); assert.match(it.fix, /update spec-writer\s+\(replaces the starter copy/); assert.doesNotMatch(it.fix, /--sync-harness/);
   run(p, ['update', 'spec-writer', '--quiet']);
   assert.match(rd(p, '.harness/skills/spec-writer/SKILL.md'), /installed-by: skill-foundry/); assert.equal(rd(p, '.harness/skills/spec-writer/SKILL.md.orig'), stub);
+});
+
+test('engine field: every skill with an engine/ script declares engine required or optional; the pointer carries it; both are data the harness reads, never the skill name', () => {
+  for (const s of catalog().filter((x) => x.scope !== 'factory' && existsSync(join(x.dir, 'engine')))) {
+    assert.ok(['required', 'optional'].includes(s.engine), `${s.name} has an engine/ script, so registry.json must declare "engine": "required" or "optional"`);
+    if (s.engine === 'required') assert.deepEqual(s.roles, ['DEV_ENGINEER'], `${s.name} needs its script, so only the role that may run node can have it`);
+  }
+  const src = harnessSources().filter((x) => x.snapshot).find((x) => hasMatch(x.dir));
+  const p = newProject('eng'); installHarness(p, src.dir); run(p, ['add', '--all', '--quiet']);
+  for (const [n, v] of [['figure-craft', 'required'], ['a11y-audit', 'optional'], ['ui-polish', 'optional'], ['design-system', 'optional']]) assert.match(rd(p, `.harness/skills/${n}/SKILL.md`), new RegExp(`^engine: ${v}$`, 'm'), n);
+  assert.doesNotMatch(rd(p, '.harness/skills/copy-tight/SKILL.md'), /^engine:/m, 'a skill without a script has no engine field');
+  assert.match(rd(p, '.harness/skills/figure-craft/SKILL.md'), /^roles: \["DEV_ENGINEER"\]$/m);
+  const d = JSON.parse(run(p, ['doctor', '--json']).out.join('\n'));
+  const warns = d.items.filter((i) => i.level === 'warn' && !/MANIFEST\.json/.test(i.message)); // the test project has no installer manifest
+  assert.equal(d.counts.problem, 0); assert.equal(warns.length, 0, JSON.stringify(warns));
+  assert.ok(d.items.some((i) => i.level === 'info' && /engine\/\*\.mjs script/.test(i.message)), 'the engine message is an info note');
+  w(p, '.harness/skills/ui-polish/SKILL.md', rd(p, '.harness/skills/ui-polish/SKILL.md').replace(/^engine: optional\n/m, ''));
+  const old = JSON.parse(run(p, ['doctor', '--json']).out.join('\n'));
+  assert.equal(old.counts.problem, 0); assert.ok(old.items.some((i) => i.level === 'info' && /ui-polish has an engine/.test(i.message)), 'a pointer written before the field existed falls back to the registry and still gives an info note');
 });

@@ -16,7 +16,6 @@
     "status": "ready",
     "showcase": "refrigerator-cooling",
     "roles": [
-      "BA_ANALYST",
       "DEV_ENGINEER"
     ],
     "keywords": [
@@ -25,7 +24,8 @@
       "svg",
       "illustration",
       "cutaway"
-    ]
+    ],
+    "engine": "required"
   },
   {
     "name": "changelog-writer",
@@ -100,7 +100,8 @@
       "visual hierarchy",
       "contrast",
       "css cleanup"
-    ]
+    ],
+    "engine": "optional"
   },
   {
     "name": "design-system",
@@ -123,7 +124,8 @@
       "hex code",
       "hex colour",
       "type scale"
-    ]
+    ],
+    "engine": "optional"
   },
   {
     "name": "spec-writer",
@@ -182,6 +184,7 @@
       "screen reader",
       "keyboard focus",
       "alt text"
-    ]
+    ],
+    "engine": "optional"
   }
 ]

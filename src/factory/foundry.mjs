@@ -54,7 +54,7 @@ export function catalog({ root = REPO } = {}) {
   return reg.filter((r) => r.status === 'ready' && existsSync(join(root, 'src', 'skills', r.name, 'SKILL.md'))).map((r) => {
     const md = readFileSync(join(root, 'src', 'skills', r.name, 'SKILL.md'), 'utf8');
     const description = /^description:\s*(.+)$/m.exec(md)?.[1].trim() ?? '';
-    return { name: r.name, version: String(r.version), roles: r.roles ?? [], keywords: Array.isArray(r.keywords) ? r.keywords : [], isDefault: r.default === true, scope: /^scope:\s*factory/m.test(md) ? 'factory' : 'portable', description, dir: join(root, 'src', 'skills', r.name) };
+    return { name: r.name, version: String(r.version), roles: r.roles ?? [], keywords: Array.isArray(r.keywords) ? r.keywords : [], engine: ['required', 'optional'].includes(r.engine) ? r.engine : null, isDefault: r.default === true, scope: /^scope:\s*factory/m.test(md) ? 'factory' : 'portable', description, dir: join(root, 'src', 'skills', r.name) };
   });
 }
 
@@ -123,7 +123,7 @@ function harnessPointer(project, s, { syncHarness = false } = {}) {
   const tags = (() => { try { return JSON.parse(readFileSync(join(s.dir, 'preview.json'), 'utf8')).tags ?? []; } catch { return []; } })();
   const keywords = s.keywords?.length ? s.keywords : tags;
   const tools = pointerTools(s);
-  writeFileSync(file, `---\nname: ${s.name}\ndescription: ${s.description}\nroles: ${JSON.stringify(s.roles)}\n${tools.length ? `allowedTools: ${JSON.stringify(tools)}\n` : ''}keywords: ${JSON.stringify(keywords)}\nautoApply: ${harnessMatchesKeywords(project) ? 'false' : 'true'}\n${MARK} ${s.version}\n---\n` +
+  writeFileSync(file, `---\nname: ${s.name}\ndescription: ${s.description}\nroles: ${JSON.stringify(s.roles)}\n${tools.length ? `allowedTools: ${JSON.stringify(tools)}\n` : ''}keywords: ${JSON.stringify(keywords)}\n${s.engine && hasEngine(s) ? `engine: ${s.engine}\n` : ''}autoApply: ${harnessMatchesKeywords(project) ? 'false' : 'true'}\n${MARK} ${s.version}\n---\n` +
     `# ${s.name}\n\nWhen the task matches this skill (${s.description.split('. ')[0]}.), read \`.claude/skills/${s.name}/SKILL.md\` and follow it, starting from the goal the user states. When the task does not match, ignore this skill.\n`);
   return { path: rel, status };
 }
@@ -351,7 +351,11 @@ export function doctorProject({ project = process.cwd(), root = REPO } = {}) {
       else add('ok', 'harness', `${x.name}: pointer keeps every role rule`);
       if (hasEngine(s)) for (const r of known) {
         const role = roles[String(r).toUpperCase()];
-        if (!(role.allowedTools || []).some((q) => covers(q, 'Bash(node:*)'))) add('warn', 'harness', `${x.name} runs engine/*.mjs scripts but role ${role.name} may not run node`, `add "Bash(node:*)" to allowedTools in .harness/roles/${role.file} (project owner), or let DEV_ENGINEER run the engine step`);
+        if ((role.allowedTools || []).some((q) => covers(q, 'Bash(node:*)'))) continue;
+        // `engine: optional` in the pointer (data, never the skill's name) means the skill documents a script-less fallback.
+        const mode = /^engine:\s*(required|optional)\s*$/m.exec(raw)?.[1] ?? s.engine;
+        if (mode === 'optional') add('info', 'harness', `${x.name} has an engine/*.mjs script; role ${role.name} may not run node, so it uses the documented script-less fallback (less precise). Give the engine step to DEV_ENGINEER`);
+        else add('warn', 'harness', `${x.name} runs engine/*.mjs scripts but role ${role.name} may not run node`, `add "Bash(node:*)" to allowedTools in .harness/roles/${role.file} (project owner), or let DEV_ENGINEER run the engine step`);
       }
       const cssOnly = (role) => (role.writablePaths || []).length && role.writablePaths.every((w) => /\.(css|scss|less)\b/.test(w));
       if (['ui-polish', 'a11y-audit'].includes(x.name)) for (const r of known) if (cssOnly(roles[String(r).toUpperCase()])) add('warn', 'harness', `${x.name} edits HTML/JSX too, but role ${r} may only write CSS`, `widen that role's writablePaths in .harness/roles (project owner) or give ${x.name} to DEV_ENGINEER`);
