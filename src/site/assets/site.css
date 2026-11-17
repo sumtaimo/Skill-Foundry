@@ -98,6 +98,17 @@ svg, img, iframe { max-width: 100%; }
 }
 .tools a { color: var(--muted); padding: 0 8px; text-decoration: none; }
 .tools a:hover { color: var(--fg); }
+.tools { margin-left: auto; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+/* header toggles: small round icon buttons; the full action name stays as the accessible name */
+.icon-btn { display: inline-flex; align-items: center; justify-content: center; min-width: var(--target); min-height: var(--target); padding: 0 10px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--fg); font: inherit; cursor: pointer; position: relative; }
+.icon-btn:hover { border-color: var(--line-strong); }
+.icon-btn .i-sun { display: none; }
+.icon-btn[aria-pressed="true"] .i-sun { display: block; }
+.icon-btn[aria-pressed="true"] .i-moon { display: none; }
+.lang-btn { padding: 0 16px; font-size: 1rem; }
+.lang-btn::before { content: "ខ្មែរ" / ""; }
+html[lang="km"] .lang-btn::before { content: "EN" / ""; }
 
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px; max-width: 100%; min-height: var(--target);

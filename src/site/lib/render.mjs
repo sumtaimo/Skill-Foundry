@@ -182,8 +182,8 @@ export function renderLayout(o) {
 <a href="${up}index.html#collection">${t('nav.collection')}</a>
 ${local.proof ? `<a href="${local.proof}">${t('nav.proof')}</a>\n` : ''}<a href="${local.install ?? `${up}index.html#install`}">${t('nav.install')}</a>
 <a href="${up}index.html#agents">${t('nav.agents')}</a>
-<button type="button" class="btn ghost" data-action="theme" aria-pressed="false">${t('theme.toDark')}</button>
-<button type="button" class="btn ghost" data-action="lang" lang="km">${t('lang.toKh')}</button>
+<button type="button" class="icon-btn" data-action="theme" aria-pressed="false"><svg class="i-moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><svg class="i-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>${t('theme.toDark', 'span', 'class="sr"')}</button>
+<button type="button" class="icon-btn lang-btn" data-action="lang" lang="km">${t('lang.toKh', 'span', 'class="sr"')}</button>
 </nav>
 </header>
 <div class="wrap">
@@ -217,19 +217,6 @@ function allLink(bytes) {
 }
 
 /** Search box, role filter and live count; filtering itself is done by site.js. Only roles a ready skill has are offered. */
-function renderFinder(skills) {
-  const used = ROLES.filter((r) => skills.some((s) => (s.roles || []).includes(r)));
-  const roles = [`<button type="button" class="rolechip" data-role="" aria-pressed="true">${t('role.all')}</button>`,
-    ...used.map((r) => `<button type="button" class="rolechip" data-role="${esc(r)}" aria-pressed="false">${t(`role.${r}`)}</button>`)].join('\n');
-  return `<div class="finder">
-<label class="find-label" for="find">${esc(EN['find.label'])}</label>
-<input id="find" class="find" type="search" autocomplete="off" spellcheck="false" placeholder="${esc(EN['find.placeholder'])}" data-i18n-placeholder="find.placeholder">
-<div class="roles-filter" role="group" aria-label="${esc(EN['role.label'])}">
-${roles}
-</div>
-${t('find.count', 'p', 'class="find-count" aria-live="polite"', { n: skills.length, t: skills.length })}
-</div>`;
-}
 
 /** The skill whose recorded result opens the landing page: a recorded figure run first, else a real answer drawn as a document. */
 export function featuredSkill(skills) {
@@ -326,14 +313,14 @@ export function renderIndex(skills, opts = {}) {
   const body = `${renderHero(sorted, { version: opts.version })}
 <section id="collection" class="col collection numbered" aria-labelledby="collection-title">
 ${t('collection.title', 'h2', 'id="collection-title"')}
-${renderFinder(sorted)}
 <div class="grid">
 ${sorted.map((s, i) => renderCard(s, { index: i + 1, sha256: sums[zipName(s)]?.sha256 })).join('\n')}
 </div>
-${t('find.none', 'p', 'class="find-none" hidden')}
 </section>
 <section id="proof" class="col numbered" aria-labelledby="proof-title">
 ${t('proof.title', 'h2', 'id="proof-title"')}
+<details class="acc">
+<summary>${t('proof.show')}</summary>
 ${t('proof.p', 'p')}
 <div class="table-wrap"><table class="proof">
 <thead><tr>${t('proof.skill', 'th', 'scope="col"')}${t('proof.real', 'th', 'scope="col"')}${t('proof.rules', 'th', 'scope="col"')}</tr></thead>
@@ -348,6 +335,7 @@ ${layers}
 </ol>
 </details>
 ${renderRecipes(opts.recipes ?? [], sorted)}
+</details>
 </section>
 <section id="install" class="col numbered" aria-labelledby="install-title">
 ${t('install.title', 'h2', 'id="install-title"')}
@@ -372,6 +360,8 @@ ${Number.isFinite(opts.allBytes) && opts.allBytes > 0 ? `<p>${allLink(opts.allBy
 </section>
 <section id="agents" class="col numbered" aria-labelledby="agents-title">
 ${t('agents.title', 'h2', 'id="agents-title"')}
+<details class="acc">
+<summary>${t('agents.show')}</summary>
 ${t('agents.p', 'p')}
 <ul class="agent-files">
 <li><a href="skills.json">${t('agents.json')}</a></li>
@@ -379,6 +369,7 @@ ${t('agents.p', 'p')}
 </ul>
 ${t('agents.promptLabel', 'h3')}
 <div class="codebox"><pre lang="en"><code class="agent-prompt">${esc(promptPlain)}</code></pre><button type="button" class="btn copy" data-copy="${esc(promptPlain)}" data-agent-prompt="${esc(promptTemplate)}">${t('agents.copyPrompt')}</button></div>
+</details>
 </section>
 <section id="limits" class="col numbered" aria-labelledby="limits-title">
 ${t('limits.title', 'h2', 'id="limits-title"')}

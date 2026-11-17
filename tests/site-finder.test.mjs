@@ -33,11 +33,9 @@ test('every ready skill declares at least one known agent role', () => {
   }
 });
 
-test('index has a search box, role filter and plates with roles, search text and real-agent line', async () => {
+test('index has plates with roles, search text and real-agent line (no search box or role filter: ten skills fit on a page)', async () => {
   const html = readFileSync(join(await site(), 'index.html'), 'utf8');
-  assert.match(html, /<input id="find" class="find" type="search"/);
-  assert.match(html, /<label class="find-label" for="find">/);
-  assert.match(html, /class="rolechip" data-role="" aria-pressed="true"/);
+  assert.doesNotMatch(html, /<input id="find"|class="rolechip"/, 'the landing has no search box and no role filter');
   for (const r of ready) {
     const plate = new RegExp(`<article class="plate" data-skill="${r.name}" data-roles="${r.roles.join(' ')}" data-text="[^"]+">`);
     assert.match(html, plate, `plate for ${r.name}`);
@@ -107,7 +105,7 @@ function serve(dir) {
   return new Promise((ok) => srv.listen(0, '127.0.0.1', () => ok(srv)));
 }
 
-test('browser: search and role filter narrow plates, empty state shows, install command gets the real URL', async (t) => {
+test('browser: the hero copies the one install command, the agent prompt and the repo-only zip get the real URL', async (t) => {
   const chromium = await loadPw();
   if (!chromium) { t.skip(SKIP_REASON); return; }
   const out = await site();
@@ -119,27 +117,10 @@ test('browser: search and role filter narrow plates, empty state shows, install 
     const errors = [];
     page.on('pageerror', (e) => errors.push(String(e)));
     await page.goto(base + 'index.html');
-    const visible = () => page.$$eval('.plate', (ps) => ps.filter((p) => !p.hidden).map((p) => p.dataset.skill));
-    assert.equal((await visible()).length, ready.length);
-
-    await page.fill('#find', 'changelog');
-    assert.ok((await visible()).includes('changelog-writer'));
-    assert.ok(!(await visible()).includes('copy-tight') || true);
-    assert.match(await page.textContent('.find-count'), new RegExp(`of ${ready.length}`));
-
-    await page.fill('#find', 'zzzz-no-such-skill');
-    assert.deepEqual(await visible(), []);
-    assert.equal(await page.$eval('.find-none', (e) => e.hidden), false);
-
-    await page.fill('#find', '');
-    await page.click('.rolechip[data-role="QA_AUDITOR"]');
-    const qa = ready.filter((r) => r.roles.includes('QA_AUDITOR')).map((r) => r.name).sort();
-    assert.deepEqual((await visible()).sort(), qa);
-    assert.equal(await page.getAttribute('.rolechip[data-role="QA_AUDITOR"]', 'aria-pressed'), 'true');
-
+    assert.equal(await page.$$eval('.plate', (ps) => ps.filter((p) => !p.hidden).length), ready.length, 'every ready skill has a card');
     const cmd = await page.getAttribute('.hero-install button[data-copy]', 'data-copy');
     assert.equal(cmd, 'npx github:sumtaimo/Skill-Foundry add --all', 'the hero copies the one install command');
-    assert.equal(await page.$(`.plate[data-skill="${qa[0]}"] button[data-copy]`), null, 'a portable card has no install button');
+    assert.equal(await page.$('.plate button[data-copy]'), null, 'no card has an install button');
     const prompt = await page.getAttribute('[data-agent-prompt]', 'data-copy');
     assert.ok(prompt.startsWith(`Read ${base}llms.txt.`) && !prompt.includes('{site}'), 'agent prompt gets the real address');
     await page.goto(base + 'skills/skill-smith/index.html');
@@ -157,7 +138,7 @@ test('browser: search and role filter narrow plates, empty state shows, install 
 test('landing order: hero, real result, skills, proof, install, agents, limits, questions', async () => {
   const html = readFileSync(join(await site(), 'index.html'), 'utf8');
   const at = (re) => { const m = re.exec(html); assert.ok(m, String(re)); return m.index; };
-  const order = [/<section class="hero"/, /<section id="result"/, /<section id="collection"/, /<input id="find"/, /<section id="proof"/, /<section id="install"/, /<section id="agents"/, /<section id="limits"/, /<section id="questions"/].map(at);
+  const order = [/<section class="hero"/, /<section id="result"/, /<section id="collection"/, /<section id="proof"/, /<section id="install"/, /<section id="agents"/, /<section id="limits"/, /<section id="questions"/].map(at);
   assert.deepEqual([...order].sort((a, b) => a - b), order);
   assert.equal((html.match(/class="btn primary/g) || []).length, 1, 'one primary action on the landing page');
   assert.match(html, /<button type="button" class="btn primary copy" data-copy="npx github:sumtaimo\/Skill-Foundry add --all">/, 'the one primary action is the single install command in the hero');
@@ -178,10 +159,8 @@ test('install panel: npx commands in workflow order, each with its own copy butt
   assert.doesNotMatch(panel, /<details[^>]*\sopen/, 'fallback is closed by default');
 });
 
-test('role filter offers only roles a ready skill has, and the site knows all eight', async () => {
+test('the site knows all eight roles in both languages, and the UX designer has two ready skills', async () => {
   const html = readFileSync(join(await site(), 'index.html'), 'utf8');
-  const used = new Set(ready.flatMap((r) => r.roles));
-  for (const role of ROLES) assert.equal(html.includes(`class="rolechip" data-role="${role}"`), used.has(role), role);
   assert.deepEqual(ROLES, ['PO_ARCHITECT', 'BA_ANALYST', 'DEV_ENGINEER', 'QA_AUDITOR', 'UX_DESIGNER', 'REVIEWER', 'SECURITY', 'COORDINATOR']);
   for (const lang of ['en', 'kh']) for (const role of ROLES) assert.ok(DICTS[lang][`role.${role}`], `${lang} label for ${role}`);
   const byName = Object.fromEntries(ready.map((r) => [r.name, r.roles]));
