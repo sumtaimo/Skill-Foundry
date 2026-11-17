@@ -9,6 +9,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isQuotaError } from './live-evals.mjs';
 
 const HERE = fileURLToPath(import.meta.url);
 const DIR = join(dirname(HERE), 'routing');
@@ -51,15 +52,18 @@ export function parseRouting(reply, cases) {
   return answers;
 }
 
-/** Ask a fresh agent and save the recording. */
-export function runRouting({ engine = 'claude' } = {}) {
-  const cases = JSON.parse(readFileSync(join(DIR, 'cases.json'), 'utf8'));
+/** Ask a fresh agent and save the recording, keeping existing live.json on CLI or quota errors. */
+export function runRouting({ engine = 'claude', spawn = spawnSync, dir = DIR } = {}) {
+  const cases = JSON.parse(readFileSync(join(dir, 'cases.json'), 'utf8'));
   const skills = readySkills();
-  const res = spawnSync(engine, ['-p', routingPrompt(skills, cases)], { encoding: 'utf8', timeout: 300000 });
-  if (res.status !== 0) throw new Error(`runRouting: ${engine} failed: ${res.stderr}`);
+  const res = spawn(engine, ['-p', routingPrompt(skills, cases)], { encoding: 'utf8', timeout: 300000 });
+  if (res.error) throw new Error(`runRouting: ${engine} failed: ${res.error.message}`);
+  if (res.status !== 0) throw new Error(`runRouting: ${engine} failed: ${(res.stderr || res.stdout || `exit ${res.status}`).trim()}`);
+  if (isQuotaError(res.stdout)) throw new Error(`runRouting: ${engine} hit usage/quota limit ("${String(res.stdout).trim().split('\n')[0]}"); existing live.json kept`);
   const answers = parseRouting(res.stdout, cases);
+  if (Object.keys(answers).length === 0) throw new Error(`runRouting: ${engine} returned no "<n>: <skill>" answers; existing live.json kept`);
   const live = { agent: `${engine} -p (fresh context, saw only skill names and descriptions)`, recordedAt: new Date().toISOString().slice(0, 10), descriptions: Object.fromEntries(skills.map((s) => [s.name, s.description])), answers };
-  writeFileSync(join(DIR, 'live.json'), JSON.stringify(live, null, 2) + '\n');
+  writeFileSync(join(dir, 'live.json'), JSON.stringify(live, null, 2) + '\n');
   return live;
 }
 

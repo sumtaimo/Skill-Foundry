@@ -142,3 +142,20 @@ test('recording a case writes the live eval recording that points at the run, wi
   assert.equal(again.cached, true, 'the recording is not part of the skill hash');
   assert.equal(again.manifest.key, first.manifest.key);
 });
+
+test('a quota/limit report marks the run fail and keeps any existing live eval recording', async () => {
+  const f = await fixture();
+  await mkdir(join(f.dir, 'evals', 'live'), { recursive: true });
+  await writeFile(join(f.dir, 'evals', 'live', 'ok.json'), JSON.stringify({ case: 'ok', output: 'previous good' }));
+  const r = await recordRun({
+    skill: 'demo',
+    caseId: 'ok',
+    runner: async () => ({ code: 0, report: "You've hit your 5-hour limit · resets 4:20am (UTC)" }),
+    skillsRoot: f.skillsRoot,
+    outRoot: f.outRoot,
+  });
+  assert.equal(r.manifest.status, 'fail');
+  assert.ok(r.manifest.checks.failures.includes('quota/limit error recorded instead of agent answer'));
+  const kept = JSON.parse(await readFile(join(f.dir, 'evals', 'live', 'ok.json'), 'utf8'));
+  assert.equal(kept.output, 'previous good');
+});

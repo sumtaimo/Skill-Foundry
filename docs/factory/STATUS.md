@@ -4,7 +4,7 @@ Every AI session reads this page first and updates it before it reports (lesson 
 It holds what is done, what is open, every decision TAIMO made, and every skill weakness found in real use,
 so no session has to guess and nothing found is forgotten. Details live in the linked files; this page only points.
 
-Last updated: 2026-11-17, prepared a11y-audit S1+S6 on claude/a11y-audit-s1-s6 (e23ae5c, held for Claude quota reset) and logged L27 + live-evals limit guard.
+Last updated: 2026-11-17, shipped eval runner quota-limit guard + `live-evals.mjs --case` on `lab` (0 Claude tokens); `claude/a11y-audit-s1-s6` (`e23ae5c`) still held for real-agent recording.
 
 ## 1. Where we are
 
@@ -94,7 +94,7 @@ Harness side (Step 2, not a skill change): roles `QA_AUDITOR` and `BA_ANALYST` c
 
 - Two-way gap loop with the Agentic Harness: a clear, shared way for this project's AI and the Agentic Harness project's AI to hand issues to each other (report, fix, confirm) without confusion. Design it with TAIMO after the skill backlog is done.
 - Multi-engine eval adapter in `Skill-Foundry` (`src/factory/live-evals.mjs`, `routing-evals.mjs`, `portable-check.mjs`, `recipe-run.mjs`): currently tied to `claude` CLI flags / `stream-json`; consider `--engine agy | codex` adapter (keeping proof quality equivalent to `usedSkill`) after Step 2 if needed.
-- `src/factory/live-evals.mjs` safety & cost-saving fixes (found 2026-11-17 on `a11y-audit`): reject/do not overwrite `evals/live/<id>.json` when an engine exits `0` with a quota/limit message (`You've hit your ... limit`), and consider adding `--case <id>` so `L18` mid-work re-runs do not re-run all 16 cases at once.
+- ~~`src/factory/live-evals.mjs` safety & cost-saving fixes~~ **(done on `lab`, 2026-11-17)**: `isQuotaError` + non-overwrite guard + `--case <id[,id...]>` in `src/factory/live-evals.mjs`, plus quota-limit/failure overwrite protection across `portable-check.mjs`, `routing-evals.mjs`, and `run-skill.mjs` (unit-tested in `tests/factory-*.test.mjs`). Next `a11y-audit` session can run `--case contrast-request,certificate-request,no-code`.
 
 ## 5c. Cost note
 

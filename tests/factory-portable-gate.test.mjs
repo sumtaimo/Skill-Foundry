@@ -44,6 +44,8 @@ test('checkRecording: missing, failing and stale recordings are reported', () =>
   assert.deepEqual(checkRecording(s), { ok: true, problems: [] });
   writeFileSync(join(s, 'evals', 'portable.json'), JSON.stringify({ ...good(s), usedSkill: false, leakedRepoRules: true, touchedRepo: ['Read'] }));
   assert.equal(checkRecording(s).problems.length, 3);
+  writeFileSync(join(s, 'evals', 'portable.json'), JSON.stringify({ ...good(s), answer: "You've hit your 5-hour limit · resets 4:20am (UTC)" }));
+  assert.match(checkRecording(s).problems.join(), /quota\/limit/);
   writeFileSync(join(s, 'evals', 'portable.json'), JSON.stringify(good(s)));
   writeFileSync(join(s, 'SKILL.md'), '---\nname: demo\n---\n# changed\n');
   assert.match(checkRecording(s).problems.join(), /stale/);

@@ -57,9 +57,18 @@ test('routing: recording is not stale (agent saw the current description of ever
 });
 
 test('parseRouting reads "<n>: <skill>" lines and readySkills lists the ready skills with their descriptions', async () => {
-  const { parseRouting, readySkills } = await import('../src/factory/routing-evals.mjs');
+  const { parseRouting, readySkills, runRouting } = await import('../src/factory/routing-evals.mjs');
   const cases = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
   assert.deepEqual(parseRouting('1: copy-tight\n2. none\n 3: `skill-smith`\nnotes: ignored', cases), { a: 'copy-tight', b: 'none', c: 'skill-smith' });
   const ready = readySkills(ROOT);
   assert.ok(ready.some((s) => s.name === 'figure-craft' && s.description.length > 20));
+
+  const dir = mkdtempSync(path.join(tmpdir(), 'route-'));
+  writeFileSync(path.join(dir, 'cases.json'), JSON.stringify([{ id: 'a', prompt: 'x', expect: 'copy-tight' }]));
+  writeFileSync(path.join(dir, 'live.json'), JSON.stringify({ answers: { a: 'copy-tight' } }));
+  assert.throws(() => runRouting({ dir, spawn: () => ({ status: 0, stdout: "You've hit your 5-hour limit" }) }), /quota limit/);
+  assert.throws(() => runRouting({ dir, spawn: () => ({ status: 0, stdout: 'unparseable error' }) }), /no "<n>: <skill>"/);
+  assert.equal(JSON.parse(readFileSync(path.join(dir, 'live.json'), 'utf8')).answers.a, 'copy-tight');
+  const saved = runRouting({ dir, spawn: () => ({ status: 0, stdout: '1: copy-tight' }) });
+  assert.deepEqual(saved.answers, { a: 'copy-tight' });
 });

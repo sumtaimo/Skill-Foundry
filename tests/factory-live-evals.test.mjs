@@ -9,7 +9,7 @@ import { readFileSync, mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { scoreLive, agentPrompt } from '../src/factory/live-evals.mjs';
+import { scoreLive, agentPrompt, isQuotaError, selectCases, runLive, parseLiveArgs } from '../src/factory/live-evals.mjs';
 import { loadLocks } from '../src/factory/skill-guard.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -70,4 +70,58 @@ test('scoreLive: maxLines counts the agent reply only, not the files of a record
   assert.equal(scoreLive(dir).failed, 0);
   writeFileSync(path.join(dir, 'evals', 'live', 'a.json'), JSON.stringify({ prompt: 'p1', output: 'one\ntwo\nthree' }));
   assert.equal(scoreLive(dir).failed, 1);
+});
+
+test('isQuotaError catches short CLI limit banners and scoreLive fails them even on notContains cases', () => {
+  assert.equal(isQuotaError("You've hit your 5-hour limit · resets 4:20am (UTC)"), true);
+  assert.equal(isQuotaError('API Error: Rate limit reached'), true);
+  assert.equal(isQuotaError('Credit balance is too low'), true);
+  assert.equal(isQuotaError('Your audit passed. ' + 'x'.repeat(600)), false);
+  const dir = mkdtempSync(path.join(tmpdir(), 'live-quota-'));
+  mkdirSync(path.join(dir, 'evals', 'live'), { recursive: true });
+  writeFileSync(path.join(dir, 'evals', 'cases.json'), JSON.stringify([{ id: 'a', prompt: 'p1', expect: [{ type: 'notContains', value: 'forbidden' }] }]));
+  writeFileSync(path.join(dir, 'evals', 'live', 'a.json'), JSON.stringify({ prompt: 'p1', output: "You've hit your 5-hour limit · resets 4:20am (UTC)" }));
+  const s = scoreLive(dir);
+  assert.deepEqual(s.quota, ['a']);
+  assert.equal(s.failed, 1);
+});
+
+test('runLive: --case runs only selected cases, rejects typos upfront, and refuses to overwrite on quota errors', () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'live-run-'));
+  mkdirSync(path.join(dir, 'evals', 'live'), { recursive: true });
+  writeFileSync(path.join(dir, 'evals', 'cases.json'), JSON.stringify([
+    { id: 'c1', prompt: 'p1', expect: [] },
+    { id: 'c2', prompt: 'p2', expect: [] },
+  ]));
+  const existing = { case: 'c1', prompt: 'p1', agent: 'claude', recordedAt: '2026-11-16', output: 'kept c1', files: [] };
+  writeFileSync(path.join(dir, 'evals', 'live', 'c1.json'), JSON.stringify(existing));
+
+  let calls = 0;
+  assert.throws(() => runLive(dir, {
+    cases: ['missing-id'],
+    spawn: () => { calls++; return { status: 0, stdout: 'ok' }; },
+  }), /unknown case id/);
+  assert.equal(calls, 0, 'unknown --case fails before spending tokens');
+
+  assert.throws(() => runLive(dir, {
+    cases: ['c1'],
+    spawn: () => ({ status: 0, stdout: "You've hit your 5-hour limit · resets 4:20am (UTC)" }),
+  }), /usage\/quota limit/);
+  assert.equal(JSON.parse(readFileSync(path.join(dir, 'evals', 'live', 'c1.json'), 'utf8')).output, 'kept c1');
+
+  const ran = runLive(dir, {
+    cases: ['c2'],
+    spawn: () => ({ status: 0, stdout: 'fresh c2 answer' }),
+  });
+  assert.deepEqual(ran, ['c2']);
+  assert.equal(JSON.parse(readFileSync(path.join(dir, 'evals', 'live', 'c1.json'), 'utf8')).output, 'kept c1');
+  assert.equal(JSON.parse(readFileSync(path.join(dir, 'evals', 'live', 'c2.json'), 'utf8')).output, 'fresh c2 answer');
+});
+
+test('selectCases and parseLiveArgs support comma-separated and repeated --case flags', () => {
+  const cases = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
+  assert.deepEqual(selectCases(cases, ['c,a']).map((x) => x.id), ['a', 'c']);
+  const parsed = parseLiveArgs(['a11y-audit', '--run', '--case', 'a,b', '--case=c', '--engine=claude']);
+  assert.deepEqual(parsed, { name: 'a11y-audit', run: true, engine: 'claude', cases: ['a,b', 'c'] });
+  assert.throws(() => parseLiveArgs(['a11y-audit', '--bogus']), /unknown option/);
 });

@@ -14,6 +14,7 @@ import { join, resolve, dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { spawn } from 'node:child_process';
+import { isQuotaError } from './live-evals.mjs';
 
 const HERE = fileURLToPath(import.meta.url);
 const REPO_ROOT = resolve(dirname(HERE), '..', '..');
@@ -184,7 +185,8 @@ export async function recordRun(opts) {
     // Cached: no agent run. Checks are re-applied to the saved output (deterministic, free).
     const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
     const ev = await evaluate(join(runDir, 'output'), expect, String(manifest.report ?? ''));
-    const failures = [...(manifest.exitCode === 0 ? [] : [`runner exited with code ${manifest.exitCode}`]), ...ev.failures];
+    const quotaFail = isQuotaError(manifest.report) ? ['quota/limit error recorded instead of agent answer'] : [];
+    const failures = [...(manifest.exitCode === 0 ? [] : [`runner exited with code ${manifest.exitCode}`]), ...quotaFail, ...ev.failures];
     Object.assign(manifest, { checks: { expectations: expect.length, failures }, status: failures.length === 0 ? 'pass' : 'fail' });
     await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
     return { cached: true, runDir, manifest };
@@ -206,6 +208,7 @@ export async function recordRun(opts) {
   const files = ev.files;
   const failures = [];
   if (res.code !== 0) failures.push(`runner exited with code ${res.code}`);
+  if (isQuotaError(res.report)) failures.push('quota/limit error recorded instead of agent answer');
   failures.push(...ev.failures);
 
   const manifest = {
@@ -228,7 +231,7 @@ export async function recordRun(opts) {
   };
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
   // The same real run is the skill's live eval recording (docs/factory/STANDARD.md section 13): it points at the run's files.
-  if (caseId != null && opts.live !== false) {
+  if (caseId != null && opts.live !== false && !isQuotaError(res.report)) {
     const liveDir = join(skillDir, 'evals', 'live');
     await mkdir(liveDir, { recursive: true });
     const rec = { case: caseId, prompt: inputText, agent: `${manifest.runner} via run-skill (fresh agent, skill folder and the case prompt only)`, recordedAt: finishedAt.slice(0, 10), output: manifest.report, files: manifest.files.map((f) => f.path), run: relative(REPO_ROOT, runDir).split(sep).join('/') };
