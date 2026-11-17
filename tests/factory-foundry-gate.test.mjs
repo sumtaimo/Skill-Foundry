@@ -11,7 +11,9 @@
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, rmSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 import { catalog, DENY, projectRoles } from '../src/factory/foundry.mjs';
 import { harnessSources, installHarness, newProject, run, tree, w, rd, governance, FIXTURES } from './helpers/harness-project.mjs';
@@ -198,4 +200,64 @@ test('add spec-writer never breaks an install: no .harness/skills folder, and no
   assert.ok(!existsSync(join(p, '.harness', 'skills')), 'Skill Foundry never creates a folder of the harness (ownership line)');
   assert.ok(existsSync(join(p, '.claude', 'skills', 'spec-writer', '.foundry.json')));
   const d = JSON.parse(run(p, ['doctor', '--json']).out.join('\n')); assert.equal(d.counts.problem, 0);
+});
+
+// ── injection by keyword: the pointer narrows to the task only when the harness exports SKILL_MATCH ──
+const hasMatch = (dir) => /SKILL_MATCH\s*=\s*['"]keywords-with-explicit['"]/.test(readFileSync(join(dir, '.harness', 'lib', 'governance.mjs'), 'utf8'));
+function chosenFor(p, role, sub) {
+  const gov = pathToFileURL(join(p, '.harness', 'lib', 'governance.mjs')).href;
+  const script = `import { loadSkills, matchSkills } from ${JSON.stringify(gov)};
+const all = loadSkills();
+console.log(JSON.stringify(matchSkills(${JSON.stringify(sub)}, ${JSON.stringify(role)}, all).chosen.filter((s) => s.raw.includes('installed-by: skill-foundry')).map((s) => s.name).sort()));`;
+  const r = spawnSync(process.execPath, ['--input-type=module', '-e', script], { env: { ...process.env, HARNESS_ROOT: p }, encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr); return JSON.parse(r.stdout);
+}
+
+test('pointers: autoApply follows the harness capability SKILL_MATCH, never a version', () => {
+  const snaps = harnessSources().filter((s) => s.snapshot);
+  const without = snaps.find((s) => !hasMatch(s.dir)); const withMatch = snaps.find((s) => hasMatch(s.dir));
+  assert.ok(without && withMatch, `a snapshot without and one with SKILL_MATCH exist, found: ${snaps.map((s) => `${s.label}=${hasMatch(s.dir)}`).join(', ')}`);
+  for (const [src, auto] of [[without, 'true'], [withMatch, 'false']]) {
+    const p = newProject('match'); installHarness(p, src.dir); run(p, ['add', '--all', '--quiet']);
+    for (const n of portable()) assert.match(rd(p, `.harness/skills/${n}/SKILL.md`), new RegExp(`^autoApply: ${auto}$`, 'm'), `${src.label} ${n}`);
+    const d = JSON.parse(run(p, ['doctor', '--json']).out.join('\n')); assert.equal(d.counts.problem, 0, JSON.stringify(d.items.filter((i) => i.level === 'problem')));
+    assert.ok(!d.items.some((i) => /autoApply|SKILL_MATCH/.test(i.message)), `${src.label}: pointer and harness agree, no warning`);
+  }
+});
+
+test('keyword injection: only the skills that fit the task, only for their roles, also for a lead with an explicit skills list', () => {
+  const src = harnessSources().filter((s) => s.snapshot).find((s) => hasMatch(s.dir));
+  const p = newProject('kw'); installHarness(p, src.dir); run(p, ['add', '--all', '--quiet']);
+  assert.deepEqual(chosenFor(p, 'DEV_ENGINEER', { prompt: 'Run an accessibility check on the form with WCAG' }), ['a11y-audit']);
+  assert.deepEqual(chosenFor(p, 'DEV_ENGINEER', { skills: ['code-craft'], prompt: 'Run an accessibility check on the form' }), ['a11y-audit'], 'an explicit list does not switch keywords off');
+  assert.deepEqual(chosenFor(p, 'DEV_ENGINEER', { prompt: 'Add a database migration and review the variation of the build' }), [], 'whole-phrase keywords do not match inside other words (database, variation, build)');
+  assert.deepEqual(chosenFor(p, 'BA_ANALYST', { prompt: 'Write the spec with acceptance criteria' }), ['spec-writer']);
+  assert.deepEqual(chosenFor(p, 'DEV_ENGINEER', { prompt: 'Write the spec with acceptance criteria' }), [], 'role fit stays mandatory');
+  assert.ok(chosenFor(p, 'DEV_ENGINEER', { prompt: 'Fix the spacing and contrast, then update the design tokens' }).length <= 3, 'a task gets a few skills, not all six');
+  const g = noStrip(p, 'keyword harness');
+  assert.ok(g.DEV_ENGINEER.base.length > 0);
+});
+
+test('doctor: a pointer and its harness that disagree are reported with the exact fix', () => {
+  const snaps = harnessSources().filter((s) => s.snapshot);
+  const withMatch = snaps.find((s) => hasMatch(s.dir)); const without = snaps.find((s) => !hasMatch(s.dir));
+  const p = newProject('mix'); installHarness(p, without.dir); run(p, ['add', 'copy-tight', '--quiet']);
+  w(p, '.harness/lib/governance.mjs', `${rd(p, '.harness/lib/governance.mjs')}\nexport const SKILL_MATCH = 'keywords-with-explicit';\n`);
+  let items = JSON.parse(run(p, ['doctor', '--json']).out.join('\n')).items;
+  assert.ok(items.some((i) => i.level === 'warn' && /autoApply: true/.test(i.message) && /update copy-tight/.test(i.fix)), 'harness upgraded after the pointer: warn, fix is update');
+  run(p, ['update', 'copy-tight', '--quiet']);
+  assert.match(rd(p, '.harness/skills/copy-tight/SKILL.md'), /^autoApply: false$/m);
+  const q = newProject('mix2'); installHarness(q, withMatch.dir); run(q, ['add', 'copy-tight', '--quiet']);
+  w(q, '.harness/lib/governance.mjs', rd(q, '.harness/lib/governance.mjs').replace(/\nexport const SKILL_MATCH[^\n]*\n/, '\n'));
+  items = JSON.parse(run(q, ['doctor', '--json']).out.join('\n')).items;
+  assert.ok(items.some((i) => i.level === 'warn' && /needs a harness with SKILL_MATCH/.test(i.message)), 'harness downgraded: warn');
+});
+
+test('add --default installs the default skills only (spec-writer), and registry keywords are whole phrases of at least 4 characters', () => {
+  const p = newProject('dflt2'); const r = run(p, ['add', '--default', '--quiet']); assert.equal(r.code, 0, r.out.join('\n'));
+  assert.deepEqual(existsSync(join(p, '.claude', 'skills')) ? readdirSync(join(p, '.claude', 'skills')).sort() : [], ['spec-writer']);
+  for (const s of catalog().filter((x) => x.scope !== 'factory')) {
+    assert.ok(s.keywords.length >= 3, `${s.name} has its own injection keywords`);
+    for (const k of s.keywords) assert.ok(k.length >= 4 || k === 'svg' || k === 'css', `${s.name}: keyword "${k}" is long enough not to match inside other words`);
+  }
 });

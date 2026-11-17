@@ -18,6 +18,13 @@
     "roles": [
       "BA_ANALYST",
       "DEV_ENGINEER"
+    ],
+    "keywords": [
+      "diagram",
+      "isometric",
+      "svg",
+      "illustration",
+      "cutaway"
     ]
   },
   {
@@ -28,6 +35,12 @@
     "roles": [
       "DEV_ENGINEER",
       "QA_AUDITOR"
+    ],
+    "keywords": [
+      "changelog",
+      "release notes",
+      "semver",
+      "version bump"
     ]
   },
   {
@@ -38,6 +51,17 @@
     "roles": [
       "BA_ANALYST",
       "DEV_ENGINEER"
+    ],
+    "keywords": [
+      "ux writing",
+      "microcopy",
+      "button label",
+      "error message",
+      "empty state",
+      "tooltip",
+      "shorten",
+      "ui copy",
+      "wordy"
     ]
   },
   {
@@ -48,6 +72,13 @@
     "roles": [
       "BA_ANALYST",
       "QA_AUDITOR"
+    ],
+    "keywords": [
+      "test plan",
+      "test case",
+      "regression",
+      "qa checklist",
+      "test matrix"
     ]
   },
   {
@@ -58,6 +89,14 @@
     "roles": [
       "DEV_ENGINEER",
       "QA_AUDITOR"
+    ],
+    "keywords": [
+      "polish",
+      "pixel pass",
+      "spacing",
+      "visual hierarchy",
+      "contrast",
+      "css cleanup"
     ]
   },
   {
@@ -70,7 +109,18 @@
       "DEV_ENGINEER",
       "UX_DESIGNER"
     ],
-    "showcase": "midtone-teal"
+    "showcase": "midtone-teal",
+    "keywords": [
+      "design system",
+      "design token",
+      "tokens.css",
+      "dark mode",
+      "color palette",
+      "brand color",
+      "hex code",
+      "hex colour",
+      "type scale"
+    ]
   },
   {
     "name": "spec-writer",
@@ -80,7 +130,17 @@
     "roles": [
       "BA_ANALYST",
       "PO_ARCHITECT"
-    ]
+    ],
+    "keywords": [
+      "specification",
+      "write a spec",
+      "write the spec",
+      "acceptance criteria",
+      "requirement",
+      "user story",
+      "given when then"
+    ],
+    "default": true
   },
   {
     "name": "ux-review",
@@ -91,6 +151,14 @@
       "BA_ANALYST",
       "QA_AUDITOR",
       "UX_DESIGNER"
+    ],
+    "keywords": [
+      "ux review",
+      "usability",
+      "heuristic",
+      "user flow",
+      "ux audit",
+      "friction"
     ]
   },
   {
@@ -101,6 +169,15 @@
     "roles": [
       "QA_AUDITOR",
       "DEV_ENGINEER"
+    ],
+    "keywords": [
+      "accessibility",
+      "a11y",
+      "wcag",
+      "aria-",
+      "screen reader",
+      "keyboard focus",
+      "alt text"
     ]
   }
 ]

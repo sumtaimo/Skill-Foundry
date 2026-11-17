@@ -54,7 +54,7 @@ export function catalog({ root = REPO } = {}) {
   return reg.filter((r) => r.status === 'ready' && existsSync(join(root, 'src', 'skills', r.name, 'SKILL.md'))).map((r) => {
     const md = readFileSync(join(root, 'src', 'skills', r.name, 'SKILL.md'), 'utf8');
     const description = /^description:\s*(.+)$/m.exec(md)?.[1].trim() ?? '';
-    return { name: r.name, version: String(r.version), roles: r.roles ?? [], scope: /^scope:\s*factory/m.test(md) ? 'factory' : 'portable', description, dir: join(root, 'src', 'skills', r.name) };
+    return { name: r.name, version: String(r.version), roles: r.roles ?? [], keywords: Array.isArray(r.keywords) ? r.keywords : [], isDefault: r.default === true, scope: /^scope:\s*factory/m.test(md) ? 'factory' : 'portable', description, dir: join(root, 'src', 'skills', r.name) };
   });
 }
 
@@ -92,6 +92,12 @@ export function isStarterStub(name, text) {
   return (STARTER_SHA[name] ?? []).includes(sha(Buffer.from(text.replace(/\r\n?/g, '\n').trim())));
 }
 
+/** Capability flag, not a version number: does the project's harness match keywords for every member (also leads with an explicit skills list)? */
+export function harnessMatchesKeywords(project) {
+  const gov = join(project, '.harness', 'lib', 'governance.mjs');
+  return existsSync(gov) && /SKILL_MATCH\s*=\s*['"]keywords-with-explicit['"]/.test(readFileSync(gov, 'utf8'));
+}
+
 /**
  * Register the skill with the project's agentic harness (`.harness/skills/<name>/SKILL.md`).
  * @returns {null | {path:string, status:'written'|'collision'|'replaced'|'replaced-starter'}}  null when the project has no harness skills folder
@@ -110,11 +116,14 @@ function harnessPointer(project, s, { syncHarness = false } = {}) {
     status = starter ? 'replaced-starter' : 'replaced';
   }
   mkdirSync(dirname(file), { recursive: true });
-  // The harness injects a skill into a worker only when its role matches AND (autoApply OR a keyword is in the prompt),
-  // so the pointer sets autoApply: true. The pointer is a few lines; the full skill is read on demand.
+  // The harness injects a skill into a worker only when its role matches AND (autoApply OR a keyword is in the prompt).
+  // A harness that exports SKILL_MATCH = 'keywords-with-explicit' applies keywords for every member, so the pointer can use
+  // autoApply: false and the agent gets only the skills that fit its task. An older harness gets autoApply: true so no skill is lost.
+  // The pointer is a few lines; the full skill is read on demand.
   const tags = (() => { try { return JSON.parse(readFileSync(join(s.dir, 'preview.json'), 'utf8')).tags ?? []; } catch { return []; } })();
+  const keywords = s.keywords?.length ? s.keywords : tags;
   const tools = pointerTools(s);
-  writeFileSync(file, `---\nname: ${s.name}\ndescription: ${s.description}\nroles: ${JSON.stringify(s.roles)}\n${tools.length ? `allowedTools: ${JSON.stringify(tools)}\n` : ''}keywords: ${JSON.stringify(tags)}\nautoApply: true\n${MARK} ${s.version}\n---\n` +
+  writeFileSync(file, `---\nname: ${s.name}\ndescription: ${s.description}\nroles: ${JSON.stringify(s.roles)}\n${tools.length ? `allowedTools: ${JSON.stringify(tools)}\n` : ''}keywords: ${JSON.stringify(keywords)}\nautoApply: ${harnessMatchesKeywords(project) ? 'false' : 'true'}\n${MARK} ${s.version}\n---\n` +
     `# ${s.name}\n\nWhen the task matches this skill (${s.description.split('. ')[0]}.), read \`.claude/skills/${s.name}/SKILL.md\` and follow it, starting from the goal the user states. When the task does not match, ignore this skill.\n`);
   return { path: rel, status };
 }
@@ -321,6 +330,9 @@ export function doctorProject({ project = process.cwd(), root = REPO } = {}) {
       if (!existsSync(hs) || !existsSync(file)) { add('warn', 'harness', `${x.name}: no pointer in .harness/skills/, so harness workers do not get it`, `${CLI} add ${x.name}`); continue; }
       const raw = readFileSync(file, 'utf8');
       if (!raw.includes(MARK)) { add('warn', 'harness', `${x.name}: .harness/skills/${x.name}/SKILL.md already exists without the skill-foundry marker, so the foundry skill is not wired to workers`, `${CLI} update ${x.name} --sync-harness   (replaces it, keeps the original as SKILL.md.orig) or keep yours`); continue; }
+      const auto = /^autoApply:\s*(true|false)/m.exec(raw)?.[1];
+      if (harnessMatchesKeywords(project) && auto === 'true') add('warn', 'harness', `${x.name}: its pointer injects the skill into every task of its roles (autoApply: true) although this harness can inject by keyword`, `${CLI} update ${x.name}   (writes the keyword pointer: only tasks that fit get the skill)`);
+      if (!harnessMatchesKeywords(project) && auto === 'false') add('warn', 'harness', `${x.name}: its pointer needs a harness with SKILL_MATCH, which this harness does not export, so leads with an explicit skills list never get it`, `${CLI} update ${x.name}   (writes autoApply: true), or update the harness`);
       const pRoles = frontList(raw, 'roles'); const tools = frontList(raw, 'allowedTools');
       const known = pRoles.filter((r) => roles[String(r).toUpperCase()]);
       if (pRoles.length && !known.length) add('problem', 'harness', `${x.name}: none of its roles (${pRoles.join(', ')}) exist in .harness/roles/, so it is never injected`, `add a role file for one of them, or ${CLI} update ${x.name}`);
@@ -408,8 +420,9 @@ export function main(argv, log = console.log) {
       list = catalog().filter((s) => s.scope !== 'factory' && s.roles.includes(role)).map((s) => s.name);
     }
     if (rest.includes('--all')) list = catalog().filter((s) => s.scope !== 'factory').map((s) => s.name);
+    if (rest.includes('--default')) list = catalog().filter((s) => s.scope !== 'factory' && s.isDefault).map((s) => s.name);
     if (!list.length && ri >= 0) { log(`no ready skill is registered for ${rest[ri + 1]} yet`); return 0; }
-    if (!list.length) throw new Error('usage: add <skill…> | add --all | add --role <ROLE>');
+    if (!list.length) throw new Error('usage: add <skill…> | add --all | add --default | add --role <ROLE>');
     list.forEach((n) => show(addSkill(n, { force, syncHarness })));
     if (!rest.includes('--no-rules')) log(`rules    AGENTS.md lists ${writeRules().skills.join(', ')}`);
     if (!rest.includes('--no-protect')) { const g = protectSkills(); log(`protect  ${g.file}: ${g.skipped ?? (g.added.length || g.removed.length ? `${g.added.length} protection rule(s) added${g.removed.length ? `, ${g.removed.length} invalid rule(s) removed` : ''}` : 'already in place')}`); }
