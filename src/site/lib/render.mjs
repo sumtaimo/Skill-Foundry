@@ -208,12 +208,11 @@ export function renderCard(skill, opts = {}) {
   const up = '../'.repeat(opts.depth ?? 0);
   return `<article class="plate" data-skill="${esc(skill.name)}" data-roles="${esc((skill.roles || []).join(' '))}" data-text="${esc(haystack(skill))}">
 ${cover(skill, 'cover')}
-<h3 lang="en"><a href="${up}skills/${esc(skill.name)}/index.html">${esc(skill.title)}</a></h3>
+<div class="plate-head"><h3 lang="en"><a href="${up}skills/${esc(skill.name)}/index.html">${esc(skill.title)}</a></h3>${t('card.version', 'span', 'class="plate-ver"', { v: String(skill.version ?? '') })}</div>
 <p class="plate-tag" lang="en">${esc(sentence(skill.tagline))}</p>
 ${rolesList(skill)}
 ${liveLine(skill)}
-<p class="plate-ver" lang="en">v${esc(String(skill.version ?? ''))}</p>
-${skill.factoryOnly ? `<p class="plate-act">${installButton(skill, opts.sha256, 'btn ghost copy')}</p>` : ''}
+<p class="plate-act"><a class="btn ghost" href="${up}skills/${esc(skill.name)}/index.html">${t('card.details')}</a></p>
 </article>`;
 }
 
@@ -256,7 +255,7 @@ ${t('hero.who', 'p', 'class="hero-who"')}
 <div class="hero-install">
 ${t('hero.installLabel', 'p', 'class="cmd-label"')}
 <div class="codebox"><pre><code class="npx-cmd">${esc(npxCommand('add --all'))}</code></pre><button type="button" class="btn primary copy" data-copy="${esc(npxCommand('add --all'))}">${t('copy.copy')}</button></div>
-<p class="hero-meta">${opts.version ? `${t('hero.version', 'span', 'class="ver"', { v: opts.version })}<span aria-hidden="true"> · </span>` : ''}MIT<span aria-hidden="true"> · </span><a href="#install">${t('hero.cta')}</a></p>
+<p class="hero-meta">${opts.version ? `${t('hero.version', 'span', 'class="ver"', { v: opts.version })}<span aria-hidden="true"> · </span>` : ''}MIT</p>
 </div>
 <ul class="facts">
 ${factsList}

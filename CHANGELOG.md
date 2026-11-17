@@ -6,8 +6,8 @@ current version.
 
 ## 1.0.0 - 2026-11-17
 
-- Version 1.0.0, the same as the skills. From here the version moves slowly: a bump needs the product owner's approval in chat.
-- The landing page shows one install command first (`npx github:sumtaimo/Skill-Foundry add --all`), the project version and one version per skill. The other commands are folded under "More commands"; skill cards no longer carry an install button.
+- Skill Foundry (the project and its `npx` command) is now at 1.0.0. This number is separate from the version of each skill, which stays in the skill's own folder. From here both move slowly: a bump needs the product owner's approval in chat.
+- The landing page shows one install command first (`npx github:sumtaimo/Skill-Foundry add --all`), the Skill Foundry version, and each card labelled with its own skill version. The other commands are folded under "More commands"; skill cards no longer carry an install button.
 - `add --default` installs the five default skills; skills with an `engine/` script declare `engine: required | optional`; pointers use keywords when the harness exports `SKILL_MATCH`.
 - `doctor` and `check --json` contracts documented in the tests; the package no longer tracks a local `node_modules` link.
 

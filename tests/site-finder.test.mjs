@@ -140,10 +140,11 @@ test('browser: search and role filter narrow plates, empty state shows, install 
     const cmd = await page.getAttribute('.hero-install button[data-copy]', 'data-copy');
     assert.equal(cmd, 'npx github:sumtaimo/Skill-Foundry add --all', 'the hero copies the one install command');
     assert.equal(await page.$(`.plate[data-skill="${qa[0]}"] button[data-copy]`), null, 'a portable card has no install button');
-    const zip = await page.getAttribute('.plate[data-skill="skill-smith"] [data-install-zip]', 'data-copy');
-    assert.match(zip, new RegExp(`^mkdir -p \\.claude/skills && curl -fsSL "${base.replace(/[.]/g, '\\.')}downloads/skill-smith-`), 'factory-only skills copy the zip command with the real URL');
     const prompt = await page.getAttribute('[data-agent-prompt]', 'data-copy');
     assert.ok(prompt.startsWith(`Read ${base}llms.txt.`) && !prompt.includes('{site}'), 'agent prompt gets the real address');
+    await page.goto(base + 'skills/skill-smith/index.html');
+    const zip = await page.getAttribute('[data-install-zip]', 'data-copy');
+    assert.match(zip, new RegExp(`^mkdir -p \\.claude/skills && curl -fsSL "${base.replace(/[.]/g, '\\.')}downloads/skill-smith-`), 'factory-only skills copy the zip command with the real URL');
     const noScroll = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
     assert.ok(noScroll, 'no horizontal scroll at 390px');
     assert.deepEqual(errors, []);
@@ -162,7 +163,7 @@ test('landing order: hero, real result, contents, skills, proof, install, agents
   assert.match(html, /<button type="button" class="btn primary copy" data-copy="npx github:sumtaimo\/Skill-Foundry add --all">/, 'the one primary action is the single install command in the hero');
   const hero = html.slice(html.indexOf('<section class="hero"'), html.indexOf('<section id="result"'));
   assert.equal((hero.match(/class="npx-cmd"/g) || []).length, 1, 'the hero shows exactly one npx command');
-  assert.match(hero, /class="ver"[^>]*>Version \d+\.\d+\.\d+</, 'the project version is shown in the hero');
+  assert.match(hero, /class="ver"[^>]*>Skill Foundry version \d+\.\d+\.\d+</, 'the project version is shown in the hero, labelled as the project');
   assert.doesNotMatch(html, /hero-chips|class="chip" data-skill/, 'no skill chips in the hero');
 });
 
