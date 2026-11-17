@@ -129,6 +129,11 @@ The cost a child session reports leaves out the `claude -p` evaluation agents it
 - The harness now runs `add spec-writer --quiet` on every install (`--with-skills` = `add --all`, `--no-skills` = nothing). Tests added: the stub is replaced once with `SKILL.md.orig` kept, a second add changes nothing, and `add` works with no `.harness/skills/` folder and no git repository (it never creates harness folders).
 - Real `install.mjs` 9acefd8, both orders, in empty folders: both doctors 0 problems (5 expected H2(b) warnings), one pointer, one AGENTS.md block. Harness `test/audit.mjs --foundry`: 33 passed, 0 failed. A failing foundry command does not stop the harness install.
 
+## 5i. Released to master, 2026-11-17
+- `lab` and `master` at the same commit; the session links were removed from commit messages first (contents identical). `npm test` on master: 336 pass, 0 fail, 1 skipped.
+- Real-network smoke test with `npx github:sumtaimo/Agentic-Harness#release .` in empty folders: spec-writer installed from master, stub replaced once (`SKILL.md.orig` kept), one managed block in AGENTS.md, both doctors clean, `team.mjs validate` passes; `--with-skills` gives 9 skills and 9 pointers; `--no-skills` gives none. A second run changes only the harness's own `installedAt` in `.harness/MANIFEST.json` (reported to TAIMO; not ours to change).
+- Still to do: the real-agent joint test on 2026-11-20, after asking TAIMO.
+
 ## 6. Cost log (list price reported by child sessions)
 
 Skills build-out about $92; audit about $30; Phase A $1.46; Phase B $3.94 plus follow-up. Lesson: re-record only what changed, reuse audits, one session per phase, one agent at a time.
