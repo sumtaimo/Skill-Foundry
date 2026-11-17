@@ -1,7 +1,7 @@
 /**
  * Live evals: run a skill's eval cases through a REAL agent, record the raw output,
  * and score the recording with runEvals. Recordings live in evals/live/<case-id>.json.
- * CLI:  node src/factory/live-evals.mjs <skill> [--run] [--engine claude]
+ * CLI:  node src/factory/live-evals.mjs <skill> [--run] [--case <id[,id...]>] [--engine claude]
  *   without --run: score the existing recordings only (free, deterministic)
  *   with --run:    start a fresh agent per case (costs tokens), save, then score
  * @governed-by PO_ARCHITECT
@@ -15,6 +15,15 @@ import { runEvals } from './evals.mjs';
 const HERE = fileURLToPath(import.meta.url);
 const REPO_ROOT = resolve(dirname(HERE), '..', '..');
 
+export const QUOTA_LIMIT_RE = /^\s*(?:API Error:\s*)?(?:You(?:'ve|’ve| have) (?:hit|reached) your [^\n]*limit|Usage limit reached|Rate limit reached|Credit balance is too low)/im;
+
+/** Detect short CLI usage-limit / quota banners so exit-0 limit errors never pass or overwrite recordings. */
+export function isQuotaError(text) {
+  const s = String(text ?? '').trim();
+  if (!s || s.length > 500) return false;
+  return QUOTA_LIMIT_RE.test(s);
+}
+
 /** @param {string} skillDir */
 export function loadRecordings(skillDir) {
   const cases = JSON.parse(readFileSync(join(skillDir, 'evals', 'cases.json'), 'utf8'));
@@ -27,7 +36,7 @@ export function loadRecordings(skillDir) {
 }
 
 /**
- * Score recorded real-agent output. Missing recordings count as failures.
+ * Score recorded real-agent output. Missing, stale, and quota-limit recordings count as failures.
  * @param {string} skillDir
  */
 export function scoreLive(skillDir) {
@@ -40,12 +49,14 @@ export function scoreLive(skillDir) {
   });
   const missing = cases.filter((c) => !rec[c.id]).map((c) => c.id);
   const stale = cases.filter((c) => rec[c.id] && rec[c.id].prompt !== c.prompt).map((c) => c.id);
+  const quota = cases.filter((c) => rec[c.id] && isQuotaError(rec[c.id].output)).map((c) => c.id);
   for (const res of r.results) {
     if (missing.includes(res.id)) { res.ok = false; res.failures.unshift('no live recording'); }
     if (stale.includes(res.id)) { res.ok = false; res.failures.unshift('stale recording: case prompt changed, re-run'); }
+    if (quota.includes(res.id)) { res.ok = false; res.failures.unshift('quota/limit error recorded instead of agent answer, re-run'); }
   }
   const passed = r.results.filter((x) => x.ok).length;
-  return { passed, failed: r.results.length - passed, missing, stale, results: r.results };
+  return { passed, failed: r.results.length - passed, missing, stale, quota, results: r.results };
 }
 
 /**
@@ -73,25 +84,84 @@ export function agentPrompt(skillDir, prompt) {
   ].join('\n');
 }
 
-/** Run every case through a real agent CLI and save the recordings. */
-export function runLive(skillDir, { engine = 'claude' } = {}) {
+/** Normalize `--case` inputs (single id, comma-separated, or array) against `cases.json`. */
+export function selectCases(cases, caseIds) {
+  if (!caseIds || (Array.isArray(caseIds) && caseIds.length === 0)) return cases;
+  const raw = Array.isArray(caseIds) ? caseIds : [caseIds];
+  const wanted = [...new Set(raw.flatMap((x) => String(x).split(',')).map((x) => x.trim()).filter(Boolean))];
+  if (wanted.length === 0) throw new Error('runLive: --case requires at least one case id');
+  const known = new Set(cases.map((c) => c.id));
+  const unknown = wanted.filter((id) => !known.has(id));
+  if (unknown.length) throw new Error(`runLive: unknown case id(s): ${unknown.join(', ')}`);
+  const set = new Set(wanted);
+  return cases.filter((c) => set.has(c.id));
+}
+
+/** Run selected (or all) cases through a real agent CLI and save valid recordings without overwriting on errors/limits. */
+export function runLive(skillDir, { engine = 'claude', cases: caseIds, spawn = spawnSync } = {}) {
   const { cases } = loadRecordings(skillDir);
+  const targets = selectCases(cases, caseIds);
   mkdirSync(join(skillDir, 'evals', 'live'), { recursive: true });
-  for (const c of cases) {
-    const res = spawnSync(engine, ['-p', agentPrompt(skillDir, c.prompt)], { encoding: 'utf8', timeout: 600000 });
-    if (res.status !== 0) throw new Error(`runLive: ${engine} failed on ${c.id}: ${res.stderr}`);
-    const record = { case: c.id, prompt: c.prompt, agent: engine, recordedAt: new Date().toISOString().slice(0, 10), output: res.stdout.trim(), files: [] };
+  for (const c of targets) {
+    const res = spawn(engine, ['-p', agentPrompt(skillDir, c.prompt)], { encoding: 'utf8', timeout: 600000 });
+    if (res.error) throw new Error(`runLive: ${engine} failed on ${c.id}: ${res.error.message}`);
+    if (res.status !== 0) {
+      const detail = (res.stderr || res.stdout || `exit ${res.status}`).trim();
+      throw new Error(`runLive: ${engine} failed on ${c.id}: ${detail}`);
+    }
+    const output = String(res.stdout ?? '').trim();
+    if (!output) throw new Error(`runLive: ${engine} returned empty output on ${c.id}; existing recording kept`);
+    if (isQuotaError(output)) {
+      throw new Error(`runLive: ${engine} hit usage/quota limit on ${c.id} ("${output.split('\n')[0]}"); existing recording kept`);
+    }
+    const record = { case: c.id, prompt: c.prompt, agent: engine, recordedAt: new Date().toISOString().slice(0, 10), output, files: [] };
     writeFileSync(join(skillDir, 'evals', 'live', `${c.id}.json`), JSON.stringify(record, null, 2) + '\n');
   }
+  return targets.map((c) => c.id);
+}
+
+/** Parse CLI flags for live-evals.mjs. */
+export function parseLiveArgs(argv) {
+  const name = argv[0];
+  const rest = argv.slice(1);
+  let engine = 'claude';
+  const cases = [];
+  let run = false;
+  for (let i = 0; i < rest.length; i++) {
+    const a = rest[i];
+    if (a === '--run') run = true;
+    else if (a === '--engine') {
+      if (!rest[i + 1] || rest[i + 1].startsWith('--')) throw new Error('--engine requires a value');
+      engine = rest[++i];
+    } else if (a === '--case') {
+      if (!rest[i + 1] || rest[i + 1].startsWith('--')) throw new Error('--case requires a case id');
+      cases.push(rest[++i]);
+    } else if (a.startsWith('--case=')) {
+      cases.push(a.slice('--case='.length));
+    } else if (a.startsWith('--engine=')) {
+      engine = a.slice('--engine='.length);
+    } else {
+      throw new Error(`unknown option: ${a}`);
+    }
+  }
+  return { name, run, engine, cases };
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === HERE) {
-  const [name, ...rest] = process.argv.slice(2);
-  if (!name || !/^[a-z0-9][a-z0-9-]*$/.test(name)) { console.error('usage: live-evals.mjs <skill> [--run] [--engine claude]'); process.exit(2); }
-  const dir = join(REPO_ROOT, 'src', 'skills', name);
-  if (rest.includes('--run')) runLive(dir, { engine: rest[rest.indexOf('--engine') + 1] && rest.includes('--engine') ? rest[rest.indexOf('--engine') + 1] : 'claude' });
-  const s = scoreLive(dir);
-  for (const r of s.results) console.log(`${r.ok ? 'PASS' : 'FAIL'} ${r.id}${r.failures.length ? ' - ' + r.failures.join('; ') : ''}`);
-  console.log(`live-evals ${name}: ${s.passed} passed, ${s.failed} failed`);
-  process.exit(s.failed ? 1 : 0);
+  try {
+    const { name, run, engine, cases } = parseLiveArgs(process.argv.slice(2));
+    if (!name || !/^[a-z0-9][a-z0-9-]*$/.test(name)) {
+      console.error('usage: live-evals.mjs <skill> [--run] [--case <id[,id...]>] [--engine claude]');
+      process.exit(2);
+    }
+    const dir = join(REPO_ROOT, 'src', 'skills', name);
+    if (run) runLive(dir, { engine, cases });
+    const s = scoreLive(dir);
+    for (const r of s.results) console.log(`${r.ok ? 'PASS' : 'FAIL'} ${r.id}${r.failures.length ? ' - ' + r.failures.join('; ') : ''}`);
+    console.log(`live-evals ${name}: ${s.passed} passed, ${s.failed} failed`);
+    process.exit(s.failed ? 1 : 0);
+  } catch (e) {
+    console.error(e.message);
+    process.exit(2);
+  }
 }

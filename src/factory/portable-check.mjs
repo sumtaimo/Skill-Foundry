@@ -14,6 +14,7 @@ import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { addSkill, writeRules } from './foundry.mjs';
+import { isQuotaError } from './live-evals.mjs';
 
 const HERE = fileURLToPath(import.meta.url);
 const REPO_ROOT = resolve(dirname(HERE), '..', '..');
@@ -71,6 +72,7 @@ export function checkRecording(skillDir) {
   if (Array.isArray(rec.touchedRepo) && rec.touchedRepo.length) problems.push('the agent touched this repository');
   if (rec.exit !== 0) problems.push(`the agent run exited with ${rec.exit}`);
   if (typeof rec.prompt !== 'string' || !rec.prompt.trim() || typeof rec.answer !== 'string' || !rec.answer.trim()) problems.push('prompt or answer is missing');
+  if (isQuotaError(rec.answer)) problems.push('quota/limit error recorded instead of agent answer, record again');
   if (rec.skillSha !== behaviourHash(skillDir)) problems.push('stale: the skill changed since this recording, record it again');
   return { ok: problems.length === 0, problems };
 }
@@ -116,15 +118,21 @@ if (process.argv[1] && resolve(process.argv[1]) === HERE) {
     if (!skill || !arg('--prompt')) throw new Error('usage: portable-check.mjs <skill> --prompt "<user request>" [--out <dir>] [--engine claude]');
     const r = await portableCheck(skill, arg('--prompt'), { out: arg('--out'), engine: arg('--engine') });
     const { answer, ...rest } = r;
+    const quota = isQuotaError(answer);
+    const pass = r.exit === 0 && r.usedSkill && !r.leakedRepoRules && r.touchedRepo.length === 0 && !quota && Boolean(answer.trim());
     if (a.includes('--record')) {
-      const dir = join(REPO_ROOT, 'src', 'skills', skill);
-      const rec = { skill, prompt: r.prompt, recordedAt: new Date().toISOString().slice(0, 10), agent: `${arg('--engine') ?? 'claude'} -p in an empty project outside the repository`, skillSha: behaviourHash(dir), exit: r.exit, usedSkill: r.usedSkill, leakedRepoRules: r.leakedRepoRules, touchedRepo: r.touchedRepo, produced: r.produced.length, cost: r.cost, answer: answer.slice(0, 6000) };
-      mkdirSync(join(dir, 'evals'), { recursive: true });
-      writeFileSync(join(dir, 'evals', 'portable.json'), JSON.stringify(rec, null, 2) + '\n');
-      console.log(`recorded src/skills/${skill}/evals/portable.json`);
+      if (!pass) {
+        console.error(`refused to save evals/portable.json (${quota ? 'quota/limit error' : 'portable check failed'}); existing recording kept`);
+      } else {
+        const dir = join(REPO_ROOT, 'src', 'skills', skill);
+        const rec = { skill, prompt: r.prompt, recordedAt: new Date().toISOString().slice(0, 10), agent: `${arg('--engine') ?? 'claude'} -p in an empty project outside the repository`, skillSha: behaviourHash(dir), exit: r.exit, usedSkill: r.usedSkill, leakedRepoRules: r.leakedRepoRules, touchedRepo: r.touchedRepo, produced: r.produced.length, cost: r.cost, answer: answer.slice(0, 6000) };
+        mkdirSync(join(dir, 'evals'), { recursive: true });
+        writeFileSync(join(dir, 'evals', 'portable.json'), JSON.stringify(rec, null, 2) + '\n');
+        console.log(`recorded src/skills/${skill}/evals/portable.json`);
+      }
     }
     console.log(JSON.stringify(rest, null, 2));
     console.log('\nANSWER:\n' + answer);
-    process.exit(r.exit === 0 && r.usedSkill && !r.leakedRepoRules && r.touchedRepo.length === 0 ? 0 : 1);
+    process.exit(pass ? 0 : 1);
   } catch (e) { console.error(e.message); process.exit(2); }
 }
