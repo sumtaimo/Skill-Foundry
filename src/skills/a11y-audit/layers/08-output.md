@@ -6,6 +6,7 @@ The reply is one Markdown document with this shape. A fixed sentence from layer 
 ## Accessibility audit: <screen name>
 
 Input: <HTML or JSX>, <n> elements. The script ran <r> checks and found <f> (<x> failure, <y> advisory). Not a conformance claim: only the checks listed here ran.
+Skipped by rule: contrast, focus-ring style, spacing and target size are not checked here (ui-polish owns them), so a count of findings, even 0, does not mean the page is clean.
 
 ### Findings
 1. **img-alt** · SC 1.1.1 Non-text Content (A) · failure
@@ -42,4 +43,5 @@ Quality bar, applied to every finding:
 6. Placeholders are filled from the input (layer 04, step 5); where they cannot be, an open question says which.
 7. Findings keep the script's order and numbering.
 8. An empty section reads "None."; "Not checked here" is never empty.
-9. When the script ran on a fragment, "Needs a manual test" includes the page-level note.
+9. The two header lines are the script's own "reply header" lines, copied word for word; the second one is in every reply, also when there are 0 findings.
+10. When the script ran on a fragment, "Needs a manual test" includes the page-level note.

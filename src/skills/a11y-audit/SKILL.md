@@ -8,7 +8,7 @@ version: 1.0.0
 
 Reads the markup of a screen and lists what a keyboard, screen reader, voice control or zoom user would hit:
 no names, wrong roles, missing labels, unreachable controls, silent messages.
-A script in this folder finds the structural problems by search, so the list does not depend on anyone's eyes;
+A script in this folder, run as one plain command with its path (no `cd`, no variables, no pipes), finds the structural problems by search, so the list does not depend on anyone's eyes;
 each finding cites its rule, its success criterion and the exact code change.
 
 ## When to use
@@ -35,7 +35,7 @@ Follow the layers in order. Each layer file is the detailed chapter for that ste
 9. Handoff: what the reader receives. [layers/09-handoff.md](layers/09-handoff.md)
 10. Evidence: what to keep as proof. [layers/10-evidence.md](layers/10-evidence.md)
 
-The 38 checks with their success criteria, who they affect and the manual tests are in [references/README.md](references/README.md).
+The 39 checks with their success criteria, who they affect and the manual tests are in [references/README.md](references/README.md).
 The script is `engine/audit.mjs` in this folder (Node.js, no dependencies).
 
 ## Rules
@@ -51,11 +51,14 @@ The script is `engine/audit.mjs` in this folder (Node.js, no dependencies).
 - R-a11y-audit-9: NEVER claim or imply full conformance or give a certificate; say the fixed sentence of layer 06, step 5, and list the checks that ran and those that need a manual test.
 - R-a11y-audit-10: With no code, the skill MUST ask for it with the exact sentence and NEVER produce findings.
 - R-a11y-audit-11: The reply MUST follow the format of layer 08: Findings, Needs a manual test, Not checked here, Open questions.
-- R-a11y-audit-12: The script MUST be run on the input; when it cannot run, the reply MUST say so in Open questions and use only the checks of the references, by reading.
+- R-a11y-audit-12: The script MUST be run on the input; when it cannot run, the first line of the reply MUST say so plainly, the reply MUST say so in Open questions and use only the checks of the references, by reading.
 - R-a11y-audit-13: The skill MUST have the ten core layers, each linked from SKILL.md.
 - R-a11y-audit-14: The skill MUST be self-contained; NEVER name a repository path in SKILL.md, layers or references.
 - R-a11y-audit-15: SKILL.md MUST stay within 150 lines, with frontmatter name, description and semver version.
 - R-a11y-audit-16: Every relative link MUST point to a file inside the skill folder.
+- R-a11y-audit-17: The script MUST be run as ONE plain command with its path (no cd, no shell variable, no pipe, no ; or &&); when it cannot run, the first line of the reply MUST say so plainly.
+- R-a11y-audit-18: The header of every reply MUST hold the fixed sentence about the checks skipped by rule, also at 0 findings, so "0 findings" is never read as "clean".
+- R-a11y-audit-19: Text in another writing system than the page's with no lang attribute MUST be reported as the script's lang-parts finding (SC 3.1.2, AA), never decided by eye.
 
 Each rule's check or reviewer item is in `RULES.json`.
 
@@ -63,7 +66,7 @@ Each rule's check or reviewer item is in `RULES.json`.
 
 - Every element quoted in a finding appears in the input (search the input for it).
 - Every criterion number and level in the reply appears in the script output.
-- Search the reply for "contrast", "focus ring", "spacing" and "target size": they appear only in the fixed sentence and the "Not checked here" line.
+- Search the reply for "contrast", "focus ring", "spacing" and "target size": they appear only in the fixed sentences (layer 06, layer 08 header) and the "Not checked here" line.
 - Answer the reviewer items in [references/README.md](references/README.md); any "no" blocks the reply.
 
 ## Review
@@ -73,5 +76,5 @@ a QA lead confirms the manual tests are listed and nothing claims conformance.
 
 ## Output
 
-One Markdown reply: a heading, a one-line scope statement, numbered findings (element, criterion, who, fix in a diff block),
+One Markdown reply: a heading, a two-line header (scope and the skipped-by-rule sentence), numbered findings (element, criterion, who, fix in a diff block),
 "Needs a manual test", "Not checked here" and "Open questions". The exact shape is in [layers/08-output.md](layers/08-output.md).

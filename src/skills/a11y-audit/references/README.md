@@ -2,7 +2,7 @@
 
 ## The checks
 
-The script runs these  checks. The criterion, level, who and status are the script's; the reply copies them. "failure" means the markup breaks the criterion; "advisory" is a best practice tied to it. A check marked "full page only" is skipped for a fragment.
+The script runs these 39 checks. The criterion, level, who and status are the script's; the reply copies them. "failure" means the markup breaks the criterion; "advisory" is a best practice tied to it. A check marked "full page only" is skipped for a fragment.
 
 | Rule id | Success criterion (WCAG 2.2) | Level | Affects | Status | What it looks for |
 |---------|------------------------------|-------|---------|--------|-------------------|
@@ -20,6 +20,7 @@ The script runs these  checks. The criterion, level, who and status are the scri
 | `label-orphan` | 1.3.1 Info and Relationships | A | screen reader, voice control | failure | label that labels nothing |
 | `required-state` | 1.3.1 Info and Relationships | A | screen reader | failure | label says required (asterisk or word) but the field has no required |
 | `error-link` | 3.3.1 Error Identification | A | screen reader | failure | aria-invalid with no linked error text |
+| `lang-parts` | 3.1.2 Language of Parts | AA | screen reader | failure | text in another writing system than the page's (for example Khmer on an English page) with no lang attribute on it or above it |
 | `autocomplete` | 1.3.5 Identify Input Purpose | AA | keyboard, voice control | failure | field for the user's own email, name, phone, address or password without autocomplete |
 | `group-name` | 1.3.1 Info and Relationships | A | screen reader | failure | radio group outside a fieldset, or a fieldset without legend |
 | `click-no-keyboard` | 2.1.1 Keyboard | A | keyboard, voice control | failure | click handler on an element the keyboard cannot reach |
@@ -50,6 +51,7 @@ Notes:
 - The standard is WCAG 2.2. SC 4.1.1 (Parsing) is obsolete in 2.2, so duplicate ids are reported only when a label or aria attribute points to them (SC 1.3.1).
 - Heading order is a best practice under SC 1.3.1, not a strict failure, so the script marks it advisory.
 - `link-purpose` is a failure when the link stands alone and an advisory when the sentence, list item or cell around it gives the purpose, because SC 2.4.4 allows purpose from context.
+- `lang-parts` compares writing systems (Khmer, Thai, Arabic, Hebrew, Han, kana, Hangul, Cyrillic, Devanagari, Greek, Latin) with the page language; text with no lang in a language that shares the page's writing system (for example French on an English page) cannot be seen by the script, so it is a manual check. With no page language (a fragment, or no lang on html) the page is taken to use the writing system of most of the text, and the finding's note says so. Proper names, code and a single Latin word or two in another writing system are not reported.
 - The script reads markup only. It cannot see CSS, so it never reports contrast, focus-ring style, spacing or target size.
 
 ## Who is affected
