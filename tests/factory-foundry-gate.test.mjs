@@ -11,7 +11,7 @@
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync, readdirSync, rmSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
@@ -215,10 +215,11 @@ console.log(JSON.stringify(matchSkills(${JSON.stringify(sub)}, ${JSON.stringify(
 
 test('pointers: autoApply follows the harness capability SKILL_MATCH, never a version', () => {
   const snaps = harnessSources().filter((s) => s.snapshot);
-  const without = snaps.find((s) => !hasMatch(s.dir)); const withMatch = snaps.find((s) => hasMatch(s.dir));
+  const without = snaps.find((s) => !hasMatch(s.dir) && hasFlag(s.dir)); const withMatch = snaps.find((s) => hasMatch(s.dir));
   assert.ok(without && withMatch, `a snapshot without and one with SKILL_MATCH exist, found: ${snaps.map((s) => `${s.label}=${hasMatch(s.dir)}`).join(', ')}`);
   for (const [src, auto] of [[without, 'true'], [withMatch, 'false']]) {
     const p = newProject('match'); installHarness(p, src.dir); run(p, ['add', '--all', '--quiet']);
+    if (auto === 'true') assert.ok(chosenFor(p, 'DEV_ENGINEER', { skills: ['code-craft'], prompt: 'an unrelated task' }).includes('a11y-audit'), `${src.label}: a lead with an explicit skills list still receives the skill (autoApply: true)`);
     for (const n of portable()) assert.match(rd(p, `.harness/skills/${n}/SKILL.md`), new RegExp(`^autoApply: ${auto}$`, 'm'), `${src.label} ${n}`);
     const d = JSON.parse(run(p, ['doctor', '--json']).out.join('\n')); assert.equal(d.counts.problem, 0, JSON.stringify(d.items.filter((i) => i.level === 'problem')));
     assert.ok(!d.items.some((i) => /autoApply|SKILL_MATCH/.test(i.message)), `${src.label}: pointer and harness agree, no warning`);
@@ -260,4 +261,20 @@ test('add --default installs the default skills only (spec-writer), and registry
     assert.ok(s.keywords.length >= 3, `${s.name} has its own injection keywords`);
     for (const k of s.keywords) assert.ok(k.length >= 4 || k === 'svg' || k === 'css', `${s.name}: keyword "${k}" is long enough not to match inside other words`);
   }
+});
+
+test('check --json contract (the harness session-start check depends on it): exit 0 when current, exit 2 when outdated or edited, always only JSON on stdout', () => {
+  const FOUNDRY = join(FIXTURES, '..', '..', '..', 'src', 'factory', 'foundry.mjs');
+  const p = newProject('chk'); run(p, ['add', 'copy-tight', '--quiet']);
+  const check = () => { const r = spawnSync(process.execPath, [FOUNDRY, 'check', '--json'], { cwd: p, encoding: 'utf8' }); return { code: r.status, json: JSON.parse(r.stdout), stdout: r.stdout, stderr: r.stderr }; };
+  let r = check(); assert.equal(r.code, 0); assert.ok(Array.isArray(r.json) && r.json.length === 1 && r.json[0].current === true && r.json[0].modified.length === 0);
+  assert.equal(r.stdout.trim()[0], '[', 'stdout is only the JSON array');
+  const file = join(p, '.claude', 'skills', 'copy-tight', 'SKILL.md'); writeFileSync(file, `${readFileSync(file, 'utf8')}\nedited\n`);
+  r = check(); assert.equal(r.code, 2, 'an edited skill gives exit 2'); assert.deepEqual(r.json[0].modified, ['SKILL.md']);
+  writeFileSync(file, readFileSync(file, 'utf8').replace('\nedited\n', ''));
+  assert.equal(check().code, 0, 'restored: current again');
+  const stamp = join(p, '.claude', 'skills', 'copy-tight', '.foundry.json'); const st = JSON.parse(readFileSync(stamp, 'utf8')); st.hash = '0'.repeat(64); writeFileSync(stamp, JSON.stringify(st));
+  r = check(); assert.equal(r.code, 2, 'an outdated skill gives exit 2'); assert.equal(r.json[0].current, false);
+  const none = newProject('chk0'); const q = spawnSync(process.execPath, [FOUNDRY, 'check', '--json'], { cwd: none, encoding: 'utf8' });
+  assert.equal(q.status, 0); assert.deepEqual(JSON.parse(q.stdout), [], 'no skills: exit 0 and an empty array');
 });

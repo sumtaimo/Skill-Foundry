@@ -1,8 +1,8 @@
 # Snapshot of the Agentic Harness, do not edit by hand
 
 - Source repository: https://github.com/sumtaimo/Agentic-Harness
-- Branch: lab
-- Commit: 0f39c98 (package version 1.0.15)
+- Branch: release
+- Version: package 1.0.6 (commit hashes are not recorded: the harness history was rewritten, so detect capabilities by flag, never by name or hash)
 - Taken: 2026-11-16, read-only, by the Skill Foundry orchestrator session (rule L23: Skill Foundry never edits the harness).
 - Contents: .harness/ without runtime folders (inbox, completed, failed, staging, releases, worktrees, visible, memory/sessions), .claude/ and AGENTS.md as the installer leaves them.
 - Used by: tests/factory-foundry-gate.test.mjs and tests/factory-foundry-ownership.test.mjs through tests/helpers/harness-project.mjs.
