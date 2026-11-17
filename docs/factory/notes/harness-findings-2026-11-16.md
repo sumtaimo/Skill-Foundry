@@ -14,7 +14,7 @@ briefs). The gate and ownership tests now run against both. The table below is r
 | AH-A2 | `.harness/roles/qa-auditor.json:5` and `.harness/roles/ba-analyst.json:5` (`allowedTools` has no `Bash(node:*)`) | Roles `QA_AUDITOR` and `BA_ANALYST` cannot run `node`, so skills with an `engine/` folder (a11y-audit, ui-polish for QA; design-system, figure-craft for BA) cannot run their scripts there. `doctor` warns for each pair. | Add `Bash(node:*)` (or the narrower script paths) to those roles, or document that engine skills belong to `DEV_ENGINEER`. Known since the first handoff. |
 | AH-A3 (corrected) | `.harness/team.json:19`, `:34`; `.harness/config.json:10`, `:129`, `:147` | `gemini` and `orca` engines are still referenced; `doctor` of Skill Foundry reports them as dropped by the current harness. | Remove them from the template defaults, or from the Skill Foundry warning if they are still supported. TAIMO to decide which is true. |
 | AH-A4 (corrected) | (missing) `.harness/MANIFEST.json` | This copy has no manifest, so the Skill Foundry `doctor` cannot tell which harness version it is looking at. | Phase C was dropped (L24); the Agentic-Harness project updates this copy when TAIMO orders. |
-| AH-A5 | `tests/helpers/harness-project.mjs` `installHarness()` (our simulation, not the real installer) | We could not read `install.mjs`, so the "harness install or update on top of Skill Foundry" tests simulate it from the documented contract (own files written, project-owned files kept, `settings.json` permissions merged, `AGENTS.md` marker appended once). Real behaviour is unproven. | Vendor the real snapshots, and replace the simulation with the real `install.mjs` run in a temp folder (offline). |
+| AH-A5 (resolved 2026-11-17, see below) | `tests/helpers/harness-project.mjs` `installHarness()` (our simulation, not the real installer) | We could not read `install.mjs`, so the "harness install or update on top of Skill Foundry" tests simulate it from the documented contract (own files written, project-owned files kept, `settings.json` permissions merged, `AGENTS.md` marker appended once). Real behaviour is unproven. | Vendor the real snapshots, and replace the simulation with the real `install.mjs` run in a temp folder (offline). |
 
 Already known in the handoff brief: AH-A1 is AH-1, AH-A2 is AH-3, AH-A3 and AH-A4 are in section 6 (stale `gemini`/`orca`, manifest). They are repeated here because this session saw them in a real run, with line numbers.
 
@@ -31,3 +31,19 @@ Nothing was found where Skill Foundry has to change: in every scenario run here 
 | AH-A5 install simulated | `install.mjs` is not run by the tests; the install is simulated from its documented contract | same | **Still open.** Run the real installer in the joint test (`JOINT-TEST-PLAN.md`). |
 
 Gate result: every scenario (Skill Foundry only; harness then Skill Foundry; Skill Foundry then harness) and the ownership line pass against both snapshots.
+
+## Real installer run (2026-11-17, orchestrator, read-only clones of the harness, Skill Foundry from `lab`)
+
+The real `install.mjs` of `release` `15bd31e` and `lab` `0f39c98` was run in temporary projects, in both orders. Nothing in the harness was edited.
+
+| Check | release | lab |
+|---|---|---|
+| Order 1, harness first then `foundry add --all` | exit 0; nothing outside our paths changed (byte diff); `doctor` reports no problem | same |
+| Harness re-install on top of ours | our skills unchanged; Edit deny rule still present; 9 pointers still present; `foundry check` exit 0 | same |
+| Order 2, Skill Foundry first then the harness install | exit 0; our skills unchanged; 2 deny rules kept; no invalid `Write()` rule; one AGENTS.md block each | same |
+| After Order 2 `doctor` | warns "no pointer", correctly: pointers appear when `foundry update` is run after a harness install | same |
+| `foundry update` after Order 2 | pointers written; the real 14-line `spec-writer` starter is replaced by ours with `SKILL.md.orig` kept | same |
+
+Remaining `doctor` warnings after `foundry update`, all on the harness side (reports for TAIMO, not fixed here): roles `QA_AUDITOR`, `BA_ANALYST` (and `UX_DESIGNER` on lab) cannot run `node` for skills with an `engine/` folder (AH-3), and `lead-dev`, `lead-qa` (and `lead-ux` on lab) list explicit `skills`, which switch off `autoApply` (AH-1).
+
+Gap seen in practice: after a harness install on top of a Skill Foundry install, the user must run `npx github:sumtaimo/Skill-Foundry update` (or `add`) to get the pointers. `doctor` says so; the harness installer does not mention it.

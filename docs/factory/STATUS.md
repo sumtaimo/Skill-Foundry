@@ -108,6 +108,13 @@ The cost a child session reports leaves out the `claude -p` evaluation agents it
 - Hold `claude/a11y-audit-s1-s6` (`e23ae5c`) Claude re-recording until weekly quota resets; `0`-token skill/test/CHECKLIST prep already pushed there.
 - Near the weekly usage limit: one session at a time, stop at `lab`, TAIMO decides the release.
 
+## 5e. Decided and done 2026-11-17
+
+- **figure-craft S1: skipped for now** (TAIMO). Any change to the skill makes its 11 recorded runs stale and the re-recording would replace the approved refrigerator (L5). S1 stays on the backlog for figure-craft.
+- **a11y-audit S1+S6** is on `lab` (16 live cases, portable check, `release:check` READY).
+- **Joint test, free part done:** the real `install.mjs` of harness `release` and `lab` was run in both orders with Skill Foundry from `lab`; ownership line held, our skills and deny rules survived; details at the end of `docs/factory/notes/harness-findings-2026-11-16.md`. Still open for the joint test: the real-agent flows (they cost money; agree a cap first).
+- **Release order (L26):** the internal handoff, guide, joint-test plan and harness-findings docs are removed from `docs/` after Step 2 (the Agentic-Harness work) and before `lab` is released to `master`. Until then `master` stays as it is.
+
 ## 6. Cost log (list price reported by child sessions)
 
 Skills build-out about $92; audit about $30; Phase A $1.46; Phase B $3.94 plus follow-up. Lesson: re-record only what changed, reuse audits, one session per phase, one agent at a time.
