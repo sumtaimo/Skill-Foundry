@@ -42,6 +42,6 @@ Quality bar, applied to every finding:
 5. The fix is a diff block of the smallest change; one finding, one block.
 6. Placeholders are filled from the input (layer 04, step 5); where they cannot be, an open question says which.
 7. Findings keep the script's order and numbering.
-8. An empty section reads "None."; "Not checked here" is never empty.
+8. An empty section reads "None."; "Not checked here" keeps the two template bullets word for word without adding hex colour values, contrast ratios or sizes from the input.
 9. The two header lines are the script's own "reply header" lines, copied word for word; the second one is in every reply, also when there are 0 findings.
 10. When the script ran on a fragment, "Needs a manual test" includes the page-level note.

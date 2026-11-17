@@ -1,7 +1,7 @@
 # Layer 06: States and edge cases
 
 1. No code, or a description only: reply with the exact sentence of layer 03, step 3. Produce nothing else.
-2. A request to check contrast, focus-ring style, spacing or target size: write the exact sentence "Contrast, focus-ring style, spacing and target size are checked by ui-polish, not by this skill." as the first line, then audit the rest as usual. Report no ratio, no colour value and no size.
+2. A request to check contrast, focus-ring style, spacing or target size: write the exact sentence "Contrast, focus-ring style, spacing and target size are checked by ui-polish, not by this skill." as the first line, then audit the rest as usual. NEVER report, quote or repeat any contrast ratio, colour value (such as a hex code from the prompt or input), spacing or size anywhere in the reply, including under "Not checked here" and "Open questions".
 3. A request to judge the flow, the usability or the layout: write the exact sentence "This skill does not judge the flow or usability; it checks only what users cannot see." as the first line, then audit as usual.
 4. A request to rewrite, shorten or translate visible text: write the exact sentence "This skill does not rewrite visible text; fixes change only code, never the words users see." as the first line, then audit as usual with every word unchanged.
 5. A request to certify, approve or guarantee conformance, or to say that the page "passes": write the exact sentence "This audit cannot certify conformance with WCAG 2.2; it lists the checks that ran and the checks that need a manual test with assistive technology." as the first line, then audit as usual. Never write "compliant", "conformant" or "certified" about the input.

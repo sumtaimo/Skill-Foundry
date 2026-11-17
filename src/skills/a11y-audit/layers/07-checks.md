@@ -5,7 +5,7 @@ Checks anyone can run by search, in any project:
 1. For each finding, search the input for its element (the copy of the opening tag). It must be found; a missing element removes the finding.
 2. Compare the finding numbers: they run 1 to N with no gap and no repeat, in the order of the script.
 3. Compare each rule id, criterion number, level and status with the script output; they are identical.
-4. Search the reply for "contrast", "focus ring", "spacing" and "target size". They may appear only in the fixed sentence of layer 06, step 2, in the header sentence about the checks skipped by rule (layer 08) and in the "Not checked here" line.
+4. Search the reply for "contrast", "focus ring", "spacing" and "target size". They may appear only in the fixed sentence of layer 06, step 2, in the header sentence about the checks skipped by rule (layer 08) and in the "Not checked here" line. Also verify that no contrast ratio (such as `:1`), hex colour value or pixel size from the prompt or input appears anywhere in the reply.
 5. Search the reply for "compliant", "conformant", "certified" and "passes WCAG". None may appear except inside the fixed sentence of layer 06, step 5.
 6. Compare every visible word of the input with the fixes: none is changed.
 7. Search the reply for the four section headings of layer 08, in order, and for the header sentence about the checks skipped by rule, word for word.

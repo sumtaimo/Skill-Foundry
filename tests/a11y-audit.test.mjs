@@ -144,6 +144,8 @@ test('the skill tells the agent to run the script as one plain command and to sa
   assert.match(read('layers/04-flow.md'), /No `cd` before it, no shell variable/);
   assert.match(read('layers/06-states.md'), /first line of the reply[^]*The script could not run \(<say plainly why>\)/);
   assert.ok(read('layers/06-states.md').includes(E.COULD_NOT_RUN));
+  assert.match(read('layers/06-states.md'), /hex code[^]*Not checked here/i);
+  assert.match(read('layers/08-output.md'), /Not checked here[^]*hex colour values/i);
   assert.ok(read('layers/08-output.md').includes(E.SKIPPED_BY_RULE));
   const rules = JSON.parse(read('RULES.json'));
   for (const id of ['R-a11y-audit-17', 'R-a11y-audit-18', 'R-a11y-audit-19']) assert.ok(rules.some((r) => r.id === id), id);
