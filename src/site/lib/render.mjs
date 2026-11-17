@@ -79,10 +79,6 @@ function liveLine(skill) {
     : t('live.no', 'p', 'class="live live-no" data-live="none"');
 }
 
-function rolesList(skill) {
-  if (!skill.roles || !skill.roles.length) return '';
-  return `<p class="roles">${t('plate.roles')} ${skill.roles.map((r) => t(`role.${r}`, 'span', `class="role" data-role="${esc(r)}"`)).join(' ')}</p>`;
-}
 
 function coverSvg(skill, bare = false) {
   const label = `${skill.title} cover`;
@@ -184,8 +180,7 @@ export function renderLayout(o) {
 <a class="brand" href="${up}index.html">Skill Foundry</a>
 <nav class="tools" aria-label="${esc(EN['nav.label'])}">
 <a href="${up}index.html#collection">${t('nav.collection')}</a>
-<a href="${local.proof ?? `${up}index.html#proof`}">${t('nav.proof')}</a>
-<a href="${local.install ?? `${up}index.html#install`}">${t('nav.install')}</a>
+${local.proof ? `<a href="${local.proof}">${t('nav.proof')}</a>\n` : ''}<a href="${local.install ?? `${up}index.html#install`}">${t('nav.install')}</a>
 <a href="${up}index.html#agents">${t('nav.agents')}</a>
 <button type="button" class="btn ghost" data-action="theme" aria-pressed="false">${t('theme.toDark')}</button>
 <button type="button" class="btn ghost" data-action="lang" lang="km">${t('lang.toKh')}</button>
@@ -210,7 +205,6 @@ export function renderCard(skill, opts = {}) {
 ${cover(skill, 'cover')}
 <div class="plate-head"><h3 lang="en"><a href="${up}skills/${esc(skill.name)}/index.html">${esc(skill.title)}</a></h3>${t('card.version', 'span', 'class="plate-ver"', { v: String(skill.version ?? '') })}</div>
 <p class="plate-tag" lang="en">${esc(sentence(skill.tagline))}</p>
-${rolesList(skill)}
 ${liveLine(skill)}
 <p class="plate-act"><a class="btn ghost" href="${up}skills/${esc(skill.name)}/index.html">${t('card.details')}</a></p>
 </article>`;
@@ -251,7 +245,6 @@ function renderHero(skills, opts = {}) {
   return `<section class="hero" aria-labelledby="hero-title">
 ${t('hero.title', 'h1', 'id="hero-title"')}
 ${t('hero.sub', 'p', 'class="lead"')}
-${t('hero.who', 'p', 'class="hero-who"')}
 <div class="hero-install">
 ${t('hero.installLabel', 'p', 'class="cmd-label"')}
 <div class="codebox"><pre><code class="npx-cmd">${esc(npxCommand('add --all'))}</code></pre><button type="button" class="btn primary copy" data-copy="${esc(npxCommand('add --all'))}">${t('copy.copy')}</button></div>
@@ -330,14 +323,7 @@ export function renderIndex(skills, opts = {}) {
   const proofRows = sorted.map((s) => `<tr><th scope="row" lang="en"><a href="skills/${esc(s.name)}/index.html">${esc(s.name)}</a></th><td>${s.live && s.live.total > 0 ? `${s.live.passed} / ${s.live.total}` : t('proof.notyet')}</td><td>${s.rules.machine} / ${s.rules.total}</td></tr>`).join('\n');
   const promptTemplate = EN['agents.prompt'];
   const promptPlain = promptTemplate.replace('Read {site}llms.txt', 'Read the llms.txt file on this site');
-  const tocKeys = [['collection', 'nav.collection'], ['proof', 'nav.proof'], ['install', 'nav.install'], ['agents', 'nav.agents'], ['limits', 'limits.title'], ['questions', 'questions.title']];
-  const toc = tocKeys.map(([id, key], i) => `<li><a href="#${id}"><span class="num" aria-hidden="true">${i + 1}</span>${t(key)}</a></li>`).join('\n');
   const body = `${renderHero(sorted, { version: opts.version })}
-<nav class="toc" aria-label="${esc(EN['toc.label'])}">
-<ol>
-${toc}
-</ol>
-</nav>
 <section id="collection" class="col collection numbered" aria-labelledby="collection-title">
 ${t('collection.title', 'h2', 'id="collection-title"')}
 ${renderFinder(sorted)}
@@ -387,7 +373,6 @@ ${Number.isFinite(opts.allBytes) && opts.allBytes > 0 ? `<p>${allLink(opts.allBy
 <section id="agents" class="col numbered" aria-labelledby="agents-title">
 ${t('agents.title', 'h2', 'id="agents-title"')}
 ${t('agents.p', 'p')}
-${t('install.scope', 'p', 'class="note"')}
 <ul class="agent-files">
 <li><a href="skills.json">${t('agents.json')}</a></li>
 <li><a href="llms.txt">${t('agents.txt')}</a></li>

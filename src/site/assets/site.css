@@ -316,7 +316,6 @@ table.proof { width: 100%; }
   .codebox { flex-direction: column; align-items: stretch; padding: 12px; }
   .hero-actions .btn { width: 100%; }
   /* the install command comes first on a phone, so the hero is kept short enough for the real result to start on the first screen */
-  .hero-who { display: none; }
   .hero-install { margin-bottom: 8px; }
   .hero-install .cmd-label { margin-bottom: 4px; }
   .hero-install .codebox { padding: 8px; gap: 8px; }

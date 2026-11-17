@@ -154,10 +154,10 @@ test('browser: search and role filter narrow plates, empty state shows, install 
   }
 });
 
-test('landing order: hero, real result, contents, skills, proof, install, agents, limits, questions', async () => {
+test('landing order: hero, real result, skills, proof, install, agents, limits, questions', async () => {
   const html = readFileSync(join(await site(), 'index.html'), 'utf8');
   const at = (re) => { const m = re.exec(html); assert.ok(m, String(re)); return m.index; };
-  const order = [/<section class="hero"/, /<section id="result"/, /<nav class="toc"/, /<section id="collection"/, /<input id="find"/, /<section id="proof"/, /<section id="install"/, /<section id="agents"/, /<section id="limits"/, /<section id="questions"/].map(at);
+  const order = [/<section class="hero"/, /<section id="result"/, /<section id="collection"/, /<input id="find"/, /<section id="proof"/, /<section id="install"/, /<section id="agents"/, /<section id="limits"/, /<section id="questions"/].map(at);
   assert.deepEqual([...order].sort((a, b) => a - b), order);
   assert.equal((html.match(/class="btn primary/g) || []).length, 1, 'one primary action on the landing page');
   assert.match(html, /<button type="button" class="btn primary copy" data-copy="npx github:sumtaimo\/Skill-Foundry add --all">/, 'the one primary action is the single install command in the hero');
@@ -189,9 +189,11 @@ test('role filter offers only roles a ready skill has, and the site knows all ei
   assert.deepEqual(ready.filter((r) => r.roles.includes('UX_DESIGNER')).map((r) => r.name).sort(), ['design-system', 'ux-review']);
 });
 
-test('top bar links to skills, install, agents and proof on the index', async () => {
+test('top bar links to skills, install and agents on the index (no proof link: the page has no per-page proof, and fewer links keep the bar short)', async () => {
   const html = readFileSync(join(await site(), 'index.html'), 'utf8');
-  for (const id of ['collection', 'install', 'agents', 'proof']) assert.match(html, new RegExp(`href="index\\.html#${id}"`));
+  for (const id of ['collection', 'install', 'agents']) assert.match(html, new RegExp(`href="index\\.html#${id}"`));
+  assert.doesNotMatch(html.slice(0, html.indexOf('</header>')), /href="index\.html#proof"/, 'the top bar has no Proof link on the index');
+  assert.doesNotMatch(html, /<nav class="toc"/, 'no second contents strip that repeats the top bar');
 });
 
 test('proof table: one row per ready skill with real recorded numbers', async () => {
@@ -224,13 +226,12 @@ test('skill page: hero Install jumps to its own install block, which holds the n
   assert.doesNotMatch(smith, /npx-cmd/, 'factory-only skills are zip-only');
 });
 
-test('Install and For-agents sections both say Skill Foundry installs only the skills and wires into an existing harness (en + kh)', async () => {
+test('the Install section says Skill Foundry installs only the skills and wires into an existing harness (en + kh); the For-agents section does not repeat it', async () => {
   const html = readFileSync(join(await site(), 'index.html'), 'utf8');
   const install = html.slice(html.indexOf('<section id="install"'), html.indexOf('<section id="agents"'));
   const agents = html.slice(html.indexOf('<section id="agents"'), html.indexOf('<section id="limits"'));
-  for (const [name, part] of [['install', install], ['agents', agents]]) {
-    assert.match(part, /data-i18n="install\.scope"/, `${name} section carries the scope note`);
-  }
+  assert.match(install, /data-i18n="install\.scope"/, 'install section carries the scope note');
+  assert.doesNotMatch(agents, /data-i18n="install\.scope"/, 'the same note is not repeated under For agents');
   assert.match(DICTS.en['install.scope'], /only the skills/);
   assert.match(DICTS.en['install.scope'], /existing agentic harness/);
   assert.match(DICTS.en['install.scope'], /Agentic-Harness/);
