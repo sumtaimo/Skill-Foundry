@@ -342,7 +342,10 @@ export function doctorProject({ project = process.cwd(), root = REPO } = {}) {
       if (['ui-polish', 'a11y-audit'].includes(x.name)) for (const r of known) if (cssOnly(roles[String(r).toUpperCase()])) add('warn', 'harness', `${x.name} edits HTML/JSX too, but role ${r} may only write CSS`, `widen that role's writablePaths in .harness/roles (project owner) or give ${x.name} to DEV_ENGINEER`);
     }
     const team = readJson(join(project, '.harness', 'team.json'));
-    for (const m of team?.members ?? []) {
+    // Capability flag, not a version number: a harness that exports SKILL_COMPOSITION = 'additive-union' ADDS a lead's explicit skills to autoApply skills.
+    const gov = join(project, '.harness', 'lib', 'governance.mjs');
+    const additive = existsSync(gov) && /SKILL_COMPOSITION\s*=\s*['"]additive-union['"]/.test(readFileSync(gov, 'utf8'));
+    for (const m of additive ? [] : team?.members ?? []) {
       if (Array.isArray(m.skills) && m.skills.length) add('warn', 'harness', `team.json: "${m.id}" lists skills ${JSON.stringify(m.skills)}; explicit skills switch off autoApply, so installed foundry skills are not injected for that member`, `remove "skills" from "${m.id}" in .harness/team.json (project owner) or add the foundry skills to that list`);
     }
     const cfg = readJson(join(project, '.harness', 'config.json'));

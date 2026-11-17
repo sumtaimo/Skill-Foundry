@@ -153,3 +153,18 @@ for (const src of harnessSources()) {
     assert.equal(JSON.parse(run(p, ['doctor', '--json']).out.join('\n')).counts.problem, 0);
   });
 }
+
+test('doctor reads the harness capability flag, not a version: explicit team skills warn only without SKILL_COMPOSITION = additive-union', () => {
+  const src = harnessSources().at(-1).dir; const p = newProject('flag'); installHarness(p, src);
+  const team = JSON.parse(rd(p, '.harness/team.json'));
+  team.members = (team.members ?? []).map((m) => (m.id === 'lead-dev' ? { ...m, skills: ['code-craft'] } : m));
+  w(p, '.harness/team.json', team);
+  run(p, ['add', 'copy-tight']);
+  const warns = () => JSON.parse(run(p, ['doctor', '--json']).out.join('\n')).items.filter((i) => /switch off autoApply/.test(i.message));
+  const gov = join(p, '.harness', 'lib', 'governance.mjs');
+  const text = readFileSync(gov, 'utf8').replace(/\nexport const SKILL_COMPOSITION[^\n]*\n/, '\n');
+  w(p, '.harness/lib/governance.mjs', text);
+  assert.ok(warns().length >= 1, 'no flag: the old behaviour is still warned about');
+  w(p, '.harness/lib/governance.mjs', `${text}\nexport const SKILL_COMPOSITION = 'additive-union';\n`);
+  assert.equal(warns().length, 0, 'flag present: explicit lead skills are added to autoApply skills, so no warning');
+});
