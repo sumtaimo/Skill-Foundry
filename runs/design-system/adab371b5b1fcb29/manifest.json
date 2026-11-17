@@ -1,0 +1,37 @@
+{
+  "skill": "design-system",
+  "version": "1.0.0",
+  "caseId": "engine-one-command",
+  "inputSha256": "6abc19f995f8fd388c5e61c4f1b156169cf0ac652e97a68d968f04d11abf8fab",
+  "skillSha256": "3db22158d82b836250faab59ca4c7ee930fe90ab7595967dc3d73e7d99b20cb7",
+  "key": "adab371b5b1fcb29e15f72499bb94d954837ea07a7925193fc28fe0b8c1654ae",
+  "startedAt": "2026-11-17T00:07:14.758Z",
+  "finishedAt": "2026-11-17T00:07:32.535Z",
+  "runner": "custom",
+  "exitCode": 0,
+  "costUsd": null,
+  "usage": null,
+  "files": [
+    {
+      "path": "design-system-report.md",
+      "bytes": 3486,
+      "sha256": "d94f724381d2594b44042a50de683e927db57f6588bb6badc51a6f1e53b60849"
+    },
+    {
+      "path": "design-tokens.json",
+      "bytes": 20378,
+      "sha256": "36dc43e746633ae61b94f24c89876b170e28d6bf176270a29c157d621dde40d6"
+    },
+    {
+      "path": "tokens.css",
+      "bytes": 13430,
+      "sha256": "0f01199d982b26007581b9717c29ac9dae41721fdfffc8ba5db66106a995b868"
+    }
+  ],
+  "checks": {
+    "expectations": 10,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "## Design system: Project-planning tool\n\nPath a, from your colour. Archetype: calm-workspace. A project-planning tool for small teams is a planning and team workspace product, which calls for a calm workspace.\n\nThis report is the whole reply: the files written, the checks run with every result, and the open questions.\n\n### Files\n- design-tokens.json: W3C design tokens\n- tokens.css: CSS custom properties, light and dark\n- design-system-report.md: this report\n\n### Colours kept\n| Input | Hex | Hue | Placed at |\n|-------|-----|-----|-----------|\n| primary | #2563eb | 221° | primary-500 |\n\nStatus colours not given, defaults used: success #16a34a (success-700), warning #d97706 (warning-600), danger #dc2626 (danger-500), info #2563eb (info-500).\n\nHue check: each input hex is unchanged and every step aims at its exact hue; lightness follows the fixed steps and saturation eases toward the palest and darkest steps, and steps 400 to 700 are never more colourful than your colour. Rounding to hex moves the hue at most 0.1° at steps 300 to 800 and 0.3° at the palest and darkest steps.\n\n### Contrast\nText needs 4.5:1; borders of controls and focus rings need 3:1; border-default is for dividers and is not checked. Every text role meets 4.5:1, so it is safe at any size.\n\n| Text | On | Light | Dark | Needs | Result |\n|------|----|-------|------|-------|--------|\n| text-default | all 4 surfaces | 13.02:1 | 10.28:1 | 4.5:1 | pass |\n| text-muted | all 4 surfaces | 6.36:1 | 5.96:1 | 4.5:1 | pass |\n| text-link | all 4 surfaces | 6.14:1 | 5.08:1 | 4.5:1 | pass |\n| selected-text | all 4 surfaces, selected-bg | 6.14:1 | 5.08:1 | 4.5:1 | pass |\n| text-inverse | surface-inverse | 14.24:1 | 14.24:1 | 4.5:1 | pass |\n| action-primary-text | action-primary-bg, action-primary-bg-hover, action-primary-bg-pressed | 5.17:1 | 5.17:1 | 4.5:1 | pass |\n| success-text | surface-default, success-bg-subtle | 6.50:1 | 7.36:1 | 4.5:1 | pass |\n| success-text-on | success-bg | 4.71:1 | 4.71:1 | 4.5:1 | pass |\n| warning-text | surface-default, warning-bg-subtle | 7.89:1 | 6.77:1 | 4.5:1 | pass |\n| warning-text-on | warning-bg | 4.88:1 | 4.88:1 | 4.5:1 | pass |\n| danger-text | surface-default, danger-bg-subtle | 5.59:1 | 7.18:1 | 4.5:1 | pass |\n| danger-text-on | danger-bg | 4.83:1 | 4.83:1 | 4.5:1 | pass |\n| info-text | surface-default, info-bg-subtle | 6.65:1 | 7.50:1 | 4.5:1 | pass |\n| info-text-on | info-bg | 5.17:1 | 5.17:1 | 4.5:1 | pass |\n| border-strong | surface-default, surface-subtle | 3.44:1 | 5.93:1 | 3:1 | pass |\n| border-focus | surface-default, surface-subtle | 4.74:1 | 4.53:1 | 3:1 | pass |\n\nLight and Dark give the lowest ratio of each role over the surfaces listed; 37 pairs checked in each mode.\n\n### How to use\n- Load tokens.css before your own styles. \n- Without a data-theme attribute the page follows the system setting; set data-theme=\"light\" or data-theme=\"dark\" on the html element to force one.\n- Spacing: 0, 4, 8, 12, 16, 24, 32, 48, 64 px. Type sizes: 12, 14, 16, 20, 24, 30, 36 px, body 16 px, line-height 1.5. Weights: 400 and 600.\n- Controls: 36, 44, 52 px high; every click or tap area at least 44 px. Breakpoints: 640, 768, 1024, 1280 px (copy the numbers into media queries).\n- Brand colour on at most 5% of a screen: primary action, focus ring, selected item background.\n- Font: the system font stack. No font files, imports or links.\n\n### Open questions\n- Your primary colour is close to the info colour (#2563eb); should info use a different hue?"
+}

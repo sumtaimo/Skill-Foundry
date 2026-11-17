@@ -1,0 +1,6 @@
+You are running the skill in /home/user/Skill-Foundry/src/skills/design-system. Read /home/user/Skill-Foundry/src/skills/design-system/SKILL.md and every file it links to, then follow it step by step.
+Write every file you produce into /home/user/Skill-Foundry/runs/design-system/d2735a20e4bf4616/output and nowhere else. Produce the real output the skill describes, never a placeholder or mock.
+When done, reply with a short report: files produced, checks run and their results, open items.
+
+Input:
+Make our design tokens feel like Brightledger, the online bank everyone talks about. Our colour is #1e3a8a.

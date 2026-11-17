@@ -2,8 +2,8 @@
   "case": "screen-declined",
   "prompt": "Design the full dashboard screen for our analytics app, with a sidebar, charts and a table.",
   "agent": "custom via run-skill (fresh agent, skill folder and the case prompt only)",
-  "recordedAt": "2026-11-16",
-  "output": "This is a screen request, so the skill says to reply with its fixed decline sentence and nothing else. I wrote no files.\n\nThis skill builds design tokens, not screens. For finished screen code, use ui-polish.",
+  "recordedAt": "2026-11-17",
+  "output": "This is a screen request, so the skill's fixed decline sentence applies. I wrote no files.\n\nThis skill builds design tokens, not screens. For finished screen code, use ui-polish.",
   "files": [],
-  "run": "runs/design-system/1d546aefd6481d60"
+  "run": "runs/design-system/a0b79e72fd303a3a"
 }

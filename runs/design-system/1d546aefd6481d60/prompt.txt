@@ -1,6 +1,0 @@
-You are running the skill in /home/user/Skill-Foundry/src/skills/design-system. Read /home/user/Skill-Foundry/src/skills/design-system/SKILL.md and every file it links to, then follow it step by step.
-Write every file you produce into /home/user/Skill-Foundry/runs/design-system/1d546aefd6481d60/output and nowhere else. Produce the real output the skill describes, never a placeholder or mock.
-When done, reply with a short report: files produced, checks run and their results, open items.
-
-Input:
-Design the full dashboard screen for our analytics app, with a sidebar, charts and a table.
