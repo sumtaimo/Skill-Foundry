@@ -16,12 +16,12 @@ Last updated: 2026-11-17, shipped eval runner quota-limit guard + `live-evals.mj
 | B | Site: npx-first install, new layout from the reference TAIMO gave, 8 roles on the site, W2-8, W2-9 | `master` `6d0c255` | Done, released |
 | B2 | Site: shorter skill pages (request once, full answer collapsed) | `lab` | On lab, checked; waits for TAIMO to release lab |
 | A2 | Platform: scope note on Install and For-agents (en + kh draft, done); ownership-line tests; gate over three user situations and every harness source; joint-test plan | `claude/platform-a2` | Done: snapshots of the real harness (release 15bd31e, lab 0f39c98) vendored by the orchestrator; gate and ownership tests pass against both |
-| Handoff | Both handoff briefs corrected to the real state (A and B done, lab workflow, dropped Phase C, real-use findings AH-8 to AH-13, questions H7 to H11) | `docs/factory/HANDOFF-*.md` on `lab` | Done 2026-11-17 (AH-12/AH-13 added on `lab`); TAIMO pastes the Agentic-Harness one into that repository, and removes internal handoff/process docs after Step 2 before public release |
-| Guide | Paste-ready guide + kickoff prompt + sync loop for the Agentic-Harness repository | `docs/factory/GUIDE-FOR-AGENTIC-HARNESS.md` on `lab` | Done 2026-11-17 (H1–H11, `handoff.mjs`/`sessions.mjs` added); remove after Step 2 before public release |
-| Step 2 | `sumtaimo/Agentic-Harness` repository, `lab` then `release` | other repository | Not started; brief: `docs/factory/HANDOFF-AGENTIC-HARNESS-SYNC.md` |
+| Handoff | Both handoff briefs corrected to the real state (A and B done, lab workflow, dropped Phase C, real-use findings AH-8 to AH-13, questions H7 to H11) | internal handoff documents (removed before release) on `lab` | Done 2026-11-17 (AH-12/AH-13 added on `lab`); TAIMO pastes the Agentic-Harness one into that repository, and removes internal handoff/process docs after Step 2 before public release |
+| Guide | Paste-ready guide + kickoff prompt + sync loop for the Agentic-Harness repository | an internal document (removed before release, kept privately) on `lab` | Done 2026-11-17 (H1–H11, `handoff.mjs`/`sessions.mjs` added); remove after Step 2 before public release |
+| Step 2 | `sumtaimo/Agentic-Harness` repository, `lab` then `release` | other repository | Not started; brief: an internal document (removed before release, kept privately) |
 | C | Re-update this repository's `.harness/` | none | **Dropped by TAIMO on 2026-11-16** (L23: this project never changes the harness; the Agentic-Harness project updates it when TAIMO orders) |
 
-Handoff briefs written by TAIMO: `docs/factory/HANDOFF-SKILL-FOUNDRY-IMPROVEMENTS.md`, `docs/factory/HANDOFF-AGENTIC-HARNESS-SYNC.md`.
+Handoff briefs written by TAIMO: an internal document (removed before release, kept privately), an internal document (removed before release, kept privately).
 
 Release path (2026-11-16): `claude/...` work branch → **`lab`** (integrate and check, like UAT) → TAIMO confirms in chat → `master`. Details: `docs/factory/PUBLISHING.md` section 3b.
 
@@ -49,9 +49,9 @@ Release path (2026-11-16): `claude/...` work branch → **`lab`** (integrate and
 
 - **Ownership line as tests:** `tests/factory-foundry-ownership.test.mjs` (byte-for-byte: after `add --all`, `update`, `remove`, `doctor --fix` only `.claude/skills/<name>/`, `.harness/skills/<name>/SKILL.md(.orig)`, our `AGENTS.md` block and our deny rules change; after a harness install or update our deny rules, skills, pointers stay and `check`/`doctor` are healthy; worst case "harness overwrites settings.json" is detected and repaired by `doctor --fix`). Skill Foundry did not break the line in any scenario.
 - **Gate:** `tests/factory-foundry-gate.test.mjs` runs S1 (Skill Foundry only), S2 (harness then Skill Foundry), S3 (Skill Foundry then harness install and update) for every harness source, every role must keep `Bash(npm test:*)`, `Bash(node --test:*)` and its Edit/Write rules. Sources today: this repository's own `.harness/` copy. Helpers: `tests/helpers/harness-project.mjs`.
-- **Was blocked, now done:** the A2 session could not clone `sumtaimo/Agentic-Harness` (`add_repo` denied); the orchestrator read the public repository read-only and vendored the snapshots (release v1.0.6 `15bd31e`, lab v1.0.15 `0f39c98`; lab had moved past the `bf8b43c` in the briefs). Findings re-checked in `docs/factory/notes/harness-findings-2026-11-16.md`.
-- **Harness findings (reports only):** `docs/factory/notes/harness-findings-2026-11-16.md`.
-- **Joint test plan:** `docs/factory/JOINT-TEST-PLAN.md`.
+- **Was blocked, now done:** the A2 session could not clone `sumtaimo/Agentic-Harness` (`add_repo` denied); the orchestrator read the public repository read-only and vendored the snapshots (release v1.0.6 `15bd31e`, lab v1.0.15 `0f39c98`; lab had moved past the `bf8b43c` in the briefs). Findings re-checked in an internal document (removed before release, kept privately).
+- **Harness findings (reports only):** an internal document (removed before release, kept privately).
+- **Joint test plan:** an internal document (removed before release, kept privately).
 
 ## 3. How we work (summary; the rules are in `.harness/memory/lessons.md`)
 
@@ -102,8 +102,8 @@ The cost a child session reports leaves out the `claude -p` evaluation agents it
 
 ## 5d. Decided 2026-11-17
 
-- `docs/factory/notes/harness-findings-2026-11-16.md` stays on `lab` only; it is removed in a commit on `lab` before `lab` is released to `master` (L25).
-- Internal handoff and process docs (`docs/factory/HANDOFF-*.md`, `docs/factory/GUIDE-FOR-AGENTIC-HARNESS.md`, `docs/factory/JOINT-TEST-PLAN.md`, `docs/factory/notes/harness-findings-2026-11-16.md`) must be removed from `docs/` after Step 2 is done and before public `master` release so internal working processes do not leak (L26).
+- an internal document (removed before release, kept privately) stays on `lab` only; it is removed in a commit on `lab` before `lab` is released to `master` (L25).
+- Internal handoff and process docs (internal handoff documents (removed before release), an internal document (removed before release, kept privately), an internal document (removed before release, kept privately), an internal document (removed before release, kept privately)) must be removed from `docs/` after Step 2 is done and before public `master` release so internal working processes do not leak (L26).
 - Block TAIMO with a clear risk warning before acting whenever a request/suggestion relies on incomplete facts or risks wasting tokens or failing checks (L27).
 - Hold `claude/a11y-audit-s1-s6` (`e23ae5c`) Claude re-recording until weekly quota resets; `0`-token skill/test/CHECKLIST prep already pushed there.
 - Near the weekly usage limit: one session at a time, stop at `lab`, TAIMO decides the release.
@@ -112,7 +112,7 @@ The cost a child session reports leaves out the `claude -p` evaluation agents it
 
 - **figure-craft S1: skipped for now** (TAIMO). Any change to the skill makes its 11 recorded runs stale and the re-recording would replace the approved refrigerator (L5). S1 stays on the backlog for figure-craft.
 - **a11y-audit S1+S6** is on `lab` (16 live cases, portable check, `release:check` READY).
-- **Joint test, free part done:** the real `install.mjs` of harness `release` and `lab` was run in both orders with Skill Foundry from `lab`; ownership line held, our skills and deny rules survived; details at the end of `docs/factory/notes/harness-findings-2026-11-16.md`. Still open for the joint test: the real-agent flows (they cost money; agree a cap first).
+- **Joint test, free part done:** the real `install.mjs` of harness `release` and `lab` was run in both orders with Skill Foundry from `lab`; ownership line held, our skills and deny rules survived; details at the end of an internal document (removed before release, kept privately). Still open for the joint test: the real-agent flows (they cost money; agree a cap first).
 - **Release order (L26):** the internal handoff, guide, joint-test plan and harness-findings docs are removed from `docs/` after Step 2 (the Agentic-Harness work) and before `lab` is released to `master`. Until then `master` stays as it is.
 
 ## 5f. Decided 2026-11-17 (joint test)
@@ -121,9 +121,9 @@ The cost a child session reports leaves out the `claude -p` evaluation agents it
 - Every other step continues as normal; nothing waits for the joint test except the final release.
 
 ## 5g. Capability flag check, 2026-11-17
-- Harness `lab` b8d0ca0 exports `SKILL_COMPOSITION = 'additive-union'`; `doctor` reads that flag, not a version (23094b4).
-- Tests use two real snapshots: `lab-v1.0.15-0f39c98` (no flag) and `lab-b8d0ca0` (flag). `npm test` 331 pass, 0 fail, 1 skipped; guard ok; `release:check` READY.
-- Real `install.mjs` (b8d0ca0) in empty folders, both orders, run twice: harness doctor 0 failures, Skill Foundry doctor 0 problems, 5 expected H2(b) warnings, one managed AGENTS.md block, no duplicate deny rules. Harness installed after Skill Foundry without `--with-skills` writes no pointers (doctor says to run `update`).
+- Harness `lab` exports `SKILL_COMPOSITION = 'additive-union'`; `doctor` reads that flag, not a version (23094b4).
+- Tests use two real snapshots: `lab-v1.0.15-0f39c98` (no flag) and `harness-with-flag` (flag). `npm test` 331 pass, 0 fail, 1 skipped; guard ok; `release:check` READY.
+- Real `install.mjs`  in empty folders, both orders, run twice: harness doctor 0 failures, Skill Foundry doctor 0 problems, 5 expected H2(b) warnings, one managed AGENTS.md block, no duplicate deny rules. Harness installed after Skill Foundry without `--with-skills` writes no pointers (doctor says to run `update`).
 
 ## 5h. Harness default install (9acefd8), 2026-11-17
 - The harness now runs `add spec-writer --quiet` on every install (`--with-skills` = `add --all`, `--no-skills` = nothing). Tests added: the stub is replaced once with `SKILL.md.orig` kept, a second add changes nothing, and `add` works with no `.harness/skills/` folder and no git repository (it never creates harness folders).
