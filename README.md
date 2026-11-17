@@ -38,8 +38,8 @@ Zips with SHA-256 checksums are on the site: https://sumtaimo.github.io/Skill-Fo
 
 ## Work in this repository (the lab)
 
-Run `npm run setup` once (pre-commit skill guard). The release path is in `docs/factory/PUBLISHING.md`:
-build on a `claude/...` branch, prove with real agents, `npm run release:check` must print READY, TAIMO approves, merge to `master`.
+Run `npm run setup` once (pre-commit skill guard). The release path:
+build on a `claude/...` branch, prove with real agents, `npm run release:check` must print READY, the owner approves, merge to `master`.
 
 ## Add a skill
 
@@ -50,7 +50,7 @@ build on a `claude/...` branch, prove with real agents, `npm run release:check` 
 
 ## Pack and publish
 
-See `docs/factory/PUBLISHING.md`.
+Run `npm run release:check`; it must print READY before a release. Users then get the skills with `npx github:sumtaimo/Skill-Foundry update`.
 
 ## License
 

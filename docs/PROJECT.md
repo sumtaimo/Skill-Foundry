@@ -1,6 +1,6 @@
 # Skill Foundry: project goal (read this first)
 
-Owner: TAIMO (Product Owner / UX Engineer). Every agent working in this repository reads this
+Owner: the product owner. Every agent working in this repository reads this
 file before planning or changing anything. Status markers: **[built]** exists and is tested,
 **[planned]** approved direction, not built yet. Never describe a planned item as built.
 
@@ -65,7 +65,7 @@ Rules that apply to every skill (the full text is in `AGENTS.md`, SKILL QUALITY 
 | `src/factory/` | lint, evals, live evals, routing evals, run recorder, skill guard, pack, install, `registry.json`, `locks.json`, `migration.json` |
 | `src/site/` | Showcase site generator (`npm run dev`) |
 | `tests/` | `npm test` (node --test) |
-| `.harness/` | Agent harness; locked unless TAIMO approves in chat |
+| `.harness/` | Agent harness; locked unless the owner approves in chat |
 
 ## 6. Roadmap
 
@@ -78,17 +78,17 @@ Rules that apply to every skill (the full text is in `AGENTS.md`, SKILL QUALITY 
 
 ## 7. Rules for every agent
 
-- **One release path** (`docs/factory/PUBLISHING.md`): lab branch → real-agent proof → `npm run release:check` READY → TAIMO approves in chat → `master` → Pages → users `npx … update`. **[built]**
+- **One release path**: lab branch → real-agent proof → `npm run release:check` READY → the owner approves in chat → `master` → Pages → users `npx … update`. **[built]**
 
 - Skills reach other projects with one command: `npx github:sumtaimo/Skill-Foundry add <skill>` (or `add --role <ROLE>`, `check`, `update`). An update keeps files the user changed; a project with an agentic harness gets each skill registered for its roles. **[built]** `src/factory/foundry.mjs`, `tests/factory-foundry-cli.test.mjs`. The site is published on GitHub Pages from `master` (`.github/workflows/pages.yml`).
 
 - A skill is also checked for someone outside this repo: `node src/factory/portable-check.mjs <name> --prompt "<request>" --record`. It is required before `ready` and goes stale when the skill changes (not for `scope: factory`).
 - Never leave work half done: finish the gaps your own report lists (AGENTS.md, SKILL QUALITY LAW, rule 11).
-- Skill versions stay at 1.0.0 until TAIMO calls a version final. Record changes under the current version; never bump it yourself.
-- figure-craft showcases one object only, the refrigerator, at the detail level of TAIMO's reference figure. The registry field `showcase` pins that case for the site.
+- Skill versions stay at 1.0.0 until the owner calls a version final. Record changes under the current version; never bump it yourself.
+- figure-craft showcases one object only, the refrigerator, at the detail level of the owner's reference figure. The registry field `showcase` pins that case for the site.
 - Quality and detail come from the skill (rules, lint, references). When output is weak, fix the skill and run again; never touch up the output.
 - Every skill is for other people too: it starts from the goal its user states and is self-contained in its folder.
-- Investigate code, docs and tests yourself; ask TAIMO only for business rules, scope, UX decisions or approvals.
+- Investigate code, docs and tests yourself; ask the owner only for business rules, scope, UX decisions or approvals.
 - Cite `file:line`; separate confirmed facts from assumptions.
 - A task is done only when `npm test` and `node src/factory/lint-skills.mjs` pass and the real output was checked, not when the code looks right.
-- Never change this file's goal, the standard or the charter without TAIMO's approval.
+- Never change this file's goal, the standard or the charter without the owner's approval.

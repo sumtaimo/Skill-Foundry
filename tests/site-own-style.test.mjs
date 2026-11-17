@@ -59,7 +59,7 @@ test('no rail, no 01 / 05 numbering in any page', async () => {
   }
 });
 
-test('cards: small and named, one quiet install action, real-agent line, no meter or download button', async () => {
+test('cards: small and named, skill version, real-agent line, no install button for portable skills, no meter or download button', async () => {
   const html = readFileSync(join(await site(), 'index.html'), 'utf8');
   const plates = [...html.matchAll(/<article class="plate"[\s\S]*?<\/article>/g)].map((m) => m[0]);
   assert.equal(plates.length, ready.length);
@@ -68,7 +68,8 @@ test('cards: small and named, one quiet install action, real-agent line, no mete
     assert.ok(p, s.name);
     assert.match(p, /<h3 lang="en"><a href="skills\/[^"]+\/index\.html">[^<]+<\/a><\/h3>/, `${s.name} title link`);
     assert.match(p, /<p class="plate-tag" lang="en">[^<]+[.!?]<\/p>/, `${s.name} one-sentence tagline`);
-    assert.equal((p.match(/<button\b/g) || []).length, 1, `${s.name}: exactly one action on the card`);
+    assert.equal((p.match(/<button\b/g) || []).length, (/^scope:\s*factory/m.test(readFileSync(join(ROOT, 'src/skills', s.name, 'SKILL.md'), 'utf8')) ? 1 : 0), `${s.name}: the landing page has one install command; only a repo-only skill keeps its zip button`);
+    assert.match(p, /<p class="plate-ver" lang="en">v\d+\.\d+\.\d+<\/p>/, `${s.name}: shows its version`);
     assert.doesNotMatch(p, /btn primary|class="meter"|<a [^>]*\sdownload/, `${s.name}: no primary button, meter or download on a card`);
     assert.match(p, /class="live live-(yes|no)"/, s.name);
   }

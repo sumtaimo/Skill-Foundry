@@ -35,9 +35,14 @@ dist/
 
 # Installed dev dependencies (Playwright for browser tests): restored by npm install
 node_modules/
+node_modules
 
 # Per-person state and secrets (never commit)
 .agent-state/
 .env
 .env.*
 !.env.example
+
+# Personal working memory stays on the owner's machine
+.harness/memory/profile.md
+.harness/memory/lessons.md

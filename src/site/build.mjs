@@ -37,6 +37,11 @@ async function listAll(dir, base = dir) {
  * @param {{root?:string, out?:string}} [opts]
  * @returns {Promise<{pages:string[], skills:number, downloads:string[]}>}
  */
+/** The project version shown on the landing page; a root without a package.json shows none. */
+async function projectVersion(root) {
+  try { return String(JSON.parse(await readFile(join(root, 'package.json'), 'utf8')).version || '') || undefined; } catch { return undefined; }
+}
+
 export async function buildSite({ root = REPO_ROOT, out = join(REPO_ROOT, 'dist', 'site') } = {}) {
   if (typeof root !== 'string' || !root) throw new TypeError('buildSite: root must be a non-empty string');
   if (typeof out !== 'string' || !out) throw new TypeError('buildSite: out must be a non-empty string');
@@ -70,7 +75,7 @@ export async function buildSite({ root = REPO_ROOT, out = join(REPO_ROOT, 'dist'
   }
   for (const s of skills) s.zipBytes = checksums[zipName(s)].bytes;
   const pages = ['index.html'];
-  await writeFile(join(out, 'index.html'), renderIndex(skills, { drafts, allBytes: checksums['all-skills.zip']?.bytes, checksums, recipes: loadRecipeProofs(root) }));
+  await writeFile(join(out, 'index.html'), renderIndex(skills, { version: await projectVersion(root), drafts, allBytes: checksums['all-skills.zip']?.bytes, checksums, recipes: loadRecipeProofs(root) }));
   for (const s of skills) {
     const dl = checksums[zipName(s)];
     const dir = join(out, 'skills', s.name);

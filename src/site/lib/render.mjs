@@ -212,7 +212,8 @@ ${cover(skill, 'cover')}
 <p class="plate-tag" lang="en">${esc(sentence(skill.tagline))}</p>
 ${rolesList(skill)}
 ${liveLine(skill)}
-<p class="plate-act">${installButton(skill, opts.sha256, 'btn ghost copy')}</p>
+<p class="plate-ver" lang="en">v${esc(String(skill.version ?? ''))}</p>
+${skill.factoryOnly ? `<p class="plate-act">${installButton(skill, opts.sha256, 'btn ghost copy')}</p>` : ''}
 </article>`;
 }
 
@@ -242,7 +243,7 @@ export function featuredSkill(skills) {
   return skills.find((s) => s.coverKind === 'run') ?? skills.find((s) => s.coverKind === 'proof') ?? skills[0];
 }
 
-function renderHero(skills) {
+function renderHero(skills, opts = {}) {
   if (!skills.length) return `<section class="hero">${t('hero.title', 'h1')}</section>`;
   const live = skills.reduce((a, s) => ({ p: a.p + (s.live ? s.live.passed : 0), t: a.t + (s.live ? s.live.total : 0) }), { p: 0, t: 0 });
   const roles = new Set(skills.flatMap((s) => s.roles || [])).size;
@@ -252,10 +253,14 @@ function renderHero(skills) {
 ${t('hero.title', 'h1', 'id="hero-title"')}
 ${t('hero.sub', 'p', 'class="lead"')}
 ${t('hero.who', 'p', 'class="hero-who"')}
+<div class="hero-install">
+${t('hero.installLabel', 'p', 'class="cmd-label"')}
+<div class="codebox"><pre><code class="npx-cmd">${esc(npxCommand('add --all'))}</code></pre><button type="button" class="btn primary copy" data-copy="${esc(npxCommand('add --all'))}">${t('copy.copy')}</button></div>
+<p class="hero-meta">${opts.version ? `${t('hero.version', 'span', 'class="ver"', { v: opts.version })}<span aria-hidden="true"> · </span>` : ''}MIT<span aria-hidden="true"> · </span><a href="#install">${t('hero.cta')}</a></p>
+</div>
 <ul class="facts">
 ${factsList}
 </ul>
-<p class="hero-actions"><a class="btn primary" href="#install">${t('hero.cta')}</a></p>
 </section>
 <section id="result" class="real-result" aria-labelledby="result-title">
 <h2 id="result-title"><span data-i18n="result.title">${esc(EN['result.title'])}</span> <span lang="en">${esc(f.title)}</span></h2>
@@ -328,7 +333,7 @@ export function renderIndex(skills, opts = {}) {
   const promptPlain = promptTemplate.replace('Read {site}llms.txt', 'Read the llms.txt file on this site');
   const tocKeys = [['collection', 'nav.collection'], ['proof', 'nav.proof'], ['install', 'nav.install'], ['agents', 'nav.agents'], ['limits', 'limits.title'], ['questions', 'questions.title']];
   const toc = tocKeys.map(([id, key], i) => `<li><a href="#${id}"><span class="num" aria-hidden="true">${i + 1}</span>${t(key)}</a></li>`).join('\n');
-  const body = `${renderHero(sorted)}
+  const body = `${renderHero(sorted, { version: opts.version })}
 <nav class="toc" aria-label="${esc(EN['toc.label'])}">
 <ol>
 ${toc}
@@ -362,9 +367,12 @@ ${renderRecipes(opts.recipes ?? [], sorted)}
 <section id="install" class="col numbered" aria-labelledby="install-title">
 ${t('install.title', 'h2', 'id="install-title"')}
 ${t('install.lead', 'p')}
+<details class="acc">
+<summary>${t('install.more')}</summary>
 <ol class="cmds">
 ${npxRows()}
 </ol>
+</details>
 ${t('install.npx', 'p', 'class="note"')}
 ${t('install.scope', 'p', 'class="note"')}
 <details class="acc">

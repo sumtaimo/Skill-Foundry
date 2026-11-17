@@ -137,8 +137,9 @@ test('browser: search and role filter narrow plates, empty state shows, install 
     assert.deepEqual((await visible()).sort(), qa);
     assert.equal(await page.getAttribute('.rolechip[data-role="QA_AUDITOR"]', 'aria-pressed'), 'true');
 
-    const cmd = await page.getAttribute(`.plate[data-skill="${qa[0]}"] button[data-copy]`, 'data-copy');
-    assert.equal(cmd, `npx github:sumtaimo/Skill-Foundry add ${qa[0]}`);
+    const cmd = await page.getAttribute('.hero-install button[data-copy]', 'data-copy');
+    assert.equal(cmd, 'npx github:sumtaimo/Skill-Foundry add --all', 'the hero copies the one install command');
+    assert.equal(await page.$(`.plate[data-skill="${qa[0]}"] button[data-copy]`), null, 'a portable card has no install button');
     const zip = await page.getAttribute('.plate[data-skill="skill-smith"] [data-install-zip]', 'data-copy');
     assert.match(zip, new RegExp(`^mkdir -p \\.claude/skills && curl -fsSL "${base.replace(/[.]/g, '\\.')}downloads/skill-smith-`), 'factory-only skills copy the zip command with the real URL');
     const prompt = await page.getAttribute('[data-agent-prompt]', 'data-copy');
@@ -157,8 +158,11 @@ test('landing order: hero, real result, contents, skills, proof, install, agents
   const at = (re) => { const m = re.exec(html); assert.ok(m, String(re)); return m.index; };
   const order = [/<section class="hero"/, /<section id="result"/, /<nav class="toc"/, /<section id="collection"/, /<input id="find"/, /<section id="proof"/, /<section id="install"/, /<section id="agents"/, /<section id="limits"/, /<section id="questions"/].map(at);
   assert.deepEqual([...order].sort((a, b) => a - b), order);
-  assert.equal((html.match(/class="btn primary"/g) || []).length, 1, 'one primary action on the landing page');
-  assert.match(html, /<a class="btn primary" href="#install">/);
+  assert.equal((html.match(/class="btn primary/g) || []).length, 1, 'one primary action on the landing page');
+  assert.match(html, /<button type="button" class="btn primary copy" data-copy="npx github:sumtaimo\/Skill-Foundry add --all">/, 'the one primary action is the single install command in the hero');
+  const hero = html.slice(html.indexOf('<section class="hero"'), html.indexOf('<section id="result"'));
+  assert.equal((hero.match(/class="npx-cmd"/g) || []).length, 1, 'the hero shows exactly one npx command');
+  assert.match(hero, /class="ver"[^>]*>Version \d+\.\d+\.\d+</, 'the project version is shown in the hero');
   assert.doesNotMatch(html, /hero-chips|class="chip" data-skill/, 'no skill chips in the hero');
 });
 
@@ -167,7 +171,8 @@ test('install panel: npx commands in workflow order, each with its own copy butt
   const panel = html.slice(html.indexOf('<section id="install"'), html.indexOf('<section id="agents"'));
   const cmds = [...panel.matchAll(/<code class="npx-cmd">([^<]+)<\/code><\/pre><button type="button" class="btn copy" data-copy="([^"]+)"/g)];
   assert.deepEqual(cmds.map((m) => m[1].replace('npx github:sumtaimo/Skill-Foundry ', '')), ['add &lt;skill&gt;', 'add --role QA_AUDITOR', 'add --all', 'doctor', 'check', 'update', 'remove &lt;skill&gt;']);
-  assert.ok(panel.indexOf('<summary>') > panel.lastIndexOf('npx-cmd'), 'the zip fallback comes after every npx command');
+  assert.match(panel, /<details class="acc">\s*<summary><span data-i18n="install\.more">/, 'the other commands are folded under one summary');
+  assert.ok(panel.lastIndexOf('<summary>') > panel.lastIndexOf('npx-cmd'), 'the zip fallback comes after every npx command');
   assert.match(panel, /<summary><span data-i18n="install\.fallback">No Node\.js\? Use the zip instead<\/span><\/summary>/);
   assert.doesNotMatch(panel, /<details[^>]*\sopen/, 'fallback is closed by default');
 });
