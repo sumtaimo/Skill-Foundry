@@ -4,7 +4,7 @@ Every AI session reads this page first and updates it before it reports (lesson 
 It holds what is done, what is open, every decision TAIMO made, and every skill weakness found in real use,
 so no session has to guess and nothing found is forgotten. Details live in the linked files; this page only points.
 
-Last updated: 2026-11-17, by the orchestrator session (lab integration: design-system S1+S5 merged).
+Last updated: 2026-11-17, recorded AH-12/AH-13 cross-agent handoff gaps, engine-adapter note, and doc-removal rule before release.
 
 ## 1. Where we are
 
@@ -16,8 +16,8 @@ Last updated: 2026-11-17, by the orchestrator session (lab integration: design-s
 | B | Site: npx-first install, new layout from the reference TAIMO gave, 8 roles on the site, W2-8, W2-9 | `master` `6d0c255` | Done, released |
 | B2 | Site: shorter skill pages (request once, full answer collapsed) | `lab` | On lab, checked; waits for TAIMO to release lab |
 | A2 | Platform: scope note on Install and For-agents (en + kh draft, done); ownership-line tests; gate over three user situations and every harness source; joint-test plan | `claude/platform-a2` | Done: snapshots of the real harness (release 15bd31e, lab 0f39c98) vendored by the orchestrator; gate and ownership tests pass against both |
-| Handoff | Both handoff briefs corrected to the real state (A and B done, lab workflow, dropped Phase C, real-use findings AH-8 to AH-11, questions H7 to H9) | `docs/factory/HANDOFF-*.md` on `lab` | Done 2026-11-16; TAIMO pastes the Agentic-Harness one into that repository |
-| Guide | Paste-ready guide + kickoff prompt + sync loop for the Agentic-Harness repository | `docs/factory/GUIDE-FOR-AGENTIC-HARNESS.md` on `lab` | Done 2026-11-16 |
+| Handoff | Both handoff briefs corrected to the real state (A and B done, lab workflow, dropped Phase C, real-use findings AH-8 to AH-13, questions H7 to H11) | `docs/factory/HANDOFF-*.md` on `lab` | Done 2026-11-17 (AH-12/AH-13 added on `lab`); TAIMO pastes the Agentic-Harness one into that repository, and removes internal handoff/process docs after Step 2 before public release |
+| Guide | Paste-ready guide + kickoff prompt + sync loop for the Agentic-Harness repository | `docs/factory/GUIDE-FOR-AGENTIC-HARNESS.md` on `lab` | Done 2026-11-17 (H1–H11, `handoff.mjs`/`sessions.mjs` added); remove after Step 2 before public release |
 | Step 2 | `sumtaimo/Agentic-Harness` repository, `lab` then `release` | other repository | Not started; brief: `docs/factory/HANDOFF-AGENTIC-HARNESS-SYNC.md` |
 | C | Re-update this repository's `.harness/` | none | **Dropped by TAIMO on 2026-11-16** (L23: this project never changes the harness; the Agentic-Harness project updates it when TAIMO orders) |
 
@@ -91,6 +91,7 @@ Harness side (Step 2, not a skill change): roles `QA_AUDITOR` and `BA_ANALYST` c
 ## 5b. After the current plan
 
 - Two-way gap loop with the Agentic Harness: a clear, shared way for this project's AI and the Agentic Harness project's AI to hand issues to each other (report, fix, confirm) without confusion. Design it with TAIMO after the skill backlog is done.
+- Multi-engine eval adapter in `Skill-Foundry` (`src/factory/live-evals.mjs`, `routing-evals.mjs`, `portable-check.mjs`, `recipe-run.mjs`): currently tied to `claude` CLI flags / `stream-json`; consider `--engine agy | codex` adapter (keeping proof quality equivalent to `usedSkill`) after Step 2 if needed.
 
 ## 5c. Cost note
 
@@ -99,6 +100,7 @@ The cost a child session reports leaves out the `claude -p` evaluation agents it
 ## 5d. Decided 2026-11-17
 
 - `docs/factory/notes/harness-findings-2026-11-16.md` stays on `lab` only; it is removed in a commit on `lab` before `lab` is released to `master` (L25).
+- Internal handoff and process docs (`docs/factory/HANDOFF-*.md`, `docs/factory/GUIDE-FOR-AGENTIC-HARNESS.md`, `docs/factory/JOINT-TEST-PLAN.md`, `docs/factory/notes/harness-findings-2026-11-16.md`) must be removed from `docs/` after Step 2 is done and before public `master` release so internal working processes do not leak (L26).
 - Near the weekly usage limit: one session at a time, stop at `lab`, TAIMO decides the release.
 
 ## 6. Cost log (list price reported by child sessions)

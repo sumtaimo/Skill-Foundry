@@ -38,9 +38,10 @@ by Skill Foundry with a .orig backup, unknown user skills never; pointers omit a
 skills with engine/); Agentic-Harness pulls Skill Foundry skills only with --with-skills for now.
 
 Work in this order:
-1. Inspect governance.mjs, doctor.mjs, team.json, roles/*.json, skills/*/SKILL.md, install.mjs, watch.mjs and daemon.mjs.
-2. Ask TAIMO, in plain Khmer, to confirm H1 to H9 of the brief (H7 staging branch name, H8 worker permissions in cloud
-   sessions, H9 one worker at a time and resume after a usage limit). Never guess.
+1. Inspect governance.mjs, handoff.mjs, sessions.mjs, doctor.mjs, team.json, roles/*.json, skills/*/SKILL.md, install.mjs, watch.mjs and daemon.mjs.
+2. Ask TAIMO, in plain Khmer, to confirm H1 to H11 of the brief (H7 staging branch name, H8 worker permissions in cloud
+   sessions, H9 one worker at a time and resume after a usage limit, H10 adopt remote cloud branches for cross-engine
+   continuation, H11 checkpoint push and auto-push at 80% quota warning). Never guess.
 3. Implement only the approved changes on `lab`; add unit tests and the two-order integration test (harness first, then
    Skill Foundry; Skill Foundry first, then harness) against Skill Foundry master; add the L19 schedule test
    (checks at 30, 45, 50, 55 minutes; a usage-limit stop counts as not done).
@@ -73,9 +74,10 @@ does not edit Skill Foundry.
 - In user-facing output, guide plainly; do not expose internal skill rules, layers, evaluation criteria or protection
   details.
 
-## 5. What is done and what is open (2026-11-16)
+## 5. What is done and what is open (2026-11-17)
 
 Done and released on Skill Foundry `master`: Phase A (CLI fixes, `doctor`), Phase B (site, roles, starter-copy
 replacement, smooth wording). On `lab`, waiting for TAIMO's release: shorter skill pages and the skill improvements S1 to
-S7 as they finish. Open for this repository: AH-1 to AH-11 and H1 to H9 in the brief. Not planned: re-updating
-Skill Foundry's own `.harness/` (dropped by TAIMO).
+S7 as they finish. Open for this repository: AH-1 to AH-13 and H1 to H11 in the brief. Not planned: re-updating
+Skill Foundry's own `.harness/` (dropped by TAIMO). Internal handoff/guide docs stay on `lab` only until Step 2 finishes
+and are removed before public `master` release.

@@ -1,7 +1,7 @@
 # Handoff Brief: `sumtaimo/Agentic-Harness` ↔ `Skill-Foundry` Bi-Directional Sync
 
 > **Document Purpose:** Self-contained engineering handoff brief written for **Claude Code** inside **`sumtaimo/Agentic-Harness`** (`lab` branch → `release` flow per `docs/MAINTAINING.md`).
-> Stored inside `Skill-Foundry/docs/factory/` so nothing is forgotten and it can be pasted directly into an `Agentic-Harness` session after `Skill-Foundry` Phase B.
+> Stored inside `Skill-Foundry/docs/factory/` on `lab` until Step 2 finishes (TAIMO plans to remove internal handoff/process docs after Step 2 and before public `master` release so internal working processes do not leak).
 > **Investigation Status:** Cross-repo verified against `sumtaimo/Agentic-Harness` **`release` (`15bd31e`, v1.0.6)** & **`lab` (`bf8b43c`, v1.0.9)** AND `sumtaimo/Skill-Foundry` **`origin/master` (`6d0c255`: Phase A and Phase B shipped)**. Newer skill improvements (S1 to S7) are on Skill-Foundry's staging branch `lab` until TAIMO releases it; pin `master` for now, `lab` is for dogfooding only.
 > **Companion Doc (for `Skill-Foundry`):** [`docs/factory/HANDOFF-SKILL-FOUNDRY-IMPROVEMENTS.md`](HANDOFF-SKILL-FOUNDRY-IMPROVEMENTS.md)
 
@@ -23,9 +23,9 @@ Read `AGENTS.md`, `docs/MAINTAINING.md`, and the Handoff Brief pasted below (`HA
 Note that edits belong ONLY on the `lab` branch (never directly on `release` or a consuming project).
 
 Work in this exact order:
-1. Inspect `.harness/lib/governance.mjs`, `.harness/doctor.mjs`, `.harness/team.json`, `.harness/roles/*.json`, `.harness/skills/*/SKILL.md`, `install.mjs`, and `watch.mjs` / `daemon.mjs` in this repository, AND inspect the completed `Skill-Foundry` (`foundry.mjs` at the link above).
+1. Inspect `.harness/lib/governance.mjs`, `.harness/lib/handoff.mjs`, `.harness/sessions.mjs`, `.harness/doctor.mjs`, `.harness/team.json`, `.harness/roles/*.json`, `.harness/skills/*/SKILL.md`, `install.mjs`, and `watch.mjs` / `daemon.mjs` in this repository, AND inspect the completed `Skill-Foundry` (`foundry.mjs` at the link above).
 2. Strictly enforce the Product Boundary & Skill-Foundry Precedence Rules in Section 1 (`Agentic-Harness` provides ONLY the harness + at most 1 harness-operational skill; delete/retire duplicate domain skills; `Skill-Foundry` ALWAYS wins on conflicts/doubles; keep user-facing skill suggestions smooth without leaking protected skill internals).
-3. Ask TAIMO to confirm PO Decisions H1–H6 in plain Khmer before changing governance/skills/installer/schedule defaults (never guess).
+3. Ask TAIMO to confirm PO Decisions H1–H11 in plain Khmer before changing governance/skills/installer/schedule/session defaults (never guess).
 4. Implement only the approved changes on `lab`, add unit + Dual-Order Cross-Repo Integration tests + L19 schedule tests in `test/run-tests.mjs` and `test/audit.mjs`, run `npm test` and `npm run audit`, and report honestly for PO/QA release review (`lab` → `release`).
 ```
 
@@ -80,6 +80,8 @@ Both repositories work cleanly together under a strict **division of responsibil
 | **AH-9** | `daemon.mjs` / dispatch (concurrency, limits) | No cap on parallel real-agent workers and no resume after a usage-limit stop: four parallel sessions hit the 5-hour limit within minutes and 23 runs were thrown away and re-run. | Wasted cost and lost work. | Default to one real-agent worker at a time (configurable cap); treat a limit message as "not done", read the reset time and resume then (this is part of the L19 schedule). |
 | **AH-10** | charter / session hook text | The charter and hook say autonomous work lands on `uat`; TAIMO's staging branch is now called `lab`. | Autopilot would target the wrong branch. | Make the staging branch name a config value, default `lab`. |
 | **AH-11** | orchestration workflow (docs, `/harness:run`) | A running worker refused a scope change relayed by its parent session (correct: a relayed message cannot prove the owner said it). | A scope change sent mid-run is lost. | Document: put the full scope in the first prompt; for a change, start a new worker from the same branch instead of messaging the old one. |
+| **AH-12** | `.harness/sessions.mjs` (`new`, `board`, `handoff`) | Only tracks branches created via `sessions.mjs new` (`task/<id>-<slug>`). A remote branch created in a cloud session (e.g. `claude/...`) is invisible to `sessions.mjs handoff` for cross-engine (`agy`/`codex`/`claude`) continuation. | Cross-agent continuation from cloud WIP branches requires manual git steps and gets no handoff prompt. | Add `sessions.mjs adopt <branch>` (or `handoff --branch <branch>`) to register/fetch a remote WIP branch into the local session board/worktree and emit a cross-engine handoff prompt (`H10`). |
+| **AH-13** | `.harness/sessions.mjs` (`checkpoint`) & `daemon.mjs` (`80%` quota warning) | `checkpoint` commits locally and only prints `git push` advice for cloud; cloud sessions hitting token limits can stop before pushing remaining WIP. | Unpushed WIP stays trapped in a dead cloud session when switching accounts or engines. | Add `checkpoint --push` and trigger an automatic WIP checkpoint + safe remote push (`Harness-Wip`) when hitting quota limits / 80% warning before handoff/stop (`H11`). |
 
 
 ### 3a. Verified against the real harness (Skill Foundry orchestrator, read-only, 2026-11-16)
@@ -100,7 +102,7 @@ and the ownership line holds (Skill Foundry changes only its own skills, pointer
 
 ---
 
-## 4. Open PO Decisions Required Before Implementation (`H1`–`H6`)
+## 4. Open PO Decisions Required Before Implementation (`H1`–`H11`)
 
 Claude Code in `sumtaimo/Agentic-Harness` MUST confirm these with TAIMO in plain Khmer before editing `lab`:
 
@@ -122,6 +124,8 @@ Claude Code in `sumtaimo/Agentic-Harness` MUST confirm these with TAIMO in plain
 7. **`H7` — Staging branch name (`AH-10`):** make it a config value with default `lab` (TAIMO's name for UAT); keep `uat` working for old projects?
 8. **`H8` — Worker permissions in cloud sessions (`AH-8`):** pass deny/allow rules explicitly to workers and warn in `doctor.mjs` when the workspace is not trusted — OK?
 9. **`H9` — Concurrency and limit resume (`AH-9`):** default to one real-agent worker at a time with a configurable cap, and resume after the usage-limit reset — OK?
+10. **`H10` — Adopt remote cloud WIP branches (`AH-12`):** allow `sessions.mjs adopt <branch>` (or `handoff --branch <branch>`) to attach an existing remote branch (like `claude/...`) to the local session board and generate a cross-engine handoff prompt (`agy`/`codex`/`claude`) — OK?
+11. **`H11` — Checkpoint push & auto-push on quota limit (`AH-13`):** add `checkpoint --push` and auto-checkpoint + push WIP (`Harness-Wip`) when hitting quota limits / 80% warning (never pushing to protected branches `master`/`main`/`release`/`prod` or secret files) — OK?
 
 ---
 
