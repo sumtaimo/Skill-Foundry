@@ -3,8 +3,8 @@
  * design-system engine: builds one complete, consistent design-token set from the user's goal.
  * Zero dependencies (Node standard library only). Deterministic: the same input gives the same files.
  *
- * CLI (run from the folder where the files must go, or pass --out):
- *   node engine/tokens.mjs --primary "#0f766e" [--accent "#f59e0b"] [--neutral|--success|--warning|--danger|--info "#hex"]
+ * CLI: run it as ONE plain command with the path of this script (no cd, no shell variable, no pipe, no ; or &&):
+ *   node <path-to-skill>/engine/tokens.mjs --primary "#0f766e" [--accent "#f59e0b"] [--neutral|--success|--warning|--danger|--info "#hex"]
  *                          [--archetype precise-fintech|calm-workspace|bold-consumer|editorial|dense-data-tool]
  *                          [--font "Font Name"] [--existing <file> ...] [--name "Product"] [--why "<one line>"] [--out <dir>]
  * Writes design-tokens.json, tokens.css and design-system-report.md (or, with --existing, the gap files
@@ -181,6 +181,69 @@ export function neutralRamp(hue, sat) {
   for (const st of [...STEPS, 950]) scale[st] = hslToHexKeepHue(hue, sat, LIGHTNESS[st] / 100);
   return { given: null, hue, saturation: sat, at: null, scale };
 }
+
+/** Largest spread (max minus min channel, 0 to 1) a colour may have and still count as one of the project's greys. */
+export const GREY_CHROMA = 0.12;
+/** HSL lightness range of a grey that can be a neutral step; pure white and pure black are paper and ink, not steps. */
+export const GREY_LIGHTNESS = [0.04, 0.985];
+const NOT_GREY_NAME = /primary|brand|accent|success|warning|danger|error|info/;
+
+/** The project's greys: colour tokens that are low in chroma and not named for a brand or status colour. @param {{name:string,value:string}[]} tokens */
+export function findGreys(tokens) {
+  const seen = new Set(), out = [];
+  for (const t of tokens) {
+    if (!isColour(t.value) || NOT_GREY_NAME.test(t.name.toLowerCase())) continue;
+    const hex = normHex(t.value);
+    const rgb = hexToRgb(hex), [, , l] = rgbToHsl(rgb);
+    if ((Math.max(...rgb) - Math.min(...rgb)) / 255 > GREY_CHROMA || l < GREY_LIGHTNESS[0] || l > GREY_LIGHTNESS[1] || seen.has(hex)) continue;
+    seen.add(hex); out.push({ name: t.name, hex });
+  }
+  return out;
+}
+
+/**
+ * A 50-950 neutral scale that keeps the project's own greys: each grey sits unchanged at the step whose lightness is nearest
+ * (when two compete for one step the nearer one is kept); the palest and darkest steps come from a tint of the greys' own hue and
+ * saturation; every other step is interpolated between its two neighbours. Returns null when there is no grey or the result is not
+ * strictly lighter-to-darker.
+ * @param {{name:string,hex:string}[]} greys @param {number} fallbackHue @param {number} fallbackSat
+ */
+export function neutralFromGreys(greys, fallbackHue, fallbackSat) {
+  if (!greys.length) return null;
+  const steps = [...STEPS, 950];
+  const info = greys.map((g) => { const rgb = hexToRgb(g.hex), [h, s, l] = rgbToHsl(rgb); return { ...g, h, s, l, c: (Math.max(...rgb) - Math.min(...rgb)) / 255 }; });
+  const tinted = info.filter((g) => g.c >= 0.02);
+  let hue = fallbackHue, sat = fallbackSat;
+  if (tinted.length) {
+    const x = tinted.reduce((a, g) => a + g.c * Math.cos((g.h * Math.PI) / 180), 0), y = tinted.reduce((a, g) => a + g.c * Math.sin((g.h * Math.PI) / 180), 0);
+    hue = ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
+    const ss = tinted.map((g) => g.s).sort((a, b) => a - b);
+    sat = Math.min(0.25, ss[Math.floor(ss.length / 2)]);
+  }
+  const base = neutralRamp(hue, sat).scale;
+  const at = {}, unplaced = [];
+  for (const g of info) {
+    let st = steps[0];
+    for (const x of steps) if (Math.abs(LIGHTNESS[x] / 100 - g.l) < Math.abs(LIGHTNESS[st] / 100 - g.l)) st = x;
+    const d = Math.abs(LIGHTNESS[st] / 100 - g.l);
+    if (!at[st] || d < at[st].d) { if (at[st]) unplaced.push(at[st]); at[st] = { ...g, d }; } else unplaced.push(g);
+  }
+  const anchors = { ...Object.fromEntries(Object.entries(at).map(([st, g]) => [st, g.hex])) };
+  for (const e of [50, 950]) if (!anchors[e]) anchors[e] = base[e];
+  const ordered = steps.filter((st) => anchors[st]);
+  const scale = {}, interpolated = [];
+  for (const st of steps) {
+    if (anchors[st]) { scale[st] = anchors[st]; continue; }
+    const a = [...ordered].reverse().find((x) => x < st), b = ordered.find((x) => x > st);
+    const t = (LIGHTNESS[a] - LIGHTNESS[st]) / (LIGHTNESS[a] - LIGHTNESS[b]);
+    const ra = hexToRgb(anchors[a]), rb = hexToRgb(anchors[b]);
+    scale[st] = rgbToHex(ra.map((v, i) => v + (rb[i] - v) * t));
+    interpolated.push(st);
+  }
+  for (let i = 1; i < steps.length; i++) if (luminance(scale[steps[i]]) >= luminance(scale[steps[i - 1]])) return null;
+  const kept = Object.entries(at).map(([st, g]) => ({ name: g.name, hex: g.hex, step: Number(st) })).sort((a, b) => a.step - b.step);
+  return { given: null, hue, saturation: sat, at: null, scale, fromGreys: { kept, unplaced: unplaced.map((g) => ({ name: g.name, hex: g.hex })), interpolated } };
+}
 export const MID_STEPS = [300, 400, 500, 600, 700, 800];
 /** Largest hue drift of the coloured steps (all, or the steps named), in degrees. */
 export function maxDrift(r, steps) {
@@ -236,18 +299,32 @@ function shades(r, s) {
 }
 
 /**
- * Build every token from the inputs.
+ * Build every token from the inputs. With `greys` (the project's own greys, see findGreys) the neutral scale keeps them;
+ * when roles built on them cannot reach the minimums, the default tinted neutral is used and `greysNote` says why.
  * @param {{primary?:string, accent?:string, neutral?:string, success?:string, warning?:string, danger?:string, info?:string,
- *   archetype?:string, font?:string, name?:string}} input
+ *   archetype?:string, font?:string, name?:string, greys?:{name:string,hex:string}[]}} input
  */
 export function build(input = {}) {
+  if (!input.greys?.length || input.neutral) return buildCore(input);
+  let reason;
+  try {
+    const b = buildCore(input);
+    const bad = b.pairs.filter((p) => p.light < p.need || p.dark < p.need);
+    if (b.scales.neutral.fromGreys && !bad.length) return b;
+    reason = b.scales.neutral.fromGreys ? `${bad.length} text or border pairs built on them fall below their minimum` : 'they do not make a scale from lighter to darker';
+  } catch (e) { reason = e.message; }
+  const b = buildCore({ ...input, greys: undefined });
+  b.greysNote = { reason, greys: input.greys };
+  return b;
+}
+function buildCore(input) {
   const archId = input.archetype ?? 'calm-workspace';
   const A = ARCHETYPES[archId];
   if (!A) throw new Error(`unknown archetype ${archId} (one of ${Object.keys(ARCHETYPES).join(', ')})`);
   const primaryHex = input.primary ? normHex(input.primary) : A.primary;
   const scales = { primary: ramp(primaryHex) };
   if (input.accent) scales.accent = ramp(input.accent);
-  scales.neutral = input.neutral ? ramp(input.neutral, { withDarkest: true }) : neutralRamp(scales.primary.hue, A.neutralSat);
+  scales.neutral = input.neutral ? ramp(input.neutral, { withDarkest: true }) : (input.greys?.length && neutralFromGreys(input.greys, scales.primary.hue, A.neutralSat)) || neutralRamp(scales.primary.hue, A.neutralSat);
   for (const k of Object.keys(STATUS_DEFAULTS)) scales[k] = ramp(input[k] ?? STATUS_DEFAULTS[k]);
   const N = scales.neutral.scale, P = scales.primary;
   const ink = N[900];
@@ -390,18 +467,19 @@ export function jsonPath(tk) {
 }
 
 /** W3C design tokens (Design Tokens Community Group format): groups, $type, $value, aliases in braces. */
-export function toJson(b, { only } = {}) {
+export function toJson(b, { only, skipNames = new Set() } = {}) {
   const doc = { $description: `Design tokens, archetype ${b.archetype}. Light and dark roles under color.role.light and color.role.dark.` };
   const set = (path, leaf) => { let o = doc; for (const k of path.slice(0, -1)) o = o[k] ??= {}; o[path.at(-1)] = leaf; };
   for (const tk of tokenList(b)) {
     if (only && !only.has(tk.group)) continue;
+    if (skipNames.has(`--${tk.name}`)) continue;
     const path = jsonPath(tk);
     const leaf = { $type: tk.type, $value: tk.json };
     if (tk.desc) leaf.$description = tk.desc;
     set(path, leaf);
   }
   if (!only || only.has('color-roles')) {
-    for (const mode of ['light', 'dark']) for (const [k, v] of Object.entries(b.roles[mode])) set(['color', 'role', mode, k], { $type: 'color', $value: jsonRef(v, only) });
+    for (const mode of ['light', 'dark']) for (const [k, v] of Object.entries(b.roles[mode])) if (!skipNames.has(`--color-${k}`)) set(['color', 'role', mode, k], { $type: 'color', $value: jsonRef(v, only) });
   }
   if (doc.color?.primary) doc.color.primary.$description = `Brand colour on at most ${b.A.accentShare}% of a screen: ${b.A.accentUse}.`;
   return doc;
@@ -427,17 +505,21 @@ export function toCss(b, { only, extraDark = [], skipNames = new Set() } = {}) {
   L.push('}');
   if (withRoles) L.push('', ':root[data-theme="light"] {', '  color-scheme: light;', ...role('light'), '}');
   const rgb = hexToRgb('#000000');
-  const darkShadows = (!only || only.has('shadow')) ? b.A.shadow.map((sh, i) => `  --shadow-${i + 1}: ${shadowCss(sh, rgb, 3)};`) : [];
+  const darkShadows = (!only || only.has('shadow')) ? b.A.shadow.flatMap((sh, i) => (skipNames.has(`--shadow-${i + 1}`) ? [] : [`  --shadow-${i + 1}: ${shadowCss(sh, rgb, 3)};`])) : [];
   const dark = [...(withRoles ? role('dark') : []), ...extraDark.map(([n, v]) => `  ${n}: ${v};`), ...darkShadows];
   if (withDark && dark.length) {
     L.push('', '@media (prefers-color-scheme: dark) {', '  :root:not([data-theme="light"]) {', '    color-scheme: dark;', ...dark.map((l) => `  ${l}`), '  }', '}');
     L.push('', ':root[data-theme="dark"] {', '  color-scheme: dark;', ...dark, '}');
   }
   if (!only || only.has('density')) {
-    for (const [mode, v] of Object.entries(DENSITY)) L.push('', `[data-density="${mode}"] {`, ...Object.entries(v).map(([n, x]) => `  --density-${n}: ${x}px;`), '}');
+    for (const [mode, v] of Object.entries(DENSITY)) {
+      const rows = Object.entries(v).filter(([n]) => !skipNames.has(`--density-${n}`)).map(([n, x]) => `  --density-${n}: ${x}px;`);
+      if (rows.length) L.push('', `[data-density="${mode}"] {`, ...rows, '}');
+    }
   }
   if (!only || only.has('motion')) {
-    L.push('', '@media (prefers-reduced-motion: reduce) {', '  :root {', ...Object.keys(b.A.motion).map((n) => `    --duration-${n}: 0ms;`), '  }', '}');
+    const rm = Object.keys(b.A.motion).filter((n) => !skipNames.has(`--duration-${n}`));
+    if (rm.length) L.push('', '@media (prefers-reduced-motion: reduce) {', '  :root {', ...rm.map((n) => `    --duration-${n}: 0ms;`), '  }', '}');
   }
   return L.join('\n') + '\n';
 }
@@ -460,6 +542,11 @@ export const GROUP_PATTERNS = [
   ['density', /density/],
 ];
 const isColour = (v) => /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(String(v).trim());
+/** A value that is a colour or points at one: hex, rgb(), hsl(), oklch(), a var(--x) or a {path} alias. Used only to find which family a token belongs to. */
+const isColourLike = (v) => isColour(v) || /^(rgba?|hsla?|oklch|oklab|color)\(/i.test(String(v).trim()) || /^var\(--[\w-]+\)$/.test(String(v).trim()) || /^\{[\w.-]+\}$/.test(String(v).trim());
+
+/** A family counts as present only when at least this many distinct tokens match it; one or two matches make it partly present. */
+export const FAMILY_MIN = 3;
 
 /** Read existing CSS custom properties and W3C/plain JSON tokens. */
 export function readExisting(files) {
@@ -479,15 +566,17 @@ export function readExisting(files) {
       for (const m of root.matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)) tokens.push({ name: m[1].slice(2), value: m[2].trim(), file: basename(f) });
     }
   }
-  const groups = new Set();
+  const found = new Map(); // family -> distinct token names that match it
   for (const tk of tokens) for (const [g, re] of GROUP_PATTERNS) {
     if (!re.test(tk.name.toLowerCase())) continue;
-    if (g.startsWith('color-') && !isColour(tk.value)) continue;
-    if (g === 'color-roles' && !isColour(tk.value)) continue;
-    groups.add(g); break;
+    if (g.startsWith('color-') && !isColourLike(tk.value)) continue;
+    if (!found.has(g)) found.set(g, new Set());
+    found.get(g).add(tk.name); break;
   }
+  const groups = new Set(), partial = [];
+  for (const [g, names] of found) { if (names.size >= FAMILY_MIN) groups.add(g); else partial.push({ group: g, have: [...names] }); }
   if (hasDark) groups.add('dark-mode');
-  return { tokens, groups };
+  return { tokens, groups, partial, greys: findGreys(tokens) };
 }
 
 /** Role of an existing colour token from its name, used to give it a dark value. */
@@ -544,6 +633,11 @@ export function report(b, { name = 'Product', why = '', path = 'a', existing = n
       ? `${what}: white text on your ${f.hex} is ${ratioText(f.white)} (below 4.5:1), so the fill uses ${k}-${f.fillStep} ${f.fillHex}, the nearest darker step of the same hue, where white text is ${ratioText(f.fillWhite)}. Your ${f.hex} stays unchanged at ${k}-${f.step}${k === 'primary' ? ' and as --color-brand' : ''}.`
       : `${what}: white text on your ${f.hex} is ${ratioText(f.white)} and no darker step of the same hue reaches 4.5:1 with white, so the fill keeps your colour with black text at ${ratioText(f.black)}.`);
   }
+  const fg = b.scales.neutral.fromGreys;
+  if (fg) {
+    const wroteNeutral = !existing || existing.added.includes('color-neutral');
+    L.push('', `Neutral scale: built from your own greys, ${wroteNeutral ? 'kept at their value' : 'used for the roles'}: ${fg.kept.map((k) => `${k.hex} (--${k.name}) at neutral-${k.step}`).join(', ')}. The other steps are interpolated between them (${fg.interpolated.join(', ')}); the palest and darkest steps come from a tint of your greys' hue.${fg.unplaced.length ? ` Not used for the scale because a nearer grey holds the step: ${fg.unplaced.map((u) => `${u.hex} (--${u.name})`).join(', ')}.` : ''} Every pair below is checked on this scale.`);
+  } else if (b.greysNote) L.push('', `Neutral scale: your greys (${b.greysNote.greys.map((g) => `${g.hex} (--${g.name})`).join(', ')}) could not make the scale because ${b.greysNote.reason}, so the default tinted neutral scale is used. Your greys stay as they are.`);
   const given = Object.values(b.scales).filter((r) => r.given);
   const mid = Math.max(...given.map((r) => maxDrift(r, MID_STEPS))), ends = Math.max(...given.map((r) => maxDrift(r)));
   L.push('', `Hue check: each input hex is unchanged and every step aims at its exact hue; lightness follows the fixed steps and saturation eases toward the palest and darkest steps, and steps 400 to 700 are never more colourful than your colour. Rounding to hex moves the hue at most ${mid.toFixed(1)}° at steps 300 to 800 and ${ends.toFixed(1)}° at the palest and darkest steps.`, '');
@@ -571,7 +665,9 @@ export function report(b, { name = 'Product', why = '', path = 'a', existing = n
   L.push('');
   if (existing) {
     L.push('### Kept from your system', `- ${existing.tokens.length} tokens in ${[...new Set(existing.tokens.map((t) => t.file))].join(', ')}, unchanged. Groups found: ${[...existing.groups].join(', ') || 'none'}.`);
+    L.push(`- A family counts as present when ${FAMILY_MIN} or more of your tokens match it; with fewer it is partly present and its missing tokens are added.`);
     L.push('', '### Added', existing.added.length ? `- Groups added: ${existing.added.join(', ')}.` : '- No gaps found. Nothing added.');
+    for (const p of existing.partial) L.push(`- ${p.group} is only partly present (${p.have.map((n) => `--${n}`).join(', ')}): ${p.added.length ? `added ${p.added.slice(0, 6).join(', ')}${p.added.length > 6 ? `, and ${p.added.length - 6} more` : ''}; your tokens are untouched.` : 'nothing to add.'}`);
     if (existing.darkFor.length) L.push(`- Dark values for your existing role tokens: ${existing.darkFor.join(', ')}.`);
     L.push('', '### Existing pairs below the minimum (kept, not changed)');
     L.push(...(failing.length ? failing.map((f) => `- ${f.fg} on ${f.bg}: ${f.fgHex} on ${f.bgHex}, ${ratioText(f.ratio)}; needs 4.5:1.`) : ['- None.']));
@@ -619,8 +715,14 @@ export function run(argv, cwd = process.cwd()) {
     existing.added = ALL_GROUPS.filter((g) => !existing.groups.has(g));
     only = new Set(existing.added);
   }
-  const b = build({ primary: o.primary, accent: o.accent, neutral: o.neutral, success: o.success, warning: o.warning, danger: o.danger, info: o.info, archetype: o.archetype, font: o.font });
+  const b = build({ greys: existing?.greys, primary: o.primary, accent: o.accent, neutral: o.neutral, success: o.success, warning: o.warning, danger: o.danger, info: o.info, archetype: o.archetype, font: o.font });
   if (existing) {
+    const listed = tokenList(b);
+    for (const p of existing.partial) {
+      p.added = p.group === 'color-roles'
+        ? Object.keys(b.roles.light).map((k) => `--color-${k}`).filter((n) => !skipNames.has(n))
+        : listed.filter((tk) => tk.group === p.group && !skipNames.has(`--${tk.name}`)).map((tk) => `--${tk.name}`);
+    }
     existing.darkFor = [];
     if (only.has('dark-mode') && existing.groups.has('color-roles')) {
       for (const t of existing.tokens) { const r = isColour(t.value) && roleOfName(t.name); if (r) { extraDark.push([`--${t.name}`, b.roles.dark[r].hex]); existing.darkFor.push(`--${t.name}`); } }
@@ -644,7 +746,7 @@ export function run(argv, cwd = process.cwd()) {
     write('tokens.css', toCss(b));
   } else if (existing.added.length || extraDark.length) {
     for (const f of ['design-tokens.gaps.json', 'tokens.gaps.css']) if (existsSync(join(out, f)) && !o.force) throw new Error(`${f} already exists; pass --force to replace your earlier gap file`);
-    write('design-tokens.gaps.json', JSON.stringify(toJson(b, { only }), null, 2) + '\n');
+    write('design-tokens.gaps.json', JSON.stringify(toJson(b, { only, skipNames }), null, 2) + '\n');
     write('tokens.gaps.css', toCss(b, { only, extraDark, skipNames }));
   }
   const path = existing ? 'c' : o.primary ? 'a' : 'b';
@@ -658,7 +760,10 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   try {
     const r = run(process.argv.slice(2));
     console.log(r.md);
-    console.log(`---\nFiles written to ${r.out}. Reply to the user with the report above, word for word (it is also in design-system-report.md), and nothing before or after it: it already lists the files, the checks and the open questions.`);
+    console.log(`---\nFiles written to ${r.out}. Reply to the user with the report above, word for word (it is also in design-system-report.md), and nothing before or after it: it already lists the files, the checks and the open questions. This run is the engine's own result: do not add that anything was built by hand, and do not run the engine again just to see it.`);
     process.exit(r.bad.length ? 1 : 0);
-  } catch (e) { console.error(`design-system engine: ${e.message}`); process.exit(2); }
+  } catch (e) {
+    console.error(`design-system engine: ${e.message}\nWhat to do: fix the input and run it again as ONE plain command, node <path-to-skill>/engine/tokens.mjs <flags>, with no cd, no shell variable, no pipe and no ; or &&. If this sandbox refuses the command or Node.js is missing, build the set by hand from the references and add this open question to the report: "The engine could not run (<say plainly why>), so the tokens were built by hand; run the engine to confirm the numbers."`);
+    process.exit(2);
+  }
 }

@@ -832,5 +832,175 @@
         "value": 3
       }
     ]
+  },
+  {
+    "id": "engine-one-command",
+    "prompt": "We're building a project-planning tool for small teams. Our brand colour is #2563eb. Please set up our design tokens, light and dark mode included, in the current folder.",
+    "expect": [
+      {
+        "type": "fileExists",
+        "value": "design-tokens.json"
+      },
+      {
+        "type": "fileExists",
+        "value": "tokens.css"
+      },
+      {
+        "type": "fileExists",
+        "value": "design-system-report.md"
+      },
+      {
+        "type": "contains",
+        "value": "## Design system:"
+      },
+      {
+        "type": "contains",
+        "value": "Hue check: each input hex is unchanged"
+      },
+      {
+        "type": "contains",
+        "value": "--color-brand: #2563eb"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "notContains",
+        "value": "built by hand"
+      },
+      {
+        "type": "notContains",
+        "value": "could not run"
+      },
+      {
+        "type": "notContains",
+        "value": "@import"
+      }
+    ]
+  },
+  {
+    "id": "existing-partial",
+    "prompt": "Our styles/base.css only has these few tokens. Complete the design tokens around them (spacing, dark mode, motion, the rest) but don't change or rename anything we already have:\n:root {\n  --gutter: 24px;\n  --ink: #1f2933;\n  --paper: #f5f7fa;\n  --line: #cbd2d9;\n  --brand: #0d9488;\n}",
+    "expect": [
+      {
+        "type": "fileExists",
+        "value": "tokens.gaps.css"
+      },
+      {
+        "type": "fileExists",
+        "value": "design-tokens.gaps.json"
+      },
+      {
+        "type": "fileExists",
+        "value": "design-system-report.md"
+      },
+      {
+        "type": "contains",
+        "value": "Path c"
+      },
+      {
+        "type": "contains",
+        "value": "spacing is only partly present (--gutter)"
+      },
+      {
+        "type": "contains",
+        "value": "--space-16: 16px;"
+      },
+      {
+        "type": "contains",
+        "value": "--space-64: 64px;"
+      },
+      {
+        "type": "contains",
+        "value": "--radius-md:"
+      },
+      {
+        "type": "contains",
+        "value": "--shadow-1:"
+      },
+      {
+        "type": "contains",
+        "value": "--duration-fast:"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-reduced-motion: reduce"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-color-scheme: dark"
+      },
+      {
+        "type": "contains",
+        "value": "Neutral scale: built from your own greys"
+      },
+      {
+        "type": "contains",
+        "value": "#1f2933 (--ink) at neutral-900"
+      },
+      {
+        "type": "contains",
+        "value": "#cbd2d9 (--line) at neutral-200"
+      },
+      {
+        "type": "contains",
+        "value": "#f5f7fa (--paper) at neutral-50"
+      },
+      {
+        "type": "contains",
+        "value": "--color-neutral-900: #1f2933;"
+      },
+      {
+        "type": "contains",
+        "value": "--color-neutral-200: #cbd2d9;"
+      },
+      {
+        "type": "notContains",
+        "value": "built by hand"
+      },
+      {
+        "type": "notContains",
+        "value": "@import"
+      }
+    ]
+  },
+  {
+    "id": "engine-unavailable",
+    "prompt": "Our brand colour is #7c3aed and we want a calm, trustworthy feel. Please build our design tokens with light and dark mode. Heads-up: this session does not allow running any commands (no node, no shell), so do not run any.",
+    "expect": [
+      {
+        "type": "fileExists",
+        "value": "design-tokens.json"
+      },
+      {
+        "type": "fileExists",
+        "value": "tokens.css"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "The engine could not run ("
+      },
+      {
+        "type": "contains",
+        "value": "so the tokens were built by hand; run the engine to confirm the numbers."
+      },
+      {
+        "type": "contains",
+        "value": "#7c3aed"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-color-scheme: dark"
+      },
+      {
+        "type": "notContains",
+        "value": "@import"
+      }
+    ]
   }
 ]

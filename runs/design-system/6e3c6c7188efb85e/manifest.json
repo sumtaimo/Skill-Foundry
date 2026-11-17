@@ -1,0 +1,21 @@
+{
+  "skill": "design-system",
+  "version": "1.0.0",
+  "caseId": "no-input",
+  "inputSha256": "528bc811a93464f40514fa9d69d549a862878bc2ce2b8ed1f2cbe7b4e64e79bb",
+  "skillSha256": "3db22158d82b836250faab59ca4c7ee930fe90ab7595967dc3d73e7d99b20cb7",
+  "key": "6e3c6c7188efb85e51711309d73eead5d0ed7574fe8994f149fbd64c72d876b9",
+  "startedAt": "2026-11-17T00:06:56.951Z",
+  "finishedAt": "2026-11-17T00:07:06.369Z",
+  "runner": "custom",
+  "exitCode": 0,
+  "costUsd": null,
+  "usage": null,
+  "files": [],
+  "checks": {
+    "expectations": 4,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "The output folder holds no existing tokens, and the request gives no colour, style or existing system. Layer 03, step 7 applies, so I'm replying with its fixed sentence and writing no files.\n\nGive me a brand colour as a hex code (for example #2563eb), a few words about the style you want, or the path to your existing design tokens."
+}

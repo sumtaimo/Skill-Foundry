@@ -24,8 +24,8 @@ Hue check: ...
 ### Contrast
 | Text | On | Light | Dark | Needs | Result |
 
-### Kept from your system      (path c only)
-### Added                      (path c only)
+### Kept from your system      (path c only: the tokens kept, and the rule for a present family)
+### Added                      (path c only: groups added, and each partly present family with the tokens added)
 ### Existing pairs below the minimum (kept, not changed)   (path c only)
 
 ### How to use

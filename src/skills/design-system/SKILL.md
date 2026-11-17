@@ -37,7 +37,7 @@ Follow the layers in order. Each layer file is the detailed chapter for that ste
 
 The fixed scales, the contrast formula and the token names are in [references/README.md](references/README.md).
 The five style archetypes, each a set of numbers, are in [references/archetypes.md](references/archetypes.md).
-The engine is `engine/tokens.mjs` in this folder (Node.js, no dependencies).
+The engine is `engine/tokens.mjs` in this folder (Node.js, no dependencies). Run it exactly as in layer 04, step 2.
 
 ## Rules
 
@@ -59,12 +59,15 @@ The engine is `engine/tokens.mjs` in this folder (Node.js, no dependencies).
 - R-design-system-16: The skill MUST be self-contained; NEVER name a repository path in SKILL.md, layers or references.
 - R-design-system-17: SKILL.md MUST stay within 150 lines, with frontmatter name, description and semver version.
 - R-design-system-18: Every relative link MUST point to a file inside the skill folder.
+- R-design-system-19: The engine MUST be run as ONE plain command with the path of the script (`node <skill folder>/engine/tokens.mjs ...`): no `cd`, no shell variable, no pipe, no `;` or `&&`; when it cannot run, the reply MUST say so plainly, on the first line after the heading and in an open question, and the tokens are built by hand.
+- R-design-system-20: On path c a family (colour scale, roles, type, spacing, control, radius, shadow, border width, motion, breakpoint, density) counts as present only when at least 3 of the user's tokens match it; with 1 or 2 matches it is partly present, and its missing tokens MUST be written to the gap files by name, NEVER over a user token, also not in the dark, reduced-motion or density blocks.
+- R-design-system-21: On path c the neutral scale MUST keep the project's own greys (colour tokens of low chroma, found by value) at their value, fill the other steps by interpolation and be checked like any scale; when roles on them cannot reach the minimums, the default tinted scale is used and the report says why.
 
 Each rule's check or reviewer item is in `RULES.json`.
 
 ## Checks
 
-- Run the engine: it exits 0 only when every text pair meets its minimum, and prints every ratio.
+- Run the engine as one plain command (`node <skill folder>/engine/tokens.mjs ...`, no `cd`, no shell variable, no pipe): it exits 0 only when every text pair meets its minimum, and prints every ratio.
 - Search design-tokens.json and tokens.css for each hex the user gave; each appears unchanged.
 - Search tokens.css for "prefers-color-scheme: dark", `[data-theme="dark"]` and "prefers-reduced-motion".
 - Search the output for "@import", "http" and "url(": none may appear.

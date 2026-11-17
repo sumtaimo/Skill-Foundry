@@ -1,0 +1,21 @@
+{
+  "skill": "design-system",
+  "version": "1.0.0",
+  "caseId": "screen-declined",
+  "inputSha256": "4239e12fb36c1aab2904c4b9725548f3f50342325190b0c37ec5cacefb00520d",
+  "skillSha256": "3db22158d82b836250faab59ca4c7ee930fe90ab7595967dc3d73e7d99b20cb7",
+  "key": "a0b79e72fd303a3acad09042a00e3ef59b412dcf19b21768760bb12253e752a9",
+  "startedAt": "2026-11-17T00:07:06.423Z",
+  "finishedAt": "2026-11-17T00:07:14.703Z",
+  "runner": "custom",
+  "exitCode": 0,
+  "costUsd": null,
+  "usage": null,
+  "files": [],
+  "checks": {
+    "expectations": 4,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "This is a screen request, so the skill's fixed decline sentence applies. I wrote no files.\n\nThis skill builds design tokens, not screens. For finished screen code, use ui-polish."
+}
