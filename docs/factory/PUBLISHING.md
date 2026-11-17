@@ -1,20 +1,20 @@
 # Release workflow: from the lab to every user's project
 
 This repository is the **lab**. A skill reaches other people only through this path, in this order.
-Every agent follows it; nobody skips a step. Owner approvals happen in chat with TAIMO.
+Every agent follows it; nobody skips a step. Owner approvals happen in chat with the product owner.
 
 ```
 1 BUILD (claude/... branch) → 2 PROVE (real agents) → 3 RELEASE CHECK → 4 LAB (integrate + check) → 5 OWNER OK → 6 MASTER → 7 USERS UPDATE
 ```
 
 Branches: `claude/...` = one piece of work; **`lab`** = the staging branch where finished work is integrated and checked
-before a release (TAIMO's name for UAT, set 2026-11-16); `master` = the release (GitHub Pages and `npx` read it).
+before a release (the product owner's name for UAT, set 2026-11-16); `master` = the release (GitHub Pages and `npx` read it).
 
 ## 1. Build, on a `claude/...` working branch, never on master
 
 - One skill per session (`AGENTS.md`, SKILL QUALITY LAW rule 8). Never a skill in `src/factory/locks.json`.
 - Follow `src/skills/skill-smith/SKILL.md` and `docs/factory/STANDARD.md` (ten layers).
-- Version stays `1.0.0` until TAIMO calls it final; record changes under the current version (lessons L4).
+- Version stays `1.0.0` until the product owner calls it final; record changes under the current version (lessons L4).
 - Correct `roles` in `src/factory/registry.json`: they decide which harness roles receive the skill in users' projects.
 
 ## 2. Prove it with real agents (costs tokens; never hand-written)
@@ -48,8 +48,8 @@ Set `status: ready` in the registry only when this passes.
 
 ## 4. Owner approval
 
-Ask TAIMO in chat to release `lab` to `master`, listing what `lab` holds. Report in Khmer: what changed, which results came from real agents, the `release:check` output, open items.
-Merge only after TAIMO approves **in chat**. Never merge, push to master, or force-push on your own.
+Ask the product owner in chat to release `lab` to `master`, listing what `lab` holds. Report in Khmer: what changed, which results came from real agents, the `release:check` output, open items.
+Merge only after the product owner approves **in chat**. Never merge, push to master, or force-push on your own.
 
 ## 5. Master = the release
 
@@ -71,9 +71,9 @@ Never break `add`, `check`, `update` or `--rules` for projects that already inst
 
 ## Versions (slow on purpose)
 
-- Each skill has its own version (frontmatter, CHANGELOG, registry). It stays where it is until TAIMO calls it final (L4).
+- Each skill has its own version (frontmatter, CHANGELOG, registry). It stays where it is until the product owner calls it final (L4).
 - Skill Foundry itself has one version in `package.json` and the root `CHANGELOG.md` (now 0.1.0). Bump it only with
-  TAIMO's approval: PATCH for fixes, MINOR for new commands or skills. Record smaller changes under the current version.
+  the product owner's approval: PATCH for fixes, MINOR for new commands or skills. Record smaller changes under the current version.
 - After a release merge, tag it: `git tag v<version>` on the merge commit.
 
 ## What users receive
