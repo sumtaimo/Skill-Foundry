@@ -125,6 +125,10 @@ The cost a child session reports leaves out the `claude -p` evaluation agents it
 - Tests use two real snapshots: `lab-v1.0.15-0f39c98` (no flag) and `lab-b8d0ca0` (flag). `npm test` 331 pass, 0 fail, 1 skipped; guard ok; `release:check` READY.
 - Real `install.mjs` (b8d0ca0) in empty folders, both orders, run twice: harness doctor 0 failures, Skill Foundry doctor 0 problems, 5 expected H2(b) warnings, one managed AGENTS.md block, no duplicate deny rules. Harness installed after Skill Foundry without `--with-skills` writes no pointers (doctor says to run `update`).
 
+## 5h. Harness default install (9acefd8), 2026-11-17
+- The harness now runs `add spec-writer --quiet` on every install (`--with-skills` = `add --all`, `--no-skills` = nothing). Tests added: the stub is replaced once with `SKILL.md.orig` kept, a second add changes nothing, and `add` works with no `.harness/skills/` folder and no git repository (it never creates harness folders).
+- Real `install.mjs` 9acefd8, both orders, in empty folders: both doctors 0 problems (5 expected H2(b) warnings), one pointer, one AGENTS.md block. Harness `test/audit.mjs --foundry`: 33 passed, 0 failed. A failing foundry command does not stop the harness install.
+
 ## 6. Cost log (list price reported by child sessions)
 
 Skills build-out about $92; audit about $30; Phase A $1.46; Phase B $3.94 plus follow-up. Lesson: re-record only what changed, reuse audits, one session per phase, one agent at a time.

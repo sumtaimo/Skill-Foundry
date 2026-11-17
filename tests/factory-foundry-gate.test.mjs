@@ -11,7 +11,7 @@
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { catalog, DENY, projectRoles } from '../src/factory/foundry.mjs';
 import { harnessSources, installHarness, newProject, run, tree, w, rd, governance, FIXTURES } from './helpers/harness-project.mjs';
@@ -169,4 +169,33 @@ test('doctor reads the harness capability flag, not a version: explicit team ski
     const n = JSON.parse(run(p, ['doctor', '--json']).out.join('\n')).items.filter((i) => /switch off autoApply/.test(i.message)).length;
     assert.equal(n > 0, expectWarn, `${src.label}: explicit lead skills ${expectWarn ? 'warn (no capability flag)' : 'do not warn (flag present)'}`);
   }
+});
+
+for (const src of harnessSources()) {
+  test(`harness default install [${src.label}]: add spec-writer replaces the starter stub once, and adding again changes nothing`, () => {
+    const p = newProject('dflt'); installHarness(p, src.dir);
+    const stub = rd(p, '.harness/skills/spec-writer/SKILL.md');
+    const first = run(p, ['add', 'spec-writer', '--quiet']); assert.equal(first.code, 0, first.out.join('\n'));
+    const after = rd(p, '.harness/skills/spec-writer/SKILL.md');
+    assert.match(after, /installed-by: skill-foundry/, 'the pointer replaced the stub');
+    assert.doesNotMatch(after, /starter-stub: agentic-harness/);
+    if (/starter-stub: agentic-harness/.test(stub)) assert.equal(rd(p, '.harness/skills/spec-writer/SKILL.md.orig'), stub, 'the original stub is kept as SKILL.md.orig');
+    assert.equal(rd(p, 'AGENTS.md').split('skill-foundry:begin').length - 1, 1, 'one managed block');
+    const before = tree(p);
+    const again = run(p, ['add', 'spec-writer', '--quiet']); assert.equal(again.code, 0);
+    assert.deepEqual(tree(p), before, 'a second add changes nothing and duplicates nothing');
+    const d = JSON.parse(run(p, ['doctor', '--json']).out.join('\n')); assert.equal(d.counts.problem, 0, JSON.stringify(d.items.filter((i) => i.level === 'problem')));
+  });
+}
+
+test('add spec-writer never breaks an install: no .harness/skills folder, and no git repository', () => {
+  const src = harnessSources().filter((x) => x.snapshot).find((x) => hasFlag(x.dir)).dir;
+  const p = newProject('nogit'); installHarness(p, src);
+  rmSync(join(p, '.git'), { recursive: true, force: true });
+  rmSync(join(p, '.harness', 'skills'), { recursive: true, force: true });
+  assert.ok(!existsSync(join(p, '.git')), 'the project is not a git repository');
+  const r = run(p, ['add', 'spec-writer', '--quiet']); assert.equal(r.code, 0, r.out.join('\n'));
+  assert.ok(!existsSync(join(p, '.harness', 'skills')), 'Skill Foundry never creates a folder of the harness (ownership line)');
+  assert.ok(existsSync(join(p, '.claude', 'skills', 'spec-writer', '.foundry.json')));
+  const d = JSON.parse(run(p, ['doctor', '--json']).out.join('\n')); assert.equal(d.counts.problem, 0);
 });
