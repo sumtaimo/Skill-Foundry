@@ -11,6 +11,7 @@ Defined terms, used by every layer:
 - **Status**: `failure` when the markup breaks the criterion, `advisory` when it is a best practice tied to the criterion. The script sets it.
 - **Who is affected**: the people who hit the problem: keyboard users, screen reader users, voice control users, zoom users, deaf or hard-of-hearing users.
 - **Manual test**: a check that needs a person with assistive technology; the script cannot do it.
+- **Skipped by rule**: the checks this skill never makes (contrast, focus-ring style, spacing, target size). Every reply header says so in one fixed sentence, so a count of 0 findings is never read as a clean page.
 - **Out of scope**: contrast, focus-ring style, spacing, target size (the polish skill owns them), usability of the flow, visible words, a conformance certificate.
 
 Steps:

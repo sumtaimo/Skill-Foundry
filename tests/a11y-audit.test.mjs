@@ -47,6 +47,7 @@ const PAIRS = [
   ['label-orphan', '<label for="nope">Name</label><input id="n">', '<label for="n">Name</label><input id="n">'],
   ['required-state', '<label for="n">Name *</label><input id="n">', '<label for="n">Name *</label><input id="n" required>'],
   ['error-link', '<label for="n">Age</label><input id="n" aria-invalid="true">', '<label for="n">Age</label><input id="n" aria-invalid="true" aria-describedby="e"><p id="e">Enter a number</p>'],
+  ['lang-parts', '<!doctype html><html lang="en"><head><title>T</title></head><body><main><button type="button">ចុះឈ្មោះ</button></main></body></html>', '<!doctype html><html lang="en"><head><title>T</title></head><body><main><button type="button" lang="km">ចុះឈ្មោះ</button></main></body></html>'],
   ['autocomplete', '<label for="e">Email</label><input id="e" type="email">', '<label for="e">Email</label><input id="e" type="email" autocomplete="email">'],
   ['group-name', '<input type="radio" name="s" aria-label="S"><input type="radio" name="s" aria-label="M">', '<fieldset><legend>Size</legend><input type="radio" name="s" aria-label="S"><input type="radio" name="s" aria-label="M"></fieldset>'],
   ['click-no-keyboard', '<div onclick="go()">Go</div>', '<button type="button" onclick="go()">Go</button>'],
@@ -79,6 +80,75 @@ test('the script has a trigger and a quiet case for every check, and nothing els
     assert.ok(ids(bad).includes(id), `${id} must fire`);
     assert.ok(!ids(good).includes(id), `${id} must stay quiet on good markup (got ${ids(good)})`);
   }
+});
+
+const KM = 'ចុះឈ្មោះ';
+test('lang-parts (SC 3.1.2): a foreign script without lang is a finding with a lang fix; the same text under lang, or in the page language, is quiet', () => {
+  const f = E.audit(page(`<button type="button">${KM}</button>`)).findings.filter((x) => x.rule === 'lang-parts');
+  assert.equal(f.length, 1);
+  assert.equal(f[0].sc, '3.1.2'); assert.equal(f[0].level, 'AA'); assert.equal(f[0].scName, 'Language of Parts');
+  assert.equal(f[0].element, '<button type="button">');
+  assert.match(f[0].fix, new RegExp(`\\+ <button type="button" lang="km">`));
+  // a parent with lang covers its children; the html element's own lang does not cover a different script
+  assert.ok(!ids(page(`<p lang="km"><button>${KM}</button></p>`)).includes('lang-parts'));
+  assert.ok(!ids(page(`<button lang="km">${KM}</button>`)).includes('lang-parts'));
+  // a page whose parts all have lang is quiet, also with several languages
+  assert.ok(!ids(page(`<h1>Welcome</h1><p lang="km">${KM}</p><p lang="ar">مرحبا بك</p><p lang="ja">こんにちは</p>`)).includes('lang-parts'));
+  // the page language is read from html: a Khmer page needs no lang on Khmer text, English text then has none either (fewer than three words)
+  assert.ok(!ids(`<!doctype html><html lang="km"><head><title>T</title></head><body><main><h1>${KM}</h1><p>OK</p></main></body></html>`).includes('lang-parts'));
+  assert.ok(ids(`<!doctype html><html lang="km"><head><title>T</title></head><body><main><p>Create your account today</p></main></body></html>`).includes('lang-parts'));
+  // a Khmer attribute value is covered too, and fix keeps every word
+  assert.ok(ids(page(`<button aria-label="${KM}">Register</button>`)).includes('lang-parts'));
+  // mixed text: the fix wraps only the foreign words and keeps the page-language words
+  const m = E.audit(page(`<p>Press ${KM} to start</p>`)).findings.find((x) => x.rule === 'lang-parts');
+  assert.ok(m.fix.includes(`<span lang="km">${KM}</span>`));
+  // fragments: no html element, so the writing system most of the text uses is taken as the page language, and the note says so
+  const frag = E.audit(`<button>${KM}</button><p>Create your account today</p><p>Name</p>`).findings.find((x) => x.rule === 'lang-parts');
+  assert.ok(frag && /taken from the script most of the text uses/.test(frag.note));
+  // proper names and code stay quiet: a few Latin words on a Khmer page, a code element
+  assert.ok(!ids(`<!doctype html><html lang="km"><head><title>T</title></head><body><main><p>${KM} Skill Foundry</p><code>${KM}</code></main></body></html>`).includes('lang-parts'));
+});
+
+test('lang-parts keeps the JSX spelling and finds text in JSX', () => {
+  const r = E.audit(`export const Register = () => (<main><h1>Join us today and register now</h1><button className="cta" onClick={go}>${KM}</button><p lang="km">${KM}</p></main>);`);
+  assert.equal(r.mode, 'jsx');
+  const f = r.findings.filter((x) => x.rule === 'lang-parts');
+  assert.equal(f.length, 1);
+  assert.match(f[0].fix, /<button className="cta" onClick=\{go\} lang="km">/);
+  assert.ok(!/xml:lang/.test(f[0].fix));
+  assert.ok(!ids(`export const R = () => (<main><h1>Join us today and register now</h1><button className="cta" lang="km">${KM}</button></main>);`).includes('lang-parts'));
+});
+
+test('the script prints the reply header with the skipped-by-rule sentence, and tells the agent how to reply and what to do on an error', () => {
+  const run = (args, input) => spawnSync('node', [path.join(DIR, 'engine', 'audit.mjs'), ...args], { encoding: 'utf8', input });
+  const clean = run(['-'], cases.find((c) => c.id === 'clean-page').prompt.split('\n\n').slice(1).join('\n\n'));
+  assert.match(clean.stdout, /found 0 \(0 failure, 0 advisory\)/);
+  assert.ok(clean.stdout.includes(E.SKIPPED_BY_RULE), 'the sentence is in the header even at 0 findings');
+  assert.match(clean.stdout, /does not mean the page is clean/);
+  assert.match(clean.stdout, /This run is the script's own result/);
+  assert.match(clean.stdout, /Do not add that anything was made by hand/);
+  const h = E.header(E.audit('<img src="a.png">'));
+  assert.equal(h.length, 2); assert.equal(h[1], E.SKIPPED_BY_RULE);
+  const bad = run(['--file', '/no/such/file.html']);
+  assert.equal(bad.status, 2);
+  assert.match(bad.stderr, /ONE plain command/);
+  assert.match(bad.stderr, /no cd, no shell variable, no pipe/);
+  assert.ok(bad.stderr.includes('The script could not run ('));
+  assert.ok(bad.stderr.includes('The script did not run; these checks were made by reading, so run it to confirm.'));
+  assert.match(run([]).stderr, /What to do:/);
+});
+
+test('the skill tells the agent to run the script as one plain command and to say so on the first line when it cannot', () => {
+  const read = (f) => readFileSync(path.join(DIR, f), 'utf8');
+  assert.match(read('layers/04-flow.md'), /ONE plain command/);
+  assert.match(read('layers/04-flow.md'), /No `cd` before it, no shell variable/);
+  assert.match(read('layers/06-states.md'), /first line of the reply[^]*The script could not run \(<say plainly why>\)/);
+  assert.ok(read('layers/06-states.md').includes(E.COULD_NOT_RUN));
+  assert.match(read('layers/06-states.md'), /hex code[^]*Not checked here/i);
+  assert.match(read('layers/08-output.md'), /Not checked here[^]*hex colour values/i);
+  assert.ok(read('layers/08-output.md').includes(E.SKIPPED_BY_RULE));
+  const rules = JSON.parse(read('RULES.json'));
+  for (const id of ['R-a11y-audit-17', 'R-a11y-audit-18', 'R-a11y-audit-19']) assert.ok(rules.some((r) => r.id === id), id);
 });
 
 test('the script reports nothing on a clean page and runs the page-level checks only on a full page', () => {
@@ -151,16 +221,18 @@ function answer(id) {
   const c = cases.find((x) => x.id === id);
   if (id === 'no-code') return NOCODE;
   const r = E.audit(codeOf(c));
-  const first = { 'contrast-request': [VISUAL], 'usability-request': [FLOW], 'rewrite-request': [TEXT], 'certificate-request': [CERT] }[id] ?? [];
+  const byReading = id === 'engine-unavailable';
+  const first = { 'contrast-request': [VISUAL], 'usability-request': [FLOW], 'rewrite-request': [TEXT], 'certificate-request': [CERT], 'engine-unavailable': [E.COULD_NOT_RUN.replace('<say plainly why>', 'this session does not allow running commands')] }[id] ?? [];
+  const head = byReading ? ['Input: HTML. The checks were made by reading; no script counts. Not a conformance claim: only the checks listed here ran.', E.SKIPPED_BY_RULE] : E.header(r);
   const fixes = r.findings.map((f) => `${f.n}. **${f.rule}** · SC ${f.sc} ${f.scName} (${f.level}) · ${f.status}\n   Element: \`${f.element}\` (line ${f.line})\n   Affects: ${f.who.join(', ')}\n   Problem: ${f.problem}\n   Fix:\n   \`\`\`diff\n${f.fix}\n   \`\`\``);
-  return [...first, '', '## Accessibility audit: x', '', `Input: ${r.mode.toUpperCase()}. Not a conformance claim: only the checks listed here ran. Visible words kept: ${codeOf(c).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()}`, '', '### Findings', fixes.length ? fixes.join('\n\n') : 'None.', '', '### Needs a manual test', ...r.manual.map((m) => `- ${m}`), '', '### Not checked here', '- Contrast, focus-ring style, spacing and target size: not checked; ui-polish owns them.', '', '### Open questions', '- None.'].join('\n');
+  return [...first, '', '## Accessibility audit: x', '', ...head, `Visible words kept: ${codeOf(c).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()}`, '', '### Findings', fixes.length ? fixes.join('\n\n') : 'None.', '', '### Needs a manual test', ...r.manual.map((m) => `- ${m}`), '', '### Not checked here', '- Contrast, focus-ring style, spacing and target size: not checked; ui-polish owns them.', '', '### Open questions', byReading ? '- The script did not run; these checks were made by reading, so run it to confirm.' : '- None.'].join('\n');
 }
 
 test('a11y-audit eval cases pass on answers built from the script and the fixed sentences', () => {
   const byPrompt = Object.fromEntries(cases.map((c) => [c.prompt, answer(c.id)]));
   const r = runEvals(DIR, (p) => ({ text: byPrompt[p] }));
   assert.equal(r.failed, 0, JSON.stringify(r.results.filter((x) => !x.ok)));
-  assert.equal(cases.length, 13);
+  assert.equal(cases.length, 16);
 });
 
 test('a11y-audit evals reject findings without code, a missing boundary sentence, contrast values, a rewritten label and a conformance claim', () => {

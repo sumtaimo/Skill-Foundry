@@ -3,7 +3,8 @@
  * a11y-audit engine: lists structural accessibility problems in an HTML or JSX string, so the result
  * does not depend on an agent's eyes. Node.js standard library only, no dependencies.
  *
- *   node audit.mjs --file page.html          audit a file
+ * Run it as ONE plain command with the path of this script (no cd, no shell variable, no pipe, no ; or &&):
+ *   node audit.mjs --file page.html          audit a file (give the full path)
  *   node audit.mjs --html "<button></button>" audit a string
  *   node audit.mjs -  < page.html             audit stdin (a here-document works)
  *   add --json for machine-readable output
@@ -34,6 +35,7 @@ export const RULES = [
   ['label-orphan', '1.3.1', 'Info and Relationships', 'A', ['screen reader', 'voice control'], 'failure', false],
   ['required-state', '1.3.1', 'Info and Relationships', 'A', ['screen reader'], 'failure', false],
   ['error-link', '3.3.1', 'Error Identification', 'A', ['screen reader'], 'failure', false],
+  ['lang-parts', '3.1.2', 'Language of Parts', 'AA', ['screen reader'], 'failure', false],
   ['autocomplete', '1.3.5', 'Identify Input Purpose', 'AA', ['keyboard', 'voice control'], 'failure', false],
   ['group-name', '1.3.1', 'Info and Relationships', 'A', ['screen reader'], 'failure', false],
   ['click-no-keyboard', '2.1.1', 'Keyboard', 'A', ['keyboard', 'voice control'], 'failure', false],
@@ -73,8 +75,38 @@ const MANUAL_ALWAYS = [
   'Keyboard only: press Tab through the whole input; every control is reachable, the order follows the reading order and focus is never trapped (SC 2.1.1, 2.1.2, 2.4.3).',
   'Screen reader pass (for example NVDA with Firefox, VoiceOver with Safari): names, roles, states and headings are spoken as expected (SC 4.1.2, 1.3.1).',
   'Voice control pass (for example Voice Control or Dragon): say each visible label and check that it activates the control (SC 2.5.3).',
+  'Language of parts: words in another language that shares the page\'s writing system (for example French on an English page) need a lang attribute too; the script sees only a change of writing system (SC 3.1.2).',
   'Zoom and reflow: set the browser to 200% and to 400% at 1280 CSS px wide (about 320 CSS px); no content is lost and nothing needs two-way scrolling (SC 1.4.4, 1.4.10).',
 ];
+
+/** The fixed sentence that goes into every reply header: the checks skipped by rule, so "0 findings" is never read as "clean". */
+export const SKIPPED_BY_RULE = 'Skipped by rule: contrast, focus-ring style, spacing and target size are not checked here (ui-polish owns them), so a count of findings, even 0, does not mean the page is clean.';
+/** The fixed sentence for the first line of a reply when the script could not run. */
+export const COULD_NOT_RUN = 'The script could not run (<say plainly why>), so these checks were made by reading, not by the script.';
+const RUN_COMMAND = 'node <path to the skill folder>/engine/audit.mjs --file <full path of the input>';
+
+// ---------------------------------------------------------------- language of parts (SC 3.1.2)
+/** Writing systems the check tells apart: [name, regex of one letter, language code to suggest]. */
+const SCRIPTS = [
+  ['Khmer', /\p{Script=Khmer}/u, 'km'], ['Thai', /\p{Script=Thai}/u, 'th'], ['Arabic', /\p{Script=Arabic}/u, 'ar'], ['Hebrew', /\p{Script=Hebrew}/u, 'he'],
+  ['Hangul', /\p{Script=Hangul}/u, 'ko'], ['Kana', /[\p{Script=Hiragana}\p{Script=Katakana}]/u, 'ja'], ['Han', /\p{Script=Han}/u, 'zh'],
+  ['Cyrillic', /\p{Script=Cyrillic}/u, 'ru'], ['Devanagari', /\p{Script=Devanagari}/u, 'hi'], ['Greek', /\p{Script=Greek}/u, 'el'], ['Latin', /\p{Script=Latin}/u, 'en'],
+];
+/** The scripts a page language is written in; any language not listed is taken as Latin. */
+const LANG_SCRIPTS = { km: ['Khmer'], th: ['Thai'], ar: ['Arabic'], fa: ['Arabic'], ur: ['Arabic'], he: ['Hebrew'], ko: ['Hangul', 'Han'], ja: ['Kana', 'Han'], zh: ['Han'], ru: ['Cyrillic'], uk: ['Cyrillic'], bg: ['Cyrillic'], sr: ['Cyrillic', 'Latin'], hi: ['Devanagari'], mr: ['Devanagari'], ne: ['Devanagari'], el: ['Greek'] };
+const scriptOf = (ch) => (/[\p{L}\p{M}]/u.test(ch) ? (SCRIPTS.find((x) => x[1].test(ch)) ?? [null])[0] : null);
+/** Runs of one writing system inside a text: [{script, text}], spaces, digits and punctuation stay with the run around them. */
+function scriptRuns(text) {
+  const runs = []; let cur = null;
+  for (const ch of text) {
+    const sc = scriptOf(ch);
+    if (sc === null) { if (cur) cur.text += ch; continue; }
+    if (cur && cur.script === sc) { cur.text += ch; continue; }
+    // a combining mark or a Han character inside a kana run stays with the run
+    cur = { script: sc, text: ch }; runs.push(cur);
+  }
+  return runs.map((r) => ({ script: r.script, text: r.text.trim() })).filter((r) => r.text);
+}
 
 // ---------------------------------------------------------------- parser
 /** Parse HTML or JSX into a tolerant element tree. */
@@ -367,6 +399,45 @@ export function audit(src) {
     const c = n.content;
     if (/(key|code|keyCode|which)\b[^;\n]{0,40}(['"]Tab['"]|\b9\b)/.test(c) && /preventDefault/.test(c) && !/Escape|\bEsc\b|keyCode\s*={1,3}\s*27/.test(c)) add('focus-trap', n, 'The script captures the Tab key and cancels it, and nothing in it handles Escape, so a keyboard user cannot leave.', `- ${(c.split('\n').find((l) => /Tab|\b9\b/.test(l)) ?? n.raw).trim()}\n+ (delete this line so Tab moves focus normally; a dialog may loop Tab only if Escape also closes it)`, 'A native dialog opened with showModal() traps focus and closes on Escape without any script.');
   }
+  // language of parts (SC 3.1.2): text in another writing system than the page's must sit under a lang attribute
+  if (on('lang-parts')) {
+    const htmlLang = html ? attr(html, 'lang') : null;
+    const own = (n) => n.children.filter((c) => c.text !== undefined && !c.dyn).map((c) => c.text);
+    const parts = []; // [element, text]
+    for (const n of els) {
+      if (n.comp || ['script', 'style', 'code', 'kbd', 'samp', 'template'].includes(n.tag) || hidden(n)) continue;
+      for (const t of own(n)) parts.push([n, t]);
+      for (const k of ['aria-label', 'alt', 'title', 'placeholder']) { const v = attr(n, k); if (v && v !== '{…}') parts.push([n, v]); }
+    }
+    let pageScripts = null; let assumed = false;
+    if (htmlLang === '{…}') pageScripts = null;
+    else if (htmlLang && /^[a-z]{2,3}(-[a-z0-9]{2,8})*$/i.test(htmlLang.trim())) pageScripts = LANG_SCRIPTS[htmlLang.trim().toLowerCase().split('-')[0]] ?? ['Latin'];
+    else { // no usable page language (a fragment or a missing lang): take the writing system most of the text uses
+      const count = new Map(); for (const [, t] of parts) for (const r of scriptRuns(t)) count.set(r.script, (count.get(r.script) ?? 0) + [...r.text].filter((ch) => scriptOf(ch)).length);
+      const total = [...count.values()].reduce((a, b) => a + b, 0); const top = [...count.entries()].sort((a, b) => b[1] - a[1])[0];
+      if (top && top[1] / total >= 0.5 && count.size > 1) { pageScripts = [top[0]]; assumed = true; }
+    }
+    if (pageScripts) {
+      const covered = (n) => [n, ...ancestors(n)].filter((a) => a !== html).some((a) => { const l = attr(a, 'lang'); return (l !== null && l.trim() !== '') || spread(a); });
+      const done = new Set();
+      for (const [n, t] of parts) {
+        if (covered(n)) continue;
+        for (const r of scriptRuns(t)) {
+          if (pageScripts.includes(r.script)) continue;
+          const letters = [...r.text].filter((ch) => scriptOf(ch)).length;
+          if (r.script === 'Latin' ? r.text.split(/\s+/).filter((w) => /\p{L}/u.test(w)).length < 3 : letters < 2 && !['Han', 'Kana', 'Hangul'].includes(r.script)) continue;
+          const key = `${n.line}|${n.raw}|${r.script}`; if (done.has(key)) continue; done.add(key);
+          const code = r.script === 'Han' && scriptRuns(vtext(n)).some((x) => x.script === 'Kana') ? 'ja' : SCRIPTS.find((x) => x[0] === r.script)[2];
+          const sample = r.text.length > 40 ? `${r.text.slice(0, 40)}…` : r.text;
+          const mixed = scriptRuns(vtext(n)).some((x) => pageScripts.includes(x.script));
+          const fromAttr = !own(n).includes(t);
+          const fix = mixed && !fromAttr ? `- ${r.text}\n+ <span lang="${code}">${r.text}</span>` : `- ${n.raw}\n+ ${withAttr(n, `lang="${code}"`)}`;
+          const note = `The text "${sample}" is written in ${r.script} script and no lang attribute covers it${assumed ? '; the page language was not given, so it was taken from the script most of the text uses' : ''}. Use the language code of that text (${code} is the usual one for ${r.script} script; check it is the right language), and give lang only to the foreign words.`;
+          add('lang-parts', n, `Text in ${r.script} script ("${sample}") has no lang attribute while the page is in another language, so a screen reader reads it with the wrong voice.`, fix, note);
+        }
+      }
+    }
+  }
   // radio groups
   const radios = new Map(); for (const n of els) if (n.tag === 'input' && type(n) === 'radio' && attr(n, 'name') && !n.comp) radios.set(attr(n, 'name'), [...(radios.get(attr(n, 'name')) ?? []), n]);
   for (const [nm, list] of radios) if (list.length > 1 && !ancestors(list[0]).some((a) => a.tag === 'fieldset' || ['group', 'radiogroup'].includes(role(a) ?? ''))) add('group-name', list[0], `The radio buttons named "${nm}" are not in a group, so a screen reader reads each option without the question.`, `+ <fieldset><legend>The question</legend> ... the radio buttons ... </fieldset>`);
@@ -384,21 +455,29 @@ export function audit(src) {
   return { mode: jsx ? 'jsx' : 'html', lines, elements: els.length, components, page, ran, skipped, findings: out, manual, jsxNote };
 }
 
+/** The two header lines of the reply: the counts, then the fixed sentence about the checks skipped by rule. */
+export function header(r) {
+  const fail = r.findings.filter((f) => f.status === 'failure').length;
+  return [`Input: ${r.mode === 'jsx' ? 'JSX' : 'HTML'}, ${r.elements} elements. The script ran ${r.ran.length} checks and found ${r.findings.length} (${fail} failure, ${r.findings.length - fail} advisory). Not a conformance claim: only the checks listed here ran.`, SKIPPED_BY_RULE];
+}
+
 /** The text report the agent reads. */
 export function report(r) {
   const fail = r.findings.filter((f) => f.status === 'failure').length;
-  const o = [`a11y-audit engine ${VERSION}`, `input: ${r.mode}, ${r.lines} lines, ${r.elements} elements, ${r.components} components, full page: ${r.page ? 'yes' : 'no'}`, `checks that ran: ${r.ran.length} of ${RULES.length}${r.skipped.length ? ` (skipped: ${r.skipped.map((s) => s.id).join(', ')}, because ${r.skipped[0].why})` : ''}`, `findings: ${r.findings.length} (${fail} failure, ${r.findings.length - fail} advisory)`, ''];
+  const o = [`a11y-audit engine ${VERSION}`, `input: ${r.mode}, ${r.lines} lines, ${r.elements} elements, ${r.components} components, full page: ${r.page ? 'yes' : 'no'}`, `checks that ran: ${r.ran.length} of ${RULES.length}${r.skipped.length ? ` (skipped: ${r.skipped.map((s) => s.id).join(', ')}, because ${r.skipped[0].why})` : ''}`, `findings: ${r.findings.length} (${fail} failure, ${r.findings.length - fail} advisory)`, '', 'reply header (copy these two lines word for word under the heading of the reply):', ...header(r), ''];
   for (const f of r.findings) o.push(`${f.n}. [${f.rule}] SC ${f.sc} ${f.scName} (${f.level}), ${f.status}`, `   element: ${f.element} (line ${f.line})`, `   affects: ${f.who.join(', ')}`, `   problem: ${f.problem}`, '   fix:', ...f.fix.split('\n').map((l) => `   ${l}`), ...(f.note ? [`   note: ${f.note}`] : []), '');
-  if (!r.findings.length) o.push('No findings from the script.', '');
+  if (!r.findings.length) o.push('No findings from the script. In the reply, write "None." under Findings; it never means the page is accessible.', '');
   o.push('manual tests needed (the script cannot do these):', ...r.manual.map((m) => `- ${m}`));
+  o.push('---', 'This run is the script\'s own result. Reply to the user in the shape of layer 08: heading, the two header lines above, Findings in this order, Needs a manual test, Not checked here, Open questions. Do not add that anything was made by hand, and do not run the script again just to see it.');
   return o.join('\n');
 }
 
+const ADVICE = `What to do: fix the input path and run it again as ONE plain command, ${RUN_COMMAND}, with no cd, no shell variable, no pipe and no ; or &&. If this sandbox refuses the command or Node.js is missing, make the checks by reading and write this as the first line of the reply, before the heading: "${COULD_NOT_RUN}" Then add the open question "The script did not run; these checks were made by reading, so run it to confirm."`;
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const a = process.argv.slice(2); const arg = (k) => { const i = a.indexOf(k); return i >= 0 ? a[i + 1] : undefined; };
   let src;
-  try { src = arg('--file') ? readFileSync(arg('--file'), 'utf8') : arg('--html') !== undefined ? arg('--html') : a.includes('-') ? readFileSync(0, 'utf8') : undefined; } catch (e) { console.error(`cannot read the input: ${e.message}`); process.exit(2); }
-  if (src === undefined || !src.trim()) { console.error('usage: node audit.mjs --file <path> | --html "<markup>" | - (stdin) [--json]'); process.exit(2); }
+  try { src = arg('--file') ? readFileSync(arg('--file'), 'utf8') : arg('--html') !== undefined ? arg('--html') : a.includes('-') ? readFileSync(0, 'utf8') : undefined; } catch (e) { console.error(`cannot read the input: ${e.message}\n${ADVICE}`); process.exit(2); }
+  if (src === undefined || !src.trim()) { console.error(`usage: node audit.mjs --file <path> | --html "<markup>" | - (stdin) [--json]\n${ADVICE}`); process.exit(2); }
   const r = audit(src);
   console.log(a.includes('--json') ? JSON.stringify(r, null, 2) : report(r));
 }

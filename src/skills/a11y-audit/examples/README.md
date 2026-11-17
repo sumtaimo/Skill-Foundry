@@ -20,7 +20,8 @@ Output:
 ````
 ## Accessibility audit: sign-in form
 
-Input: HTML, 3 elements. The script ran 34 checks and found 3 (3 failure, 0 advisory). Not a conformance claim: only the checks listed here ran.
+Input: HTML, 3 elements. The script ran 39 checks and found 3 (3 failure, 0 advisory). Not a conformance claim: only the checks listed here ran.
+Skipped by rule: contrast, focus-ring style, spacing and target size are not checked here (ui-polish owns them), so a count of findings, even 0, does not mean the page is clean.
 
 ### Findings
 1. **autocomplete** · SC 1.3.5 Identify Input Purpose (AA) · failure

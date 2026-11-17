@@ -126,6 +126,10 @@
       {
         "type": "maxLines",
         "value": 140
+      },
+      {
+        "type": "contains",
+        "value": "Skipped by rule: contrast, focus-ring style, spacing and target size are not checked here (ui-polish owns them), so a count of findings, even 0, does not mean the page is clean."
       }
     ]
   },
@@ -240,6 +244,10 @@
       {
         "type": "maxLines",
         "value": 140
+      },
+      {
+        "type": "contains",
+        "value": "Skipped by rule: contrast, focus-ring style, spacing and target size are not checked here (ui-polish owns them), so a count of findings, even 0, does not mean the page is clean."
       }
     ]
   },
@@ -306,6 +314,10 @@
       {
         "type": "maxLines",
         "value": 60
+      },
+      {
+        "type": "contains",
+        "value": "Skipped by rule: contrast, focus-ring style, spacing and target size are not checked here (ui-polish owns them), so a count of findings, even 0, does not mean the page is clean."
       }
     ]
   },
@@ -412,6 +424,10 @@
       {
         "type": "maxLines",
         "value": 110
+      },
+      {
+        "type": "contains",
+        "value": "Skipped by rule: contrast, focus-ring style, spacing and target size are not checked here (ui-polish owns them), so a count of findings, even 0, does not mean the page is clean."
       }
     ]
   },
@@ -510,6 +526,10 @@
       {
         "type": "maxLines",
         "value": 120
+      },
+      {
+        "type": "contains",
+        "value": "Skipped by rule: contrast, focus-ring style, spacing and target size are not checked here (ui-polish owns them), so a count of findings, even 0, does not mean the page is clean."
       }
     ]
   },
@@ -612,6 +632,10 @@
       {
         "type": "maxLines",
         "value": 120
+      },
+      {
+        "type": "contains",
+        "value": "Skipped by rule: contrast, focus-ring style, spacing and target size are not checked here (ui-polish owns them), so a count of findings, even 0, does not mean the page is clean."
       }
     ]
   },
@@ -690,6 +714,10 @@
       {
         "type": "maxLines",
         "value": 60
+      },
+      {
+        "type": "contains",
+        "value": "Skipped by rule: contrast, focus-ring style, spacing and target size are not checked here (ui-polish owns them), so a count of findings, even 0, does not mean the page is clean."
       }
     ]
   },
@@ -764,6 +792,10 @@
       {
         "type": "maxLines",
         "value": 70
+      },
+      {
+        "type": "contains",
+        "value": "Skipped by rule: contrast, focus-ring style, spacing and target size are not checked here (ui-polish owns them), so a count of findings, even 0, does not mean the page is clean."
       }
     ]
   },
@@ -826,6 +858,10 @@
       {
         "type": "maxLines",
         "value": 60
+      },
+      {
+        "type": "contains",
+        "value": "Skipped by rule: contrast, focus-ring style, spacing and target size are not checked here (ui-polish owns them), so a count of findings, even 0, does not mean the page is clean."
       }
     ]
   },
@@ -904,6 +940,10 @@
       {
         "type": "maxLines",
         "value": 70
+      },
+      {
+        "type": "contains",
+        "value": "Skipped by rule: contrast, focus-ring style, spacing and target size are not checked here (ui-polish owns them), so a count of findings, even 0, does not mean the page is clean."
       }
     ]
   },
@@ -982,6 +1022,10 @@
       {
         "type": "maxLines",
         "value": 50
+      },
+      {
+        "type": "contains",
+        "value": "Skipped by rule: contrast, focus-ring style, spacing and target size are not checked here (ui-polish owns them), so a count of findings, even 0, does not mean the page is clean."
       }
     ]
   },
@@ -1048,6 +1092,10 @@
       {
         "type": "maxLines",
         "value": 60
+      },
+      {
+        "type": "contains",
+        "value": "Skipped by rule: contrast, focus-ring style, spacing and target size are not checked here (ui-polish owns them), so a count of findings, even 0, does not mean the page is clean."
       }
     ]
   },
@@ -1074,6 +1122,244 @@
       {
         "type": "maxLines",
         "value": 4
+      }
+    ]
+  },
+  {
+    "id": "lang-parts-khmer",
+    "prompt": "Please run an accessibility check on this registration page. The button label is Khmer:\n\n<!doctype html>\n<html lang=\"en\">\n<head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>Register - Acme</title></head>\n<body>\n<header><nav aria-label=\"Main\"><a href=\"/\">Home</a></nav></header>\n<main>\n<h1>Register</h1>\n<p lang=\"km\">សូមស្វាគមន៍</p>\n<form>\n<label for=\"n\">Name</label><input id=\"n\" type=\"text\" autocomplete=\"name\">\n<button type=\"submit\">ចុះឈ្មោះ</button>\n</form>\n</main>\n</body>\n</html>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Needs a manual test"
+      },
+      {
+        "type": "contains",
+        "value": "### Not checked here"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Input: HTML,"
+      },
+      {
+        "type": "contains",
+        "value": "found 1 (1 failure, 0 advisory)"
+      },
+      {
+        "type": "contains",
+        "value": "Skipped by rule: contrast, focus-ring style, spacing and target size are not checked here (ui-polish owns them), so a count of findings, even 0, does not mean the page is clean."
+      },
+      {
+        "type": "contains",
+        "value": "**lang-parts**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 3.1.2 Language of Parts (AA)"
+      },
+      {
+        "type": "contains",
+        "value": "Element: `<button type=\"submit\">`"
+      },
+      {
+        "type": "contains",
+        "value": "+ <button type=\"submit\" lang=\"km\">"
+      },
+      {
+        "type": "contains",
+        "value": "ចុះឈ្មោះ"
+      },
+      {
+        "type": "notContains",
+        "value": "1. **html-lang**"
+      },
+      {
+        "type": "notContains",
+        "value": "2. **"
+      },
+      {
+        "type": "notContains",
+        "value": "is compliant"
+      },
+      {
+        "type": "notContains",
+        "value": "is conformant"
+      },
+      {
+        "type": "notContains",
+        "value": "is accessible"
+      },
+      {
+        "type": "notContains",
+        "value": "fully accessible"
+      },
+      {
+        "type": "notContains",
+        "value": ":1"
+      },
+      {
+        "type": "maxLines",
+        "value": 60
+      }
+    ]
+  },
+  {
+    "id": "engine-one-command",
+    "prompt": "Can you check this small page for accessibility problems?\n\n<!doctype html>\n<html lang=\"en\">\n<head><meta charset=\"utf-8\"><title>Contact - Acme</title></head>\n<body>\n<main>\n<h1>Contact us</h1>\n<form>\n<input type=\"text\" name=\"subject\" placeholder=\"Subject\">\n<div class=\"send\" onclick=\"send()\">Send</div>\n</form>\n</main>\n</body>\n</html>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Needs a manual test"
+      },
+      {
+        "type": "contains",
+        "value": "### Not checked here"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Input: HTML, 10 elements. The script ran 39 checks and found 2 (2 failure, 0 advisory)."
+      },
+      {
+        "type": "contains",
+        "value": "Skipped by rule: contrast, focus-ring style, spacing and target size are not checked here (ui-polish owns them), so a count of findings, even 0, does not mean the page is clean."
+      },
+      {
+        "type": "contains",
+        "value": "**form-label**"
+      },
+      {
+        "type": "contains",
+        "value": "**click-no-keyboard**"
+      },
+      {
+        "type": "contains",
+        "value": "Element: `"
+      },
+      {
+        "type": "notContains",
+        "value": "could not run"
+      },
+      {
+        "type": "notContains",
+        "value": "did not run"
+      },
+      {
+        "type": "notContains",
+        "value": "by reading"
+      },
+      {
+        "type": "notContains",
+        "value": "by hand"
+      },
+      {
+        "type": "notContains",
+        "value": "is compliant"
+      },
+      {
+        "type": "notContains",
+        "value": "is accessible"
+      },
+      {
+        "type": "notContains",
+        "value": ":1"
+      },
+      {
+        "type": "maxLines",
+        "value": 70
+      }
+    ]
+  },
+  {
+    "id": "engine-unavailable",
+    "prompt": "Please do an accessibility audit of this page. Heads-up: this session does not allow running any commands (no node, no shell), so do not run any.\n\n<!doctype html>\n<html lang=\"en\">\n<head><meta charset=\"utf-8\"><title>Gallery - Acme</title></head>\n<body>\n<main>\n<h1>Gallery</h1>\n<img src=\"hero.png\">\n<button class=\"close\"><svg viewBox=\"0 0 8 8\"></svg></button>\n</main>\n</body>\n</html>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "The script could not run ("
+      },
+      {
+        "type": "contains",
+        "value": "), so these checks were made by reading, not by the script."
+      },
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Needs a manual test"
+      },
+      {
+        "type": "contains",
+        "value": "### Not checked here"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "The script did not run; these checks were made by reading, so run it to confirm."
+      },
+      {
+        "type": "contains",
+        "value": "Skipped by rule: contrast, focus-ring style, spacing and target size are not checked here (ui-polish owns them), so a count of findings, even 0, does not mean the page is clean."
+      },
+      {
+        "type": "contains",
+        "value": "**img-alt**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 1.1.1"
+      },
+      {
+        "type": "contains",
+        "value": "**control-name**"
+      },
+      {
+        "type": "contains",
+        "value": "SC 4.1.2"
+      },
+      {
+        "type": "contains",
+        "value": "```diff"
+      },
+      {
+        "type": "notContains",
+        "value": "The script ran"
+      },
+      {
+        "type": "notContains",
+        "value": "is compliant"
+      },
+      {
+        "type": "notContains",
+        "value": "is accessible"
+      },
+      {
+        "type": "notContains",
+        "value": ":1"
+      },
+      {
+        "type": "maxLines",
+        "value": 70
       }
     ]
   }
