@@ -27,3 +27,4 @@ Remove with:  node .harness/memory.mjs forget L3
 - [L22] (2026-11-16) This project is also TAIMO's Agentic Harness user: whenever you notice an Agentic Harness bug or issue, report it to TAIMO in chat as feedback and ask where to record it; do not put it on GitHub until TAIMO confirms.
 - [L23] (2026-11-16) Never change the Agentic Harness from this project (not .harness/ here, not its code): only report harness issues to TAIMO; TAIMO has them fixed in the separate sumtaimo/Agentic-Harness project.
 - [L24] (2026-11-16) Phase C (re-updating this repository's .harness/) is dropped by TAIMO; the Agentic-Harness project updates its harness copy here only when TAIMO orders it.
+- [L25] (2026-11-17) docs/factory/notes/harness-findings-2026-11-16.md stays on the lab branch only (TAIMO, 2026-11-17); remove it in a commit on lab before lab is released to master, and never put private docs or links on master.

@@ -94,6 +94,11 @@ Harness side (Step 2, not a skill change): roles `QA_AUDITOR` and `BA_ANALYST` c
 
 The cost a child session reports leaves out the `claude -p` evaluation agents it runs (copy-tight showed $0.22 although it recorded real agents), so real spend is higher than the reported figures.
 
+## 5d. Decided 2026-11-17
+
+- `docs/factory/notes/harness-findings-2026-11-16.md` stays on `lab` only; it is removed in a commit on `lab` before `lab` is released to `master` (L25).
+- Near the weekly usage limit: one session at a time, stop at `lab`, TAIMO decides the release.
+
 ## 6. Cost log (list price reported by child sessions)
 
 Skills build-out about $92; audit about $30; Phase A $1.46; Phase B $3.94 plus follow-up. Lesson: re-record only what changed, reuse audits, one session per phase, one agent at a time.
