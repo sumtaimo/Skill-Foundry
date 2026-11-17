@@ -115,6 +115,11 @@ The cost a child session reports leaves out the `claude -p` evaluation agents it
 - **Joint test, free part done:** the real `install.mjs` of harness `release` and `lab` was run in both orders with Skill Foundry from `lab`; ownership line held, our skills and deny rules survived; details at the end of `docs/factory/notes/harness-findings-2026-11-16.md`. Still open for the joint test: the real-agent flows (they cost money; agree a cap first).
 - **Release order (L26):** the internal handoff, guide, joint-test plan and harness-findings docs are removed from `docs/` after Step 2 (the Agentic-Harness work) and before `lab` is released to `master`. Until then `master` stays as it is.
 
+## 5f. Decided 2026-11-17 (joint test)
+
+- **Real-agent joint test: skipped for now; it runs on Friday 2026-11-20**, after the weekly usage limit resets (Thu 2026-11-19 20:00 UTC). Before spending, the orchestrator states the plan and the cost cap and asks for a clear yes (L27). The free part of the joint test is already done (section 5e).
+- Every other step continues as normal; nothing waits for the joint test except the final release.
+
 ## 6. Cost log (list price reported by child sessions)
 
 Skills build-out about $92; audit about $30; Phase A $1.46; Phase B $3.94 plus follow-up. Lesson: re-record only what changed, reuse audits, one session per phase, one agent at a time.

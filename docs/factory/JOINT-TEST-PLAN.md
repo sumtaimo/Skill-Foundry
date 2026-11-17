@@ -10,6 +10,8 @@ the managed block in `AGENTS.md`, and the Edit deny rules in `.claude/settings.j
 (the deny rules protect them), and its install or update must keep our deny rules, folders and pointers (marker `installed-by: skill-foundry`).
 Whoever finds a problem in the other project **reports it and never edits it**.
 
+> **Schedule (TAIMO, 2026-11-17):** the real-agent flows run on **Friday 2026-11-20**, after the weekly usage reset. The free steps (snapshots, real installer in both orders) are done; results are at the end of `docs/factory/notes/harness-findings-2026-11-16.md`.
+
 ## 0. Before anything (offline, free)
 
 | Step | Command | Expected |
