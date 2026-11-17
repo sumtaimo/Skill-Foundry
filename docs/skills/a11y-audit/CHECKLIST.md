@@ -2,12 +2,12 @@
 
 Review against `docs/factory/REVIEW.md`. Status: ready. Version 1.0.0.
 
-Honest record: the author (an AI agent) ticked this list; the owner (TAIMO) is the final reviewer. Live answers (13 cases), the portable check and the routing answers came from fresh real agents (`claude -p`, one per case). The worked examples in `examples/README.md` are hand-written and are not proof. The 38 checks are run by `engine/audit.mjs`, not by the agent's eyes (lesson L2).
+Honest record: the author (an AI agent) ticked this list; the owner (TAIMO) is the final reviewer. Live answers (16 cases), the portable check and the routing answers came from fresh real agents (`claude -p`, one per case). The worked examples in `examples/README.md` are hand-written and are not proof. The 39 checks (38 plus `lang-parts`, S6) are run by `engine/audit.mjs`, not by the agent's eyes (lesson L2).
 
 ## Clarity
 - [x] Procedure is numbered, imperative, one action per step
-- [x] Every rule uses MUST or NEVER and has an id `R-a11y-audit-<n>` (16 rules)
-- [x] No step relies on unstated knowledge: defined terms in layer 01, the 38 checks and manual tests in references, fixed sentences in layers 03 and 06
+- [x] Every rule uses MUST or NEVER and has an id `R-a11y-audit-<n>` (19 rules)
+- [x] No step relies on unstated knowledge: defined terms in layer 01, the 39 checks and manual tests in references, fixed sentences in layers 03 and 06
 - [x] SKILL.md is at most 150 lines (about 80)
 - [x] Ten core layers with numbered clauses, linked from SKILL.md (`chk-layers`)
 - [x] Self-contained: no repository paths in SKILL.md, layers or references (`chk-portable`)
@@ -41,6 +41,12 @@ Honest record: the author (an AI agent) ticked this list; the owner (TAIMO) is t
 
 ## Preview quality
 - [x] Tagline under 90 characters, 5 tags; cover uses only `--cover-bg`, `--cover-accent` and `currentColor`
+
+## S1 and S6 (2026-11-17)
+- [x] S1: one plain command with the script path (R-a11y-audit-17); the script's own output tells the agent how to reply; when it cannot run, the first line of the reply says so. Cases `engine-one-command`, `engine-unavailable`; the Bash commands of the fresh agents were logged while recording and each ran the script as one `node <path>/engine/audit.mjs --file <path>` command (the agents' separate `cd ... && cat` calls only read the layers).
+- [x] S6a: `lang-parts` (SC 3.1.2, AA, number and level checked against WCAG 2.2); unit tests for the trigger, the quiet case, JSX spelling and a page whose parts have lang; case `lang-parts-khmer`.
+- [x] S6b: the skipped-by-rule sentence is in every header, also at 0 findings; expected by every live case except no-code.
+- [x] All 16 live cases and the portable check re-recorded by fresh `claude -p` agents on the final skill; routing not re-recorded (description unchanged).
 
 ## Known limits (stated, not hidden)
 - The script reads markup only: it cannot see CSS, scripts outside inline `script` elements, or what components render. It says so in "Needs a manual test".
