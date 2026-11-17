@@ -41,7 +41,8 @@
       "release notes",
       "semver",
       "version bump"
-    ]
+    ],
+    "default": true
   },
   {
     "name": "copy-tight",
@@ -62,7 +63,8 @@
       "shorten",
       "ui copy",
       "wordy"
-    ]
+    ],
+    "default": true
   },
   {
     "name": "test-planner",
@@ -79,7 +81,8 @@
       "regression",
       "qa checklist",
       "test matrix"
-    ]
+    ],
+    "default": true
   },
   {
     "name": "ui-polish",
@@ -159,7 +162,8 @@
       "user flow",
       "ux audit",
       "friction"
-    ]
+    ],
+    "default": true
   },
   {
     "name": "a11y-audit",

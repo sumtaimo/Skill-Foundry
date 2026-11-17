@@ -254,9 +254,14 @@ test('doctor: a pointer and its harness that disagree are reported with the exac
   assert.ok(items.some((i) => i.level === 'warn' && /needs a harness with SKILL_MATCH/.test(i.message)), 'harness downgraded: warn');
 });
 
-test('add --default installs the default skills only (spec-writer), and registry keywords are whole phrases of at least 4 characters', () => {
+test('add --default installs the five default skills, and registry keywords are whole phrases of at least 4 characters', () => {
   const p = newProject('dflt2'); const r = run(p, ['add', '--default', '--quiet']); assert.equal(r.code, 0, r.out.join('\n'));
-  assert.deepEqual(existsSync(join(p, '.claude', 'skills')) ? readdirSync(join(p, '.claude', 'skills')).sort() : [], ['spec-writer']);
+  const DEFAULT = ['changelog-writer', 'copy-tight', 'spec-writer', 'test-planner', 'ux-review'];
+  assert.deepEqual(existsSync(join(p, '.claude', 'skills')) ? readdirSync(join(p, '.claude', 'skills')).sort() : [], DEFAULT, 'the default set TAIMO chose');
+  const before = tree(p); const again = run(p, ['add', '--default', '--quiet']); assert.equal(again.code, 0); assert.deepEqual(tree(p), before, 'a second add --default changes nothing');
+  const cat = catalog().filter((x) => DEFAULT.includes(x.name));
+  for (const x of cat) assert.ok(!existsSync(join(x.dir, 'engine')), `${x.name}: a default skill has no engine/ script (no node needed)`);
+  for (const role of ['BA_ANALYST', 'DEV_ENGINEER', 'QA_AUDITOR', 'UX_DESIGNER']) assert.ok(cat.some((x) => x.roles.includes(role)), `${role} has at least one usable default skill`);
   for (const s of catalog().filter((x) => x.scope !== 'factory')) {
     assert.ok(s.keywords.length >= 3, `${s.name} has its own injection keywords`);
     for (const k of s.keywords) assert.ok(k.length >= 4 || k === 'svg' || k === 'css', `${s.name}: keyword "${k}" is long enough not to match inside other words`);
@@ -277,4 +282,15 @@ test('check --json contract (the harness session-start check depends on it): exi
   r = check(); assert.equal(r.code, 2, 'an outdated skill gives exit 2'); assert.equal(r.json[0].current, false);
   const none = newProject('chk0'); const q = spawnSync(process.execPath, [FOUNDRY, 'check', '--json'], { cwd: none, encoding: 'utf8' });
   assert.equal(q.status, 0); assert.deepEqual(JSON.parse(q.stdout), [], 'no skills: exit 0 and an empty array');
+});
+
+test('doctor: a harness starter copy that was left in place is reported with the plain update as the fix', () => {
+  const src = harnessSources().filter((s) => s.snapshot).find((s) => hasMatch(s.dir));
+  const p = newProject('stub'); installHarness(p, src.dir);
+  const stub = rd(p, '.harness/skills/spec-writer/SKILL.md'); assert.match(stub, /starter-stub: agentic-harness/);
+  run(p, ['add', 'spec-writer', '--quiet']); w(p, '.harness/skills/spec-writer/SKILL.md', stub);
+  const it = JSON.parse(run(p, ['doctor', '--json']).out.join('\n')).items.find((i) => /spec-writer/.test(i.message) && /starter copy/.test(i.message));
+  assert.ok(it, 'the starter copy is named'); assert.match(it.fix, /update spec-writer\s+\(replaces the starter copy/); assert.doesNotMatch(it.fix, /--sync-harness/);
+  run(p, ['update', 'spec-writer', '--quiet']);
+  assert.match(rd(p, '.harness/skills/spec-writer/SKILL.md'), /installed-by: skill-foundry/); assert.equal(rd(p, '.harness/skills/spec-writer/SKILL.md.orig'), stub);
 });

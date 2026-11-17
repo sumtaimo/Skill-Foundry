@@ -329,7 +329,10 @@ export function doctorProject({ project = process.cwd(), root = REPO } = {}) {
       const file = join(hs, x.name, 'SKILL.md');
       if (!existsSync(hs) || !existsSync(file)) { add('warn', 'harness', `${x.name}: no pointer in .harness/skills/, so harness workers do not get it`, `${CLI} add ${x.name}`); continue; }
       const raw = readFileSync(file, 'utf8');
-      if (!raw.includes(MARK)) { add('warn', 'harness', `${x.name}: .harness/skills/${x.name}/SKILL.md already exists without the skill-foundry marker, so the foundry skill is not wired to workers`, `${CLI} update ${x.name} --sync-harness   (replaces it, keeps the original as SKILL.md.orig) or keep yours`); continue; }
+      if (!raw.includes(MARK)) {
+        const starter = isStarterStub(x.name, raw); // the harness's own starter copy: a plain update replaces it, keeping SKILL.md.orig
+        add('warn', 'harness', `${x.name}: .harness/skills/${x.name}/SKILL.md ${starter ? 'is the harness starter copy' : 'already exists without the skill-foundry marker'}, so the foundry skill is not wired to workers`, starter ? `${CLI} update ${x.name}   (replaces the starter copy, keeps the original as SKILL.md.orig)` : `${CLI} update ${x.name} --sync-harness   (replaces it, keeps the original as SKILL.md.orig) or keep yours`); continue;
+      }
       const auto = /^autoApply:\s*(true|false)/m.exec(raw)?.[1];
       if (harnessMatchesKeywords(project) && auto === 'true') add('warn', 'harness', `${x.name}: its pointer injects the skill into every task of its roles (autoApply: true) although this harness can inject by keyword`, `${CLI} update ${x.name}   (writes the keyword pointer: only tasks that fit get the skill)`);
       if (!harnessMatchesKeywords(project) && auto === 'false') add('warn', 'harness', `${x.name}: its pointer needs a harness with SKILL_MATCH, which this harness does not export, so leads with an explicit skills list never get it`, `${CLI} update ${x.name}   (writes autoApply: true), or update the harness`);
