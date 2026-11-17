@@ -17,6 +17,7 @@ import { catalog, DENY, projectRoles } from '../src/factory/foundry.mjs';
 import { harnessSources, installHarness, newProject, run, tree, w, rd, governance, FIXTURES } from './helpers/harness-project.mjs';
 
 const STUB = '---\nname: spec-writer\ndescription: Makes BA specs short, testable and directly usable by DEV and QA.\nroles: ["BA_ANALYST"]\nallowedTools: ["Read", "Edit", "Write"]\nkeywords: ["spec"]\nautoApply: false\n---\n# Spec Writer Rules\n1. Start with one sentence.\n';
+const hasFlag = (dir) => /SKILL_COMPOSITION\s*=\s*['"]additive-union['"]/.test(readFileSync(join(dir, '.harness', 'lib', 'governance.mjs'), 'utf8'));
 const portable = () => catalog().filter((s) => s.scope !== 'factory').map((s) => s.name);
 
 /** What a real project adds on top of the harness: a starter copy of one of our skills, a custom role, team skills, stale engines. */
@@ -107,7 +108,7 @@ for (const src of harnessSources()) {
     const d = run(p, ['doctor', '--json']); const r = JSON.parse(d.out.join('\n'));
     assert.equal(r.counts.problem, 0, JSON.stringify(r.items.filter((i) => i.level === 'problem')));
     const msgs = r.items.filter((i) => i.level === 'warn').map((i) => i.message).join('\n');
-    assert.match(msgs, /team\.json: "lead-dev" lists skills/);
+    (hasFlag(src.dir) ? assert.doesNotMatch : assert.match)(msgs, /team\.json: "lead-dev" lists skills/);
     assert.match(msgs, /gemini \(team\.json orchestrator\)/); assert.match(msgs, /orca \(config\.json profiles\)/);
     const qa = roles.QA_AUDITOR; const qaNode = (qa?.allowedTools ?? []).some((x) => x === 'Bash(node:*)');
     if (qa && !qaNode) assert.match(msgs, /a11y-audit runs engine\/\*\.mjs scripts but role QA_AUDITOR may not run node/);
@@ -154,17 +155,18 @@ for (const src of harnessSources()) {
   });
 }
 
-test('doctor reads the harness capability flag, not a version: explicit team skills warn only without SKILL_COMPOSITION = additive-union', () => {
-  const src = harnessSources().at(-1).dir; const p = newProject('flag'); installHarness(p, src);
-  const team = JSON.parse(rd(p, '.harness/team.json'));
-  team.members = (team.members ?? []).map((m) => (m.id === 'lead-dev' ? { ...m, skills: ['code-craft'] } : m));
-  w(p, '.harness/team.json', team);
-  run(p, ['add', 'copy-tight']);
-  const warns = () => JSON.parse(run(p, ['doctor', '--json']).out.join('\n')).items.filter((i) => /switch off autoApply/.test(i.message));
-  const gov = join(p, '.harness', 'lib', 'governance.mjs');
-  const text = readFileSync(gov, 'utf8').replace(/\nexport const SKILL_COMPOSITION[^\n]*\n/, '\n');
-  w(p, '.harness/lib/governance.mjs', text);
-  assert.ok(warns().length >= 1, 'no flag: the old behaviour is still warned about');
-  w(p, '.harness/lib/governance.mjs', `${text}\nexport const SKILL_COMPOSITION = 'additive-union';\n`);
-  assert.equal(warns().length, 0, 'flag present: explicit lead skills are added to autoApply skills, so no warning');
+
+test('doctor reads the harness capability flag, not a version: explicit team skills warn only for a harness without SKILL_COMPOSITION = additive-union', () => {
+  const snaps = harnessSources().filter((s) => s.snapshot);
+  const without = snaps.find((s) => !hasFlag(s.dir)); const withFlag = snaps.find((s) => hasFlag(s.dir));
+  assert.ok(without && withFlag, `one snapshot without and one with the flag exist, found: ${snaps.map((s) => `${s.label} flag=${hasFlag(s.dir)}`).join(', ')}`);
+  for (const [src, expectWarn] of [[without, true], [withFlag, false]]) {
+    const p = newProject('flag'); installHarness(p, src.dir);
+    const team = JSON.parse(rd(p, '.harness/team.json'));
+    team.members = (team.members ?? []).map((m) => (m.id === 'lead-dev' ? { ...m, skills: ['code-craft'] } : m));
+    w(p, '.harness/team.json', team);
+    run(p, ['add', 'copy-tight']);
+    const n = JSON.parse(run(p, ['doctor', '--json']).out.join('\n')).items.filter((i) => /switch off autoApply/.test(i.message)).length;
+    assert.equal(n > 0, expectWarn, `${src.label}: explicit lead skills ${expectWarn ? 'warn (no capability flag)' : 'do not warn (flag present)'}`);
+  }
 });

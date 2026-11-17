@@ -120,6 +120,11 @@ The cost a child session reports leaves out the `claude -p` evaluation agents it
 - **Real-agent joint test: skipped for now; it runs on Friday 2026-11-20**, after the weekly usage limit resets (Thu 2026-11-19 20:00 UTC). Before spending, the orchestrator states the plan and the cost cap and asks for a clear yes (L27). The free part of the joint test is already done (section 5e).
 - Every other step continues as normal; nothing waits for the joint test except the final release.
 
+## 5g. Capability flag check, 2026-11-17
+- Harness `lab` b8d0ca0 exports `SKILL_COMPOSITION = 'additive-union'`; `doctor` reads that flag, not a version (23094b4).
+- Tests use two real snapshots: `lab-v1.0.15-0f39c98` (no flag) and `lab-b8d0ca0` (flag). `npm test` 331 pass, 0 fail, 1 skipped; guard ok; `release:check` READY.
+- Real `install.mjs` (b8d0ca0) in empty folders, both orders, run twice: harness doctor 0 failures, Skill Foundry doctor 0 problems, 5 expected H2(b) warnings, one managed AGENTS.md block, no duplicate deny rules. Harness installed after Skill Foundry without `--with-skills` writes no pointers (doctor says to run `update`).
+
 ## 6. Cost log (list price reported by child sessions)
 
 Skills build-out about $92; audit about $30; Phase A $1.46; Phase B $3.94 plus follow-up. Lesson: re-record only what changed, reuse audits, one session per phase, one agent at a time.
