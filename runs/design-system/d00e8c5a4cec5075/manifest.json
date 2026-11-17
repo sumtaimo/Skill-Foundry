@@ -1,0 +1,21 @@
+{
+  "skill": "design-system",
+  "version": "1.0.0",
+  "caseId": "no-input",
+  "inputSha256": "528bc811a93464f40514fa9d69d549a862878bc2ce2b8ed1f2cbe7b4e64e79bb",
+  "skillSha256": "27bde31e93fdd0d3b82a3bd85f360f633325b8baccb584aa70cba70cd36ca090",
+  "key": "d00e8c5a4cec507543320c5c1ec098d1ffb307f6ae5680b5588e44d07139221c",
+  "startedAt": "2026-11-16T23:57:28.008Z",
+  "finishedAt": "2026-11-16T23:57:36.391Z",
+  "runner": "custom",
+  "exitCode": 0,
+  "costUsd": null,
+  "usage": null,
+  "files": [],
+  "checks": {
+    "expectations": 4,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "Give me a brand colour as a hex code (for example #2563eb), a few words about the style you want, or the path to your existing design tokens."
+}

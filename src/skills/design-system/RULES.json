@@ -91,7 +91,7 @@
   },
   {
     "id": "R-design-system-19",
-    "text": "The engine MUST be run as ONE plain command with the path of the script: no cd, no shell variable, no pipe, no ; or &&; when it cannot run, the reply MUST say so plainly in an open question.",
+    "text": "The engine MUST be run as ONE plain command with the path of the script: no cd, no shell variable, no pipe, no ; or &&; when it cannot run, the reply MUST say so plainly on the first line after the heading and in an open question.",
     "checklist": "The engine ran as one plain command; if it could not run, an open question says so plainly and the numbers are marked as built by hand."
   },
   {
