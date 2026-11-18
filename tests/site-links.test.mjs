@@ -69,9 +69,9 @@ test('site.css colours only inside token blocks', async () => {
       re.lastIndex = 0;
     }
   };
-  strip(/@media\s*\(\s*prefers-color-scheme:\s*dark\s*\)\s*\{\s*:root:not\(\[data-theme=["']?light["']?\]\)/g);
+  strip(/@media\s*\(\s*prefers-color-scheme:\s*(?:dark|light)\s*\)\s*\{\s*:root:not\(\[data-theme=["']?(?:light|dark)["']?\]\)/g);
   strip(/(^|\})\s*:root\s*\{/g);
-  strip(/\[data-theme=["']?dark["']?\]\s*\{/g);
+  strip(/\[data-theme=["']?(?:dark|light)["']?\]\s*\{/g);
   assert.ok(!/#[0-9a-f]{3,8}\b/i.test(css), 'hex colour outside tokens');
   assert.ok(!/\brgba?\(/i.test(css), 'rgb( outside tokens');
   assert.ok(!/\bhsla?\(/i.test(css), 'hsl( outside tokens');

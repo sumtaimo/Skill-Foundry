@@ -1,57 +1,57 @@
-# Skill Foundry
+# Skill Foundry (`v1.0.0`)
 
-A factory for AI agent skills. Each skill is a folder of instructions written as the same ten layers, with rules, evals and a preview. A linter checks it, a run recorder captures what it really produces, and the showcase site shows only that real output. Node 24, ES modules, no runtime dependencies (Playwright is a dev dependency for browser tests).
+A factory for AI agent skills by **TAIMO**. Each skill is a self-contained folder structured into ten core layers (`docs/factory/STANDARD.md`), verified by a machine linter, fresh real-agent evals, portable empty-project checks, and routing tests. The showcase site (`src/site/`) uses a dark-first Bento layout with light mode and EN/KH toggles and displays only real recorded agent outputs. Node 24, ES modules, zero runtime dependencies (`playwright` is a dev dependency for browser checks).
 
-The goal, the rules and the roadmap are in `docs/PROJECT.md`. Read it first.
+Read `docs/PROJECT.md` first for project goals, per-skill status, and quality rules.
 
-## Check the project
+## Install skills into your project
 
-```
-npm install
-npm test
-node src/factory/lint-skills.mjs
-```
+Requires Node.js and git. Tested on Linux, macOS, and Windows.
 
-## Use a skill in your own project (one command)
-
-Needs Node.js and git. Tested on Linux, macOS and Windows with Node 18, 20 and 22.
-
-```
-npx github:sumtaimo/Skill-Foundry list                     # what is available
-npx github:sumtaimo/Skill-Foundry add test-planner          # one skill
+```sh
+npx github:sumtaimo/Skill-Foundry --version                 # project version (1.0.0)
+npx github:sumtaimo/Skill-Foundry list                      # ready skills, versions, roles
+npx github:sumtaimo/Skill-Foundry add test-planner          # install one skill
+npx github:sumtaimo/Skill-Foundry add --default             # install the default skill set
 npx github:sumtaimo/Skill-Foundry add --role QA_AUDITOR     # every skill for a role
-npx github:sumtaimo/Skill-Foundry add --all                 # every skill
-npx github:sumtaimo/Skill-Foundry check                     # out of date, or changed locally?
-npx github:sumtaimo/Skill-Foundry update                    # get new content; your edits are kept
-npx github:sumtaimo/Skill-Foundry remove test-planner       # remove cleanly
+npx github:sumtaimo/Skill-Foundry add --all                 # all portable skills
+npx github:sumtaimo/Skill-Foundry check [--json]            # check installed versions and local edits
+npx github:sumtaimo/Skill-Foundry update                    # update skills while keeping local changes
+npx github:sumtaimo/Skill-Foundry remove test-planner       # remove a skill cleanly
+npx github:sumtaimo/Skill-Foundry doctor [--fix] [--json]   # diagnose setup and harness wiring
 ```
 
-What `add` does in your project:
+What `add` writes in your project:
+- Copies the skill into `.claude/skills/<name>/` (with `.foundry.json` hashes so `check` and `update` preserve your edits).
+- If `.harness/skills/` exists (for example, Agentic-Harness), registers the skill for matching roles so workers load it automatically (`--sync-harness` wraps or replaces existing harness starter copies while keeping `.orig`).
+- Updates a managed block in `AGENTS.md` so any agent (Claude Code, Codex, Gemini CLI, Cursor) discovers the installed skills (`--no-rules` to skip).
+- Adds deny rules to `.claude/settings.json` so agents cannot edit installed skills (`--no-protect` to skip).
 
-- copies the skill into `.claude/skills/<name>/` (Claude Code picks it by its description);
-- if you have an agentic harness (`.harness/skills/`), registers it for the matching roles so workers get it;
-- writes one block in `AGENTS.md` listing the skills, so any agent (Codex, Cursor, Gemini) uses them (`--no-rules` to skip);
-- adds deny rules to `.claude/settings.json` so agents cannot edit or update the skills; only you do (`--no-protect` to skip).
+Existing text and settings outside managed blocks are preserved. Downloadable `.zip` archives with SHA-256 checksums, `skills.json`, and `llms.txt` are published on the showcase site: https://sumtaimo.github.io/Skill-Foundry/
 
-Your own text and settings are kept. Restart your agent, then state your goal in one line.
-Zips with SHA-256 checksums are on the site: https://sumtaimo.github.io/Skill-Foundry/
+## Showcase site and verification
+
+```sh
+npm install
+npm test                         # full suite (factory, CLI, recipes, showcase, Playwright visual checks)
+node src/factory/lint-skills.mjs # lint all skills against STANDARD.md & QUALITY-LAYERS.md
+npm run dev                      # build and preview the dark-first Bento showcase locally
+```
 
 ## Work in this repository (the lab)
 
-Run `npm run setup` once (pre-commit skill guard). The release path:
-build on a `claude/...` branch, prove with real agents, `npm run release:check` must print READY, the owner approves, merge to `master`.
+Run `npm run setup` once per clone to enable the `.githooks` pre-commit `skill-guard` hook (`AGENTS.md`, one skill per session). The local harness controller runs Agentic-Harness `1.0.18` inside `.harness/`.
 
-## Add a skill
-
-1. Use the `skill-smith` skill and ask it for a new skill; it starts from `src/skills/_template/`.
-2. Follow `docs/factory/STANDARD.md`: ten core layers, portable, rules mapped to checks.
-3. Record a real run: `node src/factory/run-skill.mjs <name> --case <id>`. This runs a real agent and spends tokens once; the result is cached under `runs/`.
-4. Add the skill to `src/factory/registry.json` with status `draft` and review it with `docs/factory/REVIEW.md`.
-
-## Pack and publish
-
-Run `npm run release:check`; it must print READY before a release. Users then get the skills with `npx github:sumtaimo/Skill-Foundry update`.
+Release flow:
+1. Build or update at most one skill per session on `lab`, following `docs/factory/STANDARD.md` and `docs/factory/QUALITY-LAYERS.md`.
+2. Record real-agent proof (never hand-written):
+   - `node src/factory/live-evals.mjs <name>`
+   - `node src/factory/portable-check.mjs <name> --prompt "<request>" --record`
+   - `node src/factory/routing-evals.mjs`
+   - `node src/factory/run-skill.mjs <name> --case <id>` (for file-producing skills like `figure-craft`)
+3. Add or review the entry in `src/factory/registry.json` (`docs/factory/REVIEW.md`).
+4. Run `npm run release:check`; it must print `READY` before TAIMO approves merging `lab` into `master` (GitHub Pages deploys from `master`).
 
 ## License
 
-MIT. See `LICENSE`.
+MIT License — Copyright (c) 2026 TAIMO. See `LICENSE`.

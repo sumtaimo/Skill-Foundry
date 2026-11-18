@@ -136,12 +136,12 @@ export function llmsTxt(skills, checksums, { version } = {}) {
   return lines.join('\n');
 }
 
-/** Removes the three allowed token blocks from css. */
+/** Removes the allowed token blocks from css. */
 export function stripTokenBlocks(css) {
   let s = css.replace(/\/\*[\s\S]*?\*\//g, '');
   const heads = [
-    /@media\s*\(prefers-color-scheme:\s*dark\)\s*\{\s*:root:not\(\[data-theme=["']?light["']?\]\)\s*\{[^{}]*\}\s*\}/g,
-    /\[data-theme=["']?dark["']?\]\s*\{[^{}]*\}/g,
+    /@media\s*\(prefers-color-scheme:\s*(?:dark|light)\)\s*\{\s*:root:not\(\[data-theme=["']?(?:light|dark)["']?\]\)\s*\{[^{}]*\}\s*\}/g,
+    /\[data-theme=["']?(?:dark|light)["']?\]\s*\{[^{}]*\}/g,
     /(^|\})\s*:root\s*\{[^{}]*\}/g,
   ];
   for (const re of heads) s = s.replace(re, (m, p1) => (typeof p1 === 'string' ? p1 : ''));

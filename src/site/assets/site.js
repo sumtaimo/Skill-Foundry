@@ -15,13 +15,18 @@
   function reducedMotion() {
     return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   }
-  function systemDark() {
-    return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  function currentTheme() {
+    var attr = root.getAttribute('data-theme');
+    if (attr === 'light' || attr === 'dark') return attr;
+    return load('sf-theme') === 'light' ? 'light' : 'dark';
   }
   function applyTheme(theme) {
-    if (theme === 'dark' || theme === 'light') root.setAttribute('data-theme', theme);
+    if (theme !== 'dark' && theme !== 'light') return;
+    root.setAttribute('data-theme', theme);
+    var meta = document.querySelector('meta[name="color-scheme"]');
+    if (meta) meta.content = theme;
   }
-  applyTheme(load('sf-theme'));
+  applyTheme(load('sf-theme') === 'light' ? 'light' : 'dark');
 
   var lang = load('sf-lang') === 'kh' ? 'kh' : 'en';
 
@@ -68,7 +73,7 @@
     span.textContent = text(key);
   }
   function syncButtons() {
-    var dark = (root.getAttribute('data-theme') || (systemDark() ? 'dark' : 'light')) === 'dark';
+    var dark = currentTheme() === 'dark';
     var tb = document.querySelector('[data-action="theme"]');
     if (tb) { tb.setAttribute('aria-pressed', dark ? 'true' : 'false'); setLabel(tb, dark ? 'theme.toLight' : 'theme.toDark'); }
     var lb = document.querySelector('[data-action="lang"]');
@@ -164,6 +169,11 @@
     }
     var none = document.querySelector('.find-none');
     if (none) none.hidden = shown !== 0;
+    var grid = document.querySelector('.grid');
+    if (grid) {
+      if (role || words.length) grid.setAttribute('data-filtered', 'true');
+      else grid.removeAttribute('data-filtered');
+    }
   }
   function selectRole(btn) {
     role = btn.getAttribute('data-role') || '';
@@ -207,6 +217,72 @@
     }
   }
 
+  /* React Bits inspired pointer spotlight and subtle tilt on Bento cards. */
+  function setupSpotlight() {
+    if (reducedMotion()) return;
+    if (window.matchMedia && !window.matchMedia('(hover: hover)').matches) return;
+    var cards = document.querySelectorAll('.plate');
+    for (var i = 0; i < cards.length; i++) {
+      (function (card) {
+        var rect = null;
+        var raf = 0;
+        var lastEv = null;
+        function refreshRect() { rect = card.getBoundingClientRect(); }
+        if ('ResizeObserver' in window) {
+          new window.ResizeObserver(function () { rect = null; }).observe(card);
+        }
+        function paint() {
+          raf = 0;
+          if (!lastEv) return;
+          if (!rect) refreshRect();
+          if (!rect.width || !rect.height) return;
+          var x = lastEv.clientX - rect.left;
+          var y = lastEv.clientY - rect.top;
+          var px = Math.max(0, Math.min(100, (x / rect.width) * 100));
+          var py = Math.max(0, Math.min(100, (y / rect.height) * 100));
+          var rx = ((py - 50) / 50) * -2.2;
+          var ry = ((px - 50) / 50) * 2.2;
+          card.style.setProperty('--mx', px.toFixed(1) + '%');
+          card.style.setProperty('--my', py.toFixed(1) + '%');
+          card.style.setProperty('--rx', rx.toFixed(2) + 'deg');
+          card.style.setProperty('--ry', ry.toFixed(2) + 'deg');
+        }
+        card.addEventListener('pointerenter', refreshRect);
+        card.addEventListener('pointermove', function (ev) {
+          lastEv = ev;
+          if (!raf) raf = window.requestAnimationFrame(paint);
+        });
+        card.addEventListener('pointerleave', function () {
+          lastEv = null;
+          card.style.setProperty('--rx', '0deg');
+          card.style.setProperty('--ry', '0deg');
+        });
+      })(cards[i]);
+    }
+  }
+
+  /* Smooth entrance transitions below the fold; disabled immediately under reduced motion. */
+  function setupReveal() {
+    if (reducedMotion() || !('IntersectionObserver' in window)) return;
+    var els = document.querySelectorAll('.plate, main > section:not(.hero):not(.real-result)');
+    if (!els.length) return;
+    root.classList.add('sf-anim');
+    var io = new window.IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) {
+        if (entries[i].isIntersecting) {
+          entries[i].target.setAttribute('data-shown', 'true');
+          io.unobserve(entries[i].target);
+        }
+      }
+    }, { rootMargin: '0px 0px -4% 0px', threshold: 0.04 });
+    var vh = window.innerHeight || 900;
+    for (var j = 0; j < els.length; j++) {
+      var r = els[j].getBoundingClientRect();
+      if (r.top < vh * 0.96) els[j].setAttribute('data-shown', 'true');
+      else io.observe(els[j]);
+    }
+  }
+
   function init() {
     if (lang !== 'en') applyLang(lang);
     else syncButtons();
@@ -215,7 +291,7 @@
       if (!btn) return;
       var action = btn.getAttribute('data-action');
       if (action === 'theme') {
-        var cur = root.getAttribute('data-theme') || (systemDark() ? 'dark' : 'light');
+        var cur = currentTheme();
         var next = cur === 'dark' ? 'light' : 'dark';
         applyTheme(next);
         save('sf-theme', next);
@@ -230,9 +306,17 @@
         copy(btn);
       }
     });
+    window.addEventListener('storage', function (ev) {
+      if (ev.key === 'sf-theme') {
+        applyTheme(ev.newValue === 'light' ? 'light' : 'dark');
+        syncButtons();
+      }
+    });
     setupQbar();
     setupFinder();
     setupInstall();
+    setupSpotlight();
+    setupReveal();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

@@ -12,7 +12,7 @@
   {
     "name": "figure-craft",
     "version": "1.0.0",
-    "purpose": "Draws any object the user describes as a full, lit isometric figure the reader can open, turn and hover, checked by lint L1 to L19.",
+    "purpose": "Draws any object the user describes as a full, lit isometric figure the reader can open, turn and hover, checked by lint L1 to L20.",
     "status": "ready",
     "showcase": "refrigerator-cooling",
     "roles": [

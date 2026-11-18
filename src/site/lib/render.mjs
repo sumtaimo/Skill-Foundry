@@ -162,6 +162,8 @@ export function renderLayout(o) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<script>(function(){try{var t=localStorage.getItem('sf-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);var m=document.querySelector('meta[name="color-scheme"]');if(m)m.content=t;}}catch(e){}})();</script>
 <title>${esc(o.title)}</title>
 <meta name="description" content="${esc(desc)}">${o.image ? `
 <meta property="og:title" content="${esc(o.title)}">
@@ -182,7 +184,7 @@ export function renderLayout(o) {
 <a href="${up}index.html#collection">${t('nav.collection')}</a>
 ${local.proof ? `<a href="${local.proof}">${t('nav.proof')}</a>\n` : ''}<a href="${local.install ?? `${up}index.html#install`}">${t('nav.install')}</a>
 <a href="${up}index.html#agents">${t('nav.agents')}</a>
-<button type="button" class="icon-btn" data-action="theme" aria-pressed="false"><svg class="i-moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><svg class="i-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>${t('theme.toDark', 'span', 'class="sr"')}</button>
+<button type="button" class="icon-btn" data-action="theme" aria-pressed="true"><svg class="i-moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><svg class="i-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>${t('theme.toLight', 'span', 'class="sr"')}</button>
 <button type="button" class="icon-btn lang-btn" data-action="lang" lang="km">${t('lang.toKh', 'span', 'class="sr"')}</button>
 </nav>
 </header>
@@ -191,7 +193,7 @@ ${local.proof ? `<a href="${local.proof}">${t('nav.proof')}</a>\n` : ''}<a href=
 ${o.body}
 </main>
 </div>
-<footer class="foot">${t('footer', 'p')}</footer>
+<footer class="foot"><div class="wrap">${t('footer', 'p')}</div></footer>
 </body>
 </html>
 `;
@@ -235,7 +237,7 @@ ${t('hero.sub', 'p', 'class="lead"')}
 <div class="hero-install">
 ${t('hero.installLabel', 'p', 'class="cmd-label"')}
 <div class="codebox"><pre><code class="npx-cmd">${esc(npxCommand('add --all'))}</code></pre><button type="button" class="btn primary copy" data-copy="${esc(npxCommand('add --all'))}">${t('copy.copy')}</button></div>
-<p class="hero-meta">${opts.version ? `${t('hero.version', 'span', 'class="ver"', { v: opts.version })}<span aria-hidden="true"> · </span>` : ''}MIT</p>
+<p class="hero-meta">${t('hero.by', 'span', 'class="hero-by"')}${opts.version ? t('hero.version', 'span', 'class="ver"', { v: opts.version }) : ''}<span class="hero-lic">MIT</span></p>
 </div>
 <ul class="facts">
 ${factsList}
@@ -244,8 +246,10 @@ ${factsList}
 <section id="result" class="real-result" aria-labelledby="result-title">
 <h2 id="result-title"><span data-i18n="result.title">${esc(EN['result.title'])}</span> <span lang="en">${esc(f.title)}</span></h2>
 ${cover(f, 'cover cover-lg')}
+<div class="result-side">
 <p class="proof-ask">${t('answer.asked', 'span', 'class="proof-label"')} <code lang="en">${esc(f.prompt)}</code></p>
-<p><a class="btn" href="${fullResultHref(f)}">${t('result.full')}</a></p>
+<p class="result-actions"><a class="btn" href="${fullResultHref(f)}">${t('result.full')}</a></p>
+</div>
 </section>`;
 }
 

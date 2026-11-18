@@ -6,6 +6,7 @@ current version.
 
 ## 1.0.0 - 2026-11-17
 
+- Dark-first Bento showcase UI (`src/site/`) with light theme toggle, EN/KH language switch, pointer spotlight cards, prominent `TAIMO` MIT credit (`LICENSE`, hero badge, footer), `--version` / `-v` CLI flag, Windows test compatibility fixes, Agentic-Harness 1.0.18 sync (`B1`–`B11` fixes and runtime `.harness/foundry-check.json` untracked), and refreshed `README.md` and `docs/PROJECT.md`.
 - Skill Foundry (the project and its `npx` command) is now at 1.0.0. This number is separate from the version of each skill, which stays in the skill's own folder. From here both move slowly: a bump needs the product owner's approval in chat.
 - The landing page shows one install command first (`npx github:sumtaimo/Skill-Foundry add --all`), the Skill Foundry version, and each card labelled with its own skill version. The other commands are folded under "More commands"; skill cards no longer carry an install button.
 - `add --default` installs the five default skills; skills with an `engine/` script declare `engine: required | optional`; pointers use keywords when the harness exports `SKILL_MATCH`.
