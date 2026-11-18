@@ -11,7 +11,7 @@ Source of truth for names: the run's shared interface contract. Current markup: 
 - Radius tokens (replace all older ones): `--r-xs` 4px (inline code only); `--r-sm` 6px (every badge, chip, tag, role chip, version chip, New label, step number, cover tag); `--r-md` 10px (all buttons incl. icon buttons and Copy, inputs, code and command boxes, preview frames inside cards and stage); `--r-lg` 14px (cards, stage, result box, stat, step, agent, limit cards, faq box); `--r-xl` 16px (header bar only). 50% only for tiny dots. No 999px and no other values.
 - One badge size: every badge-like element (New label, role chips, version chip, `step-n`, cover tag) has min-height 24px, padding 0 8px, 13px weight 500, line-height 1, 1px `var(--line)` border, `var(--surface)` background, `var(--muted)` color, radius `var(--r-sm)`. The New label uses fg background and bg text.
 - Header (floating glass bar): the header element is `position: fixed`, top 16px (12px under 760px), 16px gap left and right; inner bar max-width 1120px centred, height 56px, radius `var(--r-xl)`. At the top: transparent background, transparent 1px border, no shadow. Scrolled: `site.js` toggles the existing class `is-scrolled` when `window.scrollY > 8` (passive listener, also checked on load); the bar then has background `--glass-bg` (color-mix of `var(--surface)` at 72%, defined in light and dark blocks), `backdrop-filter: blur(24px) saturate(1.4)`, 1px border `var(--line)`, shadow `0 2px 16px rgba(0,0,0,.06)` in light (dark: token value). `main` gets top padding so the hero is not hidden.
-- Header content: left = restored logo mark + wordmark "Skill Foundry" only; the Skills/brand chip is removed. Right = theme button, language button, black Install button (`btn cta`). No text nav links (Collection, Proof, Install, For agents) on any page; the phone menu button, the `#site-menu` panel and their script are removed. Skill pages keep their All skills back link in the page body.
+- Header content: left = restored logo mark + wordmark "Skill Foundry" only; the Skills/brand chip is removed. Right = the grouped tool segment `div.top-tools` (theme, language, GitHub `a.gh-btn`) and, separately, the black Install button (`btn cta`); see section 6c. No text nav links (Collection, Proof, Install, For agents) on any page; the phone menu button, the `#site-menu` panel and their script are removed. Skill pages keep their All skills back link in the page body.
 - Buttons: every `.btn` is 44px tall, padding 0 20px, 15px weight 500, radius `var(--r-md)`, icon gap 8px, transition 150ms. Primary and cta: background `var(--fg)` with the top highlight `linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%)` layered over it, color `var(--bg)`, inset `0 1px 0 rgba(255,255,255,.12)`, shadow `0 6px 20px -8px rgba(0,0,0,.45)` (tokens per theme); hover translateY(-1px) and a slightly stronger shadow; active no lift. Secondary (`.btn`, `.btn.ghost`): background `var(--surface)`, 1px `var(--line)` border, color `var(--fg)`, shadow `0 1px 2px rgba(0,0,0,.04)`; hover border `var(--line-strong)`. Copy buttons are compact secondary (36px only where tests allow, else 44px).
 - Background (neutral, no purple, nothing loud): a soft dot grid (radial-gradient dots about 1px every 22px, token `--dot`) behind the hero fading out with a radial mask; a very soft radial glow (token `--glow`) centred behind the showcase stage; a faint top-to-transparent neutral wash at the very top. All colours are tokens in `:root`, light and dark.
 - Clean up: remove redundant landing content (for example repeated explanations under the install steps, duplicated counts, empty or unused wrappers) and leftover classes/CSS for removed parts (nav links, menu, brand chip, qbar tabs on landing), but keep every id, class and string that `tests/site-*.test.mjs` require. DEV reports exactly what was removed.
@@ -40,7 +40,7 @@ Source of truth for names: the run's shared interface contract. Current markup: 
 | `#agents` | Let an AI agent pick and install a skill | `<div class="agent-card">` (`--r-lg`): left the explanation and links to existing files only (`skills.json`, `llms.txt`, `render.mjs:407-408`); right the agent prompt codebox with Copy (`render.mjs:411`) | 2 columns | stacked, text first |
 | `#limits` | Say honestly what the skills do not do | `<ul class="limit-grid">` of three `<li class="limit">` (texts `limits.p1..p3`), each with a small neutral icon (decorative, `aria-hidden`) | 3 columns | 1 column |
 | `#questions` | Answer common questions | Each question `<details class="faq">` with `<summary>` (16px, 500, plus/minus icon right), all inside one `--r-lg` box with thin dividers; answers muted. Existing questions: what, node, edit, made (`render.mjs:424-427`) | full width, max content width | full width |
-| `footer.foot` | Navigation and project facts | `<div class="foot-cols">`: col 1 logo + one-line tagline; col 2 Product (Collection, Install, For agents); col 3 Project (GitHub repo, Changelog only if it exists, License MIT); plus ONE meta group in the same block on one line: "by TAIMO · Skill Foundry version x.y.z · (c) year" (build `version`, current year), no divider line above it and no separate row. Transparent background, 13px muted. Same on every page | 3 columns + meta group | 1 column, meta group wraps inside itself |
+| `footer.foot` | Navigation and project facts | `<div class="foot-cols">`: col 1 logo + one-line tagline; col 2 Product (Collection, Install, For agents); col 3 Project (GitHub repo, Changelog only if it exists, License MIT); plus ONE meta group "by TAIMO · Skill Foundry version x.y.z · (c) year" (build `version`, current year) on its own full-width row at the bottom of the footer block, left aligned, 24px space above, no divider line; columns above stay top-aligned. Transparent background, 13px muted. Same on every page | 3 columns, meta row below | 1 column, meta row below, wraps inside itself |
 
 All ids and h2s (`proof-title`, `install-title`, `agents-title`, `limits-title`, `questions-title`) stay unchanged.
 
@@ -89,7 +89,7 @@ Questions
 13. Given `#questions`, then each question is `details.faq` inside one `--r-lg` box; when a summary is activated (click, Enter or Space), then it opens and the icon becomes minus.
 
 Footer
-14. Given any page, then `footer.foot` has `.foot-cols` with brand, Product and Project columns and ONE meta group in the same block holding by TAIMO, the build version and the current year on one line, with no divider line above it and no separate row; Changelog link appears only if the changelog page exists.
+14. Given any page, then `footer.foot` has `.foot-cols` with brand, Product and Project columns and ONE meta group holding by TAIMO, the build version and the current year on its own full-width left-aligned row at the bottom (24px above, no divider line; see H9); Changelog link appears only if the changelog page exists.
 
 Global
 15. Given the landing, then exactly one `btn primary` exists, and no search input or role filter exists.
@@ -105,7 +105,7 @@ React Bits (every page: landing and skill pages)
 23. Given a secondary or ghost button, then it has `var(--surface)` background, 1px `var(--line)` border, `var(--fg)` text; when hovered, then the border is `var(--line-strong)`.
 24. Given a page at scroll 0, when the header renders, then it is fixed 16px from the top (12px under 760px), the bar is max 1120px wide, 56px tall, transparent with a transparent 1px border and no shadow.
 25. Given the page, when `window.scrollY` becomes greater than 8, then the header gets `is-scrolled` and the bar shows `--glass-bg`, blur(24px) saturate(1.4), 1px `var(--line)` border and the shadow; when it returns to 8 or less, then the class is removed.
-26. Given the header on any page, then it contains only the logo mark + "Skill Foundry" wordmark, theme button, language button and `btn cta` Install; no nav links, no brand chip, no menu button and no `#site-menu`.
+26. Given the header on any page, then it contains only the logo mark + "Skill Foundry" wordmark, `div.top-tools` (theme button, language button, `a.gh-btn`) and `btn cta` Install; no nav links, no brand chip, no menu button and no `#site-menu`.
 27. Given the hero at scroll 0, then it is not hidden under the fixed header (main has top padding).
 28. Given `site.css` in light and dark, then `--dot`, `--glow` and `--glass-bg` are defined in both, and the dot grid, stage glow and top wash use only neutral colours.
 29. Given a skill page, when the footer renders, then it shows the Skill Foundry build `version`, same as the landing footer.
@@ -166,6 +166,37 @@ Edge cases (motion)
 - Reduced motion switched while open: CSS stops animations; JS checks before starting each motion.
 - Dark theme: background layers and glow use dark token values.
 - Khmer: count-up and reveal do not change text, so translated strings stay intact.
+
+## 6c. Header polish contract (owner request)
+
+Tightens the header tools, the stage title and the footer meta row for every visitor; everything else from commit 48a9f1f stays (glass header, radius tokens, buttons, motion, reduced motion, one `btn primary`, English and Khmer, ids/classes tests rely on).
+
+Rules
+- Header right side = two groups, 12px gap: (a) `div.top-tools`: inline-flex, 1px `var(--line)` border, `var(--surface)` background, radius `var(--r-md)`, padding 2px, no gap, holding in order the theme button, the language button (existing Khmer/English behaviour and label) and `a.gh-btn`, with thin 1px dividers between the three; (b) the black Install `btn cta` on its own.
+- `a.gh-btn`: href `https://github.com/sumtaimo/Skill-Foundry`, `target="_blank"`, `rel="noopener noreferrer"`, inline SVG GitHub mark 16px `currentColor` (decorative), accessible label from i18n key `gh.label` (English "Skill Foundry on GitHub", plus Khmer).
+- Size: each tool button shows a 32x32 chip (radius `var(--r-sm)`, hover `var(--surface-2)`) via inner `span.tool-chip` or negative margins, while the element box stays at least 44x44. Install looks 36px tall inside a 44px element if needed, otherwise 44px.
+- Stage: the title "A real result from <skill>" sits in the right column directly above the REQUEST text, with the request and See the full result button; same id, heading level and `data-i18n`.
+- Footer: meta row as in section 3 (`footer.foot`).
+- No leftover CSS or markup from removed parts; nothing unused after the change.
+
+Acceptance criteria
+H1. Given any page, when the header renders, then its right side holds `div.top-tools` and then `btn cta` Install, 12px apart, Install outside the group.
+H2. Given `div.top-tools`, then it is inline-flex with 1px `var(--line)` border, `var(--surface)` background, radius `var(--r-md)`, padding 2px, no gap, children in order theme, language, `a.gh-btn`, with 1px dividers between them.
+H3. Given `a.gh-btn`, then href is `https://github.com/sumtaimo/Skill-Foundry`, target `_blank`, rel `noopener noreferrer`, it holds a 16px `currentColor` SVG with `aria-hidden="true"`, and its accessible name comes from `gh.label`.
+H4. Given `i18n.mjs`, then `gh.label` exists in English ("Skill Foundry on GitHub") and Khmer; when Khmer is selected, then the GitHub label is Khmer.
+H5. Given each tool button, when measured, then the element box is at least 44x44 and the visible chip is 32x32 with radius `var(--r-sm)`; when hovered, then the chip shows `var(--surface-2)`.
+H6. Given the language button, when pressed, then it switches English/Khmer exactly as before.
+H7. Given width 375, then logo, `div.top-tools` and Install stay on one row with no horizontal overflow.
+H8. Given the landing stage at desktop width, then the "A real result from <skill>" title is in the right column directly above REQUEST, not above the image, keeping its id, heading level and `data-i18n`.
+H9. Given any page footer, then the meta group is the last, full-width, left-aligned row with 24px space above and no border; the columns above are top-aligned.
+H10. Given `site.css` and the markup, then no rules or elements for removed parts remain, and `npm test` passes.
+
+Edge cases
+- Dark theme: group border, background, chip hover and dividers use dark tokens.
+- Keyboard: each tool shows `:focus-visible` on its 44px element; the outline is not clipped by the group.
+- Reduced motion: chip hover has no transition.
+- Phone stage: the title stays directly above REQUEST when columns stack (title is never placed above the image).
+- Long Khmer GitHub label is only an accessible name; it does not widen the chip.
 
 ## 7. Edge cases
 

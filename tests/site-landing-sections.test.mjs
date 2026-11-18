@@ -169,7 +169,8 @@ for (const [label, get] of [['landing', html], ['skill page', skillPage]]) {
     assert.doesNotMatch(h, /<nav[\s>]/, 'no nav inside header');
     assert.doesNotMatch(h, /<a[^>]*href="[^"]*#(collection|proof|install|agents)"/, 'no section text links in header');
     assert.doesNotMatch(h, /data-i18n="nav\.[a-z]+"/, 'no nav.* strings in header');
-    assert.doesNotMatch(h, /class="[^"]*\b(brand-chip|chip)\b/, 'no brand chip');
+    // Whole class tokens only: span.tool-chip (header polish contract) is not a brand chip.
+    assert.doesNotMatch(h, /class="(?:[^"]*\s)?(brand-chip|chip)(?:\s[^"]*)?"/, 'no brand chip');
     assert.match(h, /Skill Foundry/, 'wordmark present');
     assert.match(h, /class="btn cta[\s"]/, 'Install cta button present');
   });
@@ -468,3 +469,119 @@ test('skill page nav.qbar exists and var(--ok) is used only in progress rules', 
   const links = q.filter((r) => selectors(r.sel).some((x) => /\.qbar\b[^,]*\sa\b|\.qbar\b[^,]*>\s*a\b/.test(x)));
   for (const { sel, body } of links) assert.doesNotMatch(body, /var\(--ok\)/, `no var(--ok) in link rule ${sel}`);
 });
+
+/* ---------- Header polish contract ---------- */
+
+const VOID = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr', 'path', 'circle', 'rect']);
+/** Top-level elements of an HTML fragment: [{ tag, open, outer, index }], balanced by depth. */
+function children(frag) {
+  if (typeof frag !== 'string') throw new TypeError('children: frag must be a string');
+  const out = [];
+  let depth = 0; let cur = null;
+  for (const m of frag.matchAll(/<(\/?)([a-zA-Z][a-zA-Z0-9-]*)\b[^>]*?(\/?)>/g)) {
+    const [all, close, name, self] = m;
+    const tag = name.toLowerCase();
+    if (close) {
+      depth--;
+      if (depth === 0 && cur) { cur.outer = frag.slice(cur.index, m.index + all.length); out.push(cur); cur = null; }
+    } else if (self === '/' || VOID.has(tag)) {
+      if (depth === 0) out.push({ tag, open: all, outer: all, index: m.index });
+    } else {
+      if (depth === 0) cur = { tag, open: all, index: m.index };
+      depth++;
+    }
+  }
+  return out;
+}
+/** Inner HTML of the first element whose open tag matches openRe (balanced). */
+function inner(page, openRe) {
+  if (typeof page !== 'string' || !(openRe instanceof RegExp)) throw new TypeError('inner: bad input');
+  const m = openRe.exec(page);
+  if (!m) return null;
+  const tag = /^<([a-zA-Z0-9-]+)/.exec(m[0])[1].toLowerCase();
+  const el = children(page.slice(m.index))[0];
+  if (!el || el.tag !== tag || !el.outer) return null;
+  return el.outer.slice(m[0].length, el.outer.length - `</${tag}>`.length);
+}
+
+test('helpers: children and inner balance nested tags and reject bad input', () => {
+  const c = children('<div class="a"><div>x</div></div><img src="y"><a href="#">z</a>');
+  assert.deepEqual(c.map((x) => x.tag), ['div', 'img', 'a']);
+  assert.equal(inner('<p><div class="t"><div>1</div><span>2</span></div></p>', /<div class="t"[^>]*>/), '<div>1</div><span>2</span>');
+  assert.equal(inner('<p>no</p>', /<div class="t"[^>]*>/), null);
+  assert.deepEqual(children(''), []);
+  assert.throws(() => children(null), TypeError);
+  assert.throws(() => inner('x', 'y'), TypeError);
+});
+
+test('i18n gh.label: English is "Skill Foundry on GitHub" and Khmer is a different non-empty translation', () => {
+  assert.equal(DICTS.en['gh.label'], 'Skill Foundry on GitHub');
+  assert.equal(typeof DICTS.kh['gh.label'], 'string');
+  assert.ok(DICTS.kh['gh.label'].trim().length > 0, 'KH gh.label not empty');
+  assert.notEqual(DICTS.kh['gh.label'], DICTS.en['gh.label'], 'KH gh.label is translated');
+});
+
+for (const [label, get] of [['landing', html], ['skill page', skillPage]]) {
+  test(`${label}: header div.top-tools holds exactly theme, language and GitHub in order; Install cta outside`, async () => {
+    const h = topHeader(await get());
+    assert.ok(h, 'header.top exists');
+    assert.equal(count(h, /class="top-tools[\s"]/g), 1, 'exactly one div.top-tools');
+    const tools = inner(h, /<div class="top-tools[\s"][^>]*>/);
+    assert.ok(tools !== null, 'div.top-tools is a balanced div');
+    const ctrls = children(tools).filter((k) => k.tag === 'button' || k.tag === 'a');
+    assert.equal(ctrls.length, 3, 'exactly three controls in div.top-tools');
+    assert.match(ctrls[0].open, /^<button\b[^>]*data-action="theme"/, 'first is theme button');
+    assert.match(ctrls[1].open, /^<button\b[^>]*data-action="lang"/, 'second is language button');
+    assert.match(ctrls[2].open, /^<a\b[^>]*class="[^"]*\bgh-btn\b/, 'third is a.gh-btn');
+    assert.doesNotMatch(tools, /class="btn cta[\s"]/, 'Install cta is not inside div.top-tools');
+    assert.equal(count(h, /class="btn cta[\s"]/g), 1, 'one Install cta in header');
+    const gh = ctrls[2];
+    assert.match(gh.open, /\bhref="https:\/\/github\.com\/sumtaimo\/Skill-Foundry"/, 'GitHub href exact');
+    assert.match(gh.open, /\btarget="_blank"/, 'opens in new tab');
+    const rel = /\brel="([^"]*)"/.exec(gh.open);
+    assert.ok(rel, 'gh-btn has rel');
+    assert.ok(rel[1].split(/\s+/).includes('noopener'), 'rel contains noopener');
+    const labelled = (/\baria-label="[^"]+"/.test(gh.open) && /data-i18n-aria="gh\.label"/.test(gh.open))
+      || /data-i18n="gh\.label"/.test(gh.outer);
+    assert.ok(labelled, 'gh-btn label comes from i18n key gh.label');
+    assert.ok(gh.outer.includes(DICTS.en['gh.label']), 'English label text present');
+    assert.match(gh.outer, /<svg\b[^>]*aria-hidden="true"/, 'GitHub mark is a decorative inline svg');
+  });
+}
+
+test('landing stage: result title is inside the request column, after the cover and before REQUEST', async () => {
+  const sec = section(await html(), 'result');
+  assert.ok(sec, '#result exists');
+  assert.equal(count(sec, /id="result-title"/g), 1, 'one #result-title');
+  assert.match(sec, /<h2 id="result-title"[^>]*>[\s\S]*?data-i18n="result\.title"/, 'h2 keeps id and data-i18n');
+  const coverAt = sec.search(/class="cover[\s"]/);
+  const titleAt = sec.indexOf('id="result-title"');
+  const askAt = sec.indexOf('class="proof-ask"');
+  assert.ok(coverAt !== -1 && askAt !== -1, 'cover and request exist');
+  assert.ok(coverAt < titleAt, 'title comes after the cover');
+  assert.ok(titleAt < askAt, 'title comes before the REQUEST text');
+  const side = inner(sec, /<div class="result-side[\s"][^>]*>/);
+  assert.ok(side !== null, 'div.result-side exists');
+  assert.ok(side.includes('id="result-title"'), 'title is inside the same column as the request');
+  const kids = children(side);
+  assert.equal(kids[0].tag, 'h2', 'title is the first item of the column');
+  assert.match(kids[1].open, /class="proof-ask"/, 'REQUEST directly follows the title');
+});
+
+for (const [label, get] of [['landing', html], ['skill page', skillPage]]) {
+  test(`${label}: footer meta group is the last child of the footer block`, async () => {
+    const foot = inner(await get(), /<footer\b[^>]*>/);
+    assert.ok(foot !== null, 'footer exists');
+    const top = children(foot);
+    assert.equal(top.length, 1, 'footer has one block wrapper');
+    const kids = children(inner(top[0].outer, /^<[a-z]+\b[^>]*>/));
+    assert.ok(kids.length >= 2, 'footer block has columns and meta');
+    const last = kids[kids.length - 1];
+    assert.match(last.open, /class="foot-meta[\s"]/, 'last child is .foot-meta');
+    assert.match(last.outer, /by\s+TAIMO/i, 'meta holds by TAIMO');
+    assert.equal(count(foot, /class="foot-meta[\s"]/g), 1, 'one meta group');
+    const cols = inner(foot, /<div class="foot-cols"[^>]*>/);
+    assert.ok(cols !== null, 'foot-cols exists');
+    assert.doesNotMatch(cols, /class="foot-meta/, 'meta not inside foot-cols');
+  });
+}

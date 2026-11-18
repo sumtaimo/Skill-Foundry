@@ -221,8 +221,11 @@ export function renderLayout(o) {
 <header class="top"><div class="top-in">
 <a class="brand" href="${up}index.html"><svg class="mark" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" focusable="false"><rect width="24" height="24" rx="7" fill="currentColor" opacity=".08"/><path d="M5 9h11.5c0 2-1.5 3-3 3.2V14h2v2.5H7.5V14h2v-1.8C7 12 5 10.8 5 9zm12 .2 2.5-1.2v2z" fill="currentColor"/></svg><span class="brand-name">Skill Foundry</span></a>
 <div class="top-actions">
-<button type="button" class="icon-btn" data-action="theme" aria-pressed="false"><svg class="i-moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><svg class="i-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>${t('theme.toDark', 'span', 'class="sr"')}</button>
-<button type="button" class="icon-btn lang-btn" data-action="lang" lang="km">${t('lang.toKh', 'span', 'class="sr"')}</button>
+<div class="top-tools">
+<button type="button" class="tool-btn" data-action="theme" aria-pressed="false"><span class="tool-chip" aria-hidden="true"><svg class="i-moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><svg class="i-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>${t('theme.toDark', 'span', 'class="sr"')}</button>
+<button type="button" class="tool-btn lang-btn" data-action="lang" lang="km"><span class="tool-chip" aria-hidden="true"></span>${t('lang.toKh', 'span', 'class="sr"')}</button>
+<a class="tool-btn gh-btn" href="${REPO}" target="_blank" rel="noopener noreferrer"><span class="tool-chip" aria-hidden="true"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></span>${t('gh.label', 'span', 'class="sr"')}</a>
+</div>
 <a class="btn cta" href="${local.install ?? `${up}index.html#install-title`}">${t('cta.install')}</a>
 </div>
 </div></header>
@@ -237,7 +240,6 @@ ${o.body}
 <p class="foot-brand"><svg class="mark" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M5 9h11.5c0 2-1.5 3-3 3.2V14h2v2.5H7.5V14h2v-1.8C7 12 5 10.8 5 9zm12 .2 2.5-1.2v2z" fill="currentColor"/></svg><span>Skill Foundry</span></p>
 ${t('foot.tagline', 'p', 'class="foot-tag"')}
 </div>
-<p class="foot-meta">${t('hero.by', 'span')}<span class="foot-sep" aria-hidden="true">·</span>${o.version ? t('foot.version', 'span', 'class="foot-ver"', { v: o.version }) + '<span class="foot-sep" aria-hidden="true">·</span>' : ''}${t('foot.year', 'span', '', { y: Number.isInteger(o.year) ? o.year : new Date().getUTCFullYear() })}</p>
 <nav class="foot-col" aria-label="${esc(EN['foot.product'])}" data-i18n-aria="foot.product">
 ${t('foot.product', 'p', 'class="foot-h"')}
 <ul class="foot-links">
@@ -255,6 +257,7 @@ ${t('foot.project', 'p', 'class="foot-h"')}
 </ul>
 </nav>
 </div>
+<p class="foot-meta">${t('hero.by', 'span')}<span class="foot-sep" aria-hidden="true">·</span>${o.version ? t('foot.version', 'span', 'class="foot-ver"', { v: o.version }) + '<span class="foot-sep" aria-hidden="true">·</span>' : ''}${t('foot.year', 'span', '', { y: Number.isInteger(o.year) ? o.year : new Date().getUTCFullYear() })}</p>
 </div></footer>
 </body>
 </html>
@@ -305,9 +308,9 @@ ${t('hero.installLabel', 'p', 'class="cmd-label"')}
 </section>
 <section id="result" class="real-result stage" aria-labelledby="result-title">
 <div class="stage-bar" aria-hidden="true"><span class="stage-url" lang="en">skill-foundry / ${esc(f.name)}</span></div>
-<h2 id="result-title"><span data-i18n="result.title">${esc(EN['result.title'])}</span> <span lang="en">${esc(f.title)}</span></h2>
 ${cover(f, 'cover cover-lg')}
 <div class="result-side">
+<h2 id="result-title"><span data-i18n="result.title">${esc(EN['result.title'])}</span> <span lang="en">${esc(f.title)}</span></h2>
 <p class="proof-ask">${t('answer.asked', 'span', 'class="proof-label"')} <code lang="en">${esc(f.prompt)}</code></p>
 <p class="result-actions"><a class="btn" href="${fullResultHref(f)}">${t('result.full')}</a></p>
 </div>
