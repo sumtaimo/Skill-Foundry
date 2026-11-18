@@ -9,7 +9,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { isQuotaError } from './live-evals.mjs';
+import { isQuotaError, winCommandLine } from './live-evals.mjs';
 
 const HERE = fileURLToPath(import.meta.url);
 const DIR = join(dirname(HERE), 'routing');
@@ -58,7 +58,10 @@ export function parseRouting(reply, cases) {
 export function runRouting({ engine = 'claude', spawn = spawnSync, dir = DIR } = {}) {
   const cases = JSON.parse(readFileSync(join(dir, 'cases.json'), 'utf8'));
   const skills = readySkills();
-  const res = spawn(engine, ['-p'], { input: routingPrompt(skills, cases), encoding: 'utf8', shell: process.platform === 'win32', timeout: 300000 });
+  const input = routingPrompt(skills, cases);
+  const res = process.platform === 'win32' && spawn === spawnSync
+    ? spawn(winCommandLine(engine, ['-p']), { input, encoding: 'utf8', shell: true, timeout: 300000 })
+    : spawn(engine, ['-p'], { input, encoding: 'utf8', timeout: 300000 });
   if (res.error) throw new Error(`runRouting: ${engine} failed: ${res.error.message}`);
   if (res.status !== 0) throw new Error(`runRouting: ${engine} failed: ${(res.stderr || res.stdout || `exit ${res.status}`).trim()}`);
   if (isQuotaError(res.stdout)) throw new Error(`runRouting: ${engine} hit usage/quota limit ("${String(res.stdout).trim().split('\n')[0]}"); existing live.json kept`);

@@ -9,7 +9,7 @@ import { readFileSync, mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { scoreLive, agentPrompt, isQuotaError, selectCases, runLive, parseLiveArgs } from '../src/factory/live-evals.mjs';
+import { scoreLive, agentPrompt, isQuotaError, selectCases, runLive, parseLiveArgs, winCommandLine } from '../src/factory/live-evals.mjs';
 import { loadLocks } from '../src/factory/skill-guard.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -124,4 +124,11 @@ test('selectCases and parseLiveArgs support comma-separated and repeated --case 
   const parsed = parseLiveArgs(['a11y-audit', '--run', '--case', 'a,b', '--case=c', '--engine=claude']);
   assert.deepEqual(parsed, { name: 'a11y-audit', run: true, engine: 'claude', cases: ['a,b', 'c'] });
   assert.throws(() => parseLiveArgs(['a11y-audit', '--bogus']), /unknown option/);
+});
+
+test('winCommandLine quotes spaces, parens and empty strings safely', () => {
+  assert.equal(
+    winCommandLine('claude', ['-p', '--add-dir', 'C:\\Users\\x\\Skill Foundry', '--allowedTools', 'Bash(node:*)', '']),
+    'claude -p --add-dir "C:\\Users\\x\\Skill Foundry" --allowedTools "Bash(node:*)" ""',
+  );
 });

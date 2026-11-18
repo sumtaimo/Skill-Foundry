@@ -15,7 +15,7 @@ import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { installSkill } from './install.mjs';
 import { parseStream, behaviourHash, REPO_MARKERS } from './portable-check.mjs';
-import { isQuotaError } from './live-evals.mjs';
+import { isQuotaError, winCommandLine } from './live-evals.mjs';
 
 const HERE = fileURLToPath(import.meta.url);
 const REPO_ROOT = resolve(dirname(HERE), '..', '..');
@@ -82,8 +82,11 @@ export function checkRecipe(recipe, root = REPO_ROOT) {
 export async function runRecipe(recipe, { engine = 'claude', timeoutMs = 900000 } = {}) {
   const dir = mkdtempSync(join(tmpdir(), `recipe-${recipe.id}-`));
   for (const s of recipe.skills) await installSkill(s, { projectRoot: dir, force: true });
-  const r = spawnSync(engine, ['-p', '--output-format', 'stream-json', '--verbose', '--allowedTools', 'Read', 'Write', 'Edit', 'Glob', 'Grep', 'Skill', 'Bash(node:*)', 'Bash(ls:*)'],
-    { cwd: dir, input: recipe.prompt, encoding: 'utf8', shell: process.platform === 'win32', timeout: timeoutMs, maxBuffer: 1 << 28 });
+  const args = ['-p', '--output-format', 'stream-json', '--verbose', '--allowedTools', 'Read', 'Write', 'Edit', 'Glob', 'Grep', 'Skill', 'Bash(node:*)', 'Bash(ls:*)'];
+  const spawnOpts = { cwd: dir, input: recipe.prompt, encoding: 'utf8', timeout: timeoutMs, maxBuffer: 1 << 28 };
+  const r = process.platform === 'win32'
+    ? spawnSync(winCommandLine(engine, args), { ...spawnOpts, shell: true })
+    : spawnSync(engine, args, spawnOpts);
   if (r.error) throw r.error;
   const s = parseStream(r.stdout, recipe.skills[0]);
   return { id: recipe.id, prompt: recipe.prompt, project: dir, exit: r.status, used: skillsUsed(s.tools, recipe.skills), leakedRepoRules: REPO_MARKERS.test(s.final), touchedRepo: s.touchedRepo, cost: s.cost, answer: s.final };

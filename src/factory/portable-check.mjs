@@ -14,7 +14,7 @@ import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { addSkill, writeRules } from './foundry.mjs';
-import { isQuotaError } from './live-evals.mjs';
+import { isQuotaError, winCommandLine } from './live-evals.mjs';
 
 const HERE = fileURLToPath(import.meta.url);
 const REPO_ROOT = resolve(dirname(HERE), '..', '..');
@@ -115,8 +115,11 @@ export async function portableCheck(skill, prompt, { out, engine = 'claude', tim
   addSkill(skill, { project: root, force: true });
   writeRules({ project: root });
   const installed = { length: readdirSync(join(root, '.claude', 'skills', skill)).length };
-  const r = spawnSync(engine, ['-p', '--output-format', 'stream-json', '--verbose', '--allowedTools', 'Read', 'Write', 'Edit', 'Glob', 'Grep', 'Skill', 'Bash(node:*)', 'Bash(ls:*)'],
-    { cwd: root, input: prompt, encoding: 'utf8', shell: process.platform === 'win32', timeout: timeoutMs, maxBuffer: 1 << 28 });
+  const args = ['-p', '--output-format', 'stream-json', '--verbose', '--allowedTools', 'Read', 'Write', 'Edit', 'Glob', 'Grep', 'Skill', 'Bash(node:*)', 'Bash(ls:*)'];
+  const spawnOpts = { cwd: root, input: prompt, encoding: 'utf8', timeout: timeoutMs, maxBuffer: 1 << 28 };
+  const r = process.platform === 'win32'
+    ? spawnSync(winCommandLine(engine, args), { ...spawnOpts, shell: true })
+    : spawnSync(engine, args, spawnOpts);
   if (r.error) throw r.error;
   const s = parseStream(r.stdout, skill);
   writeFileSync(join(root, '.portable-check.jsonl'), r.stdout);

@@ -17,6 +17,14 @@ const REPO_ROOT = resolve(dirname(HERE), '..', '..');
 
 export const QUOTA_LIMIT_RE = /^\s*(?:API Error:\s*)?(?:You(?:'ve|’ve| have) (?:hit|reached) your [^\n]*limit|Usage limit reached|Rate limit reached|Credit balance is too low)/im;
 
+/** Quote a command + args into a single Windows cmd.exe command string (avoids Node 24 DEP0190 and preserves spaces/parens). */
+export function winCommandLine(cmd, args = []) {
+  return [cmd, ...args].map((a) => {
+    const s = String(a);
+    return s === '' || /[\s"&|<>^()%]/.test(s) ? `"${s.replace(/(\\*)"/g, '$1$1\\"').replace(/(\\+)$/, '$1$1')}"` : s;
+  }).join(' ');
+}
+
 /** Detect short CLI usage-limit / quota banners so exit-0 limit errors never pass or overwrite recordings. */
 export function isQuotaError(text) {
   const s = String(text ?? '').trim();
@@ -103,7 +111,10 @@ export function runLive(skillDir, { engine = 'claude', cases: caseIds, spawn = s
   const targets = selectCases(cases, caseIds);
   mkdirSync(join(skillDir, 'evals', 'live'), { recursive: true });
   for (const c of targets) {
-    const res = spawn(engine, ['-p'], { input: agentPrompt(skillDir, c.prompt), encoding: 'utf8', shell: process.platform === 'win32', timeout: 600000 });
+    const input = agentPrompt(skillDir, c.prompt);
+    const res = process.platform === 'win32' && spawn === spawnSync
+      ? spawn(winCommandLine(engine, ['-p']), { input, encoding: 'utf8', shell: true, timeout: 600000 })
+      : spawn(engine, ['-p'], { input, encoding: 'utf8', timeout: 600000 });
     if (res.error) throw new Error(`runLive: ${engine} failed on ${c.id}: ${res.error.message}`);
     if (res.status !== 0) {
       const detail = (res.stderr || res.stdout || `exit ${res.status}`).trim();

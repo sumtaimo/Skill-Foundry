@@ -14,7 +14,7 @@ import { join, resolve, dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { spawn } from 'node:child_process';
-import { isQuotaError } from './live-evals.mjs';
+import { isQuotaError, winCommandLine } from './live-evals.mjs';
 
 const HERE = fileURLToPath(import.meta.url);
 const REPO_ROOT = resolve(dirname(HERE), '..', '..');
@@ -110,7 +110,9 @@ export async function evaluate(outputDir, expect, report = '') {
 /** Runs a shell command; resolves with exit code, stdout and stderr. */
 function sh(cmd, args, opts) {
   return new Promise((res) => {
-    const p = spawn(cmd, args, { ...opts, stdio: ['pipe', 'pipe', 'pipe'] });
+    const p = Array.isArray(args)
+      ? spawn(cmd, args, { ...opts, stdio: ['pipe', 'pipe', 'pipe'] })
+      : spawn(cmd, { ...opts, stdio: ['pipe', 'pipe', 'pipe'] });
     let stdout = '';
     let stderr = '';
     p.stdout.on('data', (d) => (stdout += d));
@@ -124,11 +126,14 @@ function sh(cmd, args, opts) {
 
 /** Default runner: Claude Code headless. Returns { code, report, costUsd, usage }. */
 export async function claudeRunner({ prompt, outputDir, skillDir }) {
-  const r = await sh('claude', [
+  const args = [
     '-p', '--output-format', 'json',
     '--add-dir', skillDir,
     '--allowedTools', 'Read', 'Glob', 'Grep', 'Write', 'Edit', 'Bash(node:*)',
-  ], { cwd: outputDir, input: prompt, shell: process.platform === 'win32' });
+  ];
+  const r = process.platform === 'win32'
+    ? await sh(winCommandLine('claude', args), null, { cwd: outputDir, input: prompt, shell: true })
+    : await sh('claude', args, { cwd: outputDir, input: prompt });
   let report = r.stdout;
   let costUsd = null;
   let usage = null;

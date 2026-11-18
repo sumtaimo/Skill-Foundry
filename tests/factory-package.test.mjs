@@ -12,7 +12,9 @@ import { fileURLToPath } from 'node:url';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 test('the package ships every portable ready skill and nothing from the lab', () => {
-  const out = execFileSync('npm', ['pack', '--dry-run', '--json'], { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], shell: process.platform === 'win32' });
+  const out = process.platform === 'win32'
+    ? execFileSync('cmd.exe', ['/d', '/s', '/c', 'npm pack --dry-run --json'], { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
+    : execFileSync('npm', ['pack', '--dry-run', '--json'], { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
   const files = JSON.parse(out)[0].files.map((f) => f.path);
   for (const f of files) {
     assert.doesNotMatch(f, /^(runs|docs|tests|test|\.harness|\.claude|\.github|dist)\//, `${f} is lab-only`);
