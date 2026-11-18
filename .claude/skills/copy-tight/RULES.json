@@ -31,7 +31,37 @@
   },
   {
     "id": "R-copy-tight-7",
-    "text": "The change list MUST NEVER quote removed words.",
-    "checklist": "Reviewer confirms no change bullet quotes a removed phrase."
+    "text": "The change list and every reason MUST NEVER quote removed words.",
+    "checklist": "Reviewer confirms no change bullet and no table reason quotes a removed phrase."
+  },
+  {
+    "id": "R-copy-tight-8",
+    "text": "The rewrite MUST NEVER add a new action, promise or fact that the original does not state (for example a next step such as \"Try again\" that the source never gave).",
+    "checklist": "Reviewer confirms the rewrite adds no action, promise or fact that the original does not state."
+  },
+  {
+    "id": "R-copy-tight-9",
+    "text": "The answer MUST contain only the rewritten copy and the change list: nothing before or after them, such as a note about searching or editing project files, a question or an offer.",
+    "checklist": "Reviewer confirms nothing comes before Rewritten copy: or after the last change bullet."
+  },
+  {
+    "id": "R-copy-tight-10",
+    "text": "For a list of strings the answer MUST have exactly one table row per input string, in the original order; it MUST NEVER drop, merge or reorder a string. An unchanged string is listed as Kept.",
+    "checklist": "Reviewer confirms the number of table rows equals the number of input strings and every unchanged string is a Kept row."
+  },
+  {
+    "id": "R-copy-tight-11",
+    "text": "Every reason MUST name the concrete change for that string; a generic phrase alone (\"Cut filler\") is not a reason.",
+    "checklist": "Reviewer confirms every reason or change bullet names a concrete change for its string."
+  },
+  {
+    "id": "R-copy-tight-12",
+    "text": "A string the user marked to keep as is MUST NEVER be changed, and a claim label MUST NEVER have its claim wording changed.",
+    "checklist": "Reviewer confirms marked strings and claim labels are character for character the same as the input."
+  },
+  {
+    "id": "R-copy-tight-13",
+    "text": "A string over about 25 words MUST be split into sentences where the meaning allows, and a split MUST NEVER add a fact, change the meaning or touch legal text.",
+    "checklist": "Reviewer confirms every long string is split into sentences with the same meaning, or its reason says why not."
   }
 ]

@@ -7,6 +7,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { spawnSync, execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
@@ -32,6 +33,7 @@ export const FILES = {
   log: path.join(HARNESS_DIR, 'telemetry.log'),
   pid: path.join(HARNESS_DIR, 'daemon.pid'),
   probe: path.join(HARNESS_DIR, 'engine-probe.json'),
+  approvals: path.join(HARNESS_DIR, 'approvals.json'), // per person, git-ignored: which AI tools may be used, "don't ask again" answers
   live: path.join(HARNESS_DIR, 'live.log'),
   profile: path.join(HARNESS_DIR, 'memory', 'profile.md'),
   lessons: path.join(HARNESS_DIR, 'memory', 'lessons.md'),
@@ -57,15 +59,19 @@ export function readJsonSafe(file, fallback = {}) {
   try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return fallback; }
 }
 
+const pathDirs = (envPath = process.env.PATH) => String(envPath || '').split(path.delimiter)
+  .map((d) => d.trim().replace(/^"(.*)"$/, '$1'))
+  .filter(Boolean);
+const pathExts = (pathExt = process.env.PATHEXT) => (process.platform === 'win32'
+  ? [...new Set((pathExt || '.EXE;.CMD;.BAT;.COM').split(';').filter(Boolean).concat(['']))]
+  : ['']);
+
 /** Find an executable on PATH (cross-platform). Returns full path or null. */
-export function which(binary) {
+export function which(binary, envPath = process.env.PATH, pathExt = process.env.PATHEXT) {
   if (!binary) return null;
   if (binary.includes('/') || binary.includes('\\')) return fs.existsSync(binary) ? binary : null;
-  const exts = process.platform === 'win32'
-    ? (process.env.PATHEXT || '.EXE;.CMD;.BAT;.COM').split(';').concat([''])
-    : [''];
-  for (const dir of (process.env.PATH || '').split(path.delimiter)) {
-    if (!dir) continue;
+  const exts = pathExts(pathExt);
+  for (const dir of pathDirs(envPath)) {
     for (const ext of exts) {
       const full = path.join(dir, binary + ext);
       try { if (fs.statSync(full).isFile()) return full; } catch { /* keep looking */ }
@@ -75,12 +81,186 @@ export function which(binary) {
 }
 
 /**
+ * Find every distinct copy of `binary` across PATH directories in search order.
+ * Resolves symlinks/junctions to deduplicate identical underlying binaries and picks at most one
+ * winning executable per directory (matching `which()` so Windows paired `<bin>` + `<bin>.cmd` shims
+ * in the same install folder are not falsely flagged as duplicates).
+ */
+export function findAllOnPath(binary, envPath = process.env.PATH, pathExt = process.env.PATHEXT) {
+  if (!binary) return [];
+  if (binary.includes('/') || binary.includes('\\')) {
+    try { return fs.statSync(binary).isFile() ? [binary] : []; } catch { return []; }
+  }
+  const exts = pathExts(pathExt);
+  const out = [];
+  const seen = new Set();
+  for (const dir of pathDirs(envPath)) {
+    for (const ext of exts) {
+      const full = path.join(dir, binary + ext);
+      try {
+        if (!fs.statSync(full).isFile()) continue;
+        let real = path.resolve(full);
+        try { real = fs.realpathSync.native(full); } catch { /* keep resolved path */ }
+        const key = process.platform === 'win32' ? real.toLowerCase() : real;
+        if (!seen.has(key)) { seen.add(key); out.push(full); }
+        break; // One resolved binary per PATH directory (Windows CLIs often ship paired <bin> + <bin>.cmd shims).
+      } catch { /* keep looking */ }
+    }
+  }
+  return out;
+}
+
+/**
  * Quote one argument for a Windows shell command line (spawn with shell: true).
- * An empty string becomes "" so it is not dropped (e.g. gemini -p "").
+ * An empty string becomes "" so it is not dropped (e.g. a "-p" "" pair); newlines are collapsed to spaces
+ * because cmd.exe truncates the command line at the first literal newline.
  */
 export function winQuote(a) {
-  const s = String(a);
+  const s = String(a).replace(/\r?\n/g, ' ');
   return s === '' || /[\s"&|<>^()]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+/**
+ * On Windows, only .cmd / .bat shims require cmd.exe (shell: true); native .exe binaries (such as agy.exe)
+ * must be spawned directly with shell: false so multi-line "-p <prompt>" arguments and "--model" flags are
+ * passed intact via CreateProcessW instead of being truncated by cmd.exe at the first newline.
+ */
+export function needsWinShell(binPath) {
+  return process.platform === 'win32' && /\.(cmd|bat)$/i.test(String(binPath || ''));
+}
+
+// ───────────────────────────── AI use, in one short line ─────────────────────────────
+// A person must always SEE when the harness spends their AI quota, without a long report: one line, no AI call.
+
+/** Sum the AGENT_USAGE log lines since an ISO time → { <engine>: { calls, failed, tokens, usd } }. */
+export function aiUsageSince(sinceIso) {
+  const out = {};
+  try {
+    for (const line of fs.readFileSync(FILES.log, 'utf8').split('\n')) {
+      if (!line.includes('"AGENT_USAGE"')) continue;
+      let e; try { e = JSON.parse(line); } catch { continue; }
+      if (e.ts < sinceIso) continue;
+      const r = (out[e.engine] ||= { calls: 0, failed: 0, tokens: 0, usd: 0 });
+      r.calls++; if (!e.ok) r.failed++; r.tokens += Number(e.tokens) || 0; r.usd += Number(e.usd) || 0;
+    }
+  } catch { /* no log yet */ }
+  return out;
+}
+
+/** "agy 5/80 calls · claude 2/60 calls, $0.40/$5" for today (UTC), with the daily caps; '' when nothing was used. */
+export function usageTodayLine(config = loadConfig()) {
+  const used = aiUsageSince(`${new Date().toISOString().slice(0, 10)}T00:00:00`);
+  const name = (k) => (k === 'antigravity' ? 'agy' : k);
+  return Object.entries(used).map(([k, r]) => {
+    const cap = (config.dailyLimits || {})[k] || {};
+    const calls = `${r.calls}${typeof cap.calls === 'number' ? `/${cap.calls}` : ''} call(s)`;
+    const usd = r.usd || typeof cap.usd === 'number' ? `, $${r.usd.toFixed(2)}${typeof cap.usd === 'number' ? `/$${cap.usd}` : ''}` : '';
+    return `${name(k)} ${calls}${usd}`;
+  }).join(' · ');
+}
+
+/** "agy 2 call(s) (1 failed) · codex 1 call(s)" for one job, '' when none. */
+export function usageLine(used) {
+  return Object.entries(used).map(([k, r]) => `${k === 'antigravity' ? 'agy' : k} ${r.calls} call(s)${r.failed ? ` (${r.failed} failed)` : ''}${r.usd ? `, $${r.usd.toFixed(2)}` : ''}`).join(' · ');
+}
+
+/**
+ * Check today's (UTC) AGENT_USAGE against `config.dailyLimits` and return items at or above `threshold` (default 80%).
+ * Returns [{ engine, label, metric, used, limit, pct, remaining, over, fallback }] sorted descending by pct.
+ */
+export function quotaWarnings(config = loadConfig(), engines = null, threshold = 0.8) {
+  const limits = config?.dailyLimits;
+  if (!limits || typeof limits !== 'object') return [];
+  const usedMap = aiUsageSince(`${new Date().toISOString().slice(0, 10)}T00:00:00`);
+  const list = engines ? [...new Set(engines.map((e) => String(e).trim()).filter(Boolean))] : Object.keys(limits).filter((k) => k !== 'note');
+  const warnings = [];
+  for (const engine of list) {
+    const cap = limits[engine];
+    if (!cap || typeof cap !== 'object') continue;
+    const row = usedMap[engine] || { calls: 0, tokens: 0, usd: 0 };
+    const label = engine === 'antigravity' ? 'agy' : engine;
+    const fallback = config?.quotaFallback?.[engine]?.engine || null;
+    for (const metric of ['calls', 'tokens', 'usd']) {
+      const limit = cap[metric];
+      if (typeof limit !== 'number' || !(limit > 0)) continue;
+      const used = metric === 'usd' ? Math.round((Number(row.usd) || 0) * 1e6) / 1e6 : (Number(row[metric]) || 0);
+      const ratio = used / limit;
+      if (ratio >= threshold) {
+        warnings.push({
+          engine,
+          label,
+          metric,
+          used,
+          limit,
+          pct: Math.round(ratio * 100),
+          remaining: Math.max(0, metric === 'usd' ? Number((limit - used).toFixed(2)) : limit - used),
+          over: used >= limit,
+          fallback
+        });
+      }
+    }
+  }
+  return warnings.sort((a, b) => b.pct - a.pct || a.engine.localeCompare(b.engine) || a.metric.localeCompare(b.metric));
+}
+
+export function formatQuotaWarning(w, config = null) {
+  const valStr = w.metric === 'usd'
+    ? `$${Number(w.used).toFixed(2)}/$${w.limit}`
+    : `${w.used}/${w.limit} ${w.metric}`;
+  const fb = w.fallback || config?.quotaFallback?.[w.engine]?.engine || null;
+  const fbLabel = fb ? (fb === 'antigravity' ? 'agy' : fb) : '';
+  const fbHint = fbLabel ? ` (quotaFallback → ${fbLabel} configured)` : '';
+  return `Quota warning: ${w.label} at ${w.pct}% of daily ${w.metric} limit (${valStr})${w.over ? ' — limit reached' : ''}${fbHint}`;
+}
+
+// ───────────────────────────── harness core integrity ─────────────────────────────
+// The harness CODE (.harness/*.mjs, .harness/lib/*.mjs) belongs to the template. A project uses it but never edits it:
+// the installer records a fingerprint of each core file in .harness/MANIFEST.json, and doctor warns when one changed.
+// Your own settings (config.json, charter.md, team.json, roles/, skills/, backlog, memory) are yours to edit.
+
+/** Relative paths ("/"-separated) of the harness core code files under a project root. */
+export function coreFiles(root = ROOT) {
+  const out = [];
+  for (const dir of ['.harness', '.harness/lib']) {
+    try { for (const f of fs.readdirSync(path.join(root, dir))) if (f.endsWith('.mjs')) out.push(`${dir}/${f}`); } catch { /* missing dir */ }
+  }
+  return out.sort();
+}
+
+/** { "<rel path>": sha256 } of the core files, line endings normalized (a CRLF checkout is not a change). */
+export function hashCore(root = ROOT) {
+  const out = {};
+  for (const rel of coreFiles(root)) out[rel] = crypto.createHash('sha256').update(fs.readFileSync(path.join(root, rel), 'utf8').replace(/\r\n/g, '\n')).digest('hex');
+  return out;
+}
+
+/** Compare the core files with .harness/MANIFEST.json → { manifest: object|null, changed: [], missing: [], added: [] }. */
+export function checkCore(root = ROOT) {
+  const manifest = readJsonSafe(path.join(root, '.harness', 'MANIFEST.json'), null);
+  if (!manifest || typeof manifest.files !== 'object') return { manifest: null, changed: [], missing: [], added: [] };
+  const now = hashCore(root);
+  return {
+    manifest,
+    changed: Object.keys(manifest.files).filter((f) => now[f] && now[f] !== manifest.files[f]),
+    missing: Object.keys(manifest.files).filter((f) => !now[f]),
+    added: Object.keys(now).filter((f) => !(f in manifest.files)),
+  };
+}
+
+/** `--help` / `-h` on any harness command: print the usage comment at the top of that file and exit 0. */
+export function helpIfAsked(moduleUrl, argv = process.argv.slice(2)) {
+  if (!argv.includes('--help') && !argv.includes('-h')) return;
+  const src = fs.readFileSync(new URL(moduleUrl), 'utf8');
+  console.log(src.split('*/')[0].replace(/^#!.*\n/, '').replace(/^\/\*\*?/, '').replace(/^ \* ?/gm, '').trim());
+  process.exit(0);
+}
+
+/**
+ * One quoted Windows command line (binary + args) for spawn(line, { shell: true }). Passing an args array together with
+ * shell: true only concatenates them unquoted (Node DEP0190), which breaks paths with spaces; this quotes every part.
+ */
+export function winCommandLine(bin, args = []) {
+  return [bin, ...args].map(winQuote).join(' ');
 }
 
 // ───────────────────────────── engine flag probe ─────────────────────────────
@@ -115,8 +295,9 @@ export function probeEngine(profile, { force = false } = {}) {
 
   const first = (profile.args || [])[0];
   const sub = first && !first.startsWith('-') && !first.includes('{') ? [first] : [];
-  const isWin = process.platform === 'win32';
-  const r = spawnSync(binPath, [...sub, '--help'], { encoding: 'utf8', timeout: 15000, shell: isWin, env: { ...process.env, NO_COLOR: '1' } });
+  const r = needsWinShell(binPath)
+    ? spawnSync(winCommandLine(binPath, [...sub, '--help']), { encoding: 'utf8', timeout: 15000, shell: true, env: { ...process.env, NO_COLOR: '1' } })
+    : spawnSync(binPath, [...sub, '--help'], { encoding: 'utf8', timeout: 15000, env: { ...process.env, NO_COLOR: '1' } });
   const help = `${r.stdout || ''}\n${r.stderr || ''}`;
   let result;
   if (!help.trim()) {
@@ -131,7 +312,30 @@ export function probeEngine(profile, { force = false } = {}) {
   return result;
 }
 
-/** Can this engine profile be used right now? { ok, why?, probe? } (installed + its configured flags pass the probe). */
+// ───────────────────────────── approvals (per person) ─────────────────────────────
+// .harness/approvals.json (git-ignored): { engines: { claude: true, antigravity: false }, alwaysAllow: ['team', ...] }
+
+export function loadApprovals() {
+  const a = readJsonSafe(FILES.approvals, {});
+  return a && typeof a === 'object' && !Array.isArray(a) ? a : {};
+}
+export function saveApprovals(a) { atomicWriteJson(FILES.approvals, a); }
+
+/** Did this person allow the harness to use this AI tool? true | false | undefined (not asked yet). */
+export function engineConsent(k) {
+  const e = loadApprovals().engines || {};
+  return Object.prototype.hasOwnProperty.call(e, k) ? e[k] === true : undefined;
+}
+export function setEngineConsent(k, allowed) {
+  const a = loadApprovals();
+  a.engines = { ...(a.engines || {}), [k]: !!allowed };
+  saveApprovals(a);
+}
+
+/**
+ * Can this engine profile be used right now? { ok, why?, probe?, needsConsent? }
+ * Installed + its configured flags pass the probe + the person allowed it once (a logged-in CLI is never used silently).
+ */
 export function engineUsable(config, k) {
   const p = config.profiles?.[k];
   if (!p) return { ok: false, why: 'unknown engine' };
@@ -139,11 +343,20 @@ export function engineUsable(config, k) {
   if (!probe.installed) return { ok: false, why: `'${p.binary}' is not installed` };
   if (!probe.compatible && !probe.checked) return { ok: false, why: `its flags could not be checked (${probe.error}) and the profile is not verified` };
   if (!probe.compatible) return { ok: false, why: `'${p.binary} --help' does not list ${probe.missing.join(', ')}` };
+  const consent = engineConsent(k);
+  if (consent === false) return { ok: false, probe, why: `you chose not to let the harness use '${k}' (change it: node .harness/engines.mjs allow ${k})` };
+  if (consent !== true) return { ok: false, probe, needsConsent: true, why: `'${p.binary}' is installed but you have not allowed the harness to use it yet (it spends your own quota). Run: node .harness/engines.mjs` };
   return { ok: true, probe };
 }
 
-/** The real AI CLIs the team can be routed to (profile names in config.json). orca is left out on purpose: opt-in only. */
-export const ROUTABLE_ENGINES = ['claude', 'antigravity', 'codex', 'gemini'];
+/** The real AI CLIs the team can be routed to (profile names in config.json). Supported: Claude Code, Antigravity (agy) and Codex. */
+export const ROUTABLE_ENGINES = ['claude', 'antigravity', 'codex'];
+
+/** Engines that were removed, with the reason shown when someone still asks for one. */
+export const REMOVED_ENGINES = {
+  orca: 'it could not be verified',
+  gemini: "Google no longer lets the Gemini CLI run on personal 'Gemini Code Assist for individuals' accounts and points to Antigravity instead; use 'antigravity'",
+};
 
 /**
  * Which routable engines are usable on this machine? Returns { usable: [names], skipped: [{ name, why }] }.
@@ -186,7 +399,8 @@ export function chooseModelTier({ kind = 'work', level = null, role = null, targ
   const size = String(prompt || '').length;
   let tier; let why;
   if (kind === 'plan') {
-    if (level === 'orchestrator' || PLANNING_ROLES.has(r)) { tier = 'high'; why = `${level === 'orchestrator' ? 'orchestrator' : r} plans across modules`; }
+    // Only planning ACROSS modules needs the high tier; a lead splits its own slice (BA lead: its docs) on medium.
+    if (level === 'orchestrator' || (PLANNING_ROLES.has(r) && level !== 'lead')) { tier = 'high'; why = `${level === 'orchestrator' ? 'orchestrator' : r} plans across modules`; }
     else if (r === 'QA_AUDITOR') { tier = 'fast'; why = 'QA lead only splits test work'; }
     else { tier = 'medium'; why = `${r || 'lead'} plans its own slice`; }
   } else if (r === 'PO_ARCHITECT') { tier = 'high'; why = 'architecture work'; }
@@ -214,10 +428,92 @@ export function chooseModelTier({ kind = 'work', level = null, role = null, targ
 export function resolveModel(profile, { tier = 'medium', override = null } = {}) {
   if (override && MODEL_TIERS.includes(String(override).toLowerCase())) {
     const t = String(override).toLowerCase();
-    return { tier: t, model: profile?.models?.[t] || null, source: 'override-tier' };
+    return nearestModel(profile, t, 'override-tier');
   }
   if (override) return { tier, model: String(override), source: 'override' };
-  return { tier, model: profile?.models?.[tier] || null, source: 'auto' };
+  return nearestModel(profile, tier, 'auto');
+}
+
+/**
+ * Filter an explicit model override for `targetProfile`: tiers ("fast" | "medium" | "high") work on every engine,
+ * while an engine-specific alias from a different `sourceEngine` is dropped unless it also exists in `targetProfile.models`.
+ */
+export function compatibleModelFor(targetProfile, model, sourceEngine = null) {
+  if (!model) return null;
+  const s = String(model).trim();
+  if (!s) return null;
+  if (MODEL_TIERS.includes(s.toLowerCase())) return s;
+  const targetName = targetProfile?.name;
+  if (!sourceEngine || sourceEngine === 'auto' || !targetName || sourceEngine === targetName) return s;
+  const targetModels = Object.values(targetProfile?.models || {}).filter(Boolean);
+  return targetModels.includes(s) ? s : null;
+}
+
+/**
+ * Never fall back to the CLI's default when the engine has a model for ANOTHER tier: an empty tier uses the nearest
+ * configured one (cheaper first for fast/medium, then the next one up; high steps down). Only an engine with no
+ * models at all (e.g. codex today) gets model null = the CLI's own default (doctor warns about it).
+ */
+const NEAREST = { fast: ['fast', 'medium', 'high'], medium: ['medium', 'fast', 'high'], high: ['high', 'medium', 'fast'] };
+function nearestModel(profile, tier, source) {
+  for (const t of NEAREST[tier] || [tier]) {
+    const m = profile?.models?.[t];
+    if (m) return { tier, model: m, source: t === tier ? source : `${source}, nearest tier ${t}` };
+  }
+  return { tier, model: null, source };
+}
+
+/** True when the engine has no model name for any tier, so every call runs on the CLI's own default. */
+export const usesCliDefault = (profile) => !MODEL_TIERS.some((t) => profile?.models?.[t]);
+
+/** A typical job for each role, so the team view can say which model an agent gets (same rules as the controller). */
+const TYPICAL_FILES = { BA_ANALYST: ['docs/spec.md'], QA_AUDITOR: ['test/feature.test.js'], DEV_ENGINEER: ['src/a.js', 'src/b.js'], UX_DESIGNER: ['src/app.css', 'src/theme.css'], PO_ARCHITECT: ['docs/plan.md'] };
+/**
+ * Which model a team member gets: for its own planning call (orchestrator / lead) and for its workers' typical job.
+ * engineName null/auto → the first engine of autoOrder. A member "model" (alias, or a tier name) overrides both.
+ * Returns { engine, plan: { tier, model }, work: { tier, model } }.
+ */
+export function memberModels(config, member) {
+  const engine = member.engine && member.engine !== 'auto' ? member.engine : (config.autoOrder || Object.keys(config.profiles || {}))[0];
+  const profile = config.profiles?.[engine];
+  const role = String(member.role || '').toUpperCase();
+  const pick = (t) => (member.model ? resolveModel(profile, { tier: t.tier, override: member.model }) : resolveModel(profile, { tier: t.tier }));
+  return {
+    engine,
+    plan: pick(chooseModelTier({ kind: 'plan', level: member.level, role })),
+    work: pick(chooseModelTier({ kind: 'work', role, targetFiles: TYPICAL_FILES[role] || ['src/a.js', 'src/b.js'] })),
+  };
+}
+
+/**
+ * Why a run that a person starts may use a lot of tokens or quota. Pure: no files, no probing.
+ * Empty list = a normal run, nobody is asked. Each reason has a `kind` (what "don't ask again" saves) and plain `text`.
+ *   team         orchestrator + leads plan on the high tier, then several workers
+ *   parallel     an AI planner on the high tier, then several workers
+ *   many-workers 3 or more hand-written workers at the same time
+ *   high-model   every agent forced onto the high tier, or onto a profile's high-tier model by name
+ */
+export function costlyRunReasons(config, { hierarchy = false, autoPlan = false, workers = 1, model = null } = {}) {
+  const out = [];
+  if (hierarchy) out.push({ kind: 'team', text: 'team mode: an orchestrator and leads plan on the high tier, then several workers run' });
+  else if (autoPlan) out.push({ kind: 'parallel', text: 'parallel mode: an AI planner on the high tier, then several workers run at once' });
+  if (Number(workers) >= 3) out.push({ kind: 'many-workers', text: `${workers} workers run at the same time` });
+  const m = String(model || '').toLowerCase();
+  const highModels = [
+    ...Object.values(config?.profiles || {}).map((p) => p?.models?.high),
+    ...Object.values(config?.quotaFallback || {}).map((f) => f?.models?.high)
+  ].filter(Boolean).map((s) => String(s).toLowerCase());
+  if (m && (m === 'high' || highModels.includes(m))) out.push({ kind: 'high-model', text: `every agent is forced onto the most expensive model (--model ${model})` });
+  return out;
+}
+
+/** costlyRunReasons for a backlog item (what autopilot would run), minus the kinds the person said "don't ask again" for. */
+export function pendingCostReasons(config, item, approvals = loadApprovals()) {
+  if (!item || item.costApproved === true) return [];
+  const subs = Array.isArray(item.subtasks) ? item.subtasks.length : 0;
+  const reasons = costlyRunReasons(config, { hierarchy: !!item.hierarchy && !subs, autoPlan: !!item.autoPlan && !subs && !item.hierarchy, workers: subs, model: item.model || null });
+  const always = new Set(Array.isArray(approvals.alwaysAllow) ? approvals.alwaysAllow : []);
+  return reasons.filter((r) => !always.has(r.kind));
 }
 
 /**
@@ -236,6 +532,7 @@ export function resolveProfile(config, requested, { allowFallback = true } = {})
     return null;
   };
 
+  if (REMOVED_ENGINES[want]) throw Object.assign(new Error(`Engine '${want}' is no longer supported (${REMOVED_ENGINES[want]}). Use one of: auto, ${Object.keys(config.profiles).join(', ')}`), { fatal: true });
   if (want !== 'auto' && !config.profiles[want]) {
     throw Object.assign(new Error(`Unknown engine '${want}'. Known engines: auto, ${Object.keys(config.profiles).join(', ')}`), { fatal: true });
   }
@@ -301,6 +598,63 @@ export function safeTarget(p) {
   if (n.split('/').includes('..')) return null;
   if (/^(\.git|\.harness)(\/|$)/.test(n)) return null;
   return n;
+}
+
+/** Normalise a target path and collapse redundant trailing slashes while keeping a single trailing "/" for folders (incl. Windows "\\"). */
+export function normalizeTarget(p) {
+  const s = safeTarget(p);
+  if (!s) return null;
+  const base = s.replace(/\/+$/, '');
+  return s.endsWith('/') ? `${base}/` : base;
+}
+
+/** File names that look like secrets: never put in an automatic commit (.env.example and the like are fine). */
+export const SECRET_FILE_RE = /(^|\/)(\.env(\.(?!example$|sample$|template$|dist$)[^/]*)?|[^/]*\.(pem|key|p12|pfx|keystore|jks)|id_(rsa|dsa|ecdsa|ed25519)|credentials(\.[^/]*)?|secrets?(\.[^/]*)?|\.npmrc|\.netrc|\.pypirc)$/i;
+export const isSecretFile = (file) => SECRET_FILE_RE.test(String(file || '').replace(/\\/g, '/'));
+
+export function realNorm(p) {
+  let r;
+  try { r = fs.realpathSync.native(p); } catch { r = path.resolve(p); }
+  return process.platform === 'win32' ? r.toLowerCase() : r;
+}
+export const isSameDir = (a, b) => realNorm(a) === realNorm(b);
+
+/** Validate an external --cwd / task.cwd folder: must exist as a directory outside .git/.harness and be a git worktree root of this same repository. */
+export function validateExternalWorkRoot(dir, root = ROOT, label = '--cwd') {
+  const fatalErr = (msg) => Object.assign(new Error(msg), { fatal: true });
+  const resolved = path.resolve(root, String(dir));
+  let st;
+  try { st = fs.statSync(resolved); } catch {
+    throw fatalErr(`${label} path is not a folder: ${resolved}`);
+  }
+  if (!st.isDirectory()) throw fatalErr(`${label} path is not a folder: ${resolved}`);
+  let realWork = resolved;
+  try { realWork = fs.realpathSync.native(resolved); } catch { /* resolved directory exists */ }
+  const blockedSeg = /(?:^|\/)\.(git|harness)(?:\/|$)/;
+  if (blockedSeg.test(resolved.replace(/\\/g, '/')) || blockedSeg.test(realWork.replace(/\\/g, '/'))) {
+    throw fatalErr(`Refusing ${label} inside .git or .harness: ${realWork}`);
+  }
+  if (!isSameDir(realWork, root)) {
+    const gitCommon = (d) => {
+      try {
+        const raw = execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: d, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+        return realNorm(path.resolve(d, raw));
+      } catch { return null; }
+    };
+    const gitTop = (d) => {
+      try {
+        return realNorm(execFileSync('git', ['rev-parse', '--show-toplevel'], { cwd: d, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim());
+      } catch { return null; }
+    };
+    const here = gitCommon(root); const there = gitCommon(realWork); const top = gitTop(realWork);
+    if (!here || !there || !isSameDir(here, there)) {
+      throw fatalErr(`Refusing ${label} ${realWork}: it is not a git worktree of this project. ${label} only accepts a worktree of the same repository (see: git worktree list).`);
+    }
+    if (!top || top !== realNorm(realWork)) {
+      throw fatalErr(`Refusing ${label} ${realWork}: pass the worktree root folder${top ? ` (${top})` : ''}, not a subfolder inside it.`);
+    }
+  }
+  return realWork;
 }
 
 // ───────────────────────────── Memory store ─────────────────────────────
@@ -391,6 +745,7 @@ export function recordSession(record) {
     `- Task ID: ${record.taskId}`,
     `- Result: **${record.result}**`,
     `- Engine: ${record.engine}`,
+    ...(record.cwd ? [`- Workdir: ${record.cwd}`] : []),
     `- Cycles used: ${record.cycles}/${record.maxCycles}`,
     `- Verify command: \`${record.verifyCmd}\` (${record.verifySource || 'given by task'})`,
     ...(record.git ? [`- Git: ${record.git.mergedSha ? `merged into **${record.git.branch}** @ ${record.git.mergedSha.slice(0, 8)} (from ${record.git.baseSha.slice(0, 8)})` : `**${record.git.branch}** unchanged`}; worker branches ${record.git.workerBranches.join(', ') || '-'}${record.git.keptBranches ? ' (kept for review)' : ' (deleted)'}; protected branches ${record.git.protectedUnchanged ? 'unchanged' : 'CHANGED — check!'}`] : []),

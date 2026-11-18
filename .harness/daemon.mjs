@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * .harness/daemon.mjs
- * Unified Background Agentic Controller (Claude Code / Antigravity / Orca / Gemini / Codex)
+ * Unified Background Agentic Controller (Claude Code / Antigravity / Codex)
  *
  *   Square loop:  1_PLANNER -> 2_EXECUTOR_SWARM -> 3_VERIFIER -> 4_COMMITTED
  *                 (verifier failure feeds its error back to the planner, max `maxCycles` times,
@@ -31,18 +31,25 @@ import { promisify } from 'node:util';
 import {
   ROOT, DIRS, FILES, ensureDirs, loadConfig, atomicWriteJson, readJsonSafe, which,
   resolveProfile, memoryContext, recordSession, remember, listLessons, detectVerifyCmd,
-  listProjectFiles, safeTarget,
-  winQuote, chooseModelTier, resolveModel,
+  listProjectFiles, safeTarget, normalizeTarget, isSecretFile, isSameDir, validateExternalWorkRoot,
+  winQuote, winCommandLine, needsWinShell, MODEL_TIERS, chooseModelTier, resolveModel, compatibleModelFor, pendingCostReasons, loadApprovals, engineUsable, helpIfAsked, aiUsageSince, usageLine, usageTodayLine,
 } from './lib/common.mjs';
+helpIfAsked(import.meta.url); // "--help" prints the usage; it must never start the controller
+
+// Autonomous work never moves up to the high (most expensive) tier without the person's OK:
+// set while an autonomous task or the PO_ARCHITECT runs, unless that task was approved or "high-model" is always allowed.
+let autoTierCap = false;
+const highAlwaysAllowed = () => (loadApprovals().alwaysAllow || []).includes('high-model');
 import {
   readCharter, loadRoles, loadSkills, matchSkills, computeAllowedTools, computeDisallowedTools,
   matchesAny, withinAll, skillRulesNotGranted, readBacklog, writeBacklog, updateBacklogItem, nextReady, backlogCounts, itemToJob,
-  loadTeam, validateTeam
+  loadTeam, validateTeam, leadOwns, validateDelegation
 } from './lib/governance.mjs';
 import {
   isRepoWithCommits, branchSha, ensureBranch, protectedShas, ensureWorkerWorktree, commitScoped,
   buildCandidate, advanceBranch, removeWorktree, deleteBranch, safeRef
 } from './lib/integration.mjs';
+import { syncVisibleRunAfterDaemon } from './lib/handoff.mjs';
 
 const execAsync = promisify(exec);
 const execFileAsync = promisify(execFile);
@@ -55,8 +62,14 @@ const startTime = Date.now();
 const queue = [];
 const queued = new Set();
 let draining = false;
+let ownsState = false;
 let state = {};
 let lastFinished = null; // { autonomous, backlogId, title, ok } of the last job
+
+function resolveTaskWorkRoot(task) {
+  if (!task?.cwd) return ROOT;
+  return validateExternalWorkRoot(path.resolve(ROOT, String(task.cwd)), ROOT, 'task cwd');
+}
 
 // ───────────────────────────── state + telemetry ─────────────────────────────
 
@@ -67,12 +80,14 @@ function writeState(patch) {
     maxCycles: MAX_CYCLES,
     activeLocks: Array.from(activeFileLocks),
     queueLength: queue.length,
-    pid: process.pid,
-    uptimeSec: Math.floor((Date.now() - startTime) / 1000),
+    pid: ownsState ? process.pid : (state.pid ?? null),
+    uptimeSec: ownsState ? Math.floor((Date.now() - startTime) / 1000) : (state.uptimeSec ?? 0),
     updatedAt: new Date().toISOString()
   };
-  atomicWriteJson(FILES.state, state); // atomic: temp file + rename
-  renderHUD(state);
+  if (ownsState || selfTestMode) {
+    atomicWriteJson(FILES.state, state); // atomic: temp file + rename
+    renderHUD(state);
+  }
   return state;
 }
 
@@ -189,7 +204,14 @@ function buildArgs(profile, prompt, allowedTools, disallowedTools = [], stream =
     args.push(v);
   }
   // Model tier: only when the tier maps to an alias; otherwise no flag, so the CLI uses its own newest default.
-  if (model && Array.isArray(profile.modelArgs)) args.push(...profile.modelArgs.map((a) => a.replace('{model}', model)));
+  // "name@effort" (e.g. a codex model with "@low") also fills {effort}; without an effort, an {effort} arg and its flag are dropped.
+  if (model && Array.isArray(profile.modelArgs)) {
+    const [name, effort] = String(model).split('@');
+    for (const a of profile.modelArgs) {
+      if (a.includes('{effort}') && !effort) { if (/^-/.test(args[args.length - 1] || '')) args.pop(); continue; }
+      args.push(a.replace('{model}', name).replace('{effort}', effort || ''));
+    }
+  }
   const mcpFile = profile.mcpConfigPath && path.join(ROOT, profile.mcpConfigPath);
   if (profile.useMcp && mcpFile && fs.existsSync(mcpFile)) {
     args.push(...(profile.mcpArgs || []).map((a) => a.replace('{mcpConfig}', mcpFile)));
@@ -236,13 +258,90 @@ function renderStreamEvent(id, ev, cwd) {
   }
 }
 
+/**
+ * config.dailyLimits = { <engine>: { calls?, tokens?, usd? } }: today's (UTC) AGENT_USAGE for that engine is summed from the
+ * log; returns a short reason when a cap is reached (the agent is then not started), else null. No entry = no cap.
+ */
+function dailyLimitReached(engine) {
+  const cap = (config.dailyLimits || {})[engine];
+  if (!cap || typeof cap !== 'object') return null;
+  const day = new Date().toISOString().slice(0, 10);
+  let calls = 0; let tokens = 0; let usd = 0;
+  try {
+    for (const line of fs.readFileSync(FILES.log, 'utf8').split('\n')) {
+      if (!line.includes('"AGENT_USAGE"') || !line.includes(day)) continue;
+      let e;
+      try { e = JSON.parse(line); } catch { continue; }
+      if (!String(e.ts || '').startsWith(day) || e.engine !== engine) continue;
+      calls++; tokens += Number(e.tokens) || 0; usd += Number(e.usd) || 0;
+    }
+  } catch { return null; }
+  if (typeof cap.calls === 'number' && calls >= cap.calls) return `${calls}/${cap.calls} calls today`;
+  if (typeof cap.tokens === 'number' && tokens >= cap.tokens) return `${tokens}/${cap.tokens} tokens today`;
+  if (typeof cap.usd === 'number' && usd >= cap.usd) return `${usd.toFixed(2)}/${cap.usd} today`;
+  return null;
+}
+
+/** Usage / quota limits only (not login problems): the account is fine, it is just out of quota for now. */
+const QUOTA_LIMIT_RE = /hit your .{0,40}limit|\b\d+\s*-?\s*hour\s+limit\b|(session|usage|daily|weekly|monthly|spending|billing( hard)?) limit|(exceeded|exhausted|out of) .{0,30}(quota|credits?|usage)|(quota|credits?) .{0,20}(exceeded|exhausted|reached|depleted)|insufficient[_\s-]quota|rate.?limit|resource.?exhausted|credit balance|\b429\b.{0,30}(too many requests|rate|quota)|too many requests/i;
+
+/**
+ * Spawn an AI engine; if it stops on a usage/quota limit and config.quotaFallback names another engine (or another
+ * model on the same engine), the same agent retries along the fallback chain on the model for the same tier, never
+ * visiting the same engine/model twice (no loops). Only an engine the person already allowed is used.
+ */
+function spawnEngine(opts, tried = new Set()) {
+  return spawnEngineOnce(opts).catch((e) => {
+    tried.add(e.engineName);
+    tried.add(`${e.engineName}:${e.modelUsed || ''}`);
+    if (!e.quotaLimit || opts.noQuotaFallback) throw e;
+    const fb = (config.quotaFallback || {})[e.engineName] || null;
+    let targetEngine = fb?.engine || null;
+    let model = fb?.models?.[e.tierUsed] || null;
+    let sameEngine = targetEngine === e.engineName;
+    const canUseConfigured = targetEngine && (sameEngine ? (model && model !== e.modelUsed && !tried.has(`${targetEngine}:${model}`)) : !tried.has(targetEngine));
+    if (!canUseConfigured) {
+      const nativeModel = !e.dailyCap ? resolveModel(config.profiles?.[e.engineName], { tier: e.tierUsed }).model : null;
+      if (nativeModel && nativeModel !== e.modelUsed && !tried.has(`${e.engineName}:${nativeModel}`)) {
+        targetEngine = e.engineName;
+        model = nativeModel;
+        sameEngine = true;
+      } else throw e;
+    }
+    const u = engineUsable(config, targetEngine);
+    if (!u.ok) {
+      logTelemetry('QUOTA_FALLBACK_UNAVAILABLE', `${opts.id}: ${e.engineName} hit its usage limit, and ${targetEngine} cannot take over: ${u.why}`, { worker: opts.id });
+      throw e;
+    }
+    const keepOverride = opts.model && MODEL_TIERS.includes(String(opts.model).toLowerCase()) ? opts.model : null;
+    const nextModel = model || (sameEngine ? opts.model : keepOverride) || null;
+    const nextTier = e.tierUsed ? { tier: e.tierUsed, reasons: [...(opts.tier?.reasons || []), `quota fallback from ${e.engineName}`] } : opts.tier;
+    logTelemetry('QUOTA_FALLBACK', `${opts.id}: ${e.engineName} hit its usage limit → retrying on ${targetEngine}${nextModel ? ` (${nextModel})` : ''}`, { worker: opts.id, from: e.engineName, to: targetEngine, tier: e.tierUsed, model: nextModel });
+    if (liveOn()) livePrint(opts.id, `⇄ ${e.engineName} usage limit → continuing on ${targetEngine}${nextModel ? ` (${nextModel})` : ''}`);
+    writeState({ history: pushHistory(`⇄ ${e.engineName} limit → ${targetEngine} for ${opts.id}`) });
+    return spawnEngine({ ...opts, engine: targetEngine, tier: nextTier, model: nextModel, modelSourceEngine: nextModel ? targetEngine : opts.modelSourceEngine }, tried);
+  });
+}
+
 /** Spawn an AI engine with a prompt. Resolves { engine, output, denials }. Streams activity live when enabled. */
-function spawnEngine({ id, engine, prompt, cwd, timeoutMs, allowedTools, disallowedTools, tier = null, model: modelOverride = null }) {
+function spawnEngineOnce({ id, engine, prompt, cwd, timeoutMs, allowedTools, disallowedTools, tier = null, model: modelOverride = null, modelSourceEngine = null }) {
   return new Promise((resolve, reject) => {
     let profile;
     try { profile = resolveProfile(config, engine); } catch (e) { return reject(e); }
-    const t = tier || { tier: 'medium', reasons: ['no complexity info'] };
-    const pick = resolveModel(profile, { tier: t.tier, override: modelOverride });
+    const effectiveSource = profile.fallbackFrom || modelSourceEngine;
+    const safeOverride = compatibleModelFor(profile, modelOverride, effectiveSource);
+    let t = tier || { tier: 'medium', reasons: ['no complexity info'] };
+    if (autoTierCap && t.tier === 'high' && !safeOverride) {
+      t = { tier: 'medium', reasons: [...(t.reasons || []), 'capped high → medium: autonomous run, the high model needs your OK (node .harness/backlog.mjs approve <id>)'] };
+      logTelemetry('AUTO_TIER_CAPPED', `${id}: high tier capped to medium (autonomous; high model not approved)`, { worker: id });
+    }
+    const pick = resolveModel(profile, { tier: t.tier, override: safeOverride });
+    const over = dailyLimitReached(profile.name);
+    if (over) {
+      logTelemetry('DAILY_LIMIT', `${id}: ${profile.name} reached its daily cap (${over}); not started`, { worker: id, engine: profile.name });
+      return reject(Object.assign(new Error(`${id} (${profile.name}): daily cap reached (${over}). It resets tomorrow (UTC); raise "dailyLimits" in config.json only if you accept the use.`), { fatal: true, engineName: profile.name, tierUsed: pick.tier, modelUsed: pick.model, quotaLimit: true, dailyCap: true }));
+    }
+    const startedAt = Date.now();
     logTelemetry('MODEL_TIER', `${id}: ${pick.tier} tier → ${pick.model || `${profile.name} default (no --model)`}${pick.source === 'auto' ? '' : ` (${pick.source})`}`, { worker: id, engine: profile.name, tier: pick.tier, model: pick.model, source: pick.source, reasons: t.reasons });
     if (profile.fallbackFrom) {
       logTelemetry('ENGINE_FALLBACK', `Engine '${profile.fallbackFrom}' unavailable (${profile.fallbackReason}); using '${profile.name}'`, { worker: id });
@@ -252,11 +351,13 @@ function spawnEngine({ id, engine, prompt, cwd, timeoutMs, allowedTools, disallo
     const stream = live && Array.isArray(profile.output?.stream);
     const binPath = which(profile.binary);
     const { args, viaStdin } = buildArgs(profile, prompt, allowedTools, disallowedTools, stream, pick.model);
-    const isWin = process.platform === 'win32';
+    const useShell = needsWinShell(binPath);
     const env = { ...process.env, HARNESS_WORKER: '1', HARNESS_WORKER_ID: id };
-    const child = spawn(isWin ? winQuote(binPath) : binPath, isWin ? args.map(winQuote) : args, { cwd, env, shell: isWin, stdio: ['pipe', 'pipe', 'pipe'] });
+    const child = useShell
+      ? spawn(winCommandLine(binPath, args), { cwd, env, shell: true, stdio: ['pipe', 'pipe', 'pipe'] })
+      : spawn(binPath, args, { cwd, env, stdio: ['pipe', 'pipe', 'pipe'] });
     logTelemetry('ENGINE_SPAWN', `Spawned ${profile.name} for ${id}`, { engine: profile.name, binary: binPath, args: args.map((a) => (a === prompt ? '<prompt>' : a)), promptVia: viaStdin ? 'stdin' : 'args', live: live ? (stream ? 'stream-json' : 'raw') : 'off', cwd });
-    if (live && !stream) livePrint(id, `▶ ${profile.name} started (raw output follows)`);
+    if (live && !stream) livePrint(id, `▶ ${profile.name} started on ${pick.model || "the CLI's default model (no model names set)"} [${pick.tier}] (raw output follows)`);
 
     let stdout = ''; let stderr = ''; let settled = false; let pending = '';
     const done = (fn, v) => { if (!settled) { settled = true; clearTimeout(timer); fn(v); } };
@@ -284,23 +385,25 @@ function spawnEngine({ id, engine, prompt, cwd, timeoutMs, allowedTools, disallo
 
     child.on('error', (err) => done(reject, Object.assign(new Error(`Failed to start '${profile.binary}': ${err.message}`), { fatal: err.code === 'ENOENT' })));
     child.on('close', (code) => {
+      let usage = null; try { usage = summarizeOutput(stdout); } catch { /* error output: no usage */ }
+      logTelemetry('AGENT_USAGE', `${id}: ${profile.name} ${pick.model || 'default'} [${pick.tier}] ${code === 0 ? 'ok' : `exit ${code}`}`, { worker: id, engine: profile.name, model: pick.model, tier: pick.tier, ok: code === 0, tokens: usage?.tokens ?? null, usd: usage?.cost || 0, ms: Date.now() - startedAt });
       if (live && pending.trim() && !stream) livePrint(id, oneLine(pending, 200));
       if (code !== 0) {
         // The engine's own error (e.g. Claude's JSON {"is_error":true,"result":"You've hit your limit"}) is on stdout;
         // stderr may only hold unrelated warnings, so prefer the engine's message when there is one.
         try { summarizeOutput(stdout); } catch (e) {
-          if (e.engineError) return done(reject, Object.assign(new Error(`${id} (${profile.name}) exited with code ${code}: ${e.message}`), { fatal: e.fatal }));
+          if (e.engineError) return done(reject, Object.assign(new Error(`${id} (${profile.name}) exited with code ${code}: ${e.message}`), { fatal: e.fatal, engineName: profile.name, tierUsed: pick.tier, modelUsed: pick.model, quotaLimit: QUOTA_LIMIT_RE.test(e.message) }));
         }
         const raw = `${stderr}\n${stdout}`.trim();
         const fatal = engineErrorIsFatal(raw);
-        return done(reject, Object.assign(new Error(`${id} (${profile.name}) exited with code ${code}: ${(stderr || stdout).trim().slice(0, 4000)}${fatal ? ' (account/login problem: retrying cannot fix it)' : ''}`), { fatal }));
+        return done(reject, Object.assign(new Error(`${id} (${profile.name}) exited with code ${code}: ${(stderr || stdout).trim().slice(0, 4000)}${fatal ? ' (account/login problem: retrying cannot fix it)' : ''}`), { fatal, engineName: profile.name, tierUsed: pick.tier, modelUsed: pick.model, quotaLimit: QUOTA_LIMIT_RE.test(raw) }));
       }
       try {
         const r = summarizeOutput(stdout);
         if (r.denials.length) logTelemetry('PERMISSION_DENIED', `${id}: engine denied ${r.denials.length} action(s) outside its role`, { worker: id, denials: r.denials });
         trackCost(id, r.cost);
         done(resolve, { engine: profile.name, output: r.text, denials: r.denials, costUsd: r.cost });
-      } catch (e) { done(reject, e); }
+      } catch (e) { done(reject, Object.assign(e, { engineName: profile.name, tierUsed: pick.tier, modelUsed: pick.model, quotaLimit: QUOTA_LIMIT_RE.test(e.message) })); }
     });
   });
 }
@@ -317,7 +420,8 @@ function spawnEngine({ id, engine, prompt, cwd, timeoutMs, allowedTools, disallo
  */
 function engineErrorIsFatal(text, status) {
   if ([401, 402, 403, 429].includes(Number(status))) return true;
-  return /hit your .{0,40}limit|usage limit|quota (exceeded|exhausted)|rate.?limit|resource.?exhausted|credit balance|not logged in|please (run .{0,30})?log ?in|login required|unauthori[sz]ed|authentication (failed|required|error)|invalid api key/i.test(String(text || ''));
+  const s = String(text || '');
+  return QUOTA_LIMIT_RE.test(s) || /not logged in|please (run .{0,30})?log ?in|login required|unauthori[sz]ed|authentication (failed|required|error)|invalid api key/i.test(s);
 }
 
 function summarizeOutput(stdout) {
@@ -333,9 +437,11 @@ function summarizeOutput(stdout) {
       throw Object.assign(new Error(`Engine reported an error: ${msg}`), { fatal: engineErrorIsFatal(msg, j.api_error_status), engineError: true });
     }
     const denials = (j.permission_denials || []).map((d) => ({ tool: d.tool_name, target: d.tool_input?.file_path || d.tool_input?.command || '' }));
-    return { text: String(j.result), denials, cost: Number(j.total_cost_usd) || 0 };
+    const u = j.usage || {};
+    const tokens = ['input_tokens', 'output_tokens', 'cache_creation_input_tokens', 'cache_read_input_tokens'].reduce((n, k) => n + (Number(u[k]) || 0), 0) || null;
+    return { text: String(j.result), denials, cost: Number(j.total_cost_usd) || 0, tokens };
   }
-  return { text, denials: [], cost: 0 };
+  return { text, denials: [], cost: 0, tokens: null };
 }
 
 // ── cost accounting + budget guardrails (deterministic: the controller counts, the agent cannot) ──
@@ -363,7 +469,7 @@ function enforceBudget(task, where) {
 
 /** Which memory parts the engine already loads itself (e.g. CLAUDE.md "@.harness/memory/lessons.md"). */
 function autoLoadedMemory(profile, cwd) {
-  if (!profile.instructionFile || config.useGitWorktrees || path.resolve(cwd) !== ROOT) return []; // worktrees see the last commit, maybe stale
+  if (!profile.instructionFile || config.useGitWorktrees || !isSameDir(cwd, ROOT)) return []; // worktrees see the last commit, maybe stale
   let text = '';
   try { text = fs.readFileSync(path.join(cwd, profile.instructionFile), 'utf8'); } catch { return []; }
   const skip = [];
@@ -408,7 +514,7 @@ function resolveGovernance(sub, gov) {
   if (m.mismatched.length) logTelemetry('SKILL_ROLE_MISMATCH', `Skill(s) ${m.mismatched.join(', ')} not allowed for role ${roleName || '(none)'}; not injected`, { worker: sub.id });
   sub.resolvedRole = role ? role.name : null;
   sub.resolvedSkills = m.chosen.map((s) => s.name);
-  sub.resolvedTools = role ? computeAllowedTools(role, m.chosen, sub.targetFiles) : (sub.allowedTools || null);
+  sub.resolvedTools = role ? computeAllowedTools(role, m.chosen, sub.targetFiles, { explicit: Array.isArray(sub.skills) ? sub.skills : [] }) : (sub.allowedTools || null);
   if (role) {
     const notGranted = skillRulesNotGranted(role, m.chosen);
     if (notGranted.length) logTelemetry('SKILL_RULE_NOT_GRANTED', `${sub.id}: skill asked for tools the role ${role.name} does not allow: ${notGranted.join('; ')}`, { worker: sub.id, notGranted });
@@ -444,14 +550,15 @@ function runWorker(subtask, cwd, errorContext, { cycle = 1, model = null } = {})
     allowedTools: subtask.resolvedTools || subtask.allowedTools, disallowedTools: subtask.deniedTools,
     // complexity is judged on the task itself (files, its own prompt, role, retry), not on the harness boilerplate around it
     tier: chooseModelTier({ kind: 'work', role: subtask.resolvedRole || subtask.role, targetFiles: subtask.targetFiles || [], prompt: subtask.prompt || '', cycle }),
-    model: model || subtask.model || null
+    model: model || subtask.model || null,
+    modelSourceEngine: model ? null : (subtask.modelSourceEngine || subtask.engine || null)
   }).then((r) => ({ id: subtask.id, role: subtask.resolvedRole, ...r }));
 }
 
 // ───────────────────────────── git helpers ─────────────────────────────
 
-async function isGitRepo() {
-  try { await execFileAsync('git', ['rev-parse', '--verify', 'HEAD'], { cwd: ROOT }); return true; } catch { return false; }
+async function isGitRepo(root = ROOT) {
+  try { await execFileAsync('git', ['rev-parse', '--verify', 'HEAD'], { cwd: root }); return true; } catch { return false; }
 }
 
 const inScope = (file, targets) => targets.length === 0 || targets.some((t) => {
@@ -459,8 +566,8 @@ const inScope = (file, targets) => targets.length === 0 || targets.some((t) => {
   return file === n || file.startsWith(n + '/');
 });
 
-/** Copy the worker's changes from its worktree back to the main folder — only files in scope. */
-async function syncWorktree(wtPath, sub) {
+/** Copy the worker's changes from its worktree back to the target folder — only files in scope. */
+async function syncWorktree(wtPath, sub, destRoot = ROOT) {
   const { stdout } = await execFileAsync('git', ['status', '--porcelain', '-uall', '-z'], { cwd: wtPath });
   const entries = stdout.split('\0').filter(Boolean);
   const copied = []; const blocked = [];
@@ -470,7 +577,7 @@ async function syncWorktree(wtPath, sub) {
     if (status.startsWith('R')) i++; // rename: next entry is the old path
     if (file.startsWith('.harness/')) continue;
     if (!inScope(file, sub.targetFiles)) { blocked.push(file); continue; }
-    const src = path.join(wtPath, file); const dest = path.join(ROOT, file);
+    const src = path.join(wtPath, file); const dest = path.join(destRoot, file);
     if (fs.existsSync(src)) { fs.mkdirSync(path.dirname(dest), { recursive: true }); fs.copyFileSync(src, dest); } else if (fs.existsSync(dest)) fs.rmSync(dest);
     copied.push(file);
   }
@@ -481,7 +588,7 @@ async function syncWorktree(wtPath, sub) {
 // ───────────────────────────── staging backup + rollback ─────────────────────────────
 
 /** Back up every scoped target before Node 2 runs (only when worktrees are off). */
-function backupScope(plan) {
+function backupScope(plan, workRoot = ROOT) {
   if (config.useGitWorktrees || config.rollbackOnFailure === false) return null;
   const aiWorkers = plan.subtasks.filter((s) => s.prompt);
   if (!aiWorkers.length) return null;
@@ -494,21 +601,22 @@ function backupScope(plan) {
   fs.mkdirSync(path.join(dir, 'files'), { recursive: true });
   const manifest = [];
   for (const t of [...new Set(aiWorkers.flatMap((s) => s.targetFiles))]) {
-    const abs = path.join(ROOT, t);
+    const abs = path.join(workRoot, t);
     if (fs.existsSync(abs)) {
       fs.cpSync(abs, path.join(dir, 'files', t), { recursive: true });
       manifest.push({ path: t, existed: true });
     } else manifest.push({ path: t, existed: false });
   }
-  fs.writeFileSync(path.join(dir, 'manifest.json'), JSON.stringify({ taskId: plan.taskId, createdAt: new Date().toISOString(), entries: manifest }, null, 2));
-  logTelemetry('STAGING_BACKUP', `Backed up ${manifest.length} scoped path(s) before execution`, { taskId: plan.taskId, paths: manifest.map((m) => m.path) });
-  return { dir, manifest };
+  fs.writeFileSync(path.join(dir, 'manifest.json'), JSON.stringify({ taskId: plan.taskId, workRoot, createdAt: new Date().toISOString(), entries: manifest }, null, 2));
+  logTelemetry('STAGING_BACKUP', `Backed up ${manifest.length} scoped path(s) before execution`, { taskId: plan.taskId, paths: manifest.map((m) => m.path), ...(isSameDir(workRoot, ROOT) ? {} : { cwd: workRoot }) });
+  return { dir, manifest, workRoot };
 }
 
 function restoreScope(backup) {
   if (!backup || backup.unavailable) return backup?.unavailable ? 'not possible (unscoped AI worker)' : null;
+  const targetRoot = backup.workRoot || ROOT;
   for (const m of backup.manifest) {
-    const abs = path.join(ROOT, m.path);
+    const abs = path.join(targetRoot, m.path);
     fs.rmSync(abs, { recursive: true, force: true });
     if (m.existed) {
       fs.mkdirSync(path.dirname(abs), { recursive: true });
@@ -516,7 +624,7 @@ function restoreScope(backup) {
     }
   }
   fs.rmSync(backup.dir, { recursive: true, force: true });
-  logTelemetry('ROLLBACK_DONE', `Restored ${backup.manifest.length} scoped path(s) to their state before the task`, { paths: backup.manifest.map((m) => m.path) });
+  logTelemetry('ROLLBACK_DONE', `Restored ${backup.manifest.length} scoped path(s) to their state before the task`, { paths: backup.manifest.map((m) => m.path), ...(isSameDir(targetRoot, ROOT) ? {} : { cwd: targetRoot }) });
   return `restored ${backup.manifest.map((m) => m.path).join(', ')}`;
 }
 
@@ -529,6 +637,7 @@ function discardBackup(backup) {
 /** Which integration branch a task uses (null = classic in-place mode). */
 function integrationFor(task) {
   const g = config.git || {};
+  if (task.cwd && !task.integrationBranch) return null;
   if (task.integrationBranch) return task.integrationBranch;
   const mode = g.integrationMode || 'off';
   if (!g.integrationBranch || mode === 'off') return null;
@@ -590,9 +699,9 @@ function validateSubtasks(subtasks, { source = 'task', allowed = [], requireScop
     const raw = sub.targetFiles || (sub.targetFile ? [sub.targetFile] : []);
     if (!Array.isArray(raw)) throw fatal(`${source}: worker '${sub.id}' targetFiles must be a list.`);
     sub.targetFiles = raw.map((f) => {
-      const s = safeTarget(f);
+      const s = normalizeTarget(f);
       if (!s) throw fatal(`${source}: worker '${sub.id}' has an unsafe target path '${f}' (absolute, "..", ".", .git or .harness).`);
-      return s.replace(/\/$/, '') + (String(f).endsWith('/') ? '/' : '');
+      return s;
     });
     if (!sub.prompt && !sub.cliCommand) throw fatal(`${source}: worker '${sub.id}' has neither a prompt nor a cliCommand.`);
     if ((requireScope || subtasks.length > 1) && sub.targetFiles.length === 0) {
@@ -656,12 +765,12 @@ function catalog(gov) {
 }
 
 /** Ask the AI to split a goal into parallel workers with disjoint files. Re-asks once on an invalid plan. */
-async function aiDecompose(task, gov) {
+async function aiDecompose(task, gov, workRoot = ROOT) {
   const pc = config.planner || {};
   const maxWorkers = pc.maxWorkers || 4;
   const allowed = (task.targetFiles || []).map(safeTarget).filter(Boolean);
-  const { files, total } = listProjectFiles(ROOT, pc.maxFilesListed || 400);
-  const scripts = readJsonSafe(path.join(ROOT, 'package.json'), null)?.scripts;
+  const { files, total } = listProjectFiles(workRoot, pc.maxFilesListed || 400);
+  const scripts = readJsonSafe(path.join(workRoot, 'package.json'), null)?.scripts;
   const memory = memoryContext(config);
   const hasRoles = Object.keys(gov.roles).length > 0;
   let feedback = '';
@@ -692,7 +801,7 @@ async function aiDecompose(task, gov) {
 
     logTelemetry('1_AI_PLANNER', `AI planner attempt ${attempt}/${attempts}`, { goal: (task.goal || '').slice(0, 300) });
     const { output, engine } = await spawnEngine({
-      id: 'ai-planner', engine: task.engine, prompt, cwd: ROOT,
+      id: 'ai-planner', engine: task.engine, prompt, cwd: workRoot,
       timeoutMs: pc.timeoutMs || config.workerTimeoutMs, allowedTools: pc.allowedTools || ['Read', 'Glob', 'Grep'],
       disallowedTools: computeDisallowedTools(gov.charter),
       tier: chooseModelTier({ kind: 'plan', level: 'orchestrator' }), model: task.model || null
@@ -731,7 +840,7 @@ async function aiDecompose(task, gov) {
 const stripSlash = (f) => String(f).replace(/\/$/, '');
 const minutesToMs = (m, dflt) => (typeof m === 'number' && m > 0 ? Math.round(m * 60000) : dflt);
 
-async function hierDecompose(task, gov) {
+async function hierDecompose(task, gov, workRoot = ROOT) {
   const team = loadTeam();
   if (!team) throw fatal('This task asks for the team hierarchy, but .harness/team.json does not exist.');
   const pc = config.planner || {};
@@ -743,8 +852,8 @@ async function hierDecompose(task, gov) {
   const attempts = pc.maxAttempts || 2;
   const goalText = task.goal || task.prompt || task.title;
   const userAllowed = (task.targetFiles || []).map(safeTarget).filter(Boolean);
-  const { files, total } = listProjectFiles(ROOT, pc.maxFilesListed || 400);
-  const scripts = readJsonSafe(path.join(ROOT, 'package.json'), null)?.scripts;
+  const { files, total } = listProjectFiles(workRoot, pc.maxFilesListed || 400);
+  const scripts = readJsonSafe(path.join(workRoot, 'package.json'), null)?.scripts;
   const memory = memoryContext(config);
   const readOnly = ['Read', 'Glob', 'Grep'];
   const deny = computeDisallowedTools(gov.charter);
@@ -757,26 +866,7 @@ async function hierDecompose(task, gov) {
   const leadLine = (l) => `- ${l.id} (role ${l.role}; may own: ${l.scope.join(', ')}; up to ${l.maxWorkers ?? 3} workers)`;
 
   // ── level 1: the orchestrator delegates the goal to leads
-  const validateAssignments = (plan) => {
-    if (!Array.isArray(plan.assignments) || !plan.assignments.length) throw new Error('JSON has no "assignments" list.');
-    const seenLeads = new Set(); const claimed = [];
-    for (const a of plan.assignments) {
-      const lead = leads.find((l) => l.id === a.lead);
-      if (!lead || !delegable.has(lead.id)) throw new Error(`assignment to "${a.lead}": that is not a lead you may delegate to (${[...delegable].join(', ')}).`);
-      if (seenLeads.has(lead.id)) throw new Error(`lead "${lead.id}" is assigned twice; use each lead at most once.`);
-      seenLeads.add(lead.id);
-      if (typeof a.goal !== 'string' || !a.goal.trim()) throw new Error(`assignment to "${lead.id}" has no goal.`);
-      if (!Array.isArray(a.files) || !a.files.length) throw new Error(`assignment to "${lead.id}" has no files.`);
-      a.files = a.files.map((f) => { const s = safeTarget(f); if (!s) throw new Error(`assignment to "${lead.id}" has an unsafe path "${f}".`); const base = s.replace(/\/+$/, ''); return String(f).endsWith('/') ? `${base}/` : base; });
-      for (const f of a.files) {
-        if (!withinAll(f, lead.scope)) throw new Error(`file "${f}" is outside lead "${lead.id}"'s scope (${lead.scope.join(', ')}).`);
-        if (userAllowed.length && !inScope(stripSlash(f), userAllowed)) throw new Error(`file "${f}" is outside the files the user allowed (${userAllowed.join(', ')}).`);
-        for (const [other, by] of claimed) if (by !== lead.id && (stripSlash(f) === stripSlash(other) || stripSlash(f).startsWith(`${stripSlash(other)}/`) || stripSlash(other).startsWith(`${stripSlash(f)}/`))) throw new Error(`Swarm Lock Collision: "${f}" (${lead.id}) overlaps "${other}" (${by}).`);
-        claimed.push([f, lead.id]);
-      }
-    }
-    return plan;
-  };
+  const validateAssignments = (plan) => validateDelegation(plan, { leads, delegable, userAllowed });
 
   let plan = null; let feedback = '';
   for (let attempt = 1; attempt <= attempts && !plan; attempt++) {
@@ -799,7 +889,7 @@ async function hierDecompose(task, gov) {
       feedback ? `\n[YOUR PREVIOUS PLAN WAS REJECTED — fix this]:\n${feedback}` : ''
     ].filter(Boolean).join('\n');
     logTelemetry('1_ORCHESTRATOR', `${orch.id} delegation attempt ${attempt}/${attempts}`, { goal: String(goalText).slice(0, 300) });
-    const { output } = await spawnEngine({ id: orch.id, engine: task.engine || orch.engine, prompt, cwd: ROOT, timeoutMs: minutesToMs(orch.budget?.maxMinutes, config.workerTimeoutMs), allowedTools: readOnly, disallowedTools: deny, tier: chooseModelTier({ kind: 'plan', level: 'orchestrator', role: orch.role }), model: task.model || orch.model || null });
+    const { output } = await spawnEngine({ id: orch.id, engine: task.engine || orch.engine, prompt, cwd: workRoot, timeoutMs: minutesToMs(orch.budget?.maxMinutes, config.workerTimeoutMs), allowedTools: readOnly, disallowedTools: deny, tier: chooseModelTier({ kind: 'plan', level: 'orchestrator', role: orch.role }), model: task.model || orch.model || null, modelSourceEngine: task.model ? null : (orch.engine || null) });
     try {
       let parsed;
       try { parsed = extractJson(output); } catch { throw new Error(`Reply was not valid JSON: ${output.slice(0, 300)}`); }
@@ -834,7 +924,7 @@ async function hierDecompose(task, gov) {
         fb ? `\n[YOUR PREVIOUS PLAN WAS REJECTED — fix this]:\n${fb}` : ''
       ].filter(Boolean).join('\n');
       logTelemetry('1_LEAD', `${lead.id} planning attempt ${attempt}/${attempts}`, { lead: lead.id });
-      const { output } = await spawnEngine({ id: lead.id, engine: task.engine || lead.engine, prompt, cwd: ROOT, timeoutMs: minutesToMs(lead.budget?.maxMinutes, config.workerTimeoutMs), allowedTools: readOnly, disallowedTools: deny, tier: chooseModelTier({ kind: 'plan', level: 'lead', role: lead.role }), model: task.model || lead.model || null });
+      const { output } = await spawnEngine({ id: lead.id, engine: task.engine || lead.engine, prompt, cwd: workRoot, timeoutMs: minutesToMs(lead.budget?.maxMinutes, config.workerTimeoutMs), allowedTools: readOnly, disallowedTools: deny, tier: chooseModelTier({ kind: 'plan', level: 'lead', role: lead.role }), model: task.model || lead.model || null, modelSourceEngine: task.model ? null : (lead.engine || null) });
       try {
         let parsed;
         try { parsed = extractJson(output); } catch { throw new Error(`Reply was not valid JSON: ${output.slice(0, 300)}`); }
@@ -848,6 +938,7 @@ async function hierDecompose(task, gov) {
             const safe = safeTarget(f);
             if (!safe) throw new Error(`worker "${s.id}" has an unsafe path "${f}".`);
             if (!a.files.some((af) => inScope(stripSlash(safe), [stripSlash(af)]))) throw new Error(`worker "${s.id}" targets "${f}", outside your assigned files (${a.files.join(', ')}).`);
+            if (!leadOwns(lead, safe, leads)) throw new Error(`worker "${s.id}" targets "${f}", which belongs to another lead's scope.`);
           }
         }
         return subs;
@@ -867,7 +958,7 @@ async function hierDecompose(task, gov) {
     const lead = leads.find((l) => l.id === a.lead);
     const mine = settled[i].value.map((s) => ({
       id: `${lead.id}.${s.id}`, lead: lead.id, role: lead.role, skills: Array.isArray(s.skills) ? s.skills : (lead.skills && lead.skills.length ? lead.skills : undefined),
-      targetFiles: s.targetFiles, prompt: String(s.prompt).trim(), engine: task.engine || lead.engine, model: lead.model, goal: a.goal,
+      targetFiles: s.targetFiles, prompt: String(s.prompt).trim(), engine: task.engine || lead.engine, model: lead.model, modelSourceEngine: lead.engine || null, goal: a.goal,
       timeoutMs: minutesToMs(lead.budget?.maxMinutes, undefined), maxCostUsd: lead.budget?.maxCostUsd
     }));
     subtasks.push(...mine);
@@ -880,7 +971,7 @@ async function hierDecompose(task, gov) {
   return { subtasks, interfaceContract: contract, verifySuggestion: typeof plan.verifySuggestion === 'string' ? plan.verifySuggestion.slice(0, 300) : '', team: teamPlan };
 }
 
-async function runPlanner(task, errorTrace = null, previous = null) {
+async function runPlanner(task, errorTrace = null, previous = null, workRoot = ROOT) {
   const allShell = (subs) => subs.length > 0 && subs.every((s) => s.cliCommand && !s.prompt);
   const engineLabel = (subs) => {
     if (allShell(subs)) return String(task.engine || 'shell').toUpperCase(); // no AI involved
@@ -896,7 +987,7 @@ async function runPlanner(task, errorTrace = null, previous = null) {
   const gov = loadGov();
   const given = Array.isArray(task.subtasks) && task.subtasks.length > 0;
   writeState({ phase: '1_PLANNER', engine: engineLabel(given ? task.subtasks : [{ prompt: 'x' }]), taskTitle: task.title, planSummary: given ? `${task.subtasks.length} worker(s) given by the task` : 'single worker' });
-  logTelemetry('1_PLANNER', 'Validating task and checking file-lock boundaries', { engine: task.engine || 'auto', errorTrace, autonomous: !!task.autonomous, backlogId: task.backlogId });
+  logTelemetry('1_PLANNER', 'Validating task and checking file-lock boundaries', { engine: task.engine || 'auto', errorTrace, autonomous: !!task.autonomous, backlogId: task.backlogId, ...(isSameDir(workRoot, ROOT) ? {} : { cwd: workRoot }) });
 
   let subtasks; let planSummary; let verifySuggestion = task.verifySuggestion || ''; let interfaceContract = task.interfaceContract || ''; let teamPlan = null;
   const vOpts = { gov, autonomous: !!task.autonomous, requireScope: !!task.autonomous };
@@ -906,12 +997,12 @@ async function runPlanner(task, errorTrace = null, previous = null) {
     subtasks.forEach((sub) => resolveGovernance(sub, gov));
     planSummary = `${subtasks.length} worker(s) given by the task`;
   } else if (task.hierarchy) {
-    const r = await hierDecompose(task, gov);
+    const r = await hierDecompose(task, gov, workRoot);
     subtasks = r.subtasks; verifySuggestion = r.verifySuggestion || verifySuggestion; teamPlan = r.team;
     interfaceContract = [interfaceContract, r.interfaceContract].filter(Boolean).join('\n');
     planSummary = `hierarchy ${r.team.orchestrator} → ${r.team.assignments.length} lead(s) → ${subtasks.length} worker(s): ${r.team.assignments.map((a) => `${a.lead}[${a.workers.length}]`).join(' ')}`;
   } else if (task.autoPlan) {
-    const r = await aiDecompose(task, gov);
+    const r = await aiDecompose(task, gov, workRoot);
     subtasks = r.subtasks; verifySuggestion = r.verifySuggestion || verifySuggestion;
     interfaceContract = [interfaceContract, r.interfaceContract].filter(Boolean).join('\n');
     planSummary = `AI planner → ${subtasks.length} worker(s): ${subtasks.map((s) => `${s.resolvedRole ? `${s.resolvedRole}:` : ''}${s.id}[${s.targetFiles.join(',')}]`).join('  ')}`;
@@ -930,7 +1021,7 @@ async function runPlanner(task, errorTrace = null, previous = null) {
   if (subtasks.some((s) => s.resolvedRole)) planSummary += `  | roles: ${subtasks.map((s) => s.resolvedRole || '-').join(', ')}`;
 
   let verifyCmd = task.verifyCmd; let verifySource = 'given by task'; let verifyReal = !!task.verifyCmd;
-  if (!verifyCmd) { const d = detectVerifyCmd(ROOT, config); verifyCmd = d.cmd; verifySource = d.source; verifyReal = d.real; }
+  if (!verifyCmd) { const d = detectVerifyCmd(workRoot, config); verifyCmd = d.cmd; verifySource = d.source; verifyReal = d.real; }
   if (task.autonomous && gov.charter.requireRealCheck && !verifyReal) {
     throw fatal('Autonomous task has no real check (charter requireRealCheck). Add a "test" script to package.json or a human-approved "verifyCmd" to the backlog item.');
   }
@@ -940,6 +1031,7 @@ async function runPlanner(task, errorTrace = null, previous = null) {
     taskId: task.id || `job-${Date.now()}`,
     title: task.title || 'Unnamed Harness Task',
     engine: engineLabel(subtasks), mode, subtasks, verifyCmd, verifySource, verifySuggestion, planSummary, interfaceContract, team: teamPlan,
+    workRoot,
     errorContext: errorTrace
   };
 }
@@ -950,14 +1042,15 @@ async function runExecutorSwarm(plan, gitCtx = null) {
   writeState({ phase: '2_EXECUTOR_SWARM', mode: plan.mode, workerSummary: `Spawning ${plan.subtasks.length} parallel worker(s): ${plan.subtasks.map((s) => `${s.resolvedRole ? `${s.resolvedRole}:` : ''}${s.id}`).join(' | ')}` });
   logTelemetry('2_EXECUTOR', `Dispatching ${plan.subtasks.length} worker(s)`, { mode: plan.mode, engine: plan.engine });
 
+  const workRoot = plan.workRoot || ROOT;
   const useWorktrees = !gitCtx && config.useGitWorktrees && plan.subtasks.some((s) => s.prompt);
-  if (useWorktrees && !(await isGitRepo())) throw fatal('useGitWorktrees is on, but this folder is not a git repository with at least one commit.');
+  if (useWorktrees && !(await isGitRepo(workRoot))) throw fatal('useGitWorktrees is on, but this folder is not a git repository with at least one commit.');
 
   let finished = 0;
   const workerPromises = plan.subtasks.map(async (sub) => {
     for (const f of sub.targetFiles) activeFileLocks.add(f);
     writeState({ phase: '2_EXECUTOR_SWARM' });
-    let workerCwd = ROOT;
+    let workerCwd = workRoot;
     const wtPath = path.join(DIRS.worktrees, `${plan.taskId}-${sub.id}`.replace(/[^\w.-]/g, '_'));
     try {
       if (gitCtx) { // integration mode: own branch + worktree from the integration branch, kept across cycles
@@ -969,7 +1062,7 @@ async function runExecutorSwarm(plan, gitCtx = null) {
         }
         workerCwd = w.path;
       } else if (useWorktrees) {
-        await execFileAsync('git', ['worktree', 'add', '--detach', wtPath, 'HEAD'], { cwd: ROOT });
+        await execFileAsync('git', ['worktree', 'add', '--detach', wtPath, 'HEAD'], { cwd: workRoot });
         workerCwd = wtPath;
       }
       const result = await runWorker(sub, workerCwd, plan.errorContext, { cycle: plan.cycle || 1, model: plan.model || null });
@@ -978,13 +1071,14 @@ async function runExecutorSwarm(plan, gitCtx = null) {
         logTelemetry('BUDGET_AGENT_EXCEEDED', `${sub.id} cost $${(taskCost.agents[sub.id] || 0).toFixed(4)} > its cap $${sub.maxCostUsd}`, { agent: sub.id });
         throw fatal(`BUDGET_AGENT_EXCEEDED: worker ${sub.id} cost $${(taskCost.agents[sub.id] || 0).toFixed(3)}, over its cap of $${sub.maxCostUsd}.`);
       }
-      if (useWorktrees) result.sync = await syncWorktree(wtPath, sub);
+      if (useWorktrees) result.sync = await syncWorktree(wtPath, sub, workRoot);
       if (gitCtx && sub.prompt) {
         const c = await commitScoped({
           wtPath: workerCwd, targets: sub.targetFiles, inScope, root: ROOT, ignore: gitCtx.link,
           message: `harness(${plan.taskId}): ${sub.resolvedRole ? `${sub.resolvedRole} ` : ''}${sub.id}\n\n${String(sub.prompt).slice(0, 400)}`
         });
         if (c.discarded.length) logTelemetry('2_SCOPE_VIOLATION', `Worker ${sub.id} changed files outside its scope; discarded before commit`, { worker: sub.id, blocked: c.discarded });
+        if (c.secrets?.length) logTelemetry('GIT_HELD_BACK_SECRETS', `Worker ${sub.id} touched secret-like file(s); held back before commit: ${c.secrets.join(', ')}`, { worker: sub.id, secrets: c.secrets });
         logTelemetry('GIT_WORKER_COMMIT', `${sub.id}: ${c.sha ? `committed ${c.kept.length} file(s) @ ${c.sha.slice(0, 8)}` : 'no in-scope changes'}`, { worker: sub.id, kept: c.kept, sha: c.sha });
         result.git = c;
       }
@@ -994,7 +1088,7 @@ async function runExecutorSwarm(plan, gitCtx = null) {
       return result;
     } finally {
       for (const f of sub.targetFiles) activeFileLocks.delete(f);
-      if (useWorktrees && fs.existsSync(wtPath)) await execFileAsync('git', ['worktree', 'remove', '--force', wtPath], { cwd: ROOT }).catch(() => {});
+      if (useWorktrees && fs.existsSync(wtPath)) await execFileAsync('git', ['worktree', 'remove', '--force', wtPath], { cwd: workRoot }).catch(() => {});
       writeState({ phase: '2_EXECUTOR_SWARM' });
     }
   });
@@ -1024,10 +1118,11 @@ async function runExecutorSwarm(plan, gitCtx = null) {
 // ───────────────────────────── Node 3: verifier ─────────────────────────────
 
 async function runVerifier(plan) {
+  const verifyDir = plan.verifyCwd || plan.workRoot || ROOT;
   writeState({ phase: '3_VERIFIER', lastGateStatus: `Running: ${plan.verifyCmd}` });
-  logTelemetry('3_VERIFIER', `Executing verification command: ${plan.verifyCmd}`, { source: plan.verifySource, cwd: plan.verifyCwd ? path.relative(ROOT, plan.verifyCwd) : '.' });
+  logTelemetry('3_VERIFIER', `Executing verification command: ${plan.verifyCmd}`, { source: plan.verifySource, cwd: isSameDir(verifyDir, ROOT) ? '.' : verifyDir });
   try {
-    const { stdout } = await execAsync(plan.verifyCmd, { cwd: plan.verifyCwd || ROOT, timeout: config.verifyTimeoutMs || 600000, maxBuffer: 32 * 1024 * 1024 });
+    const { stdout } = await execAsync(plan.verifyCmd, { cwd: verifyDir, timeout: config.verifyTimeoutMs || 600000, maxBuffer: 32 * 1024 * 1024 });
     const cleanOut = (stdout || '').trim().split('\n').filter(Boolean).pop() || 'OK';
     writeState({ phase: '3_VERIFIED', lastGateStatus: `PASS (Exit 0): ${plan.verifyCmd} -> ${cleanOut}` });
     logTelemetry('3_VERIFIED', 'Verifier exit code 0');
@@ -1042,7 +1137,8 @@ async function runVerifier(plan) {
 
 // ───────────────────────────── Node 4: committer ─────────────────────────────
 
-async function runCommitter(plan, task, taskFile, gitCtx = null) {
+async function runCommitter(plan, task, taskFile, gitCtx = null, { archive = true } = {}) {
+  const workRoot = plan.workRoot || ROOT;
   let gitNote = '';
   if (gitCtx) { // the verified candidate becomes the new integration branch tip
     const how = await advanceBranch({ branch: gitCtx.branch, newSha: gitCtx.candidate, expectedOld: gitCtx.tipAtCandidate, root: ROOT });
@@ -1050,24 +1146,37 @@ async function runCommitter(plan, task, taskFile, gitCtx = null) {
     gitNote = ` → ${gitCtx.branch} @ ${gitCtx.candidate.slice(0, 8)}`;
     logTelemetry('GIT_INTEGRATED', `${gitCtx.branch} moved ${gitCtx.tipAtCandidate.slice(0, 8)} → ${gitCtx.candidate.slice(0, 8)} (${how})`, { branch: gitCtx.branch, from: gitCtx.tipAtCandidate, to: gitCtx.candidate });
     writeState({ gitSummary: `${gitCtx.branch} @ ${gitCtx.candidate.slice(0, 8)} (verified merge) — your folder untouched` });
-  } else if (config.autoGitCommit && (await isGitRepo())) {
+  } else if (config.autoGitCommit && (await isGitRepo(workRoot))) {
     const scope = plan.subtasks.flatMap((s) => s.targetFiles);
     try {
-      await execFileAsync('git', ['add', '-A', '--', ...(scope.length ? scope : ['.']), ':(exclude).harness'], { cwd: ROOT });
-      const { stdout } = await execFileAsync('git', ['diff', '--cached', '--name-only'], { cwd: ROOT });
+      await execFileAsync('git', ['add', '-A', '--', ...(scope.length ? scope : ['.']), ':(exclude).harness'], { cwd: workRoot });
+      const { stdout: stagedZ } = await execFileAsync('git', ['diff', '--cached', '--name-only', '-z'], { cwd: workRoot });
+      const heldBack = (stagedZ || '').split('\0').filter((f) => f && isSecretFile(f));
+      if (heldBack.length) {
+        const hasHead = await execFileAsync('git', ['rev-parse', '--verify', '-q', 'HEAD'], { cwd: workRoot }).then(() => true, () => false);
+        await execFileAsync('git', hasHead ? ['reset', '-q', 'HEAD', '--', ...heldBack] : ['rm', '-r', '--cached', '-q', '--ignore-unmatch', '--', ...heldBack], { cwd: workRoot });
+        logTelemetry('4_GIT_HELD_BACK_SECRETS', `Held back secret-like file(s) from auto-commit: ${heldBack.join(', ')}`, { files: heldBack });
+      }
+      const { stdout } = await execFileAsync('git', ['diff', '--cached', '--name-only'], { cwd: workRoot });
       if (stdout.trim()) {
-        await execFileAsync('git', ['commit', '-m', `harness: ${plan.title}`, '-m', `Task ${plan.taskId}; verified by: ${plan.verifyCmd}`], { cwd: ROOT });
+        const hasEmail = await execFileAsync('git', ['config', 'user.email'], { cwd: workRoot }).then((r) => Boolean(r.stdout.trim()), () => false);
+        const idArgs = hasEmail ? [] : ['-c', 'user.name=Agentic Harness', '-c', 'user.email=harness@localhost'];
+        await execFileAsync('git', [...idArgs, 'commit', '-m', `harness: ${plan.title}`, '-m', `Task ${plan.taskId}; verified by: ${plan.verifyCmd}`], { cwd: workRoot });
         gitNote = ' + git commit';
       }
+      if (heldBack.length) gitNote += ` (${heldBack.length} secret file(s) held back)`;
     } catch (e) { logTelemetry('4_GIT_COMMIT_FAILED', e.message); gitNote = ' (git commit failed — see log)'; }
   }
   writeState({ phase: '4_COMMITTED', lastGateStatus: `COMMITTED: ${plan.taskId} verified & archived${gitNote}.` });
   logTelemetry('4_COMMITTER', 'Task passed all gates and committed', { taskId: plan.taskId, engine: plan.engine, verifyCmd: plan.verifyCmd });
-  archiveTask(taskFile, task, DIRS.completed, {
+  const extra = {
     result: 'COMMITTED', plan: plan.subtasks, verifyCmd: plan.verifyCmd, completedAt: new Date().toISOString(),
+    ...(!isSameDir(workRoot, ROOT) ? { cwd: workRoot } : {}),
     ...(plan.team ? { team: plan.team } : {}), costUsd: Math.round(taskCost.usd * 10000) / 10000, costByAgent: taskCost.agents,
     ...(gitCtx ? { git: { branch: gitCtx.branch, from: gitCtx.tipAtCandidate, to: gitCtx.candidate, workerBranches: Object.values(gitCtx.workers).map((w) => w.branch) } } : {})
-  });
+  };
+  if (archive) archiveTask(taskFile, task, DIRS.completed, extra);
+  return extra;
 }
 
 /** Move a job out of the inbox to completed/ or failed/ as <id>-<timestamp>.json (+ .trace.txt for failures). */
@@ -1107,12 +1216,15 @@ async function executeSquareCycle(taskFile) {
   }
 
   const errors = [];
-  let plan = null; let outputs = []; let cycle = 1; let lastErrorTrace = null; let haltReason = null; let backup = null;
+  let plan = null; let outputs = []; let cycle = 1; let lastErrorTrace = task.initialError || null; let haltReason = null; let backup = null;
   const integration = integrationFor(task); let gitCtx = null; let gitResult = null;
+  let workRoot = ROOT;
   const title = task.title || path.basename(taskFile);
   resetCost();
+  taskStartedIso = new Date().toISOString();
   writeState({ planSummary: '-', workerSummary: '-', currentTaskFile: taskFile, costUsd: 0 });
   lastFinished = { autonomous: !!task.autonomous, backlogId: task.backlogId, title, ok: false };
+  autoTierCap = !!task.autonomous && task.costApproved !== true && !highAlwaysAllowed();
   if (task.backlogId) {
     const item = updateBacklogItem(task.backlogId, { status: 'IN_PROGRESS', startedAt: new Date().toISOString(), lastJobId: task.id });
     if (!item) logTelemetry('BACKLOG_ITEM_MISSING', `Job references backlog item ${task.backlogId}, which is not in backlog.json`);
@@ -1121,20 +1233,31 @@ async function executeSquareCycle(taskFile) {
   while (cycle <= MAX_CYCLES) {
     writeState({ cycle, taskId: task.id, taskTitle: title, lastGateStatus: cycle > 1 ? `Retrying with previous error (cycle ${cycle})` : 'Planning…' });
     try {
-      plan = await runPlanner(task, lastErrorTrace, plan);
+      if (cycle === 1) {
+        workRoot = resolveTaskWorkRoot(task);
+        if (!isSameDir(workRoot, ROOT) && (integration || task.integrationBranch)) {
+          throw fatal('Cannot combine task cwd with an integration branch (the external worktree already defines its own branch).');
+        }
+        if (!isSameDir(workRoot, ROOT) && task.visibleRunId) {
+          throw fatal('Cannot combine task cwd with visibleRunId (visible runs target the main project root).');
+        }
+      }
+      plan = await runPlanner(task, lastErrorTrace, plan, workRoot);
       plan.cycle = cycle; plan.model = task.model || null; // model tier: retries escalate; --model on the task overrides
       if (integration && !gitCtx) gitCtx = await startIntegration(task, integration);
-      if (cycle === 1 && !backup && !gitCtx) backup = backupScope(plan);
+      if (cycle === 1 && !backup && !gitCtx) backup = backupScope(plan, workRoot);
       if (cycle > 1) enforceBudget(task, `cycle ${cycle - 1}`); // never start another cycle once over budget
       outputs = await runExecutorSwarm(plan, gitCtx);
       enforceBudget(task, `cycle ${cycle} workers`);
       const verification = await runVerifier(plan);
       if (verification.passed) {
-        await runCommitter(plan, task, taskFile, gitCtx);
+        const archiveExtra = await runCommitter(plan, task, taskFile, gitCtx, { archive: false });
         gitResult = await finishIntegration(gitCtx, true);
         discardBackup(backup);
         finishSession(task, plan, 'COMMITTED', cycle, errors, outputs, null, gitResult);
         if (task.backlogId) updateBacklogItem(task.backlogId, { status: 'DONE', completedAt: new Date().toISOString(), result: 'COMMITTED', cyclesUsed: cycle, ...(gitResult ? { integratedInto: `${gitResult.branch}@${gitResult.mergedSha.slice(0, 8)}` } : {}) });
+        try { if (task.visibleRunId) syncVisibleRunAfterDaemon(task, plan, { passed: true, cycle, outputs, gitResult, startedAt: taskStartedIso }); } catch (e) { logTelemetry('VISIBLE_SYNC_FAILED', e.message); }
+        archiveTask(taskFile, task, DIRS.completed, archiveExtra);
         lastFinished.ok = true;
         writeState({ history: pushHistory(`✔ COMMITTED  ${title} (cycle ${cycle}/${MAX_CYCLES})`), currentTaskFile: null });
         return true;
@@ -1158,8 +1281,10 @@ async function executeSquareCycle(taskFile) {
   try { rollback = restoreScope(backup); } catch (e) { rollback = `FAILED: ${e.message} — backup kept in .harness/staging/`; logTelemetry('ROLLBACK_FAILED', e.message); }
   try { gitResult = await finishIntegration(gitCtx, false); } catch (e) { logTelemetry('GIT_CLEANUP_FAILED', e.message); }
   if (gitResult) rollback = `${gitCtx.branch} unchanged (candidate discarded)${gitResult.keptBranches ? `; worker branches kept for review: ${gitResult.workerBranches.join(', ')}` : ''}`;
+  try { if (task.visibleRunId) syncVisibleRunAfterDaemon(task, plan, { passed: false, phase, cycle: usedCycles, errors, outputs, reason, rollback, gitResult, startedAt: taskStartedIso }); } catch (e) { logTelemetry('VISIBLE_SYNC_FAILED', e.message); }
   const dest = archiveTask(taskFile, task, DIRS.failed, {
     result: phase, haltReason: reason, haltedAt: new Date().toISOString(), cyclesUsed: usedCycles, rollback, errors, git: gitResult,
+    ...(!isSameDir(workRoot, ROOT) ? { cwd: workRoot } : {}),
     costUsd: Math.round(taskCost.usd * 10000) / 10000, costByAgent: taskCost.agents
   }, errors.map((e, i) => `===== cycle ${i + 1} =====\n${e}`).join('\n\n'));
   finishSession(task, plan, phase, usedCycles, errors, outputs, rollback, gitResult);
@@ -1174,15 +1299,24 @@ async function executeSquareCycle(taskFile) {
   return false;
 }
 
+let taskStartedIso = null;
 function finishSession(task, plan, result, cycles, errors, outputs, rollback = null, gitResult = null) {
+  // One short line in the live feed (watch.mjs / the screen), so AI use is never silent; no extra AI call.
+  if (taskStartedIso) {
+    const spent = usageLine(aiUsageSince(taskStartedIso)); const today = usageTodayLine(config);
+    liveLog(`  [harness]          AI used by this task: ${spent || 'none'}${today ? ` · today: ${today}` : ''}`);
+  }
   const mem = config.memory || {};
   const title = task.title || task.id || 'task';
+  const rawCwd = plan?.workRoot || (task?.cwd ? path.resolve(ROOT, String(task.cwd)) : ROOT);
+  const externalCwd = !isSameDir(rawCwd, ROOT) ? rawCwd : null;
   try {
     if (mem.recordSessions !== false) {
       recordSession({
         taskId: task.id || 'task', title, result, cycles, maxCycles: MAX_CYCLES, goal: task.goal,
         engine: plan?.engine || task.engine || '-', verifyCmd: plan?.verifyCmd || task.verifyCmd || '-', verifySource: plan?.verifySource,
         verifySuggestion: plan?.verifySuggestion, planner: plan?.planSummary, rollback, git: gitResult,
+        ...(externalCwd ? { cwd: externalCwd } : {}),
         team: plan?.team, costUsd: Math.round(taskCost.usd * 10000) / 10000, costByAgent: { ...taskCost.agents },
         subtasks: plan?.subtasks || task.subtasks || [], errors, outputs, finishedAt: new Date().toISOString()
       });
@@ -1218,8 +1352,9 @@ async function drain() {
     }
   } finally {
     draining = false;
+    if (!lastFinished?.ok && lastFinished?.autonomous && !auto.enabled) refreshAutoStatus();
     if (auto.enabled) { refreshAutoStatus(); setTimeout(() => autonomousTick('queue-empty').catch((e) => logTelemetry('AUTO_ERROR', e.message)), 1000); }
-    if (!onceMode && !selfTestMode) setTimeout(() => !draining && !auto.ticking && writeState({ phase: 'IDLE_WATCHING', mode: 'SQUARE + SWARM', cycle: 0, workerSummary: 'Idle — waiting for the next task', activeLocks: [] }), 1500);
+    if (!onceMode && !selfTestMode) setTimeout(() => !draining && !auto.ticking && writeState({ phase: 'IDLE_WATCHING', mode: 'SQUARE + SWARM', cycle: 0, taskId: null, taskTitle: '', planSummary: '-', currentTaskFile: null, workerSummary: 'Idle — waiting for the next task', activeLocks: [] }), 1500);
   }
 }
 
@@ -1239,7 +1374,7 @@ function daemonAlive() {
 // Any autonomous task that fails pauses autonomy for the rest of the run: a human decides.
 
 const AUTO_STATE_FILE = path.join(path.dirname(FILES.state), 'auto-state.json'); // survives restarts and separate --tick runs
-const auto = { enabled: false, intervalSec: 300, used: 0, paused: null, ticking: false, lastTick: null, lastResult: '-' };
+const auto = { enabled: false, intervalSec: 300, used: 0, paused: null, ticking: false, lastTick: null, lastResult: '-', lastJobId: null };
 
 function inboxCount() { return fs.readdirSync(DIRS.inbox).filter((f) => f.endsWith('.json')).length; }
 
@@ -1364,16 +1499,28 @@ async function poFingerprint(gov) {
 /** One controller tick. Returns a short result code. */
 async function autonomousTick(reason = 'interval') {
   if (auto.ticking) return 'busy';
-  auto.ticking = true; auto.lastTick = new Date().toISOString();
+  auto.ticking = true; auto.lastTick = new Date().toISOString(); auto.lastJobId = null;
   try {
-    if (draining || queue.length || inboxCount() > 0) return 'busy';
+    if (draining || queue.length || inboxCount() > 0) { auto.lastResult = 'queue or inbox is busy'; return 'busy'; }
     const gov = loadGov();
     if (!gov.charter.autonomous) { refreshAutoStatus('charter says autonomous: off'); return 'off'; }
     if (auto.paused) { refreshAutoStatus(`paused: ${auto.paused}`); return 'paused'; }
     const remaining = gov.charter.maxAutoTasksPerRun - auto.used;
     if (remaining <= 0) { refreshAutoStatus('run budget used — restart to continue'); logTelemetry('AUTO_BUDGET_USED', `maxAutoTasksPerRun (${gov.charter.maxAutoTasksPerRun}) reached`); return 'budget'; }
 
-    let item = nextReady();
+    // A READY item that may use a lot of quota is held (BLOCKED, "needs your OK"), and autopilot moves on to the next one.
+    const pickReady = () => {
+      for (let it = nextReady(); it; it = nextReady()) {
+        const pending = pendingCostReasons(config, it);
+        if (!pending.length) return it;
+        const why = `Needs your OK (may use a lot of quota): ${pending.map((p) => p.text).join('; ')}. Approve: node .harness/backlog.mjs approve ${it.id}`;
+        updateBacklogItem(it.id, { status: 'BLOCKED', blockedReason: why, needsApproval: true });
+        logTelemetry('AUTO_HELD', `Held ${it.id}: ${why}`, { backlogId: it.id, kinds: pending.map((p) => p.kind) });
+        writeState({ history: pushHistory(`⏸ HELD  ${it.id} needs your OK (big run)`) });
+      }
+      return null;
+    };
+    let item = pickReady();
     if (!item) {
       // "autonomous: on" never means planning from nothing: with the placeholder objectives there is no AI call and no spend.
       if (/\(describe your product goals here/.test(gov.charter.text)) {
@@ -1390,12 +1537,13 @@ async function autonomousTick(reason = 'interval') {
       const saved = readJsonSafe(AUTO_STATE_FILE, {});
       if (saved.poIdleFp === fp && !process.argv.includes('--force')) { refreshAutoStatus('idle: PO found nothing to do and nothing changed since (no AI call; --tick --force asks again)'); return 'idle'; }
       let added = [];
+      autoTierCap = !highAlwaysAllowed();
       try { added = await poGenerate(gov, remaining); } catch (e) {
         auto.paused = `PO_ARCHITECT failed: ${e.message.slice(0, 120)}`; logTelemetry('AUTO_PAUSED', auto.paused); refreshAutoStatus(); return 'paused';
-      }
+      } finally { autoTierCap = false; }
       if (!added.length) { atomicWriteJson(AUTO_STATE_FILE, { poIdleFp: fp, at: new Date().toISOString() }); refreshAutoStatus('PO_ARCHITECT: nothing left to do for the charter'); return 'empty'; }
       if (fs.existsSync(AUTO_STATE_FILE)) fs.rmSync(AUTO_STATE_FILE, { force: true });
-      item = nextReady();
+      item = pickReady();
     }
     if (!item) { refreshAutoStatus('no READY items'); return 'empty'; }
 
@@ -1405,6 +1553,7 @@ async function autonomousTick(reason = 'interval') {
     fs.writeFileSync(`${file}.tmp`, JSON.stringify(job, null, 2));
     fs.renameSync(`${file}.tmp`, file);
     auto.used++;
+    auto.lastJobId = job.id;
     logTelemetry('AUTO_DISPATCH', `Promoted backlog ${item.id} → inbox (${auto.used}/${gov.charter.maxAutoTasksPerRun})`, { backlogId: item.id, jobId: job.id, trigger: reason });
     refreshAutoStatus(`dispatched ${item.id}`);
     writeState({ history: pushHistory(`▶ AUTO  ${item.id} ${item.title || ''}`) });
@@ -1434,11 +1583,11 @@ if (selfTestMode) {
   const selfTest = {
     id: 'self-test-001',
     engine: 'antigravity',
-    title: 'Antigravity & Orca Square + 2-Worker Swarm Self-Test',
+    title: 'Antigravity & Codex Square + 2-Worker Swarm Self-Test',
     verifyCmd: 'node -e "const fs=require(\'fs\'); if(!fs.existsSync(\'.harness/state.json\')) process.exit(1);"',
     subtasks: [
       { id: 'antigravity-worker-1', engine: 'antigravity', targetFiles: ['src/module-a.lock'], cliCommand: 'node -e "console.log(\'Antigravity worker 1 executed\')"' },
-      { id: 'orca-worker-2', engine: 'orca', targetFiles: ['src/module-b.lock'], cliCommand: 'node -e "console.log(\'Orca worker 2 executed\')"' }
+      { id: 'codex-worker-2', engine: 'codex', targetFiles: ['src/module-b.lock'], cliCommand: 'node -e "console.log(\'Codex worker 2 executed\')"' }
     ]
   };
   const running = daemonAlive();
@@ -1466,7 +1615,7 @@ if (selfTestMode) {
   if (tickMode && other) {
     // A daemon owns the inbox: this tick only promotes/generates one task; the daemon runs it.
     const r = await autonomousTick('manual-tick');
-    console.log(`Autonomous tick: ${r}. ${auto.lastResult}. The running daemon (PID ${other}) will process it.`);
+    console.log(`Autonomous tick: ${r}. ${auto.lastResult}. The running daemon (PID ${other}) will process it.${auto.lastJobId ? `\nJOB_ID=${auto.lastJobId}` : ''}`);
     process.exit(0);
   }
   if (other) {
@@ -1474,8 +1623,30 @@ if (selfTestMode) {
     process.exit(0);
   }
   fs.writeFileSync(FILES.pid, String(process.pid));
+  ownsState = true;
   try { fs.writeFileSync(FILES.live, ''); } catch { /* ignore */ }
-  const cleanup = () => { try { if (Number(fs.readFileSync(FILES.pid, 'utf8')) === process.pid) fs.rmSync(FILES.pid); } catch { /* ignore */ } };
+  const cleanup = () => {
+    try {
+      const pidOnDisk = fs.existsSync(FILES.pid) ? Number(fs.readFileSync(FILES.pid, 'utf8')) : 0;
+      if (pidOnDisk === process.pid) {
+        if (ownsState && !onceMode && !selfTestMode) {
+          const cur = readJsonSafe(FILES.state, state) || state;
+          const nextPhase = !cur.phase || cur.phase === 'IDLE_WATCHING' || /^[0123]_/.test(cur.phase) ? 'STOPPED' : cur.phase;
+          atomicWriteJson(FILES.state, {
+            ...cur,
+            phase: nextPhase,
+            pid: null,
+            activeLocks: [],
+            queueLength: 0,
+            currentTaskFile: null,
+            workerSummary: nextPhase === 'STOPPED' ? 'Daemon stopped' : cur.workerSummary,
+            updatedAt: new Date().toISOString()
+          });
+        }
+        fs.rmSync(FILES.pid, { force: true });
+      }
+    } catch { /* ignore */ }
+  };
   process.on('exit', cleanup);
   for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP']) process.on(sig, () => process.exit(0));
   if (await isGitRepo()) await execFileAsync('git', ['worktree', 'prune'], { cwd: ROOT }).catch(() => {});
@@ -1503,7 +1674,7 @@ if (selfTestMode) {
       const r = await autonomousTick('manual-tick');
       while (draining || queue.length) await new Promise((res) => setTimeout(res, 100));
       const c = backlogCounts(readBacklog());
-      console.log(`Autonomous tick: ${r} — ${auto.lastResult}. Backlog now: READY ${c.READY}, IN_PROGRESS ${c.IN_PROGRESS}, DONE ${c.DONE}, BLOCKED ${c.BLOCKED}.`);
+      console.log(`Autonomous tick: ${r} — ${auto.lastResult}. Backlog now: READY ${c.READY}, IN_PROGRESS ${c.IN_PROGRESS}, DONE ${c.DONE}, BLOCKED ${c.BLOCKED}.${auto.lastJobId ? `\nJOB_ID=${auto.lastJobId}` : ''}`);
     }
     process.exit(0);
   }

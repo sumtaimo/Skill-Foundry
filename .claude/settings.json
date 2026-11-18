@@ -24,7 +24,18 @@
       "Bash(node .harness/visible.mjs status:*)",
       "Bash(node .harness/visible.mjs report:*)",
       "Bash(npm test:*)",
-      "Bash(node --test:*)"
+      "Bash(node --test:*)",
+      "Bash(node .harness/start.mjs --summary:*)",
+      "Bash(node .harness/start.mjs --json:*)",
+      "Bash(node .harness/hook-session.mjs --brief:*)",
+      "Bash(node .harness/usage.mjs:*)",
+      "Bash(node .harness/visible.mjs handoff:*)",
+      "Bash(node .harness/sessions.mjs board:*)",
+      "Bash(node .harness/sessions.mjs new:*)",
+      "Bash(node .harness/sessions.mjs start:*)",
+      "Bash(node .harness/sessions.mjs checkpoint:*)",
+      "Bash(node .harness/sessions.mjs handoff:*)",
+      "Bash(node .harness/sessions.mjs report:*)"
     ],
     "ask": [
       "Bash(node .harness/visible.mjs rollback:*)",
@@ -37,12 +48,22 @@
       "Bash(node .harness/memory.mjs forget:*)",
       "Edit(.harness/charter.md)",
       "Edit(.harness/config.json)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(node .harness/sessions.mjs merge:*)",
+      "Bash(node .harness/sessions.mjs cleanup:*)",
+      "Bash(node .harness/backlog.mjs approve:*)"
     ],
     "deny": [
       "Edit(.harness/releases/**)",
       "Bash(git push --force:*)",
-      "Bash(git push -f:*)"
+      "Bash(git push -f:*)",
+      "Edit(.harness/*.mjs)",
+      "Edit(.harness/lib/**)",
+      "Edit(.harness/MANIFEST.json)",
+      "Edit(.claude/skills/**)",
+      "Edit(.harness/skills/**)",
+      "Bash(npx github:sumtaimo/Skill-Foundry update*)",
+      "Bash(npx github:sumtaimo/Skill-Foundry add*)"
     ]
   },
   "hooks": {

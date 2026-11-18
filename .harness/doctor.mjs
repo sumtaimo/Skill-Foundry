@@ -6,9 +6,12 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { execFileSync } from 'node:child_process';
-import { ROOT, FILES, DIRS, ensureDirs, loadConfig, resolveProfile, engineUsable, listLessons, probeEngine, profileFlags, detectVerifyCmd } from './lib/common.mjs';
-import { readCharter, loadRoles, loadSkills, skillRulesNotGranted, skillToolsFor, readBacklog, backlogCounts, validateBacklog, listReleases, loadTeam, validateTeam, syncAgents } from './lib/governance.mjs';
+import os from 'node:os';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { createRequire } from 'node:module';
+import { ROOT, FILES, DIRS, ensureDirs, loadConfig, resolveProfile, engineUsable, listLessons, probeEngine, profileFlags, engineConsent, usesCliDefault, winCommandLine, needsWinShell, findAllOnPath, checkCore, detectVerifyCmd, listProjectFiles, helpIfAsked } from './lib/common.mjs';
+helpIfAsked(import.meta.url);
+import { SKILL_MATCH, readCharter, loadRoles, loadSkills, skillRulesNotGranted, skillToolsFor, readBacklog, backlogCounts, validateBacklog, listReleases, loadTeam, validateTeam, syncAgents } from './lib/governance.mjs';
 
 ensureDirs();
 const ok = (m) => console.log(`  ✔ ${m}`);
@@ -38,25 +41,107 @@ for (const [name, p] of Object.entries(config.profiles)) {
   const flags = profileFlags(p);
   const preferred = name === config.activeProfile || (config.activeProfile === 'auto' && (config.autoOrder || [])[0] === name);
   if (!probe.installed) {
-    if (preferred) warn(`${name.padEnd(12)} not installed, but it is your first-choice engine (${config.activeProfile === 'auto' ? 'first in "autoOrder"' : '"activeProfile"'}) → another engine will be used. Install '${p.binary}' or change config.json.`);
+    // agy is often installed but not on PATH (the Antigravity app puts it in %LOCALAPPDATA%\agy\bin or ~/.gemini/bin): say exactly how to fix it.
+    const hidden = name === 'antigravity' && process.env.HARNESS_ENGINES === undefined && [
+      ...(process.env.LOCALAPPDATA ? ['agy.exe', 'agy'].map((b) => path.join(process.env.LOCALAPPDATA, 'agy', 'bin', b)) : []),
+      ...['agy.exe', 'agy'].map((b) => path.join(os.homedir(), '.gemini', 'bin', b))
+    ].find((f) => fs.existsSync(f));
+    const hiddenDir = hidden ? path.dirname(hidden) : path.join(os.homedir(), '.gemini', 'bin');
+    const pathFix = process.platform === 'win32'
+      ? `[Environment]::SetEnvironmentVariable('Path', [Environment]::GetEnvironmentVariable('Path','User') + ";${hiddenDir}", 'User')   (PowerShell, then open a new terminal)`
+      : `echo 'export PATH="$HOME/.gemini/bin:$PATH"' >> ~/.zshrc   (or ~/.bashrc, then open a new terminal)`;
+    if (hidden) { warn(`${name.padEnd(12)} agy is installed at ${hidden} but that folder is not on your PATH, so the harness cannot use it. Fix:  ${pathFix}`); continue; }
+    // Missing first choice is only a warning when nothing else can stand in; otherwise "auto" simply uses the next engine.
+    const others = Object.keys(config.profiles).filter((k) => k !== name && probeEngine(config.profiles[k]).installed);
+    if (preferred && !others.length) warn(`${name.padEnd(12)} not installed, and it is your first-choice engine (${config.activeProfile === 'auto' ? 'first in "autoOrder"' : '"activeProfile"'}). Install '${p.binary}' or another engine.`);
+    else if (preferred) note(`${name.padEnd(12)} not installed (first in your order); the next one is used: ${others.join(', ')}`);
     else console.log(`  · ${name.padEnd(12)} not installed`);
     continue;
   }
+  if (name === 'antigravity' && process.env.HARNESS_ENGINES === undefined) {
+    const agyHits = findAllOnPath(p.binary);
+    if (agyHits.length > 1) warn(`${name.padEnd(12)} multiple '${p.binary}' binaries on PATH — using #1 (${agyHits[0]}), shadowing: ${agyHits.slice(1).join(', ')}. Keep one copy on PATH to avoid version mismatches.`);
+  }
   if (!probe.checked && !flags.length) { ok(`${name.padEnd(12)} ${probe.binPath} — no command-line flags to check`); continue; }
   if (!probe.checked) { warn(`${name.padEnd(12)} ${probe.binPath} — flags not checked (${probe.error})${probe.compatible ? ' — used anyway (verified profile)' : ' → will NOT be used (unverified profile); fix the CLI or its "args" in config.json'}`); continue; }
-  if (probe.compatible) ok(`${name.padEnd(12)} ${probe.binPath} — all ${flags.length} flag(s) found: ${flags.join(' ')}`);
+  if (usesCliDefault(p)) warn(`${name.padEnd(12)} has no model names in config.json, so every job runs on the CLI's own default model (no job-fit, may waste quota). Set profiles.${name}.models (fast / medium / high) from '${p.binary} --help' or its model list.`);
+  const consent = engineConsent(name);
+  const allowed = consent === true ? 'ALLOWED' : consent === false ? 'you chose NOT to allow it' : 'not allowed yet: run  node .harness/engines.mjs';
+  if (probe.compatible) (consent === true ? ok : note)(`${name.padEnd(12)} ${probe.binPath} — all ${flags.length} flag(s) found: ${flags.join(' ')} — ${allowed}`);
   else bad(`${name.padEnd(12)} ${probe.binPath} — --help does NOT list: ${probe.missing.join(' ')}  → will fall back to "auto". Fix "args" in config.json.`);
 }
 try {
   const active = resolveProfile(config);
   ok(`Engine that will be used: ${active.name}${active.fallbackFrom ? ` (fallback from '${active.fallbackFrom}': ${active.fallbackReason})` : ''}  (config "activeProfile": "${config.activeProfile}")`);
 } catch (e) {
-  bad(`${e.message} Install one engine, e.g. Claude Code: npm install -g @anthropic-ai/claude-code  then run  claude  once to log in.`); problems++;
+  const waiting = Object.keys(config.profiles).filter((k) => { const pr = probeEngine(config.profiles[k]); return pr.installed && pr.compatible && engineConsent(k) === undefined; });
+  if (waiting.length) note(`No AI tool is allowed yet. Installed and waiting for your OK: ${waiting.join(', ')}. Allow one (it spends your own quota):  node .harness/engines.mjs`);
+  else { bad(`${e.message} Install one engine, e.g. Claude Code: npm install -g @anthropic-ai/claude-code  then run  claude  once to log in, then  node .harness/engines.mjs  to allow it.`); problems++; }
+}
+
+// Model-name drift: Antigravity uses exact model IDs (no aliases). If Google renames one, every run on that tier fails;
+// catch it here by comparing config.json with what 'agy models' lists now (only when agy is installed and allowed).
+{
+  const ag = config.profiles?.antigravity;
+  const agProbe = ag ? probeEngine(ag) : null;
+  if (ag && agProbe?.installed && engineConsent('antigravity') === true) {
+    const wanted = new Set([...Object.values(ag.models || {}), ...Object.values(config.quotaFallback || {}).filter((f) => f?.engine === 'antigravity').flatMap((f) => Object.values(f.models || {}))].filter(Boolean));
+    const r = needsWinShell(agProbe.binPath)
+      ? spawnSync(winCommandLine(agProbe.binPath, ['models']), { encoding: 'utf8', timeout: 30000, shell: true })
+      : spawnSync(agProbe.binPath, ['models'], { encoding: 'utf8', timeout: 30000 });
+    const listed = new Set(String(r.stdout || '').split('\n').map((l) => l.trim().split(/\s+/)[0]).filter((x) => /^[a-z0-9][\w.-]+$/i.test(x || '')));
+    console.log('\nAntigravity model names (config.json vs. "agy models")');
+    if (r.status !== 0 || !listed.size) warn(`could not list agy models (${(r.stderr || r.error?.message || 'no output').toString().trim().slice(0, 120)}); model names not checked`);
+    else {
+      const gone = [...wanted].filter((m) => !listed.has(m));
+      if (gone.length) warn(`model ID(s) no longer offered by agy: ${gone.join(', ')}. Runs on that tier would fail. Run  agy models  and update profiles.antigravity.models (and quotaFallback) in config.json.`);
+      else ok(`all ${wanted.size} configured model IDs exist in agy (${[...wanted].join(', ')})`);
+    }
+  }
+}
+
+// Harness core integrity: in a project, the harness code is the template's. Editing it locally (by a person or an AI)
+// is how projects drift apart and fixes get lost; doctor says so. The template repository itself is where it IS edited.
+{
+  const isTemplate = fs.existsSync(path.join(ROOT, 'install.mjs')) && /"name":\s*"agentic-harness"/.test((() => { try { return fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'); } catch { return ''; } })());
+  console.log('\nHarness core (the template\'s code in .harness/*.mjs)');
+  if (isTemplate) note('this is the template repository itself: the core is maintained here (see docs/MAINTAINING.md)');
+  else {
+    const c = checkCore();
+    if (!c.manifest) note('no .harness/MANIFEST.json (installed before fingerprints existed). Re-install from the template to add it.');
+    else if (!c.changed.length && !c.missing.length && !c.added.length) ok(`unchanged since install (template ${c.manifest.version || '?'}, ${Object.keys(c.manifest.files).length} files)`);
+    else {
+      const list = [...c.changed.map((f) => `${f} (edited)`), ...c.missing.map((f) => `${f} (deleted)`), ...c.added.map((f) => `${f} (new)`)];
+      warn(`harness core differs from the template: ${list.join(', ')}. The core belongs to the template: do not fix the harness inside a project. Report the gap to the template (docs/MAINTAINING.md), then re-install to get the fix: npx github:sumtaimo/Agentic-Harness#release .`);
+    }
+  }
 }
 
 console.log('\nAutomatic check (used when a task has no --check)');
 const v = detectVerifyCmd(ROOT, config);
 v.real ? ok(`${v.cmd}  (${v.source})`) : warn(`${v.source}. Add a "test" (or "check") script to package.json, or always pass --check.`);
+
+// A project with UI files needs a real browser in its check, or a broken page script or layout still passes.
+// The doctor only looks and suggests; it never installs anything (that adds a dependency to YOUR project).
+const UI_FILE = /\.(html?|css|scss|sass|less|svg|jsx|tsx|vue|svelte|astro)$/i;
+const uiFiles = listProjectFiles(ROOT, 2000).files.filter((f) => UI_FILE.test(f));
+if (uiFiles.length) {
+  console.log('\nBrowser testing (this project has UI files)');
+  const req = createRequire(path.join(ROOT, 'package.json'));
+  const candidates = (process.env.HARNESS_BROWSER_MODULES || 'playwright,@playwright/test,playwright-core,puppeteer').split(',').map((x) => x.trim()).filter(Boolean);
+  const found = candidates.find((m) => { try { req.resolve(m); return true; } catch { return false; } });
+  if (!found) {
+    note(`${uiFiles.length} UI file(s) (${uiFiles.slice(0, 3).join(', ')}${uiFiles.length > 3 ? ', …' : ''}) but no browser testing tool is installed, so visual and page-script tests will be SKIPPED, and a broken page can still pass. To add one (this installs a dev dependency in YOUR project, so it is your decision):\n      npm install -D playwright && npx playwright install chromium`);
+  } else {
+    ok(`browser testing tool found: ${found}`);
+    if (process.argv.includes('--deep')) {
+      // launch a real browser for a moment: the tool can be installed while the browser itself is missing
+      const code = `const m=require(${JSON.stringify(req.resolve(found))});const t=m.chromium||m;(async()=>{const b=await t.launch({args:['--no-sandbox']});await b.close();})().then(()=>process.exit(0),(e)=>{console.error(String(e.message).split('\\n')[0]);process.exit(1);});`;
+      const r = spawnSync(process.execPath, ['-e', code], { cwd: ROOT, encoding: 'utf8', timeout: 45000 });
+      r.status === 0 ? ok('a real browser launches') : warn(`${found} is installed but the browser did not launch (${(r.stderr || 'timeout').trim().split('\n')[0]}). Try: npx playwright install chromium`);
+    } else note('To prove a real browser launches (takes a few seconds): node .harness/doctor.mjs --deep');
+  }
+}
 
 console.log('\nGovernance (v2: charter, backlog, roles, skills)');
 const charter = readCharter();
@@ -75,6 +160,41 @@ for (const s of Object.values(skills)) {
   for (const r of s.roles) if (roles[r]) { const ng = skillRulesNotGranted(roles[r], [s]); if (ng.length) warn(`skill ${s.name} asks for tool rules role ${r} does not allow (ignored): ${ng.map((x) => x.split(': ')[1]).join(', ')}`); }
   const badRoles = s.roles.filter((r) => !roles[r]);
   badRoles.length ? warn(`skill ${s.name}: unknown role(s) ${badRoles.join(', ')}`) : ok(`skill ${s.name} → roles ${s.roles.join(', ') || 'any'}${s.roles.filter((r) => roles[r]).map((r) => { const t = skillToolsFor(s, r); return t.length ? `; ${r}: ${t.join(', ')}` : ''; }).join('')}`);
+}
+// Skill Foundry (github:sumtaimo/Skill-Foundry) installs skills into .claude/skills/<name>/ with a .foundry.json stamp
+// and a pointer in .harness/skills/<name>/SKILL.md. Check that the two halves agree and that the roles can run them.
+{
+  const csk = path.join(ROOT, '.claude', 'skills');
+  const stamps = fs.existsSync(csk) ? fs.readdirSync(csk, { withFileTypes: true }).filter((d) => d.isDirectory() && fs.existsSync(path.join(csk, d.name, '.foundry.json'))).map((d) => d.name) : [];
+  if (stamps.length) {
+    const FCLI = 'npx github:sumtaimo/Skill-Foundry';
+    let issues = 0;
+    for (const n of stamps) {
+      let st = {}; try { st = JSON.parse(fs.readFileSync(path.join(csk, n, '.foundry.json'), 'utf8')); } catch { warn(`Skill Foundry: .claude/skills/${n}/.foundry.json is not valid JSON. Fix: ${FCLI} update ${n}`); issues++; continue; }
+      if (st.scope === 'factory') continue;
+      const p = skills[n];
+      if (!p) { warn(`Skill Foundry: ${n} is installed but has no pointer .harness/skills/${n}/SKILL.md, so harness workers never get it. Fix: ${FCLI} update ${n}`); issues++; continue; }
+      if (!p.installedBy.startsWith('skill-foundry')) { warn(`Skill Foundry: .harness/skills/${n}/SKILL.md is the project's own skill, not the foundry pointer, so the foundry skill is not wired. Fix: ${FCLI} update ${n} --sync-harness (keeps yours as SKILL.md.orig) or keep yours`); issues++; continue; }
+      const pv = p.installedBy.split(/\s+/)[1];
+      if (st.version && pv && pv !== st.version) { warn(`Skill Foundry: ${n} pointer is for ${pv} but ${st.version} is installed. Fix: ${FCLI} update ${n}`); issues++; }
+      // With SKILL_MATCH keywords inject for every member, so autoApply off is normal; only a pointer with no keywords is stuck.
+      if (!p.autoApply && (!SKILL_MATCH || !p.keywords.length)) { warn(`Skill Foundry: ${n} pointer has autoApply off${SKILL_MATCH ? ' and no keywords' : ''}, so it reaches only members that list it in team.json "skills". Fix: ${FCLI} update ${n}`); issues++; }
+      const engine = fs.existsSync(path.join(csk, n, 'engine'));
+      for (const r of p.roles) {
+        const role = roles[r]; if (!role) continue;
+        const ng = skillRulesNotGranted(role, [p]);
+        if (ng.length) { warn(`Skill Foundry: ${n} asks role ${r} for ${ng.map((x) => x.split(': ')[1]).join(', ')}, which the role does not allow (ignored).`); issues++; }
+        if (engine && !(role.allowedTools || []).some((t) => t === 'Bash(node:*)' || t === 'Bash(*)' || t === 'Bash')) {
+          // The skill declares in its pointer (data, never by name) whether it works without its scripts: `engine: optional` is a note, anything else a warning.
+          if (p.engine === 'optional') note(`Skill Foundry: ${n} works for role ${r} without its engine/ scripts (its documented fallback, less detailed); give the engine step to DEV_ENGINEER for the full result.`);
+          else { warn(`Skill Foundry: ${n} ${p.engine === 'required' ? 'needs' : 'runs'} engine/*.mjs scripts, but role ${r} may not run node. Let DEV_ENGINEER run that step, or (project owner's choice) add "Bash(node:*)" to .harness/roles/${role.file}`); issues++; }
+        }
+      }
+    }
+    // the doctor is run on purpose, so it may wait for the answer (sync); a session start never does
+    try { const { foundryCheck } = await import('./lib/foundry-check.mjs'); for (const l of foundryCheck({ root: ROOT, sync: true }).lines) note(l); } catch { /* the check is a courtesy: never fail the doctor */ }
+    issues ? note(`Skill Foundry: ${stamps.length} skill(s), ${issues} finding(s) above. Deeper check: ${FCLI} doctor`) : ok(`Skill Foundry: ${stamps.length} skill(s) wired to the harness (${stamps.join(', ')})`);
+  }
 }
 try {
   validateBacklog(JSON.parse(fs.readFileSync(path.join(ROOT, '.harness', 'backlog.json'), 'utf8')));
@@ -129,7 +249,10 @@ console.log('\nGit integration branch (where autonomous work lands)');
       const left = (sh(['branch', '--list', 'harness/*']) || '').split('\n').map((b) => b.replace(/^[*+\s]+/, '').trim()).filter(Boolean);
       if (left.length) warn(`${left.length} worker branch(es) kept from failed tasks for review: ${left.slice(0, 5).join(', ')}${left.length > 5 ? ' …' : ''} (delete with: git branch -D <name>)`);
       const wts = (sh(['worktree', 'list', '--porcelain']) || '').split('\n').filter((l) => l.startsWith('worktree ')).map((l) => l.slice(9));
-      const stray = wts.filter((w) => path.resolve(w) !== path.resolve(ROOT));
+      // Same folder, different spelling (Windows short names like RUNNER~1, symlinks, drive-letter case): compare real paths.
+      const real = (p) => { try { return fs.realpathSync.native(p); } catch { return path.resolve(p); } };
+      const norm = (p) => (process.platform === 'win32' ? real(p).toLowerCase() : real(p));
+      const stray = wts.filter((w) => norm(w) !== norm(ROOT));
       stray.length ? warn(`${stray.length} extra git worktree(s) still registered (a task may be running, or one was interrupted): ${stray.join(', ')}. Clean with: git worktree prune`) : ok('git worktrees clean: only your own folder');
       const dirty = sh(['status', '--porcelain', '--untracked-files=no', '--', '.', ':(exclude).harness']);
       dirty ? warn('Your folder has uncommitted changes (the harness never touches them; it only refuses to fast-forward a checked-out uat over them).') : ok('your folder has no uncommitted changes');

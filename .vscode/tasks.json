@@ -26,27 +26,6 @@
       "problemMatcher": []
     },
     {
-      "label": "Harness: Autopilot (work the READY backlog)",
-      "detail": "Same as task 6: runs READY backlog tasks by itself inside charter.md; results land on the 'uat' branch.",
-      "type": "process",
-      "command": "node",
-      "args": [
-        ".harness/daemon.mjs",
-        "--autonomous"
-      ],
-      "isBackground": true,
-      "runOptions": {
-        "instanceLimit": 1
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "dedicated",
-        "clear": true,
-        "group": "harness"
-      },
-      "problemMatcher": []
-    },
-    {
       "label": "Harness: 1. Start (live screen)",
       "detail": "Starts the background agentic harness and shows its live screen. Starts by itself when the folder opens (after you allow automatic tasks once).",
       "type": "process",
@@ -259,6 +238,270 @@
         "panel": "shared"
       },
       "problemMatcher": []
+    },
+    {
+      "label": "Harness: AI tools (allow once)",
+      "type": "process",
+      "command": "node",
+      "args": [
+        ".harness/engines.mjs"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      }
+    },
+    {
+      "label": "Harness: Usage (calls, tokens, cost)",
+      "type": "process",
+      "command": "node",
+      "args": [
+        ".harness/usage.mjs"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Harness: Usage (last 30 days)",
+      "detail": "Show 30-day AI quota, call counts, tokens, cost, and daily cap warnings.",
+      "type": "process",
+      "command": "node",
+      "args": [
+        ".harness/usage.mjs",
+        "--days",
+        "30"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "Harness: Start Menu (interactive)",
+      "detail": "Open the interactive numbered menu + live overview banner for every harness workflow.",
+      "type": "process",
+      "command": "node",
+      "args": [
+        ".harness/start.mjs"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true,
+        "focus": true
+      }
+    },
+    {
+      "label": "Harness: Handoff / Inspect unfinished run",
+      "detail": "Inspect an unfinished or stopped editor run, partial changes on disk, and print a continuation prompt.",
+      "type": "process",
+      "command": "node",
+      "args": [
+        ".harness/visible.mjs",
+        "handoff"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Harness: Resume unfinished run in terminal",
+      "detail": "Continue and verify an unfinished editor run headlessly in Terminal with your selected engine, keeping partial edits.",
+      "type": "process",
+      "command": "node",
+      "args": [
+        ".harness/dispatch.mjs",
+        "--resume-visible",
+        "--engine",
+        "${input:engine}",
+        "--wait"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true,
+        "focus": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Harness: Session Board (child sessions)",
+      "detail": "List child task branches, DONE tasks ready to merge, and any HIGH RISK warnings.",
+      "type": "process",
+      "command": "node",
+      "args": [
+        ".harness/sessions.mjs",
+        "board"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Harness: Session Checkpoint (save WIP)",
+      "detail": "Commit dirty non-secret WIP on a child session branch without marking it DONE.",
+      "type": "process",
+      "command": "node",
+      "args": [
+        ".harness/sessions.mjs",
+        "checkpoint",
+        "${input:sessionId}"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Harness: Session Handoff / Inspect",
+      "detail": "Inspect a child session branch, commits, dirty WIP, and get a continuation prompt / --cwd command.",
+      "type": "process",
+      "command": "node",
+      "args": [
+        ".harness/sessions.mjs",
+        "handoff",
+        "${input:sessionId}"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Harness: Session Merge DONE task",
+      "detail": "Run the project check in a temp worktree, merge a DONE child task into base, and clean up its branch/worktree.",
+      "type": "process",
+      "command": "node",
+      "args": [
+        ".harness/sessions.mjs",
+        "merge",
+        "${input:sessionId}"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Harness: Team (show setup & budgets)",
+      "detail": "Show the agent team hierarchy, roles, engines, file scopes, and budgets.",
+      "type": "process",
+      "command": "node",
+      "args": [
+        ".harness/team.mjs",
+        "show"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Harness: Team validate",
+      "detail": "Validate .harness/team.json scopes, charter boundaries, and budgets (exit 0 = valid).",
+      "type": "process",
+      "command": "node",
+      "args": [
+        ".harness/team.mjs",
+        "validate"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Harness: Team auto-assign (route AI engines)",
+      "detail": "Detect installed AI CLIs on this machine and route planning/coding/QA roles in .harness/team.json.",
+      "type": "process",
+      "command": "node",
+      "args": [
+        ".harness/team.mjs",
+        "auto-assign"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Harness: Team sync-agents",
+      "detail": "Regenerate .claude/agents/lead-*.md named agents from .harness/team.json and .harness/roles/.",
+      "type": "process",
+      "command": "node",
+      "args": [
+        ".harness/team.mjs",
+        "sync-agents"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Harness: Approve held backlog item",
+      "detail": "Approve a big backlog task held as Needs OK so Autopilot can run it.",
+      "type": "process",
+      "command": "node",
+      "args": [
+        ".harness/backlog.mjs",
+        "approve",
+        "${input:backlogId}"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Harness: Local Web UI (dashboard)",
+      "detail": "Start the read-only local web dashboard on http://127.0.0.1:4173/ (status, backlog, quota, sessions, live logs).",
+      "type": "process",
+      "command": "node",
+      "args": [
+        ".harness/ui.mjs"
+      ],
+      "isBackground": true,
+      "runOptions": {
+        "instanceLimit": 1
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true,
+        "group": "harness"
+      },
+      "problemMatcher": []
     }
   ],
   "inputs": [
@@ -287,8 +530,6 @@
         "auto",
         "claude",
         "antigravity",
-        "orca",
-        "gemini",
         "codex"
       ],
       "default": "auto"
@@ -322,6 +563,17 @@
         "BACKLOG"
       ],
       "default": "READY"
+    },
+    {
+      "id": "backlogId",
+      "type": "promptString",
+      "description": "Backlog item ID waiting for approval (see 'Harness: 8. View Backlog & Releases' or hook summary)"
+    },
+    {
+      "id": "sessionId",
+      "type": "promptString",
+      "description": "Child task ID on the session board (e.g. FEAT-1; leave empty on handoff to auto-detect)",
+      "default": ""
     }
   ]
 }

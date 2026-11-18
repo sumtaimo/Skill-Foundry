@@ -55,12 +55,13 @@ test('gate: vendored snapshots of both Agentic-Harness versions are present', { 
 });
 
 test('gate control: the old pointer line and a literal Bash(node:*) DO strip rules, so the checks below can fail', () => {
-  const src = harnessSources().at(-1).dir; const p = newProject('ctl'); installHarness(p, src);
-  w(p, '.harness/skills/old/SKILL.md', '---\nname: old\nroles: ["QA_AUDITOR", "DEV_ENGINEER"]\nallowedTools: ["Read", "Edit", "Write"]\nautoApply: true\n---\n# old\n');
-  w(p, '.harness/skills/lit/SKILL.md', '---\nname: lit\nroles: ["DEV_ENGINEER"]\nallowedTools: ["Bash(node:*)"]\nautoApply: true\n---\n# lit\n');
-  const g = governance(p, { all: true });
-  assert.ok(!g.QA_AUDITOR.withSkills.includes('Bash(npm test:*)'), 'old pointer strips npm test (the bug the brief found)');
-  assert.ok(!g.DEV_ENGINEER.withSkills.some((r) => r.startsWith('Edit(')), 'a literal Bash(node:*) drops Edit/Write');
+  const src = harnessSources().at(-1).dir;
+  const p1 = newProject('ctl1'); installHarness(p1, src);
+  w(p1, '.harness/skills/old/SKILL.md', '---\nname: old\nroles: ["QA_AUDITOR", "DEV_ENGINEER"]\nallowedTools: ["Read", "Edit", "Write"]\nautoApply: true\n---\n# old\n');
+  assert.ok(!governance(p1, { all: true }).QA_AUDITOR.withSkills.includes('Bash(npm test:*)'), 'old pointer strips npm test (the bug the brief found)');
+  const p2 = newProject('ctl2'); installHarness(p2, src);
+  w(p2, '.harness/skills/lit/SKILL.md', '---\nname: lit\nroles: ["DEV_ENGINEER"]\nallowedTools: ["Bash(node:*)"]\nautoApply: true\n---\n# lit\n');
+  assert.ok(!governance(p2, { all: true }).DEV_ENGINEER.withSkills.some((r) => r.startsWith('Edit(')), 'a literal Bash(node:*) drops Edit/Write');
 });
 
 test('situation S1: Skill Foundry only, no harness: skills, AGENTS.md and protection, nothing else; doctor advises', () => {

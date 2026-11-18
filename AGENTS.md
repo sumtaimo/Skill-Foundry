@@ -304,11 +304,17 @@ editing the config.
 <!-- skill-foundry:begin (managed by `npx github:sumtaimo/Skill-Foundry`; edits inside are replaced) -->
 ## Skills
 
-This project has these skills in `.claude/skills/`. When a task matches one, read its `SKILL.md` first and follow its steps and layers, starting from the goal the user states. Use one skill per step; when a request needs several, use them in the order the request gives.
+This project has these skills in `.claude/skills/`. When a task matches one, read its `SKILL.md` first and follow it, starting from the goal the user states. Use one skill per step; when a request needs several, use them in the order the request gives.
+
+**When you chain skills, keep the context small:**
+1. Load only the active skill's `SKILL.md` and the files that step needs. When the step is done, stop following that skill.
+2. Hand off through files, not text: save each step's result to a file and give the next step only its path and the key facts. Never paste raw file contents, search logs or long reasoning into the next step.
+3. End each step with one compact JSON note: `{"step_completed":"<skill>","verified_facts":["<fact + file or line>"],"gaps_or_risks":["<blocker or edge case>"],"next_skill_input":{"target_scope":"<files>","action_required":"<one sentence>"}}`
+4. If something blocks a skill, tell the user and point to `npx github:sumtaimo/Skill-Foundry doctor`; do not edit harness or permission files yourself.
 
 **Never edit, delete or overwrite anything under `.claude/skills/` or `.harness/skills/`.** Skills are changed only by the user, with `npx github:sumtaimo/Skill-Foundry update`. If a skill seems wrong, say so in your answer instead of editing it.
 
 - **copy-tight** (`.claude/skills/copy-tight/SKILL.md`): Rewrites UI copy (buttons, labels, errors, empty states, tooltips) to be short and plain without changing meaning. Use when asked to "shorten this copy", "make this plain", "tighten this text" or when a UI string is too wordy. Do not use for long-form docs, blog posts, translation or changelog entries; use changelog-writer for those.
 
-Update them with `npx github:sumtaimo/Skill-Foundry update`.
+Update them with `npx github:sumtaimo/Skill-Foundry update`. Check the setup with `npx github:sumtaimo/Skill-Foundry doctor`.
 <!-- skill-foundry:end -->

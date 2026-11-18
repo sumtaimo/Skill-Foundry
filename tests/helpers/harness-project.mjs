@@ -10,7 +10,7 @@ import { join, resolve, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { spawnSync } from 'node:child_process';
-import { main } from '../../src/factory/foundry.mjs';
+import { main, DENY } from '../../src/factory/foundry.mjs';
 
 export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 export const FIXTURES = join(ROOT, 'tests', 'fixtures', 'agentic-harness');
@@ -67,7 +67,8 @@ export function installHarness(p, src, { update = false, worstCase = false } = {
     if (here && !update && !/^\.harness\/(lib|roles)\//.test(f)) continue;
     mkdirSync(dirname(join(p, f)), { recursive: true }); writeFileSync(join(p, f), Buffer.from(text, 'latin1'));
   }
-  const theirs = existsSync(join(src, '.claude', 'settings.json')) ? JSON.parse(rd(src, '.claude/settings.json')) : { permissions: {} };
+  const rawTheirs = existsSync(join(src, '.claude', 'settings.json')) ? JSON.parse(rd(src, '.claude/settings.json')) : { permissions: {} };
+  const theirs = { ...rawTheirs, permissions: { ...(rawTheirs.permissions ?? {}), deny: (rawTheirs.permissions?.deny ?? []).filter((d) => !DENY.includes(d)) } };
   const sf = join(p, '.claude', 'settings.json');
   if (worstCase || !existsSync(sf)) w(p, '.claude/settings.json', theirs.hooks ? { permissions: theirs.permissions, hooks: theirs.hooks } : { permissions: theirs.permissions });
   else {

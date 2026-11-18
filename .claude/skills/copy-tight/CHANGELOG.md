@@ -2,6 +2,8 @@
 
 ## 0.2.0 - 2026-11-14
 
+- Fix: a portable-check agent added text around the answer (a note about searching project files, an offer to edit). New rule R-copy-tight-9: the answer holds only the rewritten copy and the change list (SKILL.md, layers 05, 07, 08, checklist item 10).
+- Fix: two fresh agents rewrote the same error differently, one adding "Try again." the source never gave. New rule R-copy-tight-8: a rewrite adds no new action, promise or fact. Layers 04, 05, 07, 08, SKILL.md and the checklist now say so; the old wording "errors say what to do" (layers 04, 08, checklist) invited the added next step and is replaced. New eval case `error-no-new-step`.
 - Migrate to the ten-layer standard: layers/01-intent.md to layers/10-evidence.md, linked from SKILL.md; behaviour and description unchanged.
 - Four new eval cases for the layer 06 edge cases: mixed legal copy, placeholders, already tight copy, unreachable length limit.
 - Fix: a real agent quoted removed words in the change list ("currently", "for you"); layer 04 now shows a wrong and a right bullet and layer 07 searches each bullet for removed words.

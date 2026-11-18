@@ -6,7 +6,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT, HARNESS_DIR, DIRS, FILES, atomicWriteJson, readJsonSafe, ensureDirs, LESSONS_HEADER, AUTO_LESSONS_HEADER, safeTarget } from './common.mjs';
+import { ROOT, HARNESS_DIR, DIRS, FILES, atomicWriteJson, readJsonSafe, ensureDirs, LESSONS_HEADER, AUTO_LESSONS_HEADER, normalizeTarget, loadConfig, memberModels } from './common.mjs';
 
 export const GOV = {
   charter: path.join(HARNESS_DIR, 'charter.md'),
@@ -38,6 +38,25 @@ export function matchesAny(p, globs = []) {
   const n = String(p).replace(/\\/g, '/').replace(/^\.\//, '');
   const probes = n.endsWith('/') ? [n.slice(0, -1), `${n}x`] : [n];
   return globs.some((g) => probes.some((x) => globToRegex(g).test(x)));
+}
+
+/**
+ * A FILE-TYPE scope ends in a file-name pattern (e.g. "src/**\/*.test.*"); a FOLDER scope ends in "**" or "*" (e.g. "src/**").
+ * When a file matches a folder scope of one lead and a file-type scope of another, the file-type scope wins: so
+ * src/button.test.tsx belongs to the QA lead, src/button.tsx to the dev lead, and every file still has ONE owner.
+ */
+export function isFileTypeGlob(g) {
+  const s = String(g).trim().replace(/\\/g, '/');
+  if (!s || s.endsWith('/')) return false;
+  const last = s.split('/').pop();
+  return Boolean(last) && last !== '**' && last !== '*' && (last.includes('*') || last.includes('.'));
+}
+
+/** Does this lead own file f, given all leads (file-type scopes of other leads take precedence over folder scopes)? */
+export function leadOwns(lead, f, leads = [lead]) {
+  if (!withinAll(f, lead.scope || [])) return false;
+  if ((lead.scope || []).filter(isFileTypeGlob).some((g) => matchesAny(f, [g]))) return true;
+  return !leads.some((o) => o.id !== lead.id && (o.scope || []).filter(isFileTypeGlob).some((g) => matchesAny(f, [g])));
 }
 
 /** For a folder target: is EVERYTHING inside it allowed? (needs a glob that covers dir/**) */
@@ -83,6 +102,17 @@ export function readCharter(file = GOV.charter) {
 
 // ───────────────────────────── roles ─────────────────────────────
 
+/**
+ * Capability flag read by other tools (e.g. Skill Foundry's doctor) instead of a version number: a lead's explicit skills
+ * are ADDED to autoApply skills (matchSkills), and several skills' tool lists compose by UNION (computeAllowedTools).
+ */
+export const SKILL_COMPOSITION = 'additive-union';
+/**
+ * Capability flag: keywords inject a skill even for a member with an explicit `skills` list (matchSkills), so a tool
+ * such as Skill Foundry may write pointers with `autoApply: false` and rely on keywords. Read the flag, never a version.
+ */
+export const SKILL_MATCH = 'keywords-with-explicit';
+
 /** Load .harness/roles/*.json keyed by role name (e.g. DEV_ENGINEER). */
 export function loadRoles() {
   const roles = {};
@@ -124,30 +154,42 @@ function covers(roleRule, skillRule) {
  *       - exact rules ("Bash(npm test:*)") → replace the role's rules for that tool by those skill
  *         rules that the role already covers (a skill can never grant a command the role lacks).
  *     Tools the skill does not mention are dropped (read-only tools are always kept).
+ *  3. several skills compose by UNION of what each one keeps (never more than the role allows); see below.
+ *  4. with `explicit`, only skills named there narrow; keyword/autoApply skills never take a rule away.
  *  Returns the rules; use explainSkillNarrowing() for what a skill asked for but did not get.
  */
-export function computeAllowedTools(role, skills, targetFiles) {
+export function computeAllowedTools(role, skills, targetFiles, { explicit = null } = {}) {
   const targets = (targetFiles || []).length ? targetFiles.map(toRulePath) : (role.writablePaths || []);
   let rules = [];
   for (const rule of role.allowedTools || []) {
     if (rule.includes('{targetFiles}')) targets.forEach((t) => rules.push(rule.replace('{targetFiles}', t)));
     else rules.push(rule);
   }
-  for (const s of skills) {
-    const list = skillToolsFor(s, role.name);
-    if (!Array.isArray(list) || list.length === 0) continue;
-    const bare = new Set(list.filter((r) => !r.includes('(')).map(baseTool));
-    const exact = new Map();
-    for (const r of list.filter((x) => x.includes('('))) exact.set(baseTool(r), [...(exact.get(baseTool(r)) || []), r]);
-    const before = rules;
+  // Each skill narrows the role's rules on its own; with several skills the result is the UNION of those views, so a
+  // skill that needs a tool (e.g. a bare "Bash" for its engine scripts) is never starved by a stricter sibling skill
+  // (code-craft's "npm test only"). It can never exceed what the role itself allows. A skill with no tool list has no
+  // opinion and is skipped; if no skill lists tools the role's rules stay as they are.
+  // `explicit` (names from the member's or plan's own `skills` list): only those skills may NARROW. A skill that came in by
+  // keyword or autoApply only joins the union, so it can give back a rule the role already has, never take one away.
+  // Without `explicit` every skill counts as explicit (callers that do not pass it keep the old behaviour).
+  const isExplicit = (s) => !explicit || explicit.includes(s.name);
+  const lists = skills.map((s) => [isExplicit(s), skillToolsFor(s, role.name)]).filter(([, l]) => Array.isArray(l) && l.length > 0);
+  const narrowers = lists.some(([e]) => e) ? lists.map(([, l]) => l) : [];
+  if (narrowers.length) {
+    const base = rules;
     const out = [];
-    for (const r of before) {
-      const t = baseTool(r);
-      if (READ_ONLY_TOOLS.has(t) || bare.has(t)) out.push(r);
-    }
-    for (const [t, skillRules] of exact) {
-      if (bare.has(t)) continue; // a bare name already keeps the role's rules
-      for (const sr of skillRules) if (before.some((r) => covers(r, sr))) out.push(sr);
+    for (const list of narrowers) {
+      const bare = new Set(list.filter((r) => !r.includes('(')).map(baseTool));
+      const exact = new Map();
+      for (const r of list.filter((x) => x.includes('('))) exact.set(baseTool(r), [...(exact.get(baseTool(r)) || []), r]);
+      for (const r of base) {
+        const t = baseTool(r);
+        if (READ_ONLY_TOOLS.has(t) || bare.has(t)) out.push(r);
+      }
+      for (const [t, skillRules] of exact) {
+        if (bare.has(t)) continue; // a bare name already keeps the role's rules
+        for (const sr of skillRules) if (base.some((r) => covers(r, sr))) out.push(sr);
+      }
     }
     rules = out;
   }
@@ -210,6 +252,10 @@ export function loadSkills() {
         toolsByRole: Object.fromEntries(Object.entries(meta).filter(([k, v]) => /^allowedTools\./.test(k) && Array.isArray(v)).map(([k, v]) => [k.slice('allowedTools.'.length).toUpperCase(), v])),
         keywords: Array.isArray(meta.keywords) ? meta.keywords.map(String) : [],
         autoApply: meta.autoApply === true,
+        installedBy: meta['installed-by'] ? String(meta['installed-by']) : '',
+        // how much the skill needs its engine/ scripts: 'required', 'optional' (it has a documented fallback without them) or '' (not declared)
+        engine: ['required', 'optional'].includes(String(meta.engine)) ? String(meta.engine) : '',
+        starterStub: meta['starter-stub'] ? String(meta['starter-stub']) : '',
         body: body.trim(),
         raw,
         dir: dir.name
@@ -220,26 +266,28 @@ export function loadSkills() {
 }
 
 /**
- * Pick skills for a worker. Explicit `skills` win; otherwise skills whose roles include the
- * worker's role AND (autoApply OR a keyword appears in the prompt). A skill whose `roles` list
+ * Pick skills for a worker. A skill is chosen when its roles include the worker's role (always required) AND any of:
+ * it is in the explicit `skills` list (a lead's list, a plan's list); it has `autoApply: true`; or one of its keywords
+ * appears in the task prompt (case-insensitive), whether or not there is an explicit list. See SKILL_MATCH. A skill whose `roles` list
  * excludes the role is never injected (reported as a mismatch).
  */
 export function matchSkills(sub, roleName, allSkills) {
   const chosen = []; const mismatched = []; const unknown = [];
   const fits = (s) => s.roles.length === 0 || s.roles.includes(roleName);
-  if (Array.isArray(sub.skills) && sub.skills.length) {
+  const explicit = Array.isArray(sub.skills) && sub.skills.length > 0;
+  if (explicit) {
     for (const n of sub.skills) {
       const s = allSkills[n];
       if (!s) unknown.push(n);
       else if (!fits(s)) mismatched.push(n);
-      else chosen.push(s);
+      else if (!chosen.includes(s)) chosen.push(s);
     }
-  } else {
-    const text = String(sub.prompt || '').toLowerCase();
-    for (const s of Object.values(allSkills)) {
-      if (!fits(s) || s.roles.length === 0) continue;
-      if (s.autoApply || s.keywords.some((k) => text.includes(k.toLowerCase()))) chosen.push(s);
-    }
+  }
+  const text = String(sub.prompt || '').toLowerCase();
+  for (const s of Object.values(allSkills)) {
+    if (chosen.includes(s) || !fits(s) || s.roles.length === 0) continue;
+    // added to the explicit list: autoApply skills, and skills whose keyword appears in the task (with or without a list)
+    if (s.autoApply || s.keywords.some((k) => k && text.includes(String(k).toLowerCase()))) chosen.push(s);
   }
   return { chosen, mismatched, unknown };
 }
@@ -278,7 +326,7 @@ export function validateTeam(team, { roles = {}, charter = null, plannerMaxWorke
     if (!m || typeof m.id !== 'string' || !m.id) { errors.push('every member needs an "id"'); continue; }
     if (ids.has(m.id)) errors.push(`duplicate member id "${m.id}"`);
     ids.add(m.id);
-    if (m.model !== undefined && (typeof m.model !== 'string' || !/^[\w.:@/-]+$/.test(m.model))) errors.push(`member "${m.id}": model must be a tier (fast | medium | high) or a model alias such as "opus"`);
+    if (m.model !== undefined && (typeof m.model !== 'string' || !/^[\w.:@/-]+$/.test(m.model))) errors.push(`member "${m.id}": model must be a tier (fast | medium | high) or a model alias from config.json`);
     if (m.engine !== undefined && (typeof m.engine !== 'string' || (engines && !engines.includes(m.engine)))) errors.push(`member "${m.id}": engine "${m.engine}" is not an engine in config.json profiles${engines ? ` (${engines.join(', ')})` : ''}`);
     if (!['orchestrator', 'lead'].includes(m.level)) errors.push(`member "${m.id}": level must be "orchestrator" or "lead" (workers are created by leads at run time)`);
   }
@@ -293,6 +341,8 @@ export function validateTeam(team, { roles = {}, charter = null, plannerMaxWorke
     if (!r) errors.push(`orchestrator "${orch.id}": unknown role "${orch.role}"`);
     else if ((r.writablePaths || []).length) errors.push(`orchestrator "${orch.id}": role ${r.name} may write files (${r.writablePaths.join(', ')}); the orchestrator must be read-only`);
     for (const c of orch.canDelegateTo || []) if (!leads.some((l) => l.id === c)) errors.push(`orchestrator canDelegateTo lists "${c}", which is not a lead`);
+    // A lead the orchestrator may not delegate to can never receive work: add it to canDelegateTo (or remove the list).
+    if (Array.isArray(orch.canDelegateTo) && orch.canDelegateTo.length) for (const l of leads) if (!orch.canDelegateTo.includes(l.id)) warnings.push(`lead "${l.id}" is not in the orchestrator's canDelegateTo, so it can never receive work`);
   }
   for (const l of leads) {
     if (orch && l.reports_to !== orch.id) errors.push(`lead "${l.id}" must report to the orchestrator "${orch.id}" (reports_to is "${l.reports_to}")`);
@@ -310,6 +360,7 @@ export function validateTeam(team, { roles = {}, charter = null, plannerMaxWorke
   }
   for (let i = 0; i < leads.length; i++) for (let j = i + 1; j < leads.length; j++) {
     for (const a of leads[i].scope || []) for (const b of leads[j].scope || []) {
+      if (isFileTypeGlob(a) !== isFileTypeGlob(b)) continue; // a file-type scope takes its files out of a folder scope: one owner
       if (globsOverlap(a, b)) errors.push(`leads "${leads[i].id}" and "${leads[j].id}" have overlapping scopes ("${a}" / "${b}"); two teams could collide on a file`);
     }
   }
@@ -338,11 +389,11 @@ export function describeMember(m, roles) {
 // ───────────────────────────── engine routing (team.mjs auto-assign) ─────────────────────────────
 
 /** Which job each role does, for engine routing. Roles not listed here count as coding. */
-export const ROLE_JOB = { PO_ARCHITECT: 'plan', BA_ANALYST: 'plan', DEV_ENGINEER: 'code', QA_AUDITOR: 'qa' };
+export const ROLE_JOB = { PO_ARCHITECT: 'plan', COORDINATOR: 'plan', BA_ANALYST: 'plan', DEV_ENGINEER: 'code', UX_DESIGNER: 'code', QA_AUDITOR: 'qa', REVIEWER: 'qa', SECURITY: 'qa' };
 
 /**
  * Pick an engine for each job from the engines that are actually usable. Pure: no probing, no files.
- *   3+ engines: planning/research → agy (antigravity) or gemini, coding → claude, QA/review → codex (else claude)
+ *   3+ engines: planning/research → agy (antigravity), coding → claude, QA/review → codex (else claude)
  *   2 engines:  planning/research on one, coding AND QA on the other
  *   1 engine:   that engine everywhere
  *   0 engines:  null (nothing to assign; the harness falls back to "auto" at run time)
@@ -354,9 +405,9 @@ export function planEngineRouting(available) {
   if (have.length === 1) return { plan: have[0], code: have[0], qa: have[0] };
   const first = (prefs, pool = have) => prefs.find((k) => pool.includes(k)) || pool[0];
   // Planning prefers a research engine; without one, give planning to the non-claude engine so claude can code.
-  const plan = first(['antigravity', 'gemini', 'codex', 'claude']);
+  const plan = first(['antigravity', 'codex', 'claude']);
   const rest = have.filter((k) => k !== plan);
-  const code = first(['claude', 'codex', 'gemini', 'antigravity'], rest);
+  const code = first(['claude', 'codex', 'antigravity'], rest);
   if (have.length === 2) return { plan, code, qa: code };
   const qa = have.includes('codex') && code !== 'codex' ? 'codex' : have.includes('claude') ? 'claude' : code;
   return { plan, code, qa };
@@ -387,12 +438,19 @@ export function validateDelegation(plan, { leads, delegable, userAllowed = [] })
     seenLeads.add(lead.id);
     if (typeof a.goal !== 'string' || !a.goal.trim()) throw new Error(`assignment to "${lead.id}" has no goal.`);
     if (!Array.isArray(a.files) || !a.files.length) throw new Error(`assignment to "${lead.id}" has no files.`);
-    a.files = a.files.map((f) => { const s = safeTarget(f); if (!s) throw new Error(`assignment to "${lead.id}" has an unsafe path "${f}".`); const base = s.replace(/\/+$/, ''); return String(f).endsWith('/') ? `${base}/` : base; });
+    a.files = a.files.map((f) => { const s = normalizeTarget(f); if (!s) throw new Error(`assignment to "${lead.id}" has an unsafe path "${f}".`); return s; });
     for (const f of a.files) {
-      if (!withinAll(f, lead.scope)) throw new Error(`file "${f}" is outside lead "${lead.id}"'s scope (${lead.scope.join(', ')}).`);
+      if (!leadOwns(lead, f, leads)) throw new Error(`file "${f}" is outside lead "${lead.id}"'s scope (${lead.scope.join(', ')})${withinAll(f, lead.scope) ? '; a more specific scope of another lead owns it (e.g. test files belong to the QA lead)' : ''}.`);
       if (userAllowed.length && !inside(strip(f), userAllowed)) throw new Error(`file "${f}" is outside the files the user allowed (${userAllowed.join(', ')}).`);
       for (const [other, by] of claimed) {
-        if (by !== lead.id && (strip(f) === strip(other) || strip(f).startsWith(`${strip(other)}/`) || strip(other).startsWith(`${strip(f)}/`))) throw new Error(`Swarm Lock Collision: "${f}" (${lead.id}) overlaps "${other}" (${by}).`);
+        if (by !== lead.id && (strip(f) === strip(other) || strip(f).startsWith(`${strip(other)}/`) || strip(other).startsWith(`${strip(f)}/`))) {
+          if (f.endsWith('/') !== other.endsWith('/')) {
+            const file = f.endsWith('/') ? other : f;
+            const dirLead = leads.find((l) => l.id === (f.endsWith('/') ? lead.id : by));
+            if (dirLead && !leadOwns(dirLead, file, leads)) continue;
+          }
+          throw new Error(`Swarm Lock Collision: "${f}" (${lead.id}) overlaps "${other}" (${by}).`);
+        }
       }
       claimed.push([f, lead.id]);
     }
@@ -416,9 +474,23 @@ export function agentToolsFor(role) {
   return tools;
 }
 
-export function renderAgentFile(lead, role, team) {
+/**
+ * The Claude Code model for a named lead: picked by job from the claude profile's tiers (BA and QA → fast, coding → medium),
+ * so a lead never silently inherits the session's (often most expensive) model. A member "model" alias overrides it.
+ */
+export function editorModelFor(lead, config) {
+  if (!config?.profiles?.claude) return null;
+  return memberModels(config, { ...lead, engine: 'claude', level: 'worker' }).work.model;
+}
+
+/** Can this role run node (so a skill's engine/ scripts)? */
+export const runsNode = (role) => (role.allowedTools || []).some((r) => covers(r, 'Bash(node:*)') || r === 'Bash');
+export const ENGINE_SCRIPTS = "a skill's own script (`node .claude/skills/<skill>/engine/…`) when an injected skill tells you to run it";
+
+export function renderAgentFile(lead, role, team, config = (() => { try { return loadConfig(); } catch { return null; } })()) {
   const orch = (team.members || []).find((m) => m.level === 'orchestrator');
   const tools = agentToolsFor(role);
+  const model = editorModelFor(lead, config);
   const mission = role.mission || role.description || lead.role;
   const desc = `${lead.id} (${role.name}), a lead on the agent team. The orchestrator delegates ${lead.scope.join(', ')} work to it; it changes only the files it is assigned.`.replace(/\s+/g, ' ');
   return [
@@ -426,6 +498,7 @@ export function renderAgentFile(lead, role, team) {
     `name: ${lead.id}`,
     `description: ${desc}`,
     `tools: ${tools.join(', ')}`,
+    ...(model ? [`model: ${model}`] : []),
     '---',
     `<!-- Generated from .harness/team.json and .harness/roles by "node .harness/team.mjs sync-agents". Edit those, not this file. -->`,
     `You are **${lead.id}**, a team lead (level 2) in an agent team${orch ? ` reporting to the orchestrator \`${orch.id}\`` : ''}. Your role: ${role.name}.`,
@@ -438,7 +511,7 @@ export function renderAgentFile(lead, role, team) {
     '- Change ONLY the files you were assigned. The controller compares every changed file against the assignments after you finish: anything outside your files is reverted and the run fails.',
     '- Follow the shared interface contract and acceptance criteria in your assignment exactly; other leads are building against them in parallel.',
     '- Never touch `.harness/`, `.claude/`, `.git/`, secrets or `.env*`. Never run git commands that change history or remotes, and never push.',
-    ...(tools.includes('Bash') ? ['- You may check your work with `npm test` or `node --test`. Do not run other commands.'] : ['- You have no shell. Work with the file tools only.']),
+    ...(tools.includes('Bash') ? [`- You may check your work with \`npm test\` or \`node --test\`${runsNode(role) ? ", and run " + ENGINE_SCRIPTS : ''}. Do not run other commands.`] : ['- You have no shell. Work with the file tools only.']),
     '- Finish with a short report (at most 5 lines): files changed, what you did, what you checked, anything unresolved. Do not claim you tested something you did not run.',
     ''
   ].join('\n');
@@ -535,6 +608,8 @@ export function itemToJob(item, { autonomous = false } = {}) {
   for (const k of ['engine', 'verifyCmd', 'acceptanceCriteria', 'interfaceContract', 'source']) if (item[k] !== undefined) job[k] = item[k];
   if (item.hierarchy) job.hierarchy = true;
   if (item.maxCostUsd !== undefined) job.maxCostUsd = item.maxCostUsd;
+  if (item.costApproved === true) job.costApproved = true; // the person approved this big run (backlog.mjs approve)
+  if (item.model) job.model = item.model;
   if (Array.isArray(item.subtasks) && item.subtasks.length) job.subtasks = item.subtasks;
   else if (item.hierarchy) Object.assign(job, { goal: item.goal || item.title, targetFiles: item.targetFiles || [] });
   else if (item.autoPlan) Object.assign(job, { autoPlan: true, goal: item.goal || item.title, targetFiles: item.targetFiles || [] });
