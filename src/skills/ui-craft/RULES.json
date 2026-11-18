@@ -1,0 +1,92 @@
+[
+  {
+    "id": "R-ui-craft-1",
+    "text": "Detect the project's stack and existing token files before writing code; NEVER import unrequested external libraries or fonts unless already present or requested.",
+    "check": "uicraft-detect-stack"
+  },
+  {
+    "id": "R-ui-craft-2",
+    "text": "Define semantic light and dark surface tokens including translucent glass backdrop variables paired with opaque contrast fallbacks.",
+    "check": "uicraft-surfaces-glass"
+  },
+  {
+    "id": "R-ui-craft-3",
+    "text": "Body text pairs MUST reach at least 4.5:1 contrast and large headings (>= 24 px or bold >= 19 px), borders and focus rings MUST reach at least 3:1 in light and dark modes.",
+    "check": "uicraft-contrast"
+  },
+  {
+    "id": "R-ui-craft-4",
+    "text": "Typography MUST keep body text >= 16px (line-height 1.5, prose <= 65ch), purposeful weights (400, 500, 600, 700), -0.02em heading tracking and tabular-nums on counters/shortcuts.",
+    "check": "uicraft-type-rhythm"
+  },
+  {
+    "id": "R-ui-craft-5",
+    "text": "Spacing MUST stay on a 4px grid with consistent radius tokens (--r-xs..--r-xl), 1px hairline borders and an explicit --z-* layering scale.",
+    "check": "uicraft-spatial-zindex"
+  },
+  {
+    "id": "R-ui-craft-6",
+    "text": "Interactive controls MUST provide >= 44x44px hit targets, tactile hover/active feedback, restrained edge highlights and at most ONE filled primary action per view.",
+    "check": "uicraft-buttons-gradients"
+  },
+  {
+    "id": "R-ui-craft-7",
+    "text": "Multi-view or searchable UIs MUST include command-first navigation (Ctrl+K/Cmd+K dialog, keyboard arrows/Enter/Escape and visible kbd hints).",
+    "check": "uicraft-command-nav"
+  },
+  {
+    "id": "R-ui-craft-8",
+    "text": "Headers, sliding active indicators, sidebar rails and mobile drawers MUST adapt cleanly without colliding with content or causing horizontal overflow at 390px or 1440px.",
+    "check": "uicraft-adaptive-nav"
+  },
+  {
+    "id": "R-ui-craft-9",
+    "text": "Micro-interactions MUST animate transform and opacity only (120ms-240ms) and disable spatial travel under prefers-reduced-motion: reduce.",
+    "check": "uicraft-motion-reduced"
+  },
+  {
+    "id": "R-ui-craft-10",
+    "text": "Interactive and data views MUST implement default, hover, focus-visible, active/selected, disabled, dimension-locked skeleton, empty filter reset and inline error retry states.",
+    "check": "uicraft-lifecycle-states"
+  },
+  {
+    "id": "R-ui-craft-11",
+    "text": "AI prompt and assistant surfaces MUST provide quick-action chips, live streaming/thinking feedback, a stop/cancel trigger and undo/revert controls.",
+    "check": "uicraft-inline-ai"
+  },
+  {
+    "id": "R-ui-craft-12",
+    "text": "Inline SVG icons and decorative visuals MUST use currentColor or var(--...) with aria-hidden=\"true\" on decorative SVGs, never hardcoded hex attributes.",
+    "checklist": "All inline SVGs bind colours to currentColor or var(--...) and decorative icons carry aria-hidden=\"true\"."
+  },
+  {
+    "id": "R-ui-craft-13",
+    "text": "Responsive layouts MUST prevent clipped headings or sideways scroll across 390px-1440px viewports and preserve legible script line-heights.",
+    "checklist": "Titles, grids and multilingual strings wrap cleanly without clipping or horizontal page overflow."
+  },
+  {
+    "id": "R-ui-craft-14",
+    "text": "Interactive controls MUST use native semantic HTML with visible >= 2px :focus-visible outlines.",
+    "check": "uicraft-semantic-a11y"
+  },
+  {
+    "id": "R-ui-craft-15",
+    "text": "CSS-scoped roles (UX_DESIGNER) MUST emit complete stylesheets plus an explicit Markup Handoff Contract; full-stack roles ship complete runnable UI code.",
+    "checklist": "Role adaptation matched: full runnable UI for engineering or modular CSS plus Markup Handoff Contract for CSS-only roles."
+  },
+  {
+    "id": "R-ui-craft-16",
+    "text": "NEVER invent fake customer testimonials, fabricated metrics or unrequested product claims.",
+    "checklist": "No fabricated user metrics or fake social proof appear in generated copy."
+  },
+  {
+    "id": "R-ui-craft-17",
+    "text": "Refuse requests meant purely for ui-polish, design-system, a11y-audit, copy-tight or figure-craft with a concise redirect sentence.",
+    "check": "uicraft-refuse-out-of-scope"
+  },
+  {
+    "id": "R-ui-craft-18",
+    "text": "When browser tools are available, verify rendered HTML at 1440px and 390px in light and dark themes with reduced motion, zero console errors and zero overflow.",
+    "checklist": "Rendered browser checks at 1440px and 390px pass in light and dark mode with zero errors and zero horizontal scroll."
+  }
+]

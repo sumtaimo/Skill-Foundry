@@ -1,0 +1,11 @@
+{
+  "title": "ui-craft",
+  "tagline": "Build modern 2026 UI screens, navigation, motion, lifecycle states and inline AI bars.",
+  "prompt": "Build a modern workspace header with a frosted glass sticky bar, Ctrl+K command palette, bento cards, and loading/empty/error states.",
+  "outputs": [
+    "Light & dark surface, glass, radius, and z-index CSS tokens",
+    "Runnable HTML/CSS, Tailwind, or React UI components with keyboard support",
+    "All 8 UI lifecycle states or CSS + Markup Handoff Contract for engineering"
+  ],
+  "tags": ["ui", "components", "navigation", "motion", "design"]
+}

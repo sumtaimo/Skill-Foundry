@@ -1,0 +1,83 @@
+[
+  {
+    "id": "bento-glass-landing",
+    "prompt": "Design and build a modern product showcase landing header and bento feature section in clean HTML and CSS with light and dark mode, a floating frosted-glass navbar, a single crisp primary CTA, and reduced-motion support.",
+    "expect": [
+      { "type": "contains", "value": "## UI Craft:" },
+      { "type": "contains", "value": "--glass-bg" },
+      { "type": "contains", "value": "backdrop-filter" },
+      { "type": "contains", "value": "--z-sticky" },
+      { "type": "contains", "value": "prefers-reduced-motion" },
+      { "type": "contains", "value": "focus-visible" },
+      { "type": "contains", "value": "44px" }
+    ]
+  },
+  {
+    "id": "command-palette-shell",
+    "prompt": "Build an interactive app navigation bar with a Ctrl+K command palette dialog, keyboard arrow selection, Escape close, visible kbd shortcut hints, and an empty search state with a reset button in vanilla HTML, CSS, and JavaScript.",
+    "expect": [
+      { "type": "contains", "value": "<dialog" },
+      { "type": "contains", "value": "<kbd" },
+      { "type": "contains", "value": "Escape" },
+      { "type": "contains", "value": "--z-command" },
+      { "type": "contains", "value": "focus-visible" }
+    ]
+  },
+  {
+    "id": "lifecycle-states-grid",
+    "prompt": "Create a workspace project card grid component in HTML and CSS that handles all lifecycle states: default, hover, focus-visible, selected, disabled button, loading skeleton, empty filter state with reset, and inline error with retry.",
+    "expect": [
+      { "type": "contains", "value": "skeleton" },
+      { "type": "contains", "value": "disabled" },
+      { "type": "contains", "value": "role=\"alert\"" },
+      { "type": "contains", "value": "focus-visible" },
+      { "type": "contains", "value": "prefers-reduced-motion" }
+    ]
+  },
+  {
+    "id": "inline-ai-action-bar",
+    "prompt": "Design a compact inline AI prompt bar component with quick-action chips, a live streaming feedback status with a stop button, and an undo/revert trigger after applying changes.",
+    "expect": [
+      { "type": "contains", "value": "aria-live" },
+      { "type": "contains", "value": "Stop" },
+      { "type": "contains", "value": "Undo" },
+      { "type": "contains", "value": "focus-visible" }
+    ]
+  },
+  {
+    "id": "ux-designer-css-handoff",
+    "prompt": "You are running as a CSS-only UX_DESIGNER role (you may only write CSS stylesheets). Style a sticky section sub-bar with a sliding active pill highlight and light/dark tokens, and hand off what engineering must wire.",
+    "expect": [
+      { "type": "contains", "value": "Markup Handoff Contract" },
+      { "type": "contains", "value": "prefers-reduced-motion" },
+      { "type": "contains", "value": "data-theme=\"dark\"" },
+      { "type": "notContains", "value": "<!DOCTYPE html>" }
+    ]
+  },
+  {
+    "id": "vague-no-surface-ask",
+    "prompt": "Make my UI look modern and awesome.",
+    "expect": [
+      { "type": "notContains", "value": "<!DOCTYPE html>" },
+      { "type": "maxLines", "value": 12 }
+    ]
+  },
+  {
+    "id": "polish-only-declined",
+    "prompt": "Do a pixel pass on this finished settings card HTML and CSS without adding or removing any elements or changing the words: <div class=\"card\"><h2>Settings</h2><button>Save</button></div>",
+    "expect": [
+      { "type": "contains", "value": "ui-polish" },
+      { "type": "notContains", "value": "<!DOCTYPE html>" },
+      { "type": "maxLines", "value": 4 }
+    ]
+  },
+  {
+    "id": "tokens-only-declined",
+    "prompt": "Generate only a standalone design-tokens.json and tokens.css palette from our brand hex #0d9488.",
+    "expect": [
+      { "type": "contains", "value": "design-system" },
+      { "type": "notContains", "value": "<!DOCTYPE html>" },
+      { "type": "maxLines", "value": 4 }
+    ]
+  }
+]

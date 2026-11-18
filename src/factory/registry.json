@@ -186,5 +186,36 @@
       "alt text"
     ],
     "engine": "optional"
+  },
+  {
+    "name": "ui-craft",
+    "version": "0.1.0",
+    "purpose": "Designs and builds modern 2026 product UI screens, adaptive navigation, command palettes, bento layouts, micro-interactions, complete lifecycle states and inline AI bars in HTML/CSS, Tailwind or React/JSX.",
+    "status": "draft",
+    "roles": [
+      "DEV_ENGINEER",
+      "UX_DESIGNER"
+    ],
+    "keywords": [
+      "ui",
+      "component",
+      "landing page",
+      "navbar",
+      "navigation",
+      "command palette",
+      "bento",
+      "dashboard",
+      "button",
+      "gradient",
+      "glassmorphism",
+      "motion",
+      "animation",
+      "layout",
+      "skeleton",
+      "empty state",
+      "ai bar",
+      "react",
+      "tailwind"
+    ]
   }
 ]

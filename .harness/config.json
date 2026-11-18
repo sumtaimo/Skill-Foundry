@@ -105,26 +105,33 @@
       "modelsNote": "CLI aliases, never pinned versions: Claude Code resolves haiku / sonnet / opus to the newest release of each family. The controller picks the tier per job (see docs/MULTI-MODEL-SETUP.md)."
     },
     "antigravity": {
-      "verified": false,
-      "note": "UNVERIFIED (confirm with 'agy --help'). The Antigravity terminal agent is 'agy'; '-p \"\"' runs headless with the prompt piped on stdin (avoids argument length limits and Windows newline quoting). Unconfirmed that agy appends stdin to an empty -p; if not, set promptVia to 'arg' and args to ['-p','{prompt}']. No auto-approve flag on purpose (the owner approved auto-approve for Gemini only).",
+      "verified": true,
+      "note": "Verified against agy 1.5.10 (--help and agy models): passes prompt via -p {prompt} on Windows CreateProcessW (shell: false), maps fast/medium/high tiers via --model, and runs headless worker tools via --mode auto.",
       "binary": "agy",
       "args": [
         "-p",
-        ""
+        "{prompt}",
+        "--mode",
+        "auto",
+        "--disable-slash-commands"
       ],
-      "promptVia": "stdin",
+      "promptVia": "arg",
       "allowedTools": [
         "Read",
         "Edit",
         "Write",
         "Bash"
       ],
+      "modelArgs": [
+        "--model",
+        "{model}"
+      ],
       "models": {
-        "fast": null,
-        "medium": null,
-        "high": null
+        "fast": "gemini-3.8-flash-medium",
+        "medium": "gemini-4-hydrogen-medium",
+        "high": "gemini-4-hydrogen-high"
       },
-      "modelsNote": "No model flag is known for agy yet: it always uses its own newest default. If `agy --help` documents a model flag and aliases, add modelArgs (e.g. [\"--model\",\"{model}\"]) and the aliases here."
+      "modelsNote": "Exact model IDs verified from `agy models` on this machine."
     },
     "orca": {
       "verified": false,

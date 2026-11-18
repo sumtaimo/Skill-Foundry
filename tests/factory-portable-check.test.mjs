@@ -53,3 +53,14 @@ test('portableCheck refuses factory-scope skills, empty prompts and a project in
   await assert.rejects(portableCheck('copy-tight', '  '), /prompt required/);
   await assert.rejects(portableCheck('copy-tight', 'shorten this', { out: join(ROOT, 'tmp-portable') }), /outside the repository/);
 });
+
+test('parseStream parses agy step_update tool calls and result events', () => {
+  const agyStream = [
+    ev({ event: 'step_update', step_update: { state: 'ACTIVE', step_type: 'tool', tool_name: 'read_file', tool_info: { parameters: { Path: '/tmp/p/.claude/skills/ui-craft/SKILL.md' } } } }),
+    ev({ event: 'result', result: { status: 'SUCCESS', response: 'Built component.' } }),
+  ].join('\n');
+  const s = parseStream(agyStream, 'ui-craft');
+  assert.equal(s.usedSkill, true);
+  assert.equal(s.final, 'Built component.');
+  assert.deepEqual(s.touchedRepo, []);
+});

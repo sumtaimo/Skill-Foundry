@@ -9,6 +9,7 @@ current version.
 - Redesign the showcase site (`src/site/`, `docs/site/LANDING-SPEC.md`): light-first neutral React Bits–style layout with dark mode and EN/KH toggles, solid brand logo mark and favicon, unclipped hero heading, floating glass header with grouped tool buttons (`theme`, `lang`, GitHub), compact (`34px`) Stripe-height buttons, skill detail action above metadata, open `#proof` table without skill link underlines, simplified two-column footer (`Skill Foundry version 1.0.1` above `License MIT · © 2026 TAIMO`), and reliable scroll-to-top on load/reload.
 - CLI & Release automation (`src/factory/foundry.mjs`, `src/factory/version-check.mjs`, `src/factory/release-check.mjs`): added `--version` / `-v`, `latestFoundry` in `check --json`, project-version and missing-default-skill notices in `check` and `doctor`, and automatic changelog/version tracking in `npm run release:check`.
 - Sync Agentic-Harness to `1.0.18` (`B1`–`B11` fixes), untrack runtime `.harness/foundry-check.json`, and refresh `README.md` and `docs/PROJECT.md` (documenting separate project vs. skill versioning).
+- Add draft `ui-craft` skill (`0.1.0`, modern 2026 UI/navigation/motion/lifecycle states/AI-bar builder with `DEV_ENGINEER` + `UX_DESIGNER` controller-lead-worker support), register Agentic-Harness starter stub upgrade in `src/factory/foundry.mjs`, add `--engine agy` support to `live-evals.mjs`/`routing-evals.mjs`/`portable-check.mjs`, and configure `antigravity` CLI tiers in `.harness/config.json` and `.harness/team.json`.
 
 ## 1.0.0 - 2026-11-17
 

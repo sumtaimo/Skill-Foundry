@@ -16,7 +16,7 @@
         "maxCostUsd": 2,
         "maxMinutes": 30
       },
-      "engine": "gemini"
+      "engine": "antigravity"
     },
     {
       "id": "lead-ba",
@@ -31,7 +31,7 @@
         "maxCostUsd": 0.4,
         "maxMinutes": 10
       },
-      "engine": "gemini"
+      "engine": "antigravity"
     },
     {
       "id": "lead-dev",
@@ -49,7 +49,7 @@
       "skills": [
         "code-craft"
       ],
-      "engine": "claude"
+      "engine": "antigravity"
     },
     {
       "id": "lead-qa",
@@ -68,7 +68,7 @@
       "skills": [
         "code-craft"
       ],
-      "engine": "claude"
+      "engine": "antigravity"
     }
   ]
 }

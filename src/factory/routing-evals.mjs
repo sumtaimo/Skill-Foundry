@@ -5,9 +5,10 @@
  *   --run: ask a fresh agent (costs tokens) with the current descriptions of every ready skill, and save its answers
  * @governed-by PO_ARCHITECT
  */
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
-import { join, resolve, dirname } from 'node:path';
+import { join, resolve, dirname, basename } from 'node:path';
+import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { isQuotaError, winCommandLine } from './live-evals.mjs';
 
@@ -59,9 +60,18 @@ export function runRouting({ engine = 'claude', spawn = spawnSync, dir = DIR } =
   const cases = JSON.parse(readFileSync(join(dir, 'cases.json'), 'utf8'));
   const skills = readySkills();
   const input = routingPrompt(skills, cases);
-  const res = process.platform === 'win32' && spawn === spawnSync
-    ? spawn(winCommandLine(engine, ['-p']), { input, encoding: 'utf8', shell: true, timeout: 300000 })
-    : spawn(engine, ['-p'], { input, encoding: 'utf8', timeout: 300000 });
+  const isAgy = /^agy(?:\.exe)?$/i.test(basename(engine));
+  let res;
+  if (isAgy && spawn === spawnSync) {
+    const workDir = mkdtempSync(join(tmpdir(), 'sf-route-'));
+    try {
+      res = spawn(engine, ['-p', input, '--disable-slash-commands', '--output-format', 'text'], { cwd: workDir, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', timeout: 300000 });
+    } finally { rmSync(workDir, { recursive: true, force: true }); }
+  } else {
+    res = process.platform === 'win32' && spawn === spawnSync
+      ? spawn(winCommandLine(engine, ['-p']), { input, encoding: 'utf8', shell: true, timeout: 300000 })
+      : spawn(engine, ['-p'], { input, encoding: 'utf8', timeout: 300000 });
+  }
   if (res.error) throw new Error(`runRouting: ${engine} failed: ${res.error.message}`);
   if (res.status !== 0) throw new Error(`runRouting: ${engine} failed: ${(res.stderr || res.stdout || `exit ${res.status}`).trim()}`);
   if (isQuotaError(res.stdout)) throw new Error(`runRouting: ${engine} hit usage/quota limit ("${String(res.stdout).trim().split('\n')[0]}"); existing live.json kept`);

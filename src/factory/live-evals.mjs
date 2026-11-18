@@ -6,8 +6,9 @@
  *   with --run:    start a fresh agent per case (costs tokens), save, then score
  * @governed-by PO_ARCHITECT
  */
-import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, statSync } from 'node:fs';
-import { join, resolve, dirname } from 'node:path';
+import { readFileSync, writeFileSync, mkdirSync, mkdtempSync, rmSync, existsSync, readdirSync, statSync } from 'node:fs';
+import { join, resolve, dirname, basename } from 'node:path';
+import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { runEvals } from './evals.mjs';
@@ -109,12 +110,21 @@ export function selectCases(cases, caseIds) {
 export function runLive(skillDir, { engine = 'claude', cases: caseIds, spawn = spawnSync } = {}) {
   const { cases } = loadRecordings(skillDir);
   const targets = selectCases(cases, caseIds);
+  const isAgy = /^agy(?:\.exe)?$/i.test(basename(engine));
   mkdirSync(join(skillDir, 'evals', 'live'), { recursive: true });
   for (const c of targets) {
     const input = agentPrompt(skillDir, c.prompt);
-    const res = process.platform === 'win32' && spawn === spawnSync
-      ? spawn(winCommandLine(engine, ['-p']), { input, encoding: 'utf8', shell: true, timeout: 600000 })
-      : spawn(engine, ['-p'], { input, encoding: 'utf8', timeout: 600000 });
+    let res;
+    if (isAgy && spawn === spawnSync) {
+      const workDir = mkdtempSync(join(tmpdir(), 'sf-live-'));
+      try {
+        res = spawn(engine, ['-p', input, '--add-dir', resolve(skillDir), '--disable-slash-commands', '--output-format', 'text'], { cwd: workDir, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', timeout: 600000 });
+      } finally { rmSync(workDir, { recursive: true, force: true }); }
+    } else {
+      res = process.platform === 'win32' && spawn === spawnSync
+        ? spawn(winCommandLine(engine, ['-p']), { input, encoding: 'utf8', shell: true, timeout: 600000 })
+        : spawn(engine, ['-p'], { input, encoding: 'utf8', timeout: 600000 });
+    }
     if (res.error) throw new Error(`runLive: ${engine} failed on ${c.id}: ${res.error.message}`);
     if (res.status !== 0) {
       const detail = (res.stderr || res.stdout || `exit ${res.status}`).trim();

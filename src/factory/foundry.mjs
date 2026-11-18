@@ -90,7 +90,10 @@ const pointerTools = (s) => (hasEngine(s) ? ['Edit', 'Write', 'Bash'] : []);
  * content (sha-256 of the text with LF line ends, trimmed), never by its name alone; any other file with the same name is the user's own.
  */
 const STARTER_MARK = 'starter-stub: agentic-harness';
-const STARTER_SHA = { 'spec-writer': ['7fb11973a154c1caa78e5451d023eeb203a62208d6c0066a22d8195319546ebd'] };
+const STARTER_SHA = {
+  'spec-writer': ['7fb11973a154c1caa78e5451d023eeb203a62208d6c0066a22d8195319546ebd'],
+  'ui-craft': ['70dc022a35d83d96feb8e58f4d42adfd202367a4371c396f44d16b513407ad93'],
+};
 export function isStarterStub(name, text) {
   if (text.includes(STARTER_MARK)) return true;
   return (STARTER_SHA[name] ?? []).includes(sha(Buffer.from(text.replace(/\r\n?/g, '\n').trim())));

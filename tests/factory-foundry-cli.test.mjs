@@ -351,3 +351,24 @@ test('Skill Foundry project version is shown by --version, list, doctor and reco
     assert.equal(doctorProject({ project: p }).foundryVersion, pkg.version);
   } finally { process.chdir(cwd); }
 });
+
+test('Agentic-Harness ui-craft starter copy is replaced cleanly without --sync-harness when ui-craft is installed', () => {
+  const root = mkdtempSync(join(tmpdir(), 'sf-uicraft-src-'));
+  mkdirSync(join(root, 'src', 'factory'), { recursive: true });
+  cpSync(join(ROOT, 'src', 'skills', 'ui-craft'), join(root, 'src', 'skills', 'ui-craft'), { recursive: true });
+  writeFileSync(join(root, 'src', 'factory', 'registry.json'), JSON.stringify([
+    { name: 'ui-craft', version: '0.1.0', status: 'ready', roles: ['DEV_ENGINEER', 'UX_DESIGNER'], keywords: ['ui', 'navbar'] },
+  ]));
+  const p = mkdtempSync(join(tmpdir(), 'sf-uicraft-prj-'));
+  const starter = readFileSync(join(ROOT, '.harness', 'skills', 'ui-craft', 'SKILL.md'), 'utf8');
+  const f = join(p, '.harness', 'skills', 'ui-craft', 'SKILL.md');
+  mkdirSync(join(p, '.harness', 'skills', 'ui-craft'), { recursive: true });
+  writeFileSync(f, starter);
+  const r = addSkill('ui-craft', { project: p, root });
+  assert.equal(r.harnessStatus, 'replaced-starter');
+  assert.match(readFileSync(f, 'utf8'), /installed-by: skill-foundry/);
+  assert.match(readFileSync(f, 'utf8'), /roles: \["DEV_ENGINEER","UX_DESIGNER"\]/);
+  assert.equal(readFileSync(`${f}.orig`, 'utf8'), starter);
+  removeSkill('ui-craft', { project: p, root });
+  assert.equal(readFileSync(f, 'utf8'), starter);
+});

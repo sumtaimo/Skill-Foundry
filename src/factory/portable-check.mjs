@@ -9,7 +9,7 @@
  */
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { join, resolve, dirname, relative, sep, isAbsolute } from 'node:path';
+import { join, resolve, dirname, relative, sep, isAbsolute, basename } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
@@ -35,15 +35,22 @@ export function parseStream(stdout, skill) {
     let e; try { e = JSON.parse(line); } catch { continue; }
     if (e.type === 'assistant') for (const b of e.message?.content ?? []) if (b.type === 'tool_use') tools.push({ name: b.name, input: JSON.stringify(b.input) });
     if (e.type === 'result') { final = String(e.result ?? ''); cost = typeof e.total_cost_usd === 'number' ? e.total_cost_usd : null; }
+    if (e.event === 'step_update' && e.step_update?.state === 'ACTIVE' && e.step_update?.step_type === 'tool') {
+      tools.push({ name: e.step_update.tool_name, input: JSON.stringify(e.step_update.tool_info?.parameters ?? {}) });
+    }
+    if (e.event === 'result' && e.result) {
+      final = String(e.result.response ?? e.result.error ?? '');
+    }
   }
   const norm = (s) => s.replace(/\\\\/g, '/').replace(/\\/g, '/');
   const repoNorm = norm(REPO_ROOT);
+  const READ_TOOLS = new Set(['Read', 'Bash', 'read_file', 'view_file', 'find_by_name', 'list_dir', 'grep_search', 'run_command']);
   const usedSkill = tools.some((t) => {
     if (t.name === 'Skill') {
       try { if (JSON.parse(t.input)?.skill === skill) return true; } catch { /* fall through */ }
       return t.input.includes(`"${skill}"`);
     }
-    return (t.name === 'Read' || t.name === 'Bash') && norm(t.input).includes(`.claude/skills/${skill}`); // reading the skill with `cat` counts too
+    return READ_TOOLS.has(t.name) && norm(t.input).includes(`.claude/skills/${skill}`); // reading the skill counts too
   });
   const touchedRepo = tools.filter((t) => {
     const inp = norm(t.input);
@@ -115,11 +122,18 @@ export async function portableCheck(skill, prompt, { out, engine = 'claude', tim
   addSkill(skill, { project: root, force: true });
   writeRules({ project: root });
   const installed = { length: readdirSync(join(root, '.claude', 'skills', skill)).length };
-  const args = ['-p', '--output-format', 'stream-json', '--verbose', '--allowedTools', 'Read', 'Write', 'Edit', 'Glob', 'Grep', 'Skill', 'Bash(node:*)', 'Bash(ls:*)'];
-  const spawnOpts = { cwd: root, input: prompt, encoding: 'utf8', timeout: timeoutMs, maxBuffer: 1 << 28 };
-  const r = process.platform === 'win32'
-    ? spawnSync(winCommandLine(engine, args), { ...spawnOpts, shell: true })
-    : spawnSync(engine, args, spawnOpts);
+  const isAgy = /^agy(?:\.exe)?$/i.test(basename(engine));
+  let r;
+  if (isAgy) {
+    const agyArgs = ['-p', prompt, '--output-format', 'stream-json', '--mode', 'auto', '--disable-slash-commands'];
+    r = spawnSync(engine, agyArgs, { cwd: root, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', timeout: timeoutMs, maxBuffer: 1 << 28 });
+  } else {
+    const args = ['-p', '--output-format', 'stream-json', '--verbose', '--allowedTools', 'Read', 'Write', 'Edit', 'Glob', 'Grep', 'Skill', 'Bash(node:*)', 'Bash(ls:*)'];
+    const spawnOpts = { cwd: root, input: prompt, encoding: 'utf8', timeout: timeoutMs, maxBuffer: 1 << 28 };
+    r = process.platform === 'win32'
+      ? spawnSync(winCommandLine(engine, args), { ...spawnOpts, shell: true })
+      : spawnSync(engine, args, spawnOpts);
+  }
   if (r.error) throw r.error;
   const s = parseStream(r.stdout, skill);
   writeFileSync(join(root, '.portable-check.jsonl'), r.stdout);
