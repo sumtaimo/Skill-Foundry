@@ -7,12 +7,12 @@ import assert from 'node:assert/strict';
 import { readFileSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { runEvals } from '../src/factory/evals.mjs';
 import { lintSkill } from '../src/factory/lint-skills.mjs';
 
 const SCRIPT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'src', 'skills', 'ui-polish', 'engine', 'contrast.mjs');
-const C = await import(SCRIPT);
+const C = await import(pathToFileURL(SCRIPT).href);
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIR = path.join(ROOT, 'src', 'skills', 'ui-polish');
@@ -113,7 +113,7 @@ test('contrast script: exact ratios, never a failing ratio shown as passing, hue
 });
 
 test('contrast script reads tokens.css and design-tokens.json of the design-system skill, light and dark, the same way', async () => {
-  const E = await import(path.join(ROOT, 'src', 'skills', 'design-system', 'engine', 'tokens.mjs'));
+  const E = await import(pathToFileURL(path.join(ROOT, 'src', 'skills', 'design-system', 'engine', 'tokens.mjs')).href);
   const dir = mkdtempSync(path.join(tmpdir(), 'cs-'));
   const r = E.run(['--primary', '#0f766e', '--archetype', 'precise-fintech'], dir);
   assert.equal(r.bad.length, 0);

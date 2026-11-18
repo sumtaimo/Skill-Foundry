@@ -19,7 +19,9 @@ const TYPES = {
   '.css': 'text/css; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
+  '.txt': 'text/plain; charset=utf-8',
   '.svg': 'image/svg+xml',
+  '.png': 'image/png',
   '.zip': 'application/zip',
 };
 
@@ -48,7 +50,9 @@ export function serve(root, port) {
     if (existsSync(file) && statSync(file).isDirectory()) file = join(file, 'index.html');
     if (!existsSync(file)) { res.writeHead(404); res.end('not found'); return; }
     res.writeHead(200, { 'content-type': TYPES[extname(file)] || 'application/octet-stream', 'cache-control': 'no-store' });
-    createReadStream(file).pipe(res);
+    const stream = createReadStream(file);
+    stream.on('error', () => { if (!res.headersSent) res.writeHead(500); res.end(); });
+    stream.pipe(res);
   }).listen(port, '127.0.0.1');
 }
 
@@ -78,10 +82,13 @@ export async function dev({ port = 4173, out = join(REPO_ROOT, 'dist', 'site') }
       if (again) { again = false; rebuild(); }
     }
   };
-  watch(join(REPO_ROOT, 'src'), { recursive: true }, () => {
-    clearTimeout(timer);
-    timer = setTimeout(rebuild, 150);
-  });
+  for (const dir of [join(REPO_ROOT, 'src'), join(REPO_ROOT, 'runs')]) {
+    if (!existsSync(dir)) continue;
+    watch(dir, { recursive: true }, () => {
+      clearTimeout(timer);
+      timer = setTimeout(rebuild, 150);
+    });
+  }
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === HERE) {

@@ -39,9 +39,10 @@ test('buildDemo output matches committed files byte for byte', async () => {
   const { demoHtml, coverSvg } = buildDemo();
   assert.equal(typeof demoHtml, 'string');
   assert.equal(typeof coverSvg, 'string');
-  assert.equal(demoHtml, readFileSync(join(ROOT, 'examples', 'demo.html'), 'utf8'));
-  assert.equal(demoHtml, readFileSync(join(ROOT, 'preview', 'example.html'), 'utf8'));
-  assert.equal(coverSvg, readFileSync(join(ROOT, 'preview', 'cover.svg'), 'utf8'));
+  const lf = (s) => s.replace(/\r\n/g, '\n');
+  assert.equal(demoHtml, lf(readFileSync(join(ROOT, 'examples', 'demo.html'), 'utf8')));
+  assert.equal(demoHtml, lf(readFileSync(join(ROOT, 'preview', 'example.html'), 'utf8')));
+  assert.equal(coverSvg, lf(readFileSync(join(ROOT, 'preview', 'cover.svg'), 'utf8')));
 });
 
 test('demo html has no leader-end dots or markers', () => {

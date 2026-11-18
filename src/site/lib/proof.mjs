@@ -44,21 +44,24 @@ export function loadProof(skillDir, { showcase } = {}) {
  * @param {string} skillDir @param {string} [caseId]
  * @returns {{css:string, caseId:string, prompt:string, answer:string, run:string, sha256:string}|null}
  */
-export function loadTokens(skillDir, caseId) {
+export function loadTokens(skillDir, caseId, runsRoot = resolve(skillDir, '..', '..', '..', 'runs')) {
   if (typeof caseId !== 'string' || !caseId) return null;
   const p = join(skillDir, 'evals', 'live', `${caseId}.json`);
   if (!existsSync(p)) return null;
   const rec = JSON.parse(readFileSync(p, 'utf8'));
   if (typeof rec.run !== 'string' || !/^runs\/[a-z0-9-]+\/[0-9a-f]+$/.test(rec.run)) return null;
   if (!scoreLive(skillDir).results.find((r) => r.id === caseId)?.ok) return null;
-  const runDir = join(resolve(skillDir, '..', '..', '..'), rec.run);
+  const runDir = join(runsRoot, rec.run.replace(/^runs\//, ''));
   const mp = join(runDir, 'manifest.json'); const cp = join(runDir, 'output', 'tokens.css');
   if (!existsSync(mp) || !existsSync(cp)) return null;
   const m = JSON.parse(readFileSync(mp, 'utf8'));
-  const css = readFileSync(cp, 'utf8');
-  const sha256 = createHash('sha256').update(readFileSync(cp)).digest('hex');
-  if (m.status !== 'pass' || !m.files?.some((f) => f.path === 'tokens.css' && f.sha256 === sha256)) return null;
-  return { css, caseId, prompt: String(rec.prompt), answer: String(rec.output ?? ''), run: rec.run, sha256 };
+  const raw = readFileSync(cp);
+  const css = raw.toString('utf8');
+  const rawSha = createHash('sha256').update(raw).digest('hex');
+  const lfSha = createHash('sha256').update(Buffer.from(css.replace(/\r\n/g, '\n'), 'utf8')).digest('hex');
+  const expected = m.status === 'pass' ? m.files?.find((f) => f.path === 'tokens.css')?.sha256 : null;
+  if (!expected || (expected !== rawSha && expected !== lfSha)) return null;
+  return { css, caseId, prompt: String(rec.prompt), answer: String(rec.output ?? ''), run: rec.run, sha256: expected };
 }
 
 const x = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -105,7 +108,7 @@ export function docFigure(proof, { askLabel = 'Request', moreLabel = 'continues 
   const ask = askAll.length > 2 ? [askAll[0], `${askAll[1].slice(0, 40)}…`] : askAll;
   const { lines, cut } = figureLines(proof.answer);
   const askTop = 52; const bodyTop = showAsk ? askTop + ask.length * 14 + 26 : 34;
-  const H = bodyTop + lines.length * lh + (cut ? lh + 6 : 0) + pad;
+  const H = bodyTop + lines.length * lh + (cut ? lh + 6 : 0) + pad + 26; // extra room for the bottom cover tag pill
   const fold = 22;
   const sheet = `M${pad} 10 H${W - pad - fold} L${W - pad} ${10 + fold} V${H - 6} H${pad} Z`;
   const text = (ty, s, cls) => `<text x="${pad + 16}" y="${ty}" class="${cls}">${x(s)}</text>`;

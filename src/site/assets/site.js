@@ -52,6 +52,11 @@
       var pk = ph[q].getAttribute('data-i18n-placeholder');
       if (typeof dict[pk] === 'string') ph[q].setAttribute('placeholder', dict[pk]);
     }
+    var ar = document.querySelectorAll('[data-i18n-aria]');
+    for (var r = 0; r < ar.length; r++) {
+      var ak = ar[r].getAttribute('data-i18n-aria');
+      if (typeof dict[ak] === 'string') ar[r].setAttribute('aria-label', dict[ak]);
+    }
     syncButtons();
   }
 
@@ -87,12 +92,15 @@
 
   function flash(btn, ok) {
     var label = btn.querySelector('[data-i18n]');
-    var prevKey = label ? label.getAttribute('data-i18n') : null;
+    if (!btn._origCopyKey && label) btn._origCopyKey = label.getAttribute('data-i18n');
+    if (btn._flashTimer) window.clearTimeout(btn._flashTimer);
+    btn.classList.remove('done', 'fail');
     btn.classList.add(ok ? 'done' : 'fail');
     if (label) { label.setAttribute('data-i18n', ok ? 'copy.done' : 'copy.fail'); label.textContent = text(ok ? 'copy.done' : 'copy.fail'); }
-    window.setTimeout(function () {
+    btn._flashTimer = window.setTimeout(function () {
+      btn._flashTimer = 0;
       btn.classList.remove('done', 'fail');
-      if (label && prevKey) { label.setAttribute('data-i18n', prevKey); label.textContent = text(prevKey); }
+      if (label && btn._origCopyKey) { label.setAttribute('data-i18n', btn._origCopyKey); label.textContent = text(btn._origCopyKey); }
     }, 1600);
   }
 
@@ -235,7 +243,9 @@
     var id = (location.hash || '').slice(1);
     var el = id ? document.getElementById(id) : null;
     var d = el && (el.tagName === 'DETAILS' ? el : el.closest('details'));
-    if (d) { d.open = true; el.scrollIntoView(); }
+    var opened = false;
+    while (d) { d.open = true; opened = true; d = d.parentElement ? d.parentElement.closest('details') : null; }
+    if (opened) el.scrollIntoView();
   }
   window.addEventListener('hashchange', openHash);
   openHash();

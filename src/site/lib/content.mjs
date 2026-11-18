@@ -55,14 +55,14 @@ export function latestRun(runsRoot, name, version, caseId) {
   for (const { m, runDir } of runs) {
     const html = m.files.map((f) => f.path).find((f) => f.endsWith('.html'));
     const svgFile = m.files.map((f) => f.path).find((f) => f.endsWith('.svg'));
-    if (!html) continue;
+    if (!html && !svgFile) continue;
     let svg = null;
     if (svgFile) { try { svg = sanitizeSvg(readFileSync(join(runDir, 'output', svgFile), 'utf8')); } catch { svg = null; } }
     const inputPath = join(runDir, 'input.md');
     return {
       key: String(m.key).slice(0, 8),
       input: existsSync(inputPath) ? readFileSync(inputPath, 'utf8').trim().replace(/\s+/g, ' ') : '',
-      htmlPath: join(runDir, 'output', html),
+      htmlPath: html ? join(runDir, 'output', html) : null,
       svg,
       files: m.files.map((f) => f.path).sort(),
     };
@@ -124,7 +124,7 @@ export function loadSkills(root, opts = {}) {
       // drawn as the object it stands for (or a document), else the hand-drawn preview cover, which is then labelled as a concept.
       const proof = loadProof(dir, { showcase: typeof r.showcase === 'string' ? r.showcase : undefined });
       // design-system draws the colours of the tokens.css a fresh agent wrote in its pinned live case
-      const tokens = proof && (KINDS[r.name] ?? []).includes('swatches') ? loadTokens(dir, typeof r.showcase === 'string' ? r.showcase : undefined) : null;
+      const tokens = proof && (KINDS[r.name] ?? []).includes('swatches') ? loadTokens(dir, typeof r.showcase === 'string' ? r.showcase : undefined, runsRoot) : null;
       if (tokens) proof.tokens = tokens;
       const coverKind = run?.svg ? 'run' : proof ? 'proof' : 'concept';
       const coverSvg = coverKind === 'run' ? run.svg
@@ -145,7 +145,7 @@ export function loadSkills(root, opts = {}) {
         status: r.status,
         title: String(preview.title ?? r.name),
         tagline: String(preview.tagline ?? ''),
-        prompt: run?.input || proof?.prompt || String(preview.prompt ?? ''),
+        prompt: (coverKind === 'run' ? run?.input : proof?.prompt) || run?.input || String(preview.prompt ?? ''),
         outputs: Array.isArray(preview.outputs) ? preview.outputs.map(String) : [],
         tags: Array.isArray(preview.tags) ? preview.tags.map(String) : [],
         coverSvg,
@@ -158,10 +158,10 @@ export function loadSkills(root, opts = {}) {
         rules: { total: rules.length, machine, checklist },
         changelog: existsSync(join(dir, 'CHANGELOG.md')) ? read('CHANGELOG.md').replace(/\r\n?/g, '\n') : '',
         files: listFiles(dir).sort(),
-        example: !!run || existsSync(previewExample),
-        exampleSrc: run ? run.htmlPath : existsSync(previewExample) ? previewExample : null,
-        // reference: the recorded output is byte for byte the figure the skill ships as its example
-        run: run ? { key: run.key, files: run.files, reference: existsSync(previewExample) && readFileSync(run.htmlPath).equals(readFileSync(previewExample)) } : null, // a recorded real run; null means the cover and example are the skill's own demo
+        example: !!run?.htmlPath || existsSync(previewExample),
+        exampleSrc: run?.htmlPath ? run.htmlPath : existsSync(previewExample) ? previewExample : null,
+        // reference: the recorded output is byte for byte (ignoring CRLF checkout differences) the figure the skill ships as its example
+        run: run ? { key: run.key, files: run.files, reference: !!run.htmlPath && existsSync(previewExample) && readFileSync(run.htmlPath, 'utf8').replace(/\r\n/g, '\n') === readFileSync(previewExample, 'utf8').replace(/\r\n/g, '\n') } : null, // a recorded real run; null means the cover and example are the skill's own demo
         zipBytes: 0, // size of the packed zip; buildSite fills it after packAll
       };
     })

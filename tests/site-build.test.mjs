@@ -47,6 +47,8 @@ test('draft skills get no page', async () => {
   await buildSite({ root, out });
   assert.equal(existsSync(join(out, 'skills', name)), false);
   for (const f of htmlFiles(out)) assert.ok(!readFileSync(f, 'utf8').includes(`skills/${name}/`), f);
+  const sums = JSON.parse(readFileSync(join(out, 'downloads', 'checksums.json'), 'utf8'));
+  assert.equal(Object.keys(sums).some((k) => k.startsWith(`${name}-`)), false, 'draft skill gets no download zip');
 });
 
 test('download links exist and data-sha256 matches checksums and file', async () => {

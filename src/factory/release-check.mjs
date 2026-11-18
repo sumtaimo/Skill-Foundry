@@ -24,11 +24,15 @@ export const GATES = [
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   let bad = 0;
   for (const [name, cmd, args] of GATES) {
-    const r = spawnSync(cmd, args, { cwd: ROOT, encoding: 'utf8', env: { ...process.env, NODE_NO_WARNINGS: '1' } });
+    const winNpm = process.platform === 'win32' && cmd === 'npm';
+    const r = spawnSync(winNpm ? 'cmd.exe' : cmd, winNpm ? ['/c', cmd, ...args] : args, { cwd: ROOT, encoding: 'utf8', env: { ...process.env, NODE_NO_WARNINGS: '1' } });
     const ok = r.status === 0;
     if (!ok) bad++;
     console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}`);
-    if (!ok) console.log((r.stdout + r.stderr).trim().split('\n').slice(-8).map((l) => `      ${l}`).join('\n'));
+    if (!ok) {
+      const msg = `${r.stdout ?? ''}${r.stderr ?? ''}${r.error ? `\n${r.error.message}` : ''}`.trim();
+      if (msg) console.log(msg.split('\n').slice(-8).map((l) => `      ${l}`).join('\n'));
+    }
   }
   console.log(bad ? `\nNOT READY: ${bad} gate(s) failed. Fix them; do not ask for a merge.` : '\nREADY: all gates pass. Ask TAIMO in chat to approve the merge to master.');
   process.exitCode = bad ? 1 : 0;

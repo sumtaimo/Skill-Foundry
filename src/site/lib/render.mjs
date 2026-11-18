@@ -178,7 +178,7 @@ export function renderLayout(o) {
 <a class="skip" href="#main">${t('skip')}</a>
 <header class="top">
 <a class="brand" href="${up}index.html">Skill Foundry</a>
-<nav class="tools" aria-label="${esc(EN['nav.label'])}">
+<nav class="tools" aria-label="${esc(EN['nav.label'])}" data-i18n-aria="nav.label">
 <a href="${up}index.html#collection">${t('nav.collection')}</a>
 ${local.proof ? `<a href="${local.proof}">${t('nav.proof')}</a>\n` : ''}<a href="${local.install ?? `${up}index.html#install`}">${t('nav.install')}</a>
 <a href="${up}index.html#agents">${t('nav.agents')}</a>
@@ -418,7 +418,8 @@ const inline = (s) => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>');
 
 /** Where "see the full result" goes: the recorded interactive run when there is one, else the word-for-word answer. */
 export function fullResultHref(skill, up = '') {
-  return skill.example ? `${up}skills/${skill.name}/example.html` : `${up}skills/${skill.name}/index.html#answer`;
+  if (skill.example) return `${up}skills/${skill.name}/example.html`;
+  return `${up}skills/${skill.name}/index.html${skill.proof ? '#answer' : ''}`;
 }
 
 const SECTIONS = [
@@ -454,7 +455,7 @@ ${facts}
 ${liveLine(s)}
 <p class="hero-actions"><a class="btn primary" href="#install">${t('skill.cta')}</a></p>
 </header>
-<nav class="qbar" aria-label="${esc(EN['toc.label'])}">
+<nav class="qbar" aria-label="${esc(EN['toc.label'])}" data-i18n-aria="toc.label">
 <div class="qbar-tabs">
 ${toc}
 </div>

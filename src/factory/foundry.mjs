@@ -142,7 +142,8 @@ export function addSkill(name, { project = process.cwd(), root = REPO, force = f
   const old = existsSync(stampPath) ? JSON.parse(readFileSync(stampPath, 'utf8')) : null;
   if (existsSync(target) && !old && !force) throw new Error(`${target} exists and was not installed by skill-foundry (use --force)`);
   const ptr = () => { const p = harnessPointer(project, s, { syncHarness }); return { harness: p && p.status !== 'collision' ? p.path : null, harnessStatus: p?.status ?? null, harnessPath: p?.path ?? null }; };
-  if (old && old.hash === total(src)) return { name, action: 'current', kept: [], ...ptr() };
+  const locallyModified = old && Object.entries(old.files ?? {}).some(([f, h]) => !existsSync(join(target, f)) || sha(readFileSync(join(target, f))) !== h);
+  if (old && old.hash === total(src) && !(force && locallyModified)) return { name, action: 'current', kept: [], ...ptr() };
   const kept = [];
   for (const f of Object.keys(src)) {
     const to = join(target, f);
@@ -153,6 +154,7 @@ export function addSkill(name, { project = process.cwd(), root = REPO, force = f
     mkdirSync(dirname(to), { recursive: true });
     copyFileSync(join(s.dir, f), to);
   }
+  for (const f of Object.keys(old?.files ?? {})) if (!(f in src) && !kept.includes(f)) rmSync(join(target, f), { force: true });
   writeFileSync(stampPath, JSON.stringify({ name, version: s.version, hash: total(src), source: 'github:sumtaimo/Skill-Foundry', files: src }, null, 2) + '\n');
   return { name, action: old ? 'updated' : 'added', kept, ...ptr() };
 }
@@ -183,7 +185,7 @@ export function writeRules({ project = process.cwd(), root = REPO } = {}) {
   const file = join(project, 'AGENTS.md');
   const old = existsSync(file) ? readFileSync(file, 'utf8') : '';
   const i = old.indexOf(BEGIN); const j = old.indexOf(END);
-  const next = i >= 0 && j > i ? old.slice(0, i) + block + old.slice(j + END.length).replace(/^\n/, '') : (old ? `${old.replace(/\n*$/, '\n\n')}${block}` : `# AGENTS.md\n\n${block}`);
+  const next = i >= 0 && j > i ? old.slice(0, i) + block + old.slice(j + END.length).replace(/^\r?\n/, '') : (old ? `${old.replace(/(?:\r?\n)*$/, '\n\n')}${block}` : `# AGENTS.md\n\n${block}`);
   if (next !== old) writeFileSync(file, next);
   return { file: 'AGENTS.md', skills };
 }
@@ -299,7 +301,7 @@ export function doctorProject({ project = process.cwd(), root = REPO } = {}) {
     const md = existsSync(f) ? readFileSync(f, 'utf8') : '';
     const i = md.indexOf(BEGIN); const j = md.indexOf(END);
     if (i < 0 || j < i) add('warn', 'AGENTS.md', 'no skill-foundry block: agents that do not load .claude/skills/ will not know the skills', `${CLI} update   (writes the block; text outside it is never touched)`);
-    else if (md.slice(i, j + END.length) !== rulesBlock({ project, root }).block.trimEnd()) add('warn', 'AGENTS.md', 'the skill-foundry block is old or lists other skills than are installed', `${CLI} update`);
+    else if (md.slice(i, j + END.length).replace(/\r\n?/g, '\n') !== rulesBlock({ project, root }).block.trimEnd()) add('warn', 'AGENTS.md', 'the skill-foundry block is old or lists other skills than are installed', `${CLI} update`);
     else add('ok', 'AGENTS.md', 'skill-foundry block is current');
   }
 

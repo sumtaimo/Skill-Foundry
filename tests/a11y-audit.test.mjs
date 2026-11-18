@@ -9,13 +9,13 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { runEvals } from '../src/factory/evals.mjs';
 import { lintSkill } from '../src/factory/lint-skills.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIR = path.join(ROOT, 'src', 'skills', 'a11y-audit');
-const E = await import(path.join(DIR, 'engine', 'audit.mjs'));
+const E = await import(pathToFileURL(path.join(DIR, 'engine', 'audit.mjs')).href);
 const NOCODE = 'Paste the HTML or JSX you want audited.';
 const VISUAL = 'Contrast, focus-ring style, spacing and target size are checked by ui-polish, not by this skill.';
 const FLOW = 'This skill does not judge the flow or usability; it checks only what users cannot see.';

@@ -9,13 +9,13 @@ import { readFileSync, mkdtempSync, writeFileSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { runEvals } from '../src/factory/evals.mjs';
 import { lintSkill } from '../src/factory/lint-skills.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIR = path.join(ROOT, 'src', 'skills', 'design-system');
-const E = await import(path.join(DIR, 'engine', 'tokens.mjs'));
+const E = await import(pathToFileURL(path.join(DIR, 'engine', 'tokens.mjs')).href);
 const ASK = 'Give me a brand colour as a hex code (for example #2563eb), a few words about the style you want, or the path to your existing design tokens.';
 const SCREEN = 'This skill builds design tokens, not screens. For finished screen code, use ui-polish.';
 const EXISTING = /:root \{[\s\S]*?\n\}/.exec(JSON.parse(readFileSync(path.join(DIR, 'evals', 'cases.json'), 'utf8')).find((c) => c.id === 'existing-gaps').prompt)[0];

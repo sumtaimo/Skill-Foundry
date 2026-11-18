@@ -65,7 +65,7 @@ const draw = {
       list.forEach((sw, i) => {
         const sx = 22 + i * w;
         body += `<rect x="${sx.toFixed(1)}" y="${y}" width="${(w + 0.4).toFixed(1)}" height="26" fill="${sw.hex}"/>`;
-        if (mark && sw.hex === mark) body += `<path d="M${(sx + w / 2).toFixed(1)} ${y + 31} l-4 5 h8 Z" fill="var(--fg)"/>`;
+        if (mark && sw.hex.toLowerCase() === mark.toLowerCase()) body += `<path d="M${(sx + w / 2).toFixed(1)} ${y + 31} l-4 5 h8 Z" fill="var(--fg)"/>`;
       });
       body += `<rect x="22" y="${y}" width="${W - 44}" height="26" fill="none" stroke="var(--line-strong)" stroke-width="0.6"/>`;
       body += T(22, y + 46, list[0].step, 's') + `<text x="${W - 22}" y="${y + 46}" class="s" text-anchor="end">${x(list.at(-1).step)}</text>`;
@@ -87,7 +87,7 @@ const draw = {
       let b = T(px0, y + 8, label, 'obj-label');
       const py = y + 14; const ph = 132;
       b += `<path d="${rr(px0, py, pw, ph, 8)}" fill="${m['surface-default']}" stroke="${m['border-default']}" stroke-width="1"/>`;
-      b += fillText(px0 + 12, py + 26, name ?? 'text-default', m['text-default'], 'obj-tok big-t');
+      b += fillText(px0 + 12, py + 26, (name && name.length > 16 ? name.slice(0, 16) : name) ?? 'text-default', m['text-default'], 'obj-tok big-t');
       b += fillText(px0 + 12, py + 44, 'text-muted', m['text-muted']);
       b += `<path d="${rr(px0 + 12, py + 58, pw - 24, 28, 6)}" fill="${m['action-primary-bg']}"/>` + fillText(px0 + pw / 2, py + 76, 'primary', m['action-primary-text'], 'obj-tok b-t', 'middle');
       b += `<path d="${rr(px0 + 12, py + 94, pw - 24, 28, 6)}" fill="${m['surface-default']}" stroke="${m['action-secondary-border']}" stroke-width="1.4"/>` + fillText(px0 + pw / 2, py + 112, 'secondary', m['action-secondary-text'], 'obj-tok b-t', 'middle');
@@ -164,8 +164,9 @@ const draw = {
  */
 export function resolveTokens(css) {
   const blocks = {};
-  for (const m of String(css).replace(/\r\n?/g, '\n').matchAll(/(?:^|\n)(:root(?:\[data-theme="(?:light|dark)"\])?) \{\n([\s\S]*?)\n\}/g)) {
-    const decl = blocks[m[1]] ??= {};
+  for (const m of String(css).replace(/\r\n?/g, '\n').matchAll(/(?:^|\n)(:root(?:\[data-theme=["']?(?:light|dark)["']?\])?)\s*\{([\s\S]*?)\n?\}/g)) {
+    const k = m[1].replace(/\[data-theme=["']?(light|dark)["']?\]/, '[data-theme="$1"]');
+    const decl = blocks[k] ??= {};
     for (const d of m[2].matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)) decl[d[1]] = d[2].trim();
   }
   const light = { ...(blocks[':root'] ?? {}), ...(blocks[':root[data-theme="light"]'] ?? {}) };

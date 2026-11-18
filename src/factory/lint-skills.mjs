@@ -127,7 +127,7 @@ export async function lintSkill(skillDir, { testsDir } = {}) {
     const text = await readText(join(dir, rel));
     if (text === null) add(rel, 1, 'chk-layers', `missing core layer ${rel}`);
     else if (!/^\s*\d+\.\s+\S/m.test(text)) add(rel, 1, 'chk-layers', `${rel} has no numbered steps`);
-    if (skill !== null && !skill.includes(`(${rel})`)) add('SKILL.md', 1, 'chk-layers', `SKILL.md does not link ${rel}`);
+    if (skill !== null && !skill.includes(`(${rel})`) && !skill.includes(`(./${rel})`)) add('SKILL.md', 1, 'chk-layers', `SKILL.md does not link ${rel}`);
   }
 
   // Portable: a skill other people install must not depend on this repository's folders
@@ -153,9 +153,11 @@ export async function lintSkill(skillDir, { testsDir } = {}) {
     while ((m = re.exec(text))) {
       const target = m[1];
       if (/^(https?:|mailto:|#)/i.test(target)) continue;
-      const clean = decodeURIComponent(target.split('#')[0].split('?')[0]);
-      if (!clean) continue;
       const line = lineOf(text, m.index);
+      let clean;
+      try { clean = decodeURIComponent(target.split('#')[0].split('?')[0]); }
+      catch { add(rel, line, 'chk-links', `link ${target} is not valid URL encoding`); continue; }
+      if (!clean) continue;
       if (/^[a-z]+:/i.test(clean) || isAbsolute(clean) || clean.startsWith('//')) {
         add(rel, line, 'chk-links', `link ${target} must be relative inside the skill folder`);
         continue;

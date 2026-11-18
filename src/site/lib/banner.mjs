@@ -15,15 +15,15 @@ export const BANNER_H = 640;
 export const TEXT_MAX = 560;
 export const fitSize = (text, max, perEm, width = TEXT_MAX) => Math.max(10, Math.min(max, Math.floor(width / (String(text).length * perEm))));
 
-const LIGHT = '--bg:#f9f9f8;--surface:#ffffff;--surface2:#f2f2f0;--line:#e8e8e5;--line-strong:#d4d4d0;--fg:#1d1d1b;--muted:#6f6f6b;--faint:#9c9c97';
-const DARK = '--bg:#141413;--surface:#1b1b1a;--surface2:#222220;--line:#2c2c2a;--line-strong:#3a3a37;--fg:#ecebe7;--muted:#a3a29d;--faint:#75746f';
+const LIGHT = '--bg:#f9f9f8;--surface:#ffffff;--surface2:#f2f2f0;--line:#e8e8e5;--line-strong:#d4d4d0;--fg:#1d1d1b;--muted:#62625e;--faint:#6a6a66';
+const DARK = '--bg:#141413;--surface:#1b1b1a;--surface2:#222220;--line:#2c2c2a;--line-strong:#3a3a37;--fg:#ecebe7;--muted:#a3a29d;--faint:#9a9994';
 
 /** The inner <svg> of the cover, placed into a box, keeping its own viewBox (and its own styles). */
 function placeCover(coverSvg, bx, by, bw, bh) {
   const m = /^<svg\b([^>]*)>([\s\S]*)<\/svg>\s*$/.exec(String(coverSvg).trim());
   if (!m) return '';
-  const vb = /viewBox="([^"]+)"/.exec(m[1])?.[1] ?? `0 0 ${bw} ${bh}`;
-  const cls = /class="([^"]+)"/.exec(m[1])?.[1];
+  const vb = /viewBox=["']([^"']+)["']/.exec(m[1])?.[1] ?? `0 0 ${bw} ${bh}`;
+  const cls = /class=["']([^"']+)["']/.exec(m[1])?.[1];
   return `<svg x="${bx}" y="${by}" width="${bw}" height="${bh}" viewBox="${vb}" preserveAspectRatio="xMidYMid meet"${cls ? ` class="${cls}"` : ''}>${m[2]}</svg>`;
 }
 
@@ -48,7 +48,7 @@ export function bannerSvg(s, { standalone = false } = {}) {
     `<rect width="${W}" height="${H}" fill="var(--bg)"/>` +
     `<rect x="680" y="40" width="560" height="560" rx="28" fill="var(--surface2)" stroke="var(--line)"/>` +
     placeCover(s.coverSvg, 712, 72, 496, 476) +
-    `<rect x="704" y="556" width="${real.length * 8.4 + 40}" height="30" rx="15" fill="var(--surface)" stroke="var(--line-strong)"/>` +
+    `<rect x="704" y="556" width="${Math.ceil(real.length * 10.2 + 44)}" height="30" rx="15" fill="var(--surface)" stroke="var(--line-strong)"/>` +
     `<circle cx="722" cy="571" r="4" fill="var(--fg)"/>` +
     `<text x="734" y="576" class="bn-t" font-size="15">${x(real)}</text>` +
     `<text x="${L}" y="96" class="bn-m" font-size="16" fill="var(--muted)" letter-spacing="2">SKILL FOUNDRY</text>` +

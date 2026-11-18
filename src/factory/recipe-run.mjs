@@ -15,6 +15,7 @@ import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { installSkill } from './install.mjs';
 import { parseStream, behaviourHash, REPO_MARKERS } from './portable-check.mjs';
+import { isQuotaError } from './live-evals.mjs';
 
 const HERE = fileURLToPath(import.meta.url);
 const REPO_ROOT = resolve(dirname(HERE), '..', '..');
@@ -40,8 +41,9 @@ export function loadRecipes(root = REPO_ROOT) {
 export function skillsUsed(tools, names) {
   const order = [];
   for (const t of tools) {
+    const inp = t.input.replace(/\\\\/g, '/').replace(/\\/g, '/');
     for (const n of names) {
-      const hit = (t.name === 'Skill' && t.input.includes(`"${n}"`)) || t.input.includes(`.claude/skills/${n}/`);
+      const hit = (t.name === 'Skill' && t.input.includes(`"${n}"`)) || inp.includes(`.claude/skills/${n}/`);
       if (hit && !order.includes(n)) order.push(n);
     }
   }
@@ -70,6 +72,7 @@ export function checkRecipe(recipe, root = REPO_ROOT) {
   if ((rec.touchedRepo ?? []).length) problems.push('the agent touched this repository');
   if (rec.exit !== 0) problems.push(`the agent run exited with ${rec.exit}`);
   if (typeof rec.answer !== 'string' || !rec.answer.trim()) problems.push('no answer');
+  else if (isQuotaError(rec.answer)) problems.push('quota/limit error recorded instead of agent answer, record again');
   if (rec.prompt !== recipe.prompt) problems.push('stale: the recipe prompt changed');
   else if (rec.hash !== recipeHash(recipe, root)) problems.push('stale: a skill in the recipe changed, record it again');
   return { ok: problems.length === 0, problems, rec };
@@ -80,7 +83,7 @@ export async function runRecipe(recipe, { engine = 'claude', timeoutMs = 900000 
   const dir = mkdtempSync(join(tmpdir(), `recipe-${recipe.id}-`));
   for (const s of recipe.skills) await installSkill(s, { projectRoot: dir, force: true });
   const r = spawnSync(engine, ['-p', '--output-format', 'stream-json', '--verbose', '--allowedTools', 'Read', 'Write', 'Edit', 'Glob', 'Grep', 'Skill', 'Bash(node:*)', 'Bash(ls:*)'],
-    { cwd: dir, input: recipe.prompt, encoding: 'utf8', timeout: timeoutMs, maxBuffer: 1 << 28 });
+    { cwd: dir, input: recipe.prompt, encoding: 'utf8', shell: process.platform === 'win32', timeout: timeoutMs, maxBuffer: 1 << 28 });
   if (r.error) throw r.error;
   const s = parseStream(r.stdout, recipe.skills[0]);
   return { id: recipe.id, prompt: recipe.prompt, project: dir, exit: r.status, used: skillsUsed(s.tools, recipe.skills), leakedRepoRules: REPO_MARKERS.test(s.final), touchedRepo: s.touchedRepo, cost: s.cost, answer: s.final };
@@ -88,20 +91,28 @@ export async function runRecipe(recipe, { engine = 'claude', timeoutMs = 900000 
 
 if (process.argv[1] && resolve(process.argv[1]) === HERE) {
   const a = process.argv.slice(2);
-  const id = a.find((x) => !x.startsWith('--'));
   const i = a.indexOf('--engine');
+  const engine = i >= 0 && a[i + 1] && !a[i + 1].startsWith('--') ? a[i + 1] : 'claude';
+  const id = a.find((x, idx) => !x.startsWith('--') && (i < 0 || idx !== i + 1));
   try {
     const recipe = loadRecipes().find((r) => r.id === id);
     if (!recipe) throw new Error(`usage: recipe-run.mjs <recipe-id> [--record]; ids: ${loadRecipes().map((r) => r.id).join(', ')}`);
-    const r = await runRecipe(recipe, { engine: i >= 0 ? a[i + 1] : 'claude' });
+    const r = await runRecipe(recipe, { engine });
+    const quota = isQuotaError(r.answer);
+    const missing = recipe.skills.filter((s) => !(r.used ?? []).includes(s));
+    const pass = r.exit === 0 && missing.length === 0 && !r.leakedRepoRules && r.touchedRepo.length === 0 && !quota && Boolean(String(r.answer ?? '').trim());
     if (a.includes('--record')) {
-      const rec = { id: r.id, title: recipe.title, prompt: r.prompt, recordedAt: new Date().toISOString().slice(0, 10), agent: `${i >= 0 ? a[i + 1] : 'claude'} -p in an empty project outside the repository, with ${recipe.skills.join(', ')} installed`, hash: recipeHash(recipe), exit: r.exit, used: r.used, leakedRepoRules: r.leakedRepoRules, touchedRepo: r.touchedRepo, cost: r.cost, answer: r.answer.slice(0, 12000) };
-      writeFileSync(join(REPO_ROOT, 'src', 'factory', 'recipes', `${r.id}.json`), JSON.stringify(rec, null, 2) + '\n');
-      console.log(`recorded src/factory/recipes/${r.id}.json`);
+      if (!pass) {
+        console.error(`refused to save src/factory/recipes/${r.id}.json (${quota ? 'quota/limit error' : 'recipe run failed'}); existing recording kept`);
+      } else {
+        const rec = { id: r.id, title: recipe.title, prompt: r.prompt, recordedAt: new Date().toISOString().slice(0, 10), agent: `${engine} -p in an empty project outside the repository, with ${recipe.skills.join(', ')} installed`, hash: recipeHash(recipe), exit: r.exit, used: r.used, leakedRepoRules: r.leakedRepoRules, touchedRepo: r.touchedRepo, cost: r.cost, answer: r.answer.slice(0, 12000) };
+        writeFileSync(join(REPO_ROOT, 'src', 'factory', 'recipes', `${r.id}.json`), JSON.stringify(rec, null, 2) + '\n');
+        console.log(`recorded src/factory/recipes/${r.id}.json`);
+      }
     }
     const { answer, ...rest } = r;
     console.log(JSON.stringify(rest, null, 2));
     console.log('\nANSWER:\n' + answer);
-    process.exit(checkRecipe(recipe).ok || !a.includes('--record') ? 0 : 1);
+    process.exit(pass && (!a.includes('--record') || checkRecipe(recipe).ok) ? 0 : 1);
   } catch (e) { console.error(e.message); process.exit(2); }
 }

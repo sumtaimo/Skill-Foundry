@@ -35,12 +35,14 @@ export async function listFiles(dir) {
   return out.sort();
 }
 
+const normLf = (buf) => (buf.includes(0) ? buf : Buffer.from(buf.toString('utf8').replace(/\r\n/g, '\n'), 'utf8'));
+
 /** Hash of every file in the skill folder (names and contents). @param {string} skillDir */
 export async function skillHash(skillDir) {
   const h = createHash('sha256');
   for (const f of await listFiles(skillDir)) {
-    if (f.startsWith('evals/live/')) continue; // recordings of earlier runs are not part of the skill an agent follows
-    h.update(f).update('\0').update(await readFile(join(skillDir, f))).update('\0');
+    if (f.startsWith('evals/live/') || f === 'evals/portable.json') continue; // recordings of earlier runs are not part of the skill an agent follows
+    h.update(f).update('\0').update(normLf(await readFile(join(skillDir, f)))).update('\0');
   }
   return h.digest('hex');
 }
@@ -126,7 +128,7 @@ export async function claudeRunner({ prompt, outputDir, skillDir }) {
     '-p', '--output-format', 'json',
     '--add-dir', skillDir,
     '--allowedTools', 'Read', 'Glob', 'Grep', 'Write', 'Edit', 'Bash(node:*)',
-  ], { cwd: outputDir, input: prompt });
+  ], { cwd: outputDir, input: prompt, shell: process.platform === 'win32' });
   let report = r.stdout;
   let costUsd = null;
   let usage = null;
@@ -139,10 +141,18 @@ export async function claudeRunner({ prompt, outputDir, skillDir }) {
   return { code: r.code, report, costUsd, usage, stderr: r.stderr.slice(-2000) };
 }
 
+function findSh() {
+  if (process.platform !== 'win32') return 'sh';
+  for (const p of ['C:\\Program Files\\Git\\bin\\sh.exe', 'C:\\Program Files\\Git\\usr\\bin\\sh.exe']) {
+    if (existsSync(p)) return p;
+  }
+  return 'sh';
+}
+
 /** Runner from a shell command string (for other engines and for tests). */
 export function commandRunner(command) {
   return async ({ promptFile, outputDir, skillDir }) => {
-    const r = await sh('sh', ['-c', command], {
+    const r = await sh(findSh(), ['-c', command], {
       cwd: outputDir,
       env: { ...process.env, RUN_PROMPT_FILE: promptFile, RUN_OUTPUT_DIR: outputDir, SKILL_DIR: skillDir },
     });
@@ -189,6 +199,16 @@ export async function recordRun(opts) {
     const failures = [...(manifest.exitCode === 0 ? [] : [`runner exited with code ${manifest.exitCode}`]), ...quotaFail, ...ev.failures];
     Object.assign(manifest, { checks: { expectations: expect.length, failures }, status: failures.length === 0 ? 'pass' : 'fail' });
     await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+    if (caseId != null && opts.live !== false && !isQuotaError(manifest.report)) {
+      const livePath = join(skillDir, 'evals', 'live', `${caseId}.json`);
+      let stale = !existsSync(livePath);
+      if (!stale) try { stale = JSON.parse(await readFile(livePath, 'utf8')).prompt !== inputText; } catch { stale = true; }
+      if (stale) {
+        await mkdir(join(skillDir, 'evals', 'live'), { recursive: true });
+        const rec = { case: caseId, prompt: inputText, agent: `${manifest.runner} via run-skill (fresh agent, skill folder and the case prompt only)`, recordedAt: String(manifest.finishedAt ?? '').slice(0, 10), output: manifest.report, files: manifest.files.map((f) => f.path), run: relative(REPO_ROOT, runDir).split(sep).join('/') };
+        await writeFile(livePath, `${JSON.stringify(rec, null, 2)}\n`);
+      }
+    }
     return { cached: true, runDir, manifest };
   }
 

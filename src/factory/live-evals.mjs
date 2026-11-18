@@ -103,7 +103,7 @@ export function runLive(skillDir, { engine = 'claude', cases: caseIds, spawn = s
   const targets = selectCases(cases, caseIds);
   mkdirSync(join(skillDir, 'evals', 'live'), { recursive: true });
   for (const c of targets) {
-    const res = spawn(engine, ['-p', agentPrompt(skillDir, c.prompt)], { encoding: 'utf8', timeout: 600000 });
+    const res = spawn(engine, ['-p'], { input: agentPrompt(skillDir, c.prompt), encoding: 'utf8', shell: process.platform === 'win32', timeout: 600000 });
     if (res.error) throw new Error(`runLive: ${engine} failed on ${c.id}: ${res.error.message}`);
     if (res.status !== 0) {
       const detail = (res.stderr || res.stdout || `exit ${res.status}`).trim();
@@ -122,8 +122,14 @@ export function runLive(skillDir, { engine = 'claude', cases: caseIds, spawn = s
 
 /** Parse CLI flags for live-evals.mjs. */
 export function parseLiveArgs(argv) {
-  const name = argv[0];
-  const rest = argv.slice(1);
+  let name;
+  const rest = [];
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === '--engine' || a === '--case') { rest.push(a); if (argv[i + 1] !== undefined) rest.push(argv[++i]); continue; }
+    if (!a.startsWith('--') && name === undefined) name = a;
+    else rest.push(a);
+  }
   let engine = 'claude';
   const cases = [];
   let run = false;
@@ -137,9 +143,13 @@ export function parseLiveArgs(argv) {
       if (!rest[i + 1] || rest[i + 1].startsWith('--')) throw new Error('--case requires a case id');
       cases.push(rest[++i]);
     } else if (a.startsWith('--case=')) {
-      cases.push(a.slice('--case='.length));
+      const v = a.slice('--case='.length);
+      if (!v) throw new Error('--case requires a case id');
+      cases.push(v);
     } else if (a.startsWith('--engine=')) {
-      engine = a.slice('--engine='.length);
+      const v = a.slice('--engine='.length);
+      if (!v) throw new Error('--engine requires a value');
+      engine = v;
     } else {
       throw new Error(`unknown option: ${a}`);
     }

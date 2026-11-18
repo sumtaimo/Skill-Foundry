@@ -38,7 +38,9 @@ export function readySkills(root = resolve(dirname(HERE), '..', '..')) {
   const registry = JSON.parse(readFileSync(join(root, 'src', 'factory', 'registry.json'), 'utf8'));
   return registry.filter((r) => r.status === 'ready').map((r) => {
     const md = readFileSync(join(root, 'src', 'skills', r.name, 'SKILL.md'), 'utf8');
-    return { name: r.name, description: /^description:\s*(.*)$/m.exec(md)[1].trim() };
+    const m = /^description:\s*(.*)$/m.exec(md);
+    if (!m) throw new Error(`readySkills: missing description in ${r.name}/SKILL.md`);
+    return { name: r.name, description: m[1].trim() };
   });
 }
 
@@ -56,22 +58,29 @@ export function parseRouting(reply, cases) {
 export function runRouting({ engine = 'claude', spawn = spawnSync, dir = DIR } = {}) {
   const cases = JSON.parse(readFileSync(join(dir, 'cases.json'), 'utf8'));
   const skills = readySkills();
-  const res = spawn(engine, ['-p', routingPrompt(skills, cases)], { encoding: 'utf8', timeout: 300000 });
+  const res = spawn(engine, ['-p'], { input: routingPrompt(skills, cases), encoding: 'utf8', shell: process.platform === 'win32', timeout: 300000 });
   if (res.error) throw new Error(`runRouting: ${engine} failed: ${res.error.message}`);
   if (res.status !== 0) throw new Error(`runRouting: ${engine} failed: ${(res.stderr || res.stdout || `exit ${res.status}`).trim()}`);
   if (isQuotaError(res.stdout)) throw new Error(`runRouting: ${engine} hit usage/quota limit ("${String(res.stdout).trim().split('\n')[0]}"); existing live.json kept`);
   const answers = parseRouting(res.stdout, cases);
   if (Object.keys(answers).length === 0) throw new Error(`runRouting: ${engine} returned no "<n>: <skill>" answers; existing live.json kept`);
+  if (Object.keys(answers).length < cases.length) throw new Error(`runRouting: ${engine} answered ${Object.keys(answers).length} of ${cases.length} cases; existing live.json kept`);
   const live = { agent: `${engine} -p (fresh context, saw only skill names and descriptions)`, recordedAt: new Date().toISOString().slice(0, 10), descriptions: Object.fromEntries(skills.map((s) => [s.name, s.description])), answers };
   writeFileSync(join(dir, 'live.json'), JSON.stringify(live, null, 2) + '\n');
   return live;
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === HERE) {
-  const i = process.argv.indexOf('--engine');
-  if (process.argv.includes('--run')) runRouting({ engine: i > 0 && process.argv[i + 1] ? process.argv[i + 1] : 'claude' });
-  const s = scoreRouting();
-  for (const r of s.results) console.log(`${r.ok ? 'PASS' : 'FAIL'} ${r.id} expect ${r.expect}, got ${r.got}`);
-  console.log(`routing-evals: ${s.passed} passed, ${s.failed} failed`);
-  process.exit(s.failed ? 1 : 0);
+  try {
+    const i = process.argv.indexOf('--engine');
+    const engine = i > 0 ? (process.argv[i + 1] && !process.argv[i + 1].startsWith('--') ? process.argv[i + 1] : (() => { throw new Error('--engine requires a value'); })()) : 'claude';
+    if (process.argv.includes('--run')) runRouting({ engine });
+    const s = scoreRouting();
+    for (const r of s.results) console.log(`${r.ok ? 'PASS' : 'FAIL'} ${r.id} expect ${r.expect}, got ${r.got}`);
+    const live = JSON.parse(readFileSync(join(DIR, 'live.json'), 'utf8'));
+    const stale = readySkills().filter((sk) => live.descriptions?.[sk.name] !== sk.description).map((sk) => sk.name);
+    if (stale.length) console.error(`FAIL routing recording is stale for: ${stale.join(', ')}`);
+    console.log(`routing-evals: ${s.passed} passed, ${s.failed} failed${stale.length ? `, ${stale.length} stale` : ''}`);
+    process.exit(s.failed || stale.length ? 1 : 0);
+  } catch (e) { console.error(e.message); process.exit(2); }
 }

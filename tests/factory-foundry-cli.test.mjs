@@ -9,7 +9,7 @@ import { join, resolve, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
-import { addSkill, checkProject, catalog, main, removeSkill } from '../src/factory/foundry.mjs';
+import { addSkill, checkProject, catalog, main, removeSkill, doctorProject } from '../src/factory/foundry.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
@@ -301,4 +301,19 @@ test('user-facing text stays short and plain: no layers, evals, deny rules or in
   assert.doesNotMatch(out.join('\n'), bad, 'add and doctor output');
   assert.match(md, /Never edit, delete or overwrite anything under/, 'the one instruction agents need is kept');
   assert.match(md, /npx github:sumtaimo\/Skill-Foundry doctor/, 'exact fix command kept');
+});
+
+test('update --force restores locally edited files when upstream is unchanged, and doctor accepts CRLF AGENTS.md', () => {
+  const p = mkdtempSync(join(tmpdir(), 'sf-force-')); spawnSync('git', ['init', '-q'], { cwd: p });
+  const cwd = process.cwd(); process.chdir(p);
+  try {
+    main(['add', 'copy-tight'], () => {});
+    const target = join(p, '.claude', 'skills', 'copy-tight', 'SKILL.md');
+    const original = readFileSync(target, 'utf8');
+    writeFileSync(target, `${original}\n<!-- local edit -->\n`);
+    writeFileSync(join(p, 'AGENTS.md'), readFileSync(join(p, 'AGENTS.md'), 'utf8').replace(/\n/g, '\r\n'));
+    assert.equal(doctorProject({ project: p }).items.some((i) => i.area === 'AGENTS.md' && i.level === 'warn'), false, 'CRLF AGENTS.md passes doctor');
+    main(['update', 'copy-tight', '--force'], () => {});
+    assert.equal(readFileSync(target, 'utf8'), original, 'update --force restores locally modified skill files');
+  } finally { process.chdir(cwd); }
 });

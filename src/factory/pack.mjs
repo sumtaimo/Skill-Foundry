@@ -75,11 +75,12 @@ export async function packSkill(skillDir, outDir) {
  * @param {{skillsRoot?:string,outDir?:string}} [opts]
  * @returns {Promise<Record<string,{sha256:string,bytes:number}>>}
  */
-export async function packAll({ skillsRoot, outDir } = {}) {
+export async function packAll({ skillsRoot, outDir, ready } = {}) {
   const root = resolve(skillsRoot ?? join(REPO_ROOT, 'src', 'skills'));
   const out = resolve(outDir ?? join(REPO_ROOT, 'dist'));
+  const readySet = Array.isArray(ready) ? new Set(ready) : null;
   const names = (await readdir(root, { withFileTypes: true }))
-    .filter((e) => e.isDirectory() && e.name !== '_template' && !EXCLUDE.has(e.name))
+    .filter((e) => e.isDirectory() && e.name !== '_template' && !EXCLUDE.has(e.name) && (!readySet || readySet.has(e.name)))
     .map((e) => e.name)
     .sort();
   const checksums = {};
@@ -99,17 +100,20 @@ export async function packAll({ skillsRoot, outDir } = {}) {
 if (process.argv[1] && resolve(process.argv[1]) === HERE) {
   const args = process.argv.slice(2);
   const oi = args.indexOf('--out');
-  const outDir = oi >= 0 ? args[oi + 1] : join(REPO_ROOT, 'dist');
-  try {
-    if (args.includes('--all')) console.log(JSON.stringify(await packAll({ outDir }), null, 2));
-    else {
-      const name = args.find((a, i) => !a.startsWith('--') && (oi < 0 || i !== oi + 1));
-      if (!name) throw new Error('usage: pack.mjs <skill> | --all [--out dir]');
-      const r = await packSkill(join(REPO_ROOT, 'src', 'skills', name), outDir);
-      console.log(`${r.file} ${r.sha256} ${r.bytes}`);
+  if (oi >= 0 && (!args[oi + 1] || args[oi + 1].startsWith('--'))) { console.error('--out requires a directory'); process.exitCode = 1; }
+  else {
+    const outDir = oi >= 0 ? args[oi + 1] : join(REPO_ROOT, 'dist');
+    try {
+      if (args.includes('--all')) console.log(JSON.stringify(await packAll({ outDir }), null, 2));
+      else {
+        const name = args.find((a, i) => !a.startsWith('--') && (oi < 0 || i !== oi + 1));
+        if (!name) throw new Error('usage: pack.mjs <skill> | --all [--out dir]');
+        const r = await packSkill(join(REPO_ROOT, 'src', 'skills', name), outDir);
+        console.log(`${r.file} ${r.sha256} ${r.bytes}`);
+      }
+    } catch (err) {
+      console.error(err.message);
+      process.exitCode = 1;
     }
-  } catch (err) {
-    console.error(err.message);
-    process.exitCode = 1;
   }
 }

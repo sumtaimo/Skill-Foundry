@@ -55,3 +55,15 @@ test('a recording goes stale when the prompt or a skill in the recipe changes', 
   assert.notEqual(recipeHash({ ...r, skills: r.skills.slice(0, 2) }, ROOT), h);
   assert.match(checkRecipe({ ...r, prompt: 'changed' }, ROOT).problems.join(), /stale/);
 });
+
+test('checkRecipe rejects a quota/limit error answer', async () => {
+  const { mkdtempSync: md, mkdirSync: mkd, writeFileSync: wf, cpSync: cp } = await import('node:fs');
+  const { join: j } = await import('node:path');
+  const { tmpdir: td } = await import('node:os');
+  const root = md(j(td(), 'rcp-quota-'));
+  mkd(j(root, 'src', 'factory', 'recipes'), { recursive: true });
+  cp(j(ROOT, 'src', 'skills'), j(root, 'src', 'skills'), { recursive: true });
+  const [r] = loadRecipes(ROOT);
+  wf(j(root, 'src', 'factory', 'recipes', `${r.id}.json`), JSON.stringify({ id: r.id, prompt: r.prompt, hash: recipeHash(r, root), exit: 0, used: r.skills, leakedRepoRules: false, touchedRepo: [], answer: "You've hit your 5-hour limit · resets 4:20am (UTC)" }));
+  assert.match(checkRecipe(r, root).problems.join('; '), /quota\/limit/);
+});

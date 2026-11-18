@@ -180,7 +180,7 @@ test('design-system shows the real tokens.css a fresh agent wrote: every swatch 
   assert.ok(tok, 'the pinned live case has a passing recording with a hashed tokens.css');
   const rec = JSON.parse(readFileSync(join(dir, 'evals', 'live', `${entry.showcase}.json`), 'utf8'));
   assert.equal(tok.run, rec.run);
-  const file = readFileSync(join(ROOT, rec.run, 'output', 'tokens.css'));
+  const file = Buffer.from(readFileSync(join(ROOT, rec.run, 'output', 'tokens.css'), 'utf8').replace(/\r\n/g, '\n'));
   const manifest = JSON.parse(readFileSync(join(ROOT, rec.run, 'manifest.json'), 'utf8'));
   assert.equal(manifest.files.find((f) => f.path === 'tokens.css').sha256, createHash('sha256').update(file).digest('hex'), 'tokens.css is the file the run recorded');
   assert.match(rec.agent, /fresh agent/);

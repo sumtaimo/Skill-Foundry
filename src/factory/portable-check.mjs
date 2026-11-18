@@ -9,7 +9,7 @@
  */
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { join, resolve, dirname } from 'node:path';
+import { join, resolve, dirname, relative, sep, isAbsolute } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
@@ -36,13 +36,25 @@ export function parseStream(stdout, skill) {
     if (e.type === 'assistant') for (const b of e.message?.content ?? []) if (b.type === 'tool_use') tools.push({ name: b.name, input: JSON.stringify(b.input) });
     if (e.type === 'result') { final = String(e.result ?? ''); cost = typeof e.total_cost_usd === 'number' ? e.total_cost_usd : null; }
   }
-  const usedSkill = tools.some((t) => (t.name === 'Skill' && t.input.includes(skill)) || ((t.name === 'Read' || t.name === 'Bash') && t.input.includes(`.claude/skills/${skill}`)));  // reading the skill with `cat` counts too
-  const touchedRepo = tools.filter((t) => t.input.includes(REPO_ROOT)).map((t) => t.name);
+  const norm = (s) => s.replace(/\\\\/g, '/').replace(/\\/g, '/');
+  const repoNorm = norm(REPO_ROOT);
+  const usedSkill = tools.some((t) => {
+    if (t.name === 'Skill') {
+      try { if (JSON.parse(t.input)?.skill === skill) return true; } catch { /* fall through */ }
+      return t.input.includes(`"${skill}"`);
+    }
+    return (t.name === 'Read' || t.name === 'Bash') && norm(t.input).includes(`.claude/skills/${skill}`); // reading the skill with `cat` counts too
+  });
+  const touchedRepo = tools.filter((t) => {
+    const inp = norm(t.input);
+    return process.platform === 'win32' ? inp.toLowerCase().includes(repoNorm.toLowerCase()) : inp.includes(repoNorm);
+  }).map((t) => t.name);
   return { tools, final, cost, usedSkill, touchedRepo };
 }
 
 /** Files that do not change how a skill behaves for a user, so editing them never makes a recording stale. */
 const NOT_BEHAVIOUR = (rel) => rel.startsWith('evals/live/') || rel === 'evals/portable.json' || rel === 'CHANGELOG.md' || rel.startsWith('preview/') || rel.startsWith('examples/');
+const normLf = (buf) => (buf.includes(0) ? buf : Buffer.from(buf.toString('utf8').replace(/\r\n/g, '\n'), 'utf8'));
 
 /**
  * Hash of what an agent follows when it uses the skill (instructions, layers, references, rules, engine, evals cases).
@@ -51,10 +63,10 @@ const NOT_BEHAVIOUR = (rel) => rel.startsWith('evals/live/') || rel === 'evals/p
 export function behaviourHash(skillDir) {
   const walk = (d) => readdirSync(d, { withFileTypes: true }).flatMap((e) => {
     const p = join(d, e.name);
-    return e.isDirectory() ? walk(p) : [p.slice(skillDir.length + 1).split('\\').join('/')];
+    return e.isDirectory() ? walk(p) : [relative(skillDir, p).split(sep).join('/')];
   });
   const h = createHash('sha256');
-  for (const rel of walk(skillDir).filter((f) => !NOT_BEHAVIOUR(f)).sort()) h.update(rel).update('\0').update(readFileSync(join(skillDir, rel))).update('\0');
+  for (const rel of walk(skillDir).filter((f) => !NOT_BEHAVIOUR(f)).sort()) h.update(rel).update('\0').update(normLf(readFileSync(join(skillDir, rel)))).update('\0');
   return h.digest('hex');
 }
 
@@ -82,7 +94,7 @@ export function listProduced(dir) {
   const walk = (d) => readdirSync(d, { withFileTypes: true }).flatMap((e) => {
     if (e.name === '.claude') return [];
     const p = join(d, e.name);
-    return e.isDirectory() ? walk(p) : [p.slice(dir.length + 1)];
+    return e.isDirectory() ? walk(p) : [relative(dir, p).split(sep).join('/')];
   });
   return walk(dir).sort();
 }
@@ -96,14 +108,15 @@ export async function portableCheck(skill, prompt, { out, engine = 'claude', tim
   const md = readFileSync(join(REPO_ROOT, 'src', 'skills', skill, 'SKILL.md'), 'utf8');
   if (/^scope:\s*factory\s*$/m.test(md)) throw new Error(`${skill} has scope: factory and only runs inside this repository`);
   const root = out ? resolve(out) : mkdtempSync(join(tmpdir(), 'portable-'));
-  if (root.startsWith(REPO_ROOT)) throw new Error('portableCheck: the empty project must be outside the repository');
+  const relRepo = relative(REPO_ROOT, root);
+  if (relRepo === '' || (!relRepo.startsWith('..') && !isAbsolute(relRepo))) throw new Error('portableCheck: the empty project must be outside the repository');
   mkdirSync(root, { recursive: true });
   // Install the way a user does (`npx github:sumtaimo/Skill-Foundry add <skill> --rules`), so the check covers that real path.
   addSkill(skill, { project: root, force: true });
   writeRules({ project: root });
   const installed = { length: readdirSync(join(root, '.claude', 'skills', skill)).length };
   const r = spawnSync(engine, ['-p', '--output-format', 'stream-json', '--verbose', '--allowedTools', 'Read', 'Write', 'Edit', 'Glob', 'Grep', 'Skill', 'Bash(node:*)', 'Bash(ls:*)'],
-    { cwd: root, input: prompt, encoding: 'utf8', timeout: timeoutMs, maxBuffer: 1 << 28 });
+    { cwd: root, input: prompt, encoding: 'utf8', shell: process.platform === 'win32', timeout: timeoutMs, maxBuffer: 1 << 28 });
   if (r.error) throw r.error;
   const s = parseStream(r.stdout, skill);
   writeFileSync(join(root, '.portable-check.jsonl'), r.stdout);
@@ -113,7 +126,8 @@ export async function portableCheck(skill, prompt, { out, engine = 'claude', tim
 if (process.argv[1] && resolve(process.argv[1]) === HERE) {
   const a = process.argv.slice(2);
   const arg = (n) => { const i = a.indexOf(n); return i >= 0 ? a[i + 1] : undefined; };
-  const skill = a.find((x) => !x.startsWith('--'));
+  const valued = new Set(['--prompt', '--out', '--engine']);
+  const skill = a.find((x, i) => !x.startsWith('--') && !valued.has(a[i - 1]));
   try {
     if (!skill || !arg('--prompt')) throw new Error('usage: portable-check.mjs <skill> --prompt "<user request>" [--out <dir>] [--engine claude]');
     const r = await portableCheck(skill, arg('--prompt'), { out: arg('--out'), engine: arg('--engine') });

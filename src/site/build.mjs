@@ -55,7 +55,7 @@ export async function buildSite({ root = REPO_ROOT, out = join(REPO_ROOT, 'dist'
   for (const p of ['index.html', 'skills', 'assets', 'downloads', 'skills.json', 'llms.txt']) await rm(join(out, p), { recursive: true, force: true });
   await mkdir(join(out, 'assets'), { recursive: true });
 
-  const checksums = await packAll({ skillsRoot, outDir: join(out, 'downloads') });
+  const checksums = await packAll({ skillsRoot, outDir: join(out, 'downloads'), ready: skills.map((s) => s.name) });
   const downloads = (await listAll(join(out, 'downloads'))).map((f) => `downloads/${f}`);
 
   const css = await readFile(join(ASSETS, 'site.css'), 'utf8');
@@ -72,6 +72,8 @@ export async function buildSite({ root = REPO_ROOT, out = join(REPO_ROOT, 'dist'
     const alt = Object.keys(checksums).filter((k) => k.startsWith(`${s.name}-`) && /^\d/.test(k.slice(s.name.length + 1))).sort();
     if (alt.length !== 1) throw new Error(`buildSite: no zip for ${s.name}`);
     s.zip = alt[0];
+    const verM = new RegExp(`^${s.name}-(.+)\\.zip$`).exec(alt[0]);
+    if (verM) s.version = verM[1];
   }
   for (const s of skills) s.zipBytes = checksums[zipName(s)].bytes;
   const pages = ['index.html'];
@@ -136,8 +138,8 @@ export function llmsTxt(skills, checksums) {
 export function stripTokenBlocks(css) {
   let s = css.replace(/\/\*[\s\S]*?\*\//g, '');
   const heads = [
-    /@media\s*\(prefers-color-scheme:\s*dark\)\s*\{\s*:root:not\(\[data-theme=light\]\)\s*\{[^{}]*\}\s*\}/g,
-    /\[data-theme=dark\]\s*\{[^{}]*\}/g,
+    /@media\s*\(prefers-color-scheme:\s*dark\)\s*\{\s*:root:not\(\[data-theme=["']?light["']?\]\)\s*\{[^{}]*\}\s*\}/g,
+    /\[data-theme=["']?dark["']?\]\s*\{[^{}]*\}/g,
     /(^|\})\s*:root\s*\{[^{}]*\}/g,
   ];
   for (const re of heads) s = s.replace(re, (m, p1) => (typeof p1 === 'string' ? p1 : ''));
@@ -180,6 +182,15 @@ export async function checkSite(out, opts = {}) {
   let checksums = {};
   try { checksums = JSON.parse(await readFile(join(out, 'downloads', 'checksums.json'), 'utf8')); }
   catch { problems.push('missing or invalid downloads/checksums.json'); }
+  if (!fileSet.has('skills.json')) problems.push('missing skills.json');
+  else {
+    try { JSON.parse(await readFile(join(out, 'skills.json'), 'utf8')); }
+    catch { problems.push('invalid skills.json'); }
+  }
+  if (!fileSet.has('llms.txt')) problems.push('missing llms.txt');
+  for (const n of drafts) {
+    if (Object.keys(checksums).some((k) => k.startsWith(`${n}-`))) problems.push(`draft skill ${n} has a download zip`);
+  }
 
   for (const page of html) {
     const text = await readFile(join(out, page), 'utf8');

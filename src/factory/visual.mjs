@@ -23,7 +23,13 @@ export async function checkPage(fileOrUrl, { widths = [1440, 390], themes = ['li
   const chromium = pw.chromium ?? pw.default?.chromium;
   const url = /^[a-z]+:\/\//i.test(fileOrUrl) ? fileOrUrl : pathToFileURL(resolve(fileOrUrl)).href;
   const problems = [];
-  const browser = await chromium.launch();
+  let browser;
+  try {
+    browser = await chromium.launch();
+  } catch (e) {
+    if (/Executable doesn't exist|playwright install/i.test(String(e?.message ?? e))) return { ok: null, skipped: SKIP_REASON };
+    throw e;
+  }
   try {
     for (const width of widths) {
       for (const theme of themes) {
@@ -45,9 +51,20 @@ export async function checkPage(fileOrUrl, { widths = [1440, 390], themes = ['li
           for (const svg of document.querySelectorAll('svg')) {
             const vb = svg.viewBox && svg.viewBox.baseVal;
             if (!vb || !vb.width) continue;
+            const sctm = svg.getCTM?.();
+            const inv = sctm ? sctm.inverse() : null;
             for (const t of svg.querySelectorAll('text')) {
               const b = t.getBBox();
-              if (b.x < vb.x || b.y < vb.y || b.x + b.width > vb.x + vb.width || b.y + b.height > vb.y + vb.height) {
+              const tctm = t.getCTM?.();
+              let minX = b.x, minY = b.y, maxX = b.x + b.width, maxY = b.y + b.height;
+              if (inv && tctm) {
+                const m = inv.multiply(tctm);
+                const pts = [[b.x, b.y], [b.x + b.width, b.y], [b.x, b.y + b.height], [b.x + b.width, b.y + b.height]]
+                  .map(([px, py]) => new DOMPoint(px, py).matrixTransform(m));
+                minX = Math.min(...pts.map((p) => p.x)); minY = Math.min(...pts.map((p) => p.y));
+                maxX = Math.max(...pts.map((p) => p.x)); maxY = Math.max(...pts.map((p) => p.y));
+              }
+              if (minX < vb.x || minY < vb.y || maxX > vb.x + vb.width || maxY > vb.y + vb.height) {
                 outside.push((t.textContent || '').trim().slice(0, 60));
               }
             }

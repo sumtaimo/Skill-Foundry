@@ -111,8 +111,9 @@ test('browser: the hero copies the one install command, the agent prompt and the
   const out = await site();
   const srv = await serve(out);
   const base = `http://127.0.0.1:${srv.address().port}/`;
-  const browser = await chromium.launch();
+  let browser;
   try {
+    browser = await chromium.launch();
     const page = await browser.newPage({ viewport: { width: 390, height: 900 } });
     const errors = [];
     page.on('pageerror', (e) => errors.push(String(e)));
@@ -130,7 +131,7 @@ test('browser: the hero copies the one install command, the agent prompt and the
     assert.ok(noScroll, 'no horizontal scroll at 390px');
     assert.deepEqual(errors, []);
   } finally {
-    await browser.close();
+    await browser?.close();
     srv.close();
   }
 });
