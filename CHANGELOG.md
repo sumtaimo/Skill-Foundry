@@ -6,8 +6,9 @@ current version.
 
 ## 1.0.1 - 2026-11-18
 
-- Redesign showcase site (`src/site/`, `docs/site/LANDING-SPEC.md`): light-first neutral React Bits–style layout with dark mode and EN/KH toggles, floating glass header with grouped tool buttons (`theme`, `lang`, GitHub) and compact Stripe-height (`34px`) buttons, skill detail header action above metadata, and real-output stage.
-- Sync Agentic-Harness to `1.0.18` (`B1`–`B11` fixes), untrack runtime `.harness/foundry-check.json`, and refresh `README.md` and `docs/PROJECT.md`.
+- Redesign the showcase site (`src/site/`, `docs/site/LANDING-SPEC.md`): light-first neutral React Bits–style layout with dark mode and EN/KH toggles, solid brand logo mark and favicon, unclipped hero heading, floating glass header with grouped tool buttons (`theme`, `lang`, GitHub), compact (`34px`) Stripe-height buttons, skill detail action above metadata, open `#proof` table without skill link underlines, simplified two-column footer (`Skill Foundry version 1.0.1` above `License MIT · © 2026 TAIMO`), and reliable scroll-to-top on load/reload.
+- CLI (`src/factory/foundry.mjs`): added `--version` / `-v`, `check` and `doctor` project-version notice when installed `.foundry.json` stamps come from an older Skill Foundry release (e.g. `1.0.0` → `1.0.1`), and `latestFoundry` in `check --json`.
+- Sync Agentic-Harness to `1.0.18` (`B1`–`B11` fixes), untrack runtime `.harness/foundry-check.json`, and refresh `README.md` and `docs/PROJECT.md` (documenting separate project vs. skill versioning).
 
 ## 1.0.0 - 2026-11-17
 

@@ -236,12 +236,13 @@ export function checkProject({ project = process.cwd(), root = REPO } = {}) {
   const dir = join(project, '.claude', 'skills');
   if (!existsSync(dir)) return [];
   const cat = new Map(catalog({ root }).map((s) => [s.name, s]));
+  const latestFoundry = foundryVersion(root);
   return readdirSync(dir).filter((n) => existsSync(join(dir, n, STAMP))).map((n) => {
     const st = JSON.parse(readFileSync(join(dir, n, STAMP), 'utf8'));
     const s = cat.get(n);
     // Files whose content differs from what was installed: someone (or an agent) edited the skill.
     const modified = Object.entries(st.files ?? {}).filter(([f, h]) => { const p = join(dir, n, f); return !existsSync(p) || sha(readFileSync(p)) !== h; }).map(([f]) => f);
-    return { name: n, installed: st.version, latest: s?.version ?? null, foundryVersion: st.foundryVersion ?? null, current: !!s && st.hash === total(hashes(s.dir)), modified };
+    return { name: n, installed: st.version, latest: s?.version ?? null, foundryVersion: st.foundryVersion ?? null, latestFoundry, current: !!s && st.hash === total(hashes(s.dir)), modified };
   });
 }
 
@@ -291,6 +292,8 @@ export function doctorProject({ project = process.cwd(), root = REPO } = {}) {
   // skills installed by the foundry
   const installed = checkProject({ project, root });
   if (!installed.length) add('warn', 'skills', 'no Skill Foundry skills installed', `${CLI} add --all   (or add <skill> | add --role <ROLE>)`);
+  const olderFoundry = [...new Set(installed.map((x) => x.foundryVersion).filter((v) => v && pv && v !== pv))];
+  if (olderFoundry.length) add('info', 'foundry', `installed skills were stamped under Skill Foundry ${olderFoundry.join(', ')} (now ${pv})`, `${CLI} list`);
   for (const x of installed) {
     if (!x.latest) add('warn', 'skills', `${x.name}: not in the current catalog (removed or not ready)`, `${CLI} remove ${x.name}`);
     else if (!x.current) add('warn', 'skills', `${x.name} ${x.installed} is out of date`, `${CLI} update ${x.name}`);
@@ -454,6 +457,9 @@ export function main(argv, log = console.log) {
     else {
       if (!r.length) log('No Skill Foundry skills installed here.');
       for (const x of r) log(`${x.current ? 'current ' : 'outdated'} ${x.name} ${x.installed}${x.latest && !x.current ? ` → ${x.latest} (new content)` : ''}${x.modified.length ? `  CHANGED LOCALLY: ${x.modified.join(', ')} (update keeps them; update --force restores the original)` : ''}`);
+      const pv = foundryVersion();
+      const older = [...new Set(r.map((x) => x.foundryVersion).filter((v) => v && pv && v !== pv))];
+      if (older.length) log(`foundry  Skill Foundry ${pv} (installed under ${older.join(', ')})`);
     }
     return r.some((x) => !x.current || x.modified.length) ? 2 : 0;
   } else if (cmd === 'doctor') {

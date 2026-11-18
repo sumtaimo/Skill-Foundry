@@ -172,9 +172,11 @@ test('the site knows all eight roles in both languages, and the UX designer has 
   assert.deepEqual(ready.filter((r) => r.roles.includes('UX_DESIGNER')).map((r) => r.name).sort(), ['design-system', 'ux-review']);
 });
 
-test('top bar links to skills, install and agents on the index (no proof link: the page has no per-page proof, and fewer links keep the bar short)', async () => {
+test('header Install CTA and hero pill jump on the index (no proof link or repeated toc strip)', async () => {
   const html = readFileSync(join(await site(), 'index.html'), 'utf8');
-  for (const id of ['collection', 'install', 'agents']) assert.match(html, new RegExp(`href="index\\.html#${id}"`));
+  assert.match(html.slice(0, html.indexOf('</header>')), /href="index\.html#install-title"/, 'header Install CTA jumps to install');
+  assert.match(html, /href="#collection"/, 'hero pill links to skills collection');
+  for (const id of ['collection', 'install', 'agents']) assert.match(html, new RegExp(`<section[^>]*id="${id}"`), `#${id} section present`);
   assert.doesNotMatch(html.slice(0, html.indexOf('</header>')), /href="index\.html#proof"/, 'the top bar has no Proof link on the index');
   assert.doesNotMatch(html, /<nav class="toc"/, 'no second contents strip that repeats the top bar');
 });

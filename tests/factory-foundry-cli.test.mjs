@@ -332,6 +332,13 @@ test('Skill Foundry project version is shown by --version, list, doctor and reco
     const stamp = JSON.parse(readFileSync(join(p, '.claude', 'skills', 'copy-tight', '.foundry.json'), 'utf8'));
     assert.equal(stamp.foundryVersion, pkg.version);
     assert.equal(checkProject({ project: p })[0].foundryVersion, pkg.version);
+    assert.equal(checkProject({ project: p })[0].latestFoundry, pkg.version);
+    writeFileSync(join(p, '.claude', 'skills', 'copy-tight', '.foundry.json'), JSON.stringify({ ...stamp, foundryVersion: '1.0.0' }, null, 2));
+    const cOut = []; const dOldOut = [];
+    assert.equal(main(['check'], (l) => cOut.push(l)), 0);
+    assert.ok(cOut.some((l) => l.includes(`Skill Foundry ${pkg.version}`) && l.includes('1.0.0')), cOut.join('\n'));
+    main(['doctor'], (l) => dOldOut.push(l));
+    assert.ok(dOldOut.some((l) => l.includes('1.0.0') && l.includes(pkg.version)), dOldOut.join('\n'));
     main(['doctor'], (l) => dOut.push(l));
     assert.match(dOut[0], new RegExp(`^Skill Foundry ${pkg.version.replace(/\./g, '\\.')} doctor:`));
     assert.equal(doctorProject({ project: p }).foundryVersion, pkg.version);
