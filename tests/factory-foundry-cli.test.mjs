@@ -317,3 +317,23 @@ test('update --force restores locally edited files when upstream is unchanged, a
     assert.equal(readFileSync(target, 'utf8'), original, 'update --force restores locally modified skill files');
   } finally { process.chdir(cwd); }
 });
+
+test('Skill Foundry project version is shown by --version, list, doctor and recorded in .foundry.json', () => {
+  const vOut = []; const lOut = []; const dOut = [];
+  assert.equal(main(['--version'], (l) => vOut.push(l)), 0);
+  assert.equal(main(['-v'], (l) => vOut.push(l)), 0);
+  assert.deepEqual(vOut, [pkg.version, pkg.version]);
+  assert.equal(main(['list'], (l) => lOut.push(l)), 0);
+  assert.equal(lOut[0], `Skill Foundry ${pkg.version}`);
+  const p = mkdtempSync(join(tmpdir(), 'sf-pv-'));
+  const cwd = process.cwd(); process.chdir(p);
+  try {
+    main(['add', 'copy-tight', '--quiet'], () => {});
+    const stamp = JSON.parse(readFileSync(join(p, '.claude', 'skills', 'copy-tight', '.foundry.json'), 'utf8'));
+    assert.equal(stamp.foundryVersion, pkg.version);
+    assert.equal(checkProject({ project: p })[0].foundryVersion, pkg.version);
+    main(['doctor'], (l) => dOut.push(l));
+    assert.match(dOut[0], new RegExp(`^Skill Foundry ${pkg.version.replace(/\./g, '\\.')} doctor:`));
+    assert.equal(doctorProject({ project: p }).foundryVersion, pkg.version);
+  } finally { process.chdir(cwd); }
+});

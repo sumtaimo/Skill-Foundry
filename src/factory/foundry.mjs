@@ -33,6 +33,10 @@ const STAMP = '.foundry.json';
 const MARK = 'installed-by: skill-foundry';
 
 const sha = (b) => createHash('sha256').update(b).digest('hex');
+/** Project/product version of Skill Foundry itself (from package.json), separate from each skill's own version. */
+export function foundryVersion(root = REPO) {
+  try { const v = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version; return typeof v === 'string' && v.trim() ? v.trim() : null; } catch { return null; }
+}
 function files(dir, base = dir) {
   const out = [];
   for (const e of readdirSync(dir, { withFileTypes: true })) {
@@ -155,7 +159,8 @@ export function addSkill(name, { project = process.cwd(), root = REPO, force = f
     copyFileSync(join(s.dir, f), to);
   }
   for (const f of Object.keys(old?.files ?? {})) if (!(f in src) && !kept.includes(f)) rmSync(join(target, f), { force: true });
-  writeFileSync(stampPath, JSON.stringify({ name, version: s.version, hash: total(src), source: 'github:sumtaimo/Skill-Foundry', files: src }, null, 2) + '\n');
+  const pv = foundryVersion(root);
+  writeFileSync(stampPath, JSON.stringify({ name, version: s.version, ...(pv ? { foundryVersion: pv } : {}), hash: total(src), source: 'github:sumtaimo/Skill-Foundry', files: src }, null, 2) + '\n');
   return { name, action: old ? 'updated' : 'added', kept, ...ptr() };
 }
 
@@ -236,7 +241,7 @@ export function checkProject({ project = process.cwd(), root = REPO } = {}) {
     const s = cat.get(n);
     // Files whose content differs from what was installed: someone (or an agent) edited the skill.
     const modified = Object.entries(st.files ?? {}).filter(([f, h]) => { const p = join(dir, n, f); return !existsSync(p) || sha(readFileSync(p)) !== h; }).map(([f]) => f);
-    return { name: n, installed: st.version, latest: s?.version ?? null, current: !!s && st.hash === total(hashes(s.dir)), modified };
+    return { name: n, installed: st.version, latest: s?.version ?? null, foundryVersion: st.foundryVersion ?? null, current: !!s && st.hash === total(hashes(s.dir)), modified };
   });
 }
 
@@ -271,6 +276,8 @@ const readJson = (f) => { try { return JSON.parse(readFileSync(f, 'utf8')); } ca
 export function doctorProject({ project = process.cwd(), root = REPO } = {}) {
   const items = [];
   const add = (level, area, message, fix) => items.push({ level, area, message, ...(fix ? { fix } : {}) });
+  const pv = foundryVersion(root);
+  if (pv) add('ok', 'foundry', `Skill Foundry ${pv}`);
   const harness = existsSync(join(project, '.harness'));
   const cat = new Map(catalog({ root }).map((s) => [s.name, s]));
 
@@ -387,12 +394,12 @@ export function doctorProject({ project = process.cwd(), root = REPO } = {}) {
   }
   const counts = { ok: 0, warn: 0, problem: 0 };
   for (const i of items) if (i.level in counts) counts[i.level]++;
-  return { case: harness ? 'A' : 'B', project, counts, healthy: !counts.warn && !counts.problem, items };
+  return { case: harness ? 'A' : 'B', project, ...(pv ? { foundryVersion: pv } : {}), counts, healthy: !counts.warn && !counts.problem, items };
 }
 
 const MARKS = { ok: '✔ ok     ', warn: '! warn   ', problem: '✖ problem', info: '· info   ' };
 function printDoctor(r, log) {
-  log(`Skill Foundry doctor: ${r.case === 'A' ? 'project with an agentic harness' : 'project without an agentic harness'}`);
+  log(`Skill Foundry${r.foundryVersion ? ` ${r.foundryVersion}` : ''} doctor: ${r.case === 'A' ? 'project with an agentic harness' : 'project without an agentic harness'}`);
   for (const level of ['problem', 'warn', 'info', 'ok']) for (const i of r.items.filter((x) => x.level === level)) {
     log(`${MARKS[level]} ${i.area}: ${i.message}`);
     if (i.fix) log(`           fix: ${i.fix}`);
@@ -419,7 +426,11 @@ export function main(argv, log = console.log) {
     log(`${r.action.padEnd(8)} ${r.name}${r.kept.length ? `  (kept your changes: ${r.kept.join(', ')})` : ''}${r.harness ? `  → harness: ${r.harness}${r.harnessStatus === 'replaced' ? ' (replaced yours; original kept as SKILL.md.orig)' : r.harnessStatus === 'replaced-starter' ? ' (replaced the harness starter copy; original kept as SKILL.md.orig)' : ''}` : ''}`);
     if (r.harnessStatus === 'collision') log(`harness  ! ${r.name}: ${r.harnessPath} already exists without skill-foundry marker — pointer skipped (use --sync-harness to wrap/replace or keep yours)`);
   };
-  if (cmd === 'list') {
+  if (cmd === '--version' || cmd === '-v') {
+    log(foundryVersion() ?? 'unknown');
+  } else if (cmd === 'list') {
+    const pv = foundryVersion();
+    if (pv) log(`Skill Foundry ${pv}`);
     for (const s of catalog()) log(`${s.name.padEnd(18)} ${s.version.padEnd(7)} ${s.roles.join(',').padEnd(26)} ${s.scope === 'factory' ? '(repo only) ' : ''}${s.description.slice(0, 70)}`);
   } else if (cmd === 'add') {
     let list = names;
@@ -465,7 +476,7 @@ export function main(argv, log = console.log) {
     if (r.length && !rest.includes('--no-protect')) protectSkills();
     if (r.length && !rest.includes('--quiet')) summary(log, project);
   } else {
-    log(`skill-foundry list | add <skill…> | add --all | add --role <ROLE> | check [--json] | update [skill…] [--force] | remove <skill…> | doctor [--fix] [--json]\n  Roles: ${ROLES.join(', ')} (and any role in the project's .harness/roles/).\n  By default add also (1) lists the skills in AGENTS.md so any agent uses them, and (2) denies agents edit rights on the installed skills in .claude/settings.json.\n  --no-rules  skip (1)   --no-protect  skip (2)   --sync-harness  replace a project's own .harness/skills/<name> (original kept)   --quiet  no doctor summary\n  Existing text and settings are kept. Running add or update again changes nothing that is already in place.\n  doctor exit codes: 0 healthy, 2 warnings or problems, 1 usage error.`);
+    log(`skill-foundry${foundryVersion() ? ` ${foundryVersion()}` : ''} list | add <skill…> | add --all | add --role <ROLE> | check [--json] | update [skill…] [--force] | remove <skill…> | doctor [--fix] [--json] | --version\n  Roles: ${ROLES.join(', ')} (and any role in the project's .harness/roles/).\n  By default add also (1) lists the skills in AGENTS.md so any agent uses them, and (2) denies agents edit rights on the installed skills in .claude/settings.json.\n  --no-rules  skip (1)   --no-protect  skip (2)   --sync-harness  replace a project's own .harness/skills/<name> (original kept)   --quiet  no doctor summary\n  Existing text and settings are kept. Running add or update again changes nothing that is already in place.\n  doctor exit codes: 0 healthy, 2 warnings or problems, 1 usage error.`);
     return cmd ? 1 : 0;
   }
   return 0;

@@ -57,7 +57,9 @@ test('real-agent line is honest: yes only with recordings, no for a skill withou
 
 test('skills.json lists every ready skill with zip, sha256 matching the file, roles and description', async () => {
   const out = await site();
+  const pkgVersion = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).version;
   const idx = JSON.parse(readFileSync(join(out, 'skills.json'), 'utf8'));
+  assert.equal(idx.version, pkgVersion);
   assert.deepEqual(idx.skills.map((s) => s.name).sort(), ready.map((r) => r.name).sort());
   for (const s of idx.skills) {
     const buf = readFileSync(join(out, s.zip));
@@ -73,8 +75,9 @@ test('skills.json lists every ready skill with zip, sha256 matching the file, ro
 });
 
 test('llms.txt names every ready skill with its zip and sha256', async () => {
+  const pkgVersion = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).version;
   const txt = readFileSync(join(await site(), 'llms.txt'), 'utf8');
-  assert.match(txt, /^# Skill Foundry/);
+  assert.match(txt, new RegExp(`^# Skill Foundry ${pkgVersion.replace(/\./g, '\\.')}$`, 'm'));
   for (const r of ready) assert.match(txt, new RegExp(`\\[${r.name} `));
   assert.match(txt, /sha256: [0-9a-f]{64}/);
   assert.match(txt, /install: npx github:sumtaimo\/Skill-Foundry add [a-z0-9-]+/);

@@ -76,8 +76,9 @@ export async function buildSite({ root = REPO_ROOT, out = join(REPO_ROOT, 'dist'
     if (verM) s.version = verM[1];
   }
   for (const s of skills) s.zipBytes = checksums[zipName(s)].bytes;
+  const version = await projectVersion(root);
   const pages = ['index.html'];
-  await writeFile(join(out, 'index.html'), renderIndex(skills, { version: await projectVersion(root), drafts, allBytes: checksums['all-skills.zip']?.bytes, checksums, recipes: loadRecipeProofs(root) }));
+  await writeFile(join(out, 'index.html'), renderIndex(skills, { version, drafts, allBytes: checksums['all-skills.zip']?.bytes, checksums, recipes: loadRecipeProofs(root) }));
   for (const s of skills) {
     const dl = checksums[zipName(s)];
     const dir = join(out, 'skills', s.name);
@@ -87,17 +88,18 @@ export async function buildSite({ root = REPO_ROOT, out = join(REPO_ROOT, 'dist'
     pages.push(`skills/${s.name}/index.html`);
     if (s.example) await copyFile(s.exampleSrc, join(dir, 'example.html'));
   }
-  await writeFile(join(out, 'skills.json'), JSON.stringify(agentIndex(skills, checksums), null, 2) + '\n');
-  await writeFile(join(out, 'llms.txt'), llmsTxt(skills, checksums));
+  await writeFile(join(out, 'skills.json'), JSON.stringify(agentIndex(skills, checksums, { version }), null, 2) + '\n');
+  await writeFile(join(out, 'llms.txt'), llmsTxt(skills, checksums, { version }));
   return { pages, skills: skills.length, downloads };
 }
 
 const NPX = 'npx github:sumtaimo/Skill-Foundry';
 
 /** Machine index for agents: every ready skill with what an agent needs to choose, fetch and verify it. Paths are relative to the site root. */
-export function agentIndex(skills, checksums) {
+export function agentIndex(skills, checksums, { version } = {}) {
   return {
     name: 'Skill Foundry',
+    ...(version ? { version } : {}),
     install: `Primary: run npxInstallCommand in the project root (needs Node.js and git); it installs the skill, wires it to matching harness roles and protects it from edits. Then run \`${NPX} doctor\` to check the setup, \`${NPX} check\` to see what is out of date and \`${NPX} update\` to update. Skills with npxInstallCommand null are factory-only: use the zip. Fallback for environments without Node.js: replace {base} in zipInstallCommand with the URL of the folder this file was fetched from (ending in /), run it in the project root, then restart the agent; it stops if the SHA-256 does not match.`,
     npx: { add: `${NPX} add <skill>`, addRole: `${NPX} add --role <ROLE>`, addAll: `${NPX} add --all`, doctor: `${NPX} doctor`, check: `${NPX} check`, update: `${NPX} update`, remove: `${NPX} remove <skill>` },
     skills: skills.map((s) => ({
@@ -122,8 +124,8 @@ export function agentIndex(skills, checksums) {
 }
 
 /** Plain-text index (llms.txt convention): one block per ready skill. */
-export function llmsTxt(skills, checksums) {
-  const lines = ['# Skill Foundry', '', `> Reusable AI agent skills. Install with one command in the project root (needs Node.js and git): \`${NPX} add <skill>\`. Other commands: \`add --role <ROLE>\`, \`add --all\`, \`doctor\`, \`check\`, \`update\`, \`remove <skill>\`. No Node.js: each skill is also a zip; in its zip-fallback line replace {base} with the URL of the folder this file came from (ending in /) and run it in the project root; it stops if the SHA-256 does not match. Paths are relative to this file.`, '', '## Skills', ''];
+export function llmsTxt(skills, checksums, { version } = {}) {
+  const lines = [`# Skill Foundry${version ? ` ${version}` : ''}`, '', `> Reusable AI agent skills. Install with one command in the project root (needs Node.js and git): \`${NPX} add <skill>\`. Other commands: \`add --role <ROLE>\`, \`add --all\`, \`doctor\`, \`check\`, \`update\`, \`remove <skill>\`. No Node.js: each skill is also a zip; in its zip-fallback line replace {base} with the URL of the folder this file came from (ending in /) and run it in the project root; it stops if the SHA-256 does not match. Paths are relative to this file.`, '', '## Skills', ''];
   for (const s of skills) {
     lines.push(`- [${s.name} ${s.version}](skills/${s.name}/index.html): ${s.description}`);
     lines.push(s.factoryOnly ? '  install: factory-only skill, not installed with npx; use the zip-fallback line' : `  install: ${NPX} add ${s.name}`);
