@@ -339,6 +339,13 @@ test('Skill Foundry project version is shown by --version, list, doctor and reco
     assert.ok(cOut.some((l) => l.includes(`Skill Foundry ${pkg.version}`) && l.includes('1.0.0')), cOut.join('\n'));
     main(['doctor'], (l) => dOldOut.push(l));
     assert.ok(dOldOut.some((l) => l.includes('1.0.0') && l.includes(pkg.version)), dOldOut.join('\n'));
+    mkdirSync(join(p, '.harness'), { recursive: true });
+    writeFileSync(join(p, '.harness', 'foundry-default.json'), JSON.stringify({ at: '2026-11-18' }));
+    const cDefOut = []; const dDefOut = [];
+    assert.equal(main(['check'], (l) => cDefOut.push(l)), 0);
+    assert.ok(cDefOut.some((l) => l.startsWith('default  new default skill(s):') && l.includes('test-planner')), cDefOut.join('\n'));
+    main(['doctor'], (l) => dDefOut.push(l));
+    assert.ok(dDefOut.some((l) => l.includes('new default skill(s) available') && l.includes('test-planner')), dDefOut.join('\n'));
     main(['doctor'], (l) => dOut.push(l));
     assert.match(dOut[0], new RegExp(`^Skill Foundry ${pkg.version.replace(/\./g, '\\.')} doctor:`));
     assert.equal(doctorProject({ project: p }).foundryVersion, pkg.version);

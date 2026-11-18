@@ -294,6 +294,11 @@ export function doctorProject({ project = process.cwd(), root = REPO } = {}) {
   if (!installed.length) add('warn', 'skills', 'no Skill Foundry skills installed', `${CLI} add --all   (or add <skill> | add --role <ROLE>)`);
   const olderFoundry = [...new Set(installed.map((x) => x.foundryVersion).filter((v) => v && pv && v !== pv))];
   if (olderFoundry.length) add('info', 'foundry', `installed skills were stamped under Skill Foundry ${olderFoundry.join(', ')} (now ${pv})`, `${CLI} list`);
+  if (existsSync(join(project, '.harness', 'foundry-default.json'))) {
+    const installedNames = new Set(installed.map((x) => x.name));
+    const missingDefaults = [...cat.values()].filter((s) => s.scope !== 'factory' && s.isDefault && !installedNames.has(s.name)).map((s) => s.name);
+    if (missingDefaults.length) add('info', 'skills', `new default skill(s) available (${missingDefaults.join(', ')})`, `${CLI} add --default`);
+  }
   for (const x of installed) {
     if (!x.latest) add('warn', 'skills', `${x.name}: not in the current catalog (removed or not ready)`, `${CLI} remove ${x.name}`);
     else if (!x.current) add('warn', 'skills', `${x.name} ${x.installed} is out of date`, `${CLI} update ${x.name}`);
@@ -460,6 +465,11 @@ export function main(argv, log = console.log) {
       const pv = foundryVersion();
       const older = [...new Set(r.map((x) => x.foundryVersion).filter((v) => v && pv && v !== pv))];
       if (older.length) log(`foundry  Skill Foundry ${pv} (installed under ${older.join(', ')})`);
+      if (existsSync(join(project, '.harness', 'foundry-default.json'))) {
+        const installedNames = new Set(r.map((x) => x.name));
+        const missingDefaults = catalog().filter((s) => s.scope !== 'factory' && s.isDefault && !installedNames.has(s.name)).map((s) => s.name);
+        if (missingDefaults.length) log(`default  new default skill(s): ${missingDefaults.join(', ')} (run: ${CLI} add --default)`);
+      }
     }
     return r.some((x) => !x.current || x.modified.length) ? 2 : 0;
   } else if (cmd === 'doctor') {

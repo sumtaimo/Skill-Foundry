@@ -18,6 +18,7 @@ export const GATES = [
   ['routing evals (recorded)', 'node', ['src/factory/routing-evals.mjs']],
   ...ready.map((n) => [`live evals: ${n}`, 'node', ['src/factory/live-evals.mjs', n]]),
   ['site builds the same twice, links ok', 'node', ['src/site/build.mjs', '--check']],
+  ['version & changelog tracking (against master)', 'node', ['src/factory/version-check.mjs']],
   ['skill guard (one skill per change, locks)', 'node', ['src/factory/skill-guard.mjs']],
 ];
 

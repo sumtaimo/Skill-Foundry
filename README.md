@@ -27,7 +27,8 @@ What `add` writes in your project:
 - Updates a managed block in `AGENTS.md` so any agent (Claude Code, Codex, Gemini CLI, Cursor) discovers the installed skills (`--no-rules` to skip).
 - Adds deny rules to `.claude/settings.json` so agents cannot edit installed skills (`--no-protect` to skip).
 
-Existing text and settings outside managed blocks are preserved. Downloadable `.zip` archives with SHA-256 checksums, `skills.json`, and `llms.txt` are published on the showcase site: https://sumtaimo.github.io/Skill-Foundry/
+- `npm run release:check` runs all release gates automatically, including [version & changelog tracking](src/factory/version-check.mjs) against `master` so shipped changes always carry updated `CHANGELOG.md` entries and new ready/default skills require a `package.json` version bump.
+- Existing text and settings outside managed blocks are preserved. Downloadable `.zip` archives with SHA-256 checksums, `skills.json`, and `llms.txt` are published on the showcase site: https://sumtaimo.github.io/Skill-Foundry/
 
 ## Versioning: Project version vs. Skill versions
 
