@@ -29,6 +29,13 @@ What `add` writes in your project:
 
 Existing text and settings outside managed blocks are preserved. Downloadable `.zip` archives with SHA-256 checksums, `skills.json`, and `llms.txt` are published on the showcase site: https://sumtaimo.github.io/Skill-Foundry/
 
+## Versioning: Project version vs. Skill versions
+
+Skill Foundry tracks two separate version numbers so the CLI/platform and individual skills evolve independently:
+
+- **Skill Foundry project version (`package.json`, currently `1.0.1`)**: versions the `skill-foundry` CLI, showcase site, `llms.txt`, `skills.json`, and harness integration (`npx github:sumtaimo/Skill-Foundry --version`). Shown in the page footer as `Skill Foundry version 1.0.1`.
+- **Individual skill version (`src/skills/<name>/SKILL.md` and `src/factory/registry.json`, e.g. `1.0.0` or `0.2.0`)**: versions each skill's own instructions, rules, and engine inside its folder. Shown on each skill card and skill detail page as `Skill version <x.y.z>` and recorded in `.claude/skills/<name>/.foundry.json` so `check` and `update` only update skills whose content changed.
+
 ## Showcase site and verification
 
 ```sh

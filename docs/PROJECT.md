@@ -84,7 +84,10 @@ Rules that apply to every skill (the full text is in `AGENTS.md`, SKILL QUALITY 
 
 - A skill is also checked for someone outside this repo: `node src/factory/portable-check.mjs <name> --prompt "<request>" --record`. It is required before `ready` and goes stale when the skill changes (not for `scope: factory`).
 - Never leave work half done: finish the gaps your own report lists (AGENTS.md, SKILL QUALITY LAW, rule 11).
-- Skill versions stay at 1.0.0 until the owner calls a version final. Record changes under the current version; never bump it yourself.
+- **Two separate versions (Project vs. Skill)**:
+  - **Skill Foundry project version (`package.json`, `CHANGELOG.md`, currently `1.0.1`)** versions the `skill-foundry` CLI (`--version`), showcase site, `skills.json`, and `llms.txt`, and is displayed in the footer as `Skill Foundry version <x.y.z>`.
+  - **Each skill's version (`src/skills/<name>/SKILL.md`, `src/skills/<name>/CHANGELOG.md`, `src/factory/registry.json`, e.g. `1.0.0`, `0.2.0`)** versions that skill's folder independently and is displayed on its card and detail page as `Skill version <x.y.z>`.
+  - Both move slowly: record smaller changes under the current version and never bump either version without the owner's approval in chat.
 - figure-craft showcases one object only, the refrigerator, at the detail level of the owner's reference figure. The registry field `showcase` pins that case for the site.
 - Quality and detail come from the skill (rules, lint, references). When output is weak, fix the skill and run again; never touch up the output.
 - Every skill is for other people too: it starts from the goal its user states and is self-contained in its folder.
