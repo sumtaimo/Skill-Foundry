@@ -204,7 +204,7 @@ export function renderLayout(o) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%231d1d1b'/%3E%3Cpath d='M5 8.5h11c0 2.2-1.4 3.4-3.2 3.7v2.3h2.2v2H7v-2h2.2v-2.3C7.2 11.9 5.5 10.6 5 8.5zm11.8.4 2.7-1.4v2.6l-2.7-1.2z' fill='%23f9f9f8'/%3E%3C/svg%3E">
-<script>(function(){try{if('scrollRestoration' in history)history.scrollRestoration='manual';if(!location.hash)window.scrollTo(0,0);var t=localStorage.getItem('sf-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);var m=document.querySelector('meta[name="color-scheme"]');if(m)m.content=t;}}catch(e){}})();</script>
+<script>(function(){try{if('scrollRestoration' in history)history.scrollRestoration='manual';var nav=window.performance&&performance.getEntriesByType&&performance.getEntriesByType('navigation')[0];if(nav&&nav.type==='reload'&&location.hash)history.replaceState(null,'',location.pathname+location.search);if(!location.hash)window.scrollTo(0,0);var t=localStorage.getItem('sf-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);var m=document.querySelector('meta[name="color-scheme"]');if(m)m.content=t;}}catch(e){}})();</script>
 <title>${esc(o.title)}</title>
 <meta name="description" content="${esc(desc)}">${o.image ? `
 <meta property="og:title" content="${esc(o.title)}">
@@ -236,29 +236,14 @@ ${o.body}
 </main>
 </div>
 <footer class="foot"><div class="wrap foot-in">
-<div class="foot-cols">
-<div class="foot-col foot-about">
+<div class="foot-about">
 <p class="foot-brand"><svg class="mark" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><rect width="24" height="24" rx="6" fill="currentColor"/><path class="mark-fg" d="M4.5 8.5h11.5c0 2.2-1.5 3.4-3.3 3.7v2.3h2.3v2H6.8v-2h2.2v-2.3C6.8 11.9 5 10.6 4.5 8.5zm12.2.4 2.8-1.4v2.8l-2.8-1.4z"/></svg><span>Skill Foundry</span></p>
 ${t('foot.tagline', 'p', 'class="foot-tag"')}
 </div>
-<nav class="foot-col" aria-label="${esc(EN['foot.product'])}" data-i18n-aria="foot.product">
-${t('foot.product', 'p', 'class="foot-h"')}
-<ul class="foot-links">
-<li><a href="${up}index.html#collection">${t('nav.collection')}</a></li>
-<li><a href="${up}index.html#install">${t('nav.install')}</a></li>
-<li><a href="${up}index.html#agents">${t('nav.agents')}</a></li>
-</ul>
-</nav>
-<nav class="foot-col" aria-label="${esc(EN['foot.project'])}" data-i18n-aria="foot.project">
-${t('foot.project', 'p', 'class="foot-h"')}
-<ul class="foot-links">
-<li><a href="${REPO}">${t('foot.github')}</a></li>
-<li><a href="${REPO}/blob/master/CHANGELOG.md">${t('foot.changelog')}</a></li>
-<li><a href="${REPO}/blob/master/LICENSE">${t('foot.license')}</a></li>
-</ul>
-</nav>
+<div class="foot-meta">
+${o.version ? t('foot.version', 'p', 'class="foot-ver"', { v: o.version }) : ''}
+<p class="foot-copy">${t('foot.license', 'span')}<span class="foot-sep" aria-hidden="true">·</span>${t('foot.year', 'span', '', { y: Number.isInteger(o.year) ? o.year : new Date().getUTCFullYear() })}</p>
 </div>
-<p class="foot-meta">${o.version ? t('foot.version', 'span', 'class="foot-ver"', { v: o.version }) + '<span class="foot-sep" aria-hidden="true">·</span>' : ''}${t('foot.year', 'span', '', { y: Number.isInteger(o.year) ? o.year : new Date().getUTCFullYear() })}</p>
 </div></footer>
 </body>
 </html>

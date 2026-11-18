@@ -292,9 +292,20 @@
     for (var j = 0; j < nums.length; j++) io.observe(nums[j]);
   }
 
+  function forceTopIfNoHash() {
+    if (!window.location.hash) {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
+    }
+  }
+
   function init() {
     if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
-    if (!window.location.hash) window.scrollTo(0, 0);
+    forceTopIfNoHash();
+    window.requestAnimationFrame(forceTopIfNoHash);
+    window.addEventListener('load', forceTopIfNoHash, { once: true });
+    window.addEventListener('pageshow', forceTopIfNoHash);
     if (lang !== 'en') applyLang(lang);
     else syncButtons();
     document.addEventListener('click', function (ev) {

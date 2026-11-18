@@ -40,7 +40,7 @@ Source of truth for names: the run's shared interface contract. Current markup: 
 | `#agents` | Let an AI agent pick and install a skill | `<div class="agent-card">` (`--r-lg`): left the explanation and links to existing files only (`skills.json`, `llms.txt`, `render.mjs:407-408`); right the agent prompt codebox with Copy (`render.mjs:411`) | 2 columns | stacked, text first |
 | `#limits` | Say honestly what the skills do not do | `<ul class="limit-grid">` of three `<li class="limit">` (texts `limits.p1..p3`), each with a small neutral icon (decorative, `aria-hidden`) | 3 columns | 1 column |
 | `#questions` | Answer common questions | Each question `<details class="faq">` with `<summary>` (16px, 500, plus/minus icon right), all inside one `--r-lg` box with thin dividers; answers muted. Existing questions: what, node, edit, made (`render.mjs:424-427`) | full width, max content width | full width |
-| `footer.foot` | Navigation and project facts | `<div class="foot-cols">`: col 1 logo + one-line tagline; col 2 Product (Collection, Install, For agents); col 3 Project (GitHub repo, Changelog only if it exists, License MIT); plus ONE meta group "Skill Foundry version x.y.z · (c) year TAIMO" (build `version`, current year) on its own full-width row at the bottom of the footer block, left aligned, 24px space above, no divider line; columns above stay top-aligned. Transparent background, 13px muted. Same on every page | 3 columns, meta row below | 1 column, meta row below, wraps inside itself |
+| `footer.foot` | Project facts | Left (`div.foot-about`): logo + one-line tagline; Right (`div.foot-meta`): two-line hierarchy with `p.foot-ver` ("Skill Foundry version x.y.z" in primary text) above `p.foot-copy` ("License MIT · © year TAIMO" in muted text). No Product or Project link columns. Transparent background, 13px. Same on every page | 2-column left/right split | stacked left-aligned |
 
 All ids and h2s (`proof-title`, `install-title`, `agents-title`, `limits-title`, `questions-title`) stay unchanged.
 
@@ -89,7 +89,7 @@ Questions
 13. Given `#questions`, then each question is `details.faq` inside one `--r-lg` box; when a summary is activated (click, Enter or Space), then it opens and the icon becomes minus.
 
 Footer
-14. Given any page, then `footer.foot` has `.foot-cols` with brand, Product and Project columns and ONE meta group holding the build version and the current year TAIMO on its own full-width left-aligned row at the bottom (24px above, no divider line; see H9); Changelog link appears only if the changelog page exists.
+14. Given any page, then `footer.foot` has `.foot-about` (brand and tagline) on the left and `.foot-meta` on the right as a two-line hierarchy (`Skill Foundry version x.y.z` above `License MIT · © year TAIMO`), with no Product or Project link columns.
 
 Global
 15. Given the landing, then exactly one `btn primary` exists, and no search input or role filter exists.

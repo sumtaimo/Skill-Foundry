@@ -120,11 +120,13 @@ test('landing keeps exactly one btn primary', async () => {
   assert.equal(count(await html(), /class="btn primary[\s"]/g), 1);
 });
 
-test('footer has div.foot-cols and MIT text', async () => {
+test('footer has div.foot-about, div.foot-meta and MIT text', async () => {
   const page = await html();
   const f = /<footer[^>]*>([\s\S]*?)<\/footer>/.exec(page);
   assert.ok(f, 'footer exists');
-  assert.match(f[1], /<div class="foot-cols"[^>]*>/);
+  assert.match(f[1], /<div class="foot-about"[^>]*>/);
+  assert.match(f[1], /<div class="foot-meta"[^>]*>/);
+  assert.doesNotMatch(f[1], /class="foot-cols"/, 'Product and Project columns removed');
   assert.match(f[1], /MIT/);
 });
 
@@ -442,14 +444,13 @@ for (const [label, get] of [['landing', html], ['skill page', skillPage]]) {
     const f = /<footer[^>]*>([\s\S]*?)<\/footer>/.exec(await get());
     assert.ok(f, 'footer exists');
     const text = (s) => s.replace(/<[^>]+>/g, ' ');
-    const meta = footGroups(f[1]).filter((g) => /TAIMO/.test(text(g.inner)) && text(g.inner).includes(v) && /\b20\d\d\b/.test(text(g.inner)));
-    assert.equal(meta.length, 1, 'exactly one group holds version and year TAIMO');
+    const meta = inner(f[1], /<div class="foot-meta"[^>]*>/);
+    assert.ok(meta, 'foot-meta exists');
+    assert.match(text(meta), /TAIMO/, 'meta holds TAIMO');
+    assert.ok(text(meta).includes(v), 'meta holds version');
+    assert.match(text(meta), /\b20\d\d\b/, 'meta holds year');
     assert.doesNotMatch(f[1], /\bby\s+TAIMO\b/i, 'by TAIMO removed from footer');
     assert.doesNotMatch(f[1], /<hr\b/i, 'no hr in footer');
-    const cols = f[1].indexOf('class="foot-cols"');
-    assert.ok(cols !== -1, 'foot-cols exists');
-    const between = f[1].slice(cols, meta[0].index);
-    assert.doesNotMatch(between, /class="[^"]*\b(divider|separator|foot-rule|rule|line)\b/, 'no divider element before meta');
   });
 }
 
@@ -569,20 +570,19 @@ test('landing stage: result title is inside the request column, after the cover 
 });
 
 for (const [label, get] of [['landing', html], ['skill page', skillPage]]) {
-  test(`${label}: footer meta group is the last child of the footer block`, async () => {
+  test(`${label}: footer meta group is the right-side child after foot-about`, async () => {
     const foot = inner(await get(), /<footer\b[^>]*>/);
     assert.ok(foot !== null, 'footer exists');
     const top = children(foot);
     assert.equal(top.length, 1, 'footer has one block wrapper');
     const kids = children(inner(top[0].outer, /^<[a-z]+\b[^>]*>/));
-    assert.ok(kids.length >= 2, 'footer block has columns and meta');
+    assert.equal(kids.length, 2, 'footer block has foot-about and foot-meta');
+    assert.match(kids[0].open, /class="foot-about[\s"]/, 'first child is .foot-about');
     const last = kids[kids.length - 1];
-    assert.match(last.open, /class="foot-meta[\s"]/, 'last child is .foot-meta');
+    assert.match(last.open, /class="foot-meta[\s"]/, 'second child is .foot-meta');
     assert.match(last.outer, /TAIMO/, 'meta holds TAIMO');
     assert.doesNotMatch(last.outer, /\bby\s+TAIMO\b/i, 'by TAIMO removed');
     assert.equal(count(foot, /class="foot-meta[\s"]/g), 1, 'one meta group');
-    const cols = inner(foot, /<div class="foot-cols"[^>]*>/);
-    assert.ok(cols !== null, 'foot-cols exists');
-    assert.doesNotMatch(cols, /class="foot-meta/, 'meta not inside foot-cols');
+    assert.doesNotMatch(foot, /class="foot-cols/, 'Product and Project columns removed');
   });
 }
