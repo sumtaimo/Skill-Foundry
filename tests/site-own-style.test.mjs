@@ -133,7 +133,25 @@ test('site.css: reduced motion switches every animation and transition off', asy
     return /\*[^{]*\{[^}]*animation\s*:\s*none/.test(body) && /transition\s*:\s*none/.test(body);
   });
   assert.ok(ok, 'reduced-motion block with animation: none and transition: none on every element');
-  assert.doesNotMatch(css, /@keyframes/, 'the page has no animation at all');
+  // Every @keyframes name is defined once and the universal rule above stops all of them.
+  const ranges = blocks.map((b) => {
+    let i = b.index + b[0].length, depth = 1;
+    while (i < css.length && depth) { if (css[i] === '{') depth++; else if (css[i] === '}') depth--; i++; }
+    return [b.index, i];
+  });
+  const defined = new Set([...css.matchAll(/@(?:-webkit-)?keyframes\s+([A-Za-z_-][\w-]*)/g)].map((m) => m[1]));
+  const outside = ranges.reduceRight((s, [a, z]) => s.slice(0, a) + s.slice(z), css)
+    .replace(/@(?:-webkit-)?keyframes\s+[\w-]+\s*\{(?:[^{}]*\{[^}]*\})*[^{}]*\}/g, '');
+  const keywords = new Set(['none', 'infinite', 'linear', 'ease', 'ease-in', 'ease-out', 'ease-in-out', 'step-start', 'step-end',
+    'normal', 'reverse', 'alternate', 'alternate-reverse', 'forwards', 'backwards', 'both', 'running', 'paused',
+    'initial', 'inherit', 'unset', 'revert', 'start', 'end', 'jump-start', 'jump-end', 'jump-none', 'jump-both']);
+  for (const m of outside.matchAll(/(?:^|[;{\s])animation(-name)?\s*:\s*([^;}]+)/g)) {
+    const value = m[2].replace(/[a-z-]+\([^)]*\)/gi, ' ');
+    for (const tok of value.split(/[\s,]+/).filter(Boolean)) {
+      if (/^[-+]?[\d.]/.test(tok) || keywords.has(tok.toLowerCase())) continue;
+      assert.ok(defined.has(tok), `animation uses keyframes "${tok}" that site.css does not define (defined: ${[...defined].join(', ') || 'none'})`);
+    }
+  }
 });
 
 /** @param {string} html @param {string} id @returns {string} */

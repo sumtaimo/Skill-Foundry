@@ -14,11 +14,24 @@ import { DICTS } from './i18n.mjs';
 /** Agent roles a skill may declare; the same eight the install CLI (src/factory/foundry.mjs) accepts. */
 export const ROLES = ['PO_ARCHITECT', 'BA_ANALYST', 'DEV_ENGINEER', 'QA_AUDITOR', 'UX_DESIGNER', 'REVIEWER', 'SECURITY', 'COORDINATOR'];
 
+/** Latest recordedAt date (YYYY-MM-DD) among the recordings in evals/live/, or an empty string. */
+function liveUpdated(dir) {
+  const live = join(dir, 'evals', 'live');
+  let best = '';
+  for (const f of readdirSync(live).filter((x) => x.endsWith('.json'))) {
+    let rec;
+    try { rec = JSON.parse(readFileSync(join(live, f), 'utf8')); } catch { continue; }
+    const at = typeof rec?.recordedAt === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(rec.recordedAt) ? rec.recordedAt : '';
+    if (at > best) best = at;
+  }
+  return best;
+}
+
 /** Real-agent eval result from evals/live/ recordings; null when the skill has none. */
 function liveResult(dir) {
   if (!existsSync(join(dir, 'evals', 'live'))) return null;
   const s = scoreLive(dir);
-  return { passed: s.passed, total: s.passed + s.failed };
+  return { passed: s.passed, total: s.passed + s.failed, updated: liveUpdated(dir) };
 }
 
 const EXCLUDE = new Set(['.DS_Store', 'Thumbs.db', 'node_modules', '.git']);

@@ -1,6 +1,6 @@
 /**
  * Skill Foundry showcase behaviour: theme, language, copy buttons, section bar progress and
- * active tab, skill search and role filter, and the zip fallback and agent prompt built from the page address.
+ * active tab with a sliding highlight, scroll reveal, count-up stats, skill search and role filter, and the zip fallback and agent prompt built from the page address.
  * DICTS is injected at build time from src/site/lib/i18n.mjs. No external scripts.
  * @governed-by PO_ARCHITECT
  */
@@ -8,6 +8,7 @@
   'use strict';
   var DICTS = /*__DICTS__*/ { en: {}, kh: {} };
   var root = document.documentElement;
+  document.documentElement.classList.add('js');
 
   function load(key) { try { return window.localStorage.getItem(key); } catch (e) { return null; } }
   function save(key, value) { try { window.localStorage.setItem(key, value); } catch (e) { /* storage blocked */ } }
@@ -18,7 +19,7 @@
   function currentTheme() {
     var attr = root.getAttribute('data-theme');
     if (attr === 'light' || attr === 'dark') return attr;
-    return load('sf-theme') === 'light' ? 'light' : 'dark';
+    return load('sf-theme') === 'dark' ? 'dark' : 'light';
   }
   function applyTheme(theme) {
     if (theme !== 'dark' && theme !== 'light') return;
@@ -26,7 +27,7 @@
     var meta = document.querySelector('meta[name="color-scheme"]');
     if (meta) meta.content = theme;
   }
-  applyTheme(load('sf-theme') === 'light' ? 'light' : 'dark');
+  applyTheme(load('sf-theme') === 'dark' ? 'dark' : 'light');
 
   var lang = load('sf-lang') === 'kh' ? 'kh' : 'en';
 
@@ -118,6 +119,15 @@
     }
   }
 
+  /* Header: transparent over the hero; is-scrolled once the page moves more than 8px (checked on load too). */
+  function setupHeader() {
+    var header = document.querySelector('.top');
+    if (!header) return;
+    function update() { header.classList.toggle('is-scrolled', window.scrollY > 8); }
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+  }
+
   /* Question bar: progress width from scroll, active tab from the section in view. */
   function setupQbar() {
     var bar = document.querySelector('.qbar');
@@ -139,6 +149,16 @@
       for (var j = 0; j < links.length; j++) {
         if (j === current) links[j].setAttribute('aria-current', 'true'); else links[j].removeAttribute('aria-current');
       }
+      var stickTop = parseFloat(window.getComputedStyle(bar).top) || 0;
+      bar.classList.toggle('is-stuck', bar.getBoundingClientRect().top <= stickTop + 1 && window.scrollY > 8);
+      moveIndicator(links[current]);
+    }
+    var ind = bar.querySelector('.qbar-ind');
+    function moveIndicator(a) {
+      if (!ind || !a) return;
+      ind.style.width = a.offsetWidth + 'px';
+      ind.style.transform = 'translateX(' + a.offsetLeft + 'px)';
+      ind.classList.add('is-on');
     }
     function schedule() { if (!ticking) { ticking = true; window.requestAnimationFrame(update); } }
     window.addEventListener('scroll', schedule, { passive: true });
@@ -217,77 +237,67 @@
     }
   }
 
-  /* React Bits inspired pointer spotlight and subtle tilt on Bento cards. */
-  function setupSpotlight() {
-    if (reducedMotion()) return;
-    if (window.matchMedia && !window.matchMedia('(hover: hover)').matches) return;
-    var cards = document.querySelectorAll('.plate');
-    for (var i = 0; i < cards.length; i++) {
-      (function (card) {
-        var rect = null;
-        var raf = 0;
-        var lastEv = null;
-        function refreshRect() { rect = card.getBoundingClientRect(); }
-        if ('ResizeObserver' in window) {
-          new window.ResizeObserver(function () { rect = null; }).observe(card);
-        }
-        function paint() {
-          raf = 0;
-          if (!lastEv) return;
-          if (!rect) refreshRect();
-          if (!rect.width || !rect.height) return;
-          var x = lastEv.clientX - rect.left;
-          var y = lastEv.clientY - rect.top;
-          var px = Math.max(0, Math.min(100, (x / rect.width) * 100));
-          var py = Math.max(0, Math.min(100, (y / rect.height) * 100));
-          var rx = ((py - 50) / 50) * -2.2;
-          var ry = ((px - 50) / 50) * 2.2;
-          card.style.setProperty('--mx', px.toFixed(1) + '%');
-          card.style.setProperty('--my', py.toFixed(1) + '%');
-          card.style.setProperty('--rx', rx.toFixed(2) + 'deg');
-          card.style.setProperty('--ry', ry.toFixed(2) + 'deg');
-        }
-        card.addEventListener('pointerenter', refreshRect);
-        card.addEventListener('pointermove', function (ev) {
-          lastEv = ev;
-          if (!raf) raf = window.requestAnimationFrame(paint);
-        });
-        card.addEventListener('pointerleave', function () {
-          lastEv = null;
-          card.style.setProperty('--rx', '0deg');
-          card.style.setProperty('--ry', '0deg');
-        });
-      })(cards[i]);
+  /* Scroll reveal: marks section heads and cards with .reveal, staggers cards in a grid by 60ms (--i),
+     adds .is-in when they enter the viewport. No observer or reduced motion: everything shows at once. */
+  var REVEAL = '.sec-head, .plate, .stat, .steps > .step, .agent-card, .limit, .faq-box, main > .stage';
+  function setupReveal() {
+    var els = document.querySelectorAll(REVEAL);
+    if (!els.length) return;
+    var still = reducedMotion() || !('IntersectionObserver' in window);
+    var vh = window.innerHeight || 900;
+    var io = still ? null : new IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) {
+        if (entries[i].isIntersecting) { show(entries[i].target); io.unobserve(entries[i].target); }
+      }
+    }, { rootMargin: '0px 0px -4% 0px', threshold: 0.04 });
+    function show(el) {
+      el.classList.add('is-in');
+      window.setTimeout(function () { el.style.removeProperty('--i'); }, 1200);
+    }
+    for (var j = 0; j < els.length; j++) {
+      var el = els[j];
+      var sibs = el.parentNode ? Array.prototype.indexOf.call(el.parentNode.children, el) : 0;
+      if (el.matches('.plate, .stat, .step, .limit')) el.style.setProperty('--i', String(Math.min(sibs, 8)));
+      if (still) { el.classList.add('reveal', 'is-in'); continue; }
+      el.classList.add('reveal');
+      var r = el.getBoundingClientRect();
+      if (r.top < vh && r.bottom > 0) show(el); else io.observe(el);
     }
   }
 
-  /* Smooth entrance transitions below the fold; disabled immediately under reduced motion. */
-  function setupReveal() {
-    if (reducedMotion() || !('IntersectionObserver' in window)) return;
-    var els = document.querySelectorAll('.plate, main > section:not(.hero):not(.real-result)');
-    if (!els.length) return;
-    root.classList.add('sf-anim');
-    var io = new window.IntersectionObserver(function (entries) {
-      for (var i = 0; i < entries.length; i++) {
-        if (entries[i].isIntersecting) {
-          entries[i].target.setAttribute('data-shown', 'true');
-          io.unobserve(entries[i].target);
-        }
-      }
-    }, { rootMargin: '0px 0px -4% 0px', threshold: 0.04 });
-    var vh = window.innerHeight || 900;
-    for (var j = 0; j < els.length; j++) {
-      var r = els[j].getBoundingClientRect();
-      if (r.top < vh * 0.96) els[j].setAttribute('data-shown', 'true');
-      else io.observe(els[j]);
+  /* Stats count up from 0 once when first visible; the final text stays the real number. */
+  function countUp(el) {
+    var final = el.textContent;
+    var parts = final.split(/(d+)/);
+    if (parts.length < 2) return;
+    var t0 = 0, dur = 600;
+    function frame(ts) {
+      if (!t0) t0 = ts;
+      var k = Math.min(1, (ts - t0) / dur);
+      var e = 1 - Math.pow(1 - k, 3);
+      el.textContent = parts.map(function (x, i) { return i % 2 ? String(Math.round(Number(x) * e)) : x; }).join('');
+      if (k < 1) window.requestAnimationFrame(frame); else el.textContent = final;
     }
+    window.requestAnimationFrame(frame);
+  }
+  function setupCount() {
+    if (reducedMotion() || !('IntersectionObserver' in window)) return;
+    var nums = document.querySelectorAll('.stat-num');
+    if (!nums.length) return;
+    var io = new IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) {
+        if (entries[i].isIntersecting) { countUp(entries[i].target); io.unobserve(entries[i].target); }
+      }
+    }, { threshold: 0.5 });
+    for (var j = 0; j < nums.length; j++) io.observe(nums[j]);
   }
 
   function init() {
     if (lang !== 'en') applyLang(lang);
     else syncButtons();
     document.addEventListener('click', function (ev) {
-      var btn = ev.target && ev.target.closest ? ev.target.closest('button') : null;
+      var tgt = ev.target && ev.target.closest ? ev.target : null;
+      var btn = tgt ? tgt.closest('button') : null;
       if (!btn) return;
       var action = btn.getAttribute('data-action');
       if (action === 'theme') {
@@ -308,15 +318,16 @@
     });
     window.addEventListener('storage', function (ev) {
       if (ev.key === 'sf-theme') {
-        applyTheme(ev.newValue === 'light' ? 'light' : 'dark');
+        applyTheme(ev.newValue === 'dark' ? 'dark' : 'light');
         syncButtons();
       }
     });
+    setupHeader();
     setupQbar();
     setupFinder();
     setupInstall();
-    setupSpotlight();
     setupReveal();
+    setupCount();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

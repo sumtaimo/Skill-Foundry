@@ -6,7 +6,7 @@ import { DICTS } from './i18n.mjs';
 import { ROLES } from './content.mjs';
 
 const EN = DICTS.en;
-const FONTS = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap';
+const FONTS = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap';
 
 /** @param {unknown} s */
 export function esc(s) {
@@ -25,8 +25,26 @@ function t(key, tag = 'span', attrs = '', args = null) {
   return `<${tag} data-i18n="${esc(key)}"${a}${attrs ? ' ' + attrs : ''}>${esc(fill(EN[key], args))}</${tag}>`;
 }
 
+/** Like t(), but the class attribute comes first so markup reads <tag class="…" data-i18n=…>. */
+function tc(key, tag, cls, args = null) {
+  if (typeof cls !== 'string' || !cls) throw new TypeError('tc: class required');
+  return t(key, tag, '', args).replace(`<${tag} `, `<${tag} class="${esc(cls)}" `);
+}
+
 function need(obj, name) {
   if (!obj || typeof obj !== 'object') throw new TypeError(`${name}: object required`);
+}
+
+/** Public source repository (footer links). */
+const REPO = 'https://github.com/sumtaimo/Skill-Foundry';
+
+/** Section header: eyebrow, the section h2, optional lead. */
+function secHead(titleKey, id, eyebrowKey, leadKey = '') {
+  if (typeof id !== 'string' || !id) throw new TypeError('secHead: id required');
+  return `<header class="sec-head">
+${tc(eyebrowKey, 'p', 'eyebrow')}
+${t(titleKey, 'h2', `id="${esc(id)}"`)}${leadKey ? `\n${tc(leadKey, 'p', 'sec-lead')}` : ''}
+</header>`;
 }
 
 const pad = (n) => String(n).padStart(2, '0');
@@ -79,6 +97,28 @@ function liveLine(skill) {
     : t('live.no', 'p', 'class="live live-no" data-live="none"');
 }
 
+
+/** Roles that get the skill, as quiet chips (registry roles field). */
+function roleChips(skill) {
+  const roles = (skill.roles || []).filter((r) => typeof r === 'string' && `chip.${r}` in EN);
+  return roles.length ? `<li class="meta-roles">${roles.map((r) => t(`chip.${r}`, 'span', `class="role-chip" data-role="${esc(r)}"`)).join('')}</li>` : '';
+}
+
+/** One quiet meta row shared by cards and skill pages: version, cases passed, latest recording date, roles. Only real data. */
+export function metaRow(skill, cls = 'meta-row') {
+  need(skill, 'metaRow');
+  const l = skill.live;
+  const cases = l && l.total > 0
+    ? t('meta.cases', 'li', `class="live live-yes" data-live="${l.passed}/${l.total}"`, { p: l.passed, t: l.total })
+    : t('live.no', 'li', 'class="live live-no" data-live="none"');
+  const updated = l && l.updated ? t('meta.updated', 'li', 'class="meta-updated"', { d: l.updated }) : '';
+  return `<ul class="${cls}">
+${t('card.version', 'li', 'class="plate-ver"', { v: String(skill.version ?? '') })}
+${cases}
+${updated}
+${roleChips(skill)}
+</ul>`;
+}
 
 function coverSvg(skill, bare = false) {
   const label = `${skill.title} cover`;
@@ -162,7 +202,7 @@ export function renderLayout(o) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="dark light">
+<meta name="color-scheme" content="light">
 <script>(function(){try{var t=localStorage.getItem('sf-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);var m=document.querySelector('meta[name="color-scheme"]');if(m)m.content=t;}}catch(e){}})();</script>
 <title>${esc(o.title)}</title>
 <meta name="description" content="${esc(desc)}">${o.image ? `
@@ -178,22 +218,44 @@ export function renderLayout(o) {
 </head>
 <body>
 <a class="skip" href="#main">${t('skip')}</a>
-<header class="top">
-<a class="brand" href="${up}index.html">Skill Foundry</a>
-<nav class="tools" aria-label="${esc(EN['nav.label'])}" data-i18n-aria="nav.label">
-<a href="${up}index.html#collection">${t('nav.collection')}</a>
-${local.proof ? `<a href="${local.proof}">${t('nav.proof')}</a>\n` : ''}<a href="${local.install ?? `${up}index.html#install`}">${t('nav.install')}</a>
-<a href="${up}index.html#agents">${t('nav.agents')}</a>
-<button type="button" class="icon-btn" data-action="theme" aria-pressed="true"><svg class="i-moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><svg class="i-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>${t('theme.toLight', 'span', 'class="sr"')}</button>
+<header class="top"><div class="top-in">
+<a class="brand" href="${up}index.html"><svg class="mark" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" focusable="false"><rect width="24" height="24" rx="7" fill="currentColor" opacity=".08"/><path d="M5 9h11.5c0 2-1.5 3-3 3.2V14h2v2.5H7.5V14h2v-1.8C7 12 5 10.8 5 9zm12 .2 2.5-1.2v2z" fill="currentColor"/></svg><span class="brand-name">Skill Foundry</span></a>
+<div class="top-actions">
+<button type="button" class="icon-btn" data-action="theme" aria-pressed="false"><svg class="i-moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><svg class="i-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>${t('theme.toDark', 'span', 'class="sr"')}</button>
 <button type="button" class="icon-btn lang-btn" data-action="lang" lang="km">${t('lang.toKh', 'span', 'class="sr"')}</button>
-</nav>
-</header>
+<a class="btn cta" href="${local.install ?? `${up}index.html#install-title`}">${t('cta.install')}</a>
+</div>
+</div></header>
 <div class="wrap">
 <main id="main" tabindex="-1">
 ${o.body}
 </main>
 </div>
-<footer class="foot"><div class="wrap">${t('footer', 'p')}</div></footer>
+<footer class="foot"><div class="wrap foot-in">
+<div class="foot-cols">
+<div class="foot-col foot-about">
+<p class="foot-brand"><svg class="mark" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M5 9h11.5c0 2-1.5 3-3 3.2V14h2v2.5H7.5V14h2v-1.8C7 12 5 10.8 5 9zm12 .2 2.5-1.2v2z" fill="currentColor"/></svg><span>Skill Foundry</span></p>
+${t('foot.tagline', 'p', 'class="foot-tag"')}
+</div>
+<p class="foot-meta">${t('hero.by', 'span')}<span class="foot-sep" aria-hidden="true">·</span>${o.version ? t('foot.version', 'span', 'class="foot-ver"', { v: o.version }) + '<span class="foot-sep" aria-hidden="true">·</span>' : ''}${t('foot.year', 'span', '', { y: Number.isInteger(o.year) ? o.year : new Date().getUTCFullYear() })}</p>
+<nav class="foot-col" aria-label="${esc(EN['foot.product'])}" data-i18n-aria="foot.product">
+${t('foot.product', 'p', 'class="foot-h"')}
+<ul class="foot-links">
+<li><a href="${up}index.html#collection">${t('nav.collection')}</a></li>
+<li><a href="${up}index.html#install">${t('nav.install')}</a></li>
+<li><a href="${up}index.html#agents">${t('nav.agents')}</a></li>
+</ul>
+</nav>
+<nav class="foot-col" aria-label="${esc(EN['foot.project'])}" data-i18n-aria="foot.project">
+${t('foot.project', 'p', 'class="foot-h"')}
+<ul class="foot-links">
+<li><a href="${REPO}">${t('foot.github')}</a></li>
+<li><a href="${REPO}/blob/master/CHANGELOG.md">${t('foot.changelog')}</a></li>
+<li><a href="${REPO}/blob/master/LICENSE">${t('foot.license')}</a></li>
+</ul>
+</nav>
+</div>
+</div></footer>
 </body>
 </html>
 `;
@@ -205,9 +267,9 @@ export function renderCard(skill, opts = {}) {
   const up = '../'.repeat(opts.depth ?? 0);
   return `<article class="plate" data-skill="${esc(skill.name)}" data-roles="${esc((skill.roles || []).join(' '))}" data-text="${esc(haystack(skill))}">
 ${cover(skill, 'cover')}
-<div class="plate-head"><h3 lang="en"><a href="${up}skills/${esc(skill.name)}/index.html">${esc(skill.title)}</a></h3>${t('card.version', 'span', 'class="plate-ver"', { v: String(skill.version ?? '') })}</div>
+<h3 lang="en"><a href="${up}skills/${esc(skill.name)}/index.html">${esc(skill.title)}</a></h3>
 <p class="plate-tag" lang="en">${esc(sentence(skill.tagline))}</p>
-${liveLine(skill)}
+${metaRow(skill)}
 <p class="plate-act"><a class="btn ghost" href="${up}skills/${esc(skill.name)}/index.html">${t('card.details')}</a></p>
 </article>`;
 }
@@ -228,22 +290,21 @@ export function featuredSkill(skills) {
 function renderHero(skills, opts = {}) {
   if (!skills.length) return `<section class="hero">${t('hero.title', 'h1')}</section>`;
   const live = skills.reduce((a, s) => ({ p: a.p + (s.live ? s.live.passed : 0), t: a.t + (s.live ? s.live.total : 0) }), { p: 0, t: 0 });
-  const roles = new Set(skills.flatMap((s) => s.roles || [])).size;
   const f = featuredSkill(skills);
-  const factsList = [t('chip.skills', 'li', '', { n: skills.length }), t('chip.cases', 'li', '', live), t('chip.roles', 'li', '', { n: roles })].join('\n');
+  const cmd = esc(npxCommand('add --all'));
   return `<section class="hero" aria-labelledby="hero-title">
-${t('hero.title', 'h1', 'id="hero-title"')}
+<p class="hero-pill-row"><a class="hero-pill" href="#collection"><span class="pill-tag" data-i18n="pill.new">${esc(EN['pill.new'])}</span><span class="pill-text" data-i18n="pill.text" data-i18n-args="${esc(JSON.stringify({ n: skills.length }))}">${esc(fill(EN['pill.text'], { n: skills.length }))}</span><span class="pill-arrow" aria-hidden="true">→</span></a></p>
+<h1 id="hero-title">${t('hero.t1', 'span', 'class="h1-line"')} ${t('hero.t2', 'span', 'class="h1-line grad"')}</h1>
 ${t('hero.sub', 'p', 'class="lead"')}
 <div class="hero-install">
 ${t('hero.installLabel', 'p', 'class="cmd-label"')}
-<div class="codebox"><pre><code class="npx-cmd">${esc(npxCommand('add --all'))}</code></pre><button type="button" class="btn primary copy" data-copy="${esc(npxCommand('add --all'))}">${t('copy.copy')}</button></div>
-<p class="hero-meta">${t('hero.by', 'span', 'class="hero-by"')}${opts.version ? t('hero.version', 'span', 'class="ver"', { v: opts.version }) : ''}<span class="hero-lic">MIT</span></p>
+<div class="codebox"><pre><code class="npx-cmd">${cmd}</code></pre><button type="button" class="btn primary copy" data-copy="${cmd}">${t('copy.copy')}</button></div>
 </div>
-<ul class="facts">
-${factsList}
-</ul>
+<div class="hero-actions hero-cta"><a class="btn ghost" href="#collection">${t('hero.browse')}<span aria-hidden="true">→</span></a>${t('chip.cases', 'span', 'class="trust"', live)}</div>
+<p class="sr">${opts.version ? tc('hero.version', 'span', 'ver', { v: opts.version }) : '<span class="ver"></span>'}</p>
 </section>
-<section id="result" class="real-result" aria-labelledby="result-title">
+<section id="result" class="real-result stage" aria-labelledby="result-title">
+<div class="stage-bar" aria-hidden="true"><span class="stage-url" lang="en">skill-foundry / ${esc(f.name)}</span></div>
 <h2 id="result-title"><span data-i18n="result.title">${esc(EN['result.title'])}</span> <span lang="en">${esc(f.title)}</span></h2>
 ${cover(f, 'cover cover-lg')}
 <div class="result-side">
@@ -293,10 +354,23 @@ function npxRows() {
   ].map(([key, arg]) => `<li class="cmd-row">${t(key, 'p', 'class="cmd-label"')}<div class="codebox"><pre><code class="npx-cmd">${esc(npxCommand(arg))}</code></pre>${copyButton(npxCommand(arg))}</div></li>`).join('\n');
 }
 
+/** One install step card: number pill, title, sentence, one codebox per command (not primary: the hero keeps the only primary). */
+function stepCard(n, key, args) {
+  if (!Number.isInteger(n) || !Array.isArray(args)) throw new TypeError('stepCard: bad arguments');
+  const boxes = args.map((a) => `<div class="codebox"><pre><code class="step-cmd">${esc(npxCommand(a))}</code></pre>${copyButton(npxCommand(a))}</div>`).join('\n');
+  return `<li class="step"><span class="step-n" aria-hidden="true">${n}</span>
+${t(`${key}.t`, 'h3')}
+${t(`${key}.p`, 'p')}
+<div class="step-cmds">
+${boxes}
+</div>
+</li>`;
+}
+
 function qa(n, extra = '') {
-  return `<details class="acc qa">
-<summary>${t(`qa.${n}.q`)}</summary>
-${t(`qa.${n}.a`, 'p')}${extra}
+  return `<details class="faq">
+<summary>${t(`qa.${n}.q`)}<span class="faq-icon" aria-hidden="true"></span></summary>
+<div class="faq-a">${t(`qa.${n}.a`, 'p')}${extra}</div>
 </details>`;
 }
 
@@ -312,20 +386,25 @@ export function renderIndex(skills, opts = {}) {
   const sums = opts.checksums ?? {};
   const layers = Array.from({ length: 7 }, (_, i) => t(`proof.l${i + 1}`, 'li')).join('\n');
   const proofRows = sorted.map((s) => `<tr><th scope="row" lang="en"><a href="skills/${esc(s.name)}/index.html">${esc(s.name)}</a></th><td>${s.live && s.live.total > 0 ? `${s.live.passed} / ${s.live.total}` : t('proof.notyet')}</td><td>${s.rules.machine} / ${s.rules.total}</td></tr>`).join('\n');
+  const live = sorted.reduce((a, s) => ({ p: a.p + (s.live ? s.live.passed : 0), t: a.t + (s.live ? s.live.total : 0) }), { p: 0, t: 0 });
+  const roleCount = new Set(sorted.flatMap((s) => (Array.isArray(s.roles) ? s.roles : []))).size;
   const promptTemplate = EN['agents.prompt'];
   const promptPlain = promptTemplate.replace('Read {site}llms.txt', 'Read the llms.txt file on this site');
   const body = `${renderHero(sorted, { version: opts.version })}
-<section id="collection" class="col collection numbered" aria-labelledby="collection-title">
-${t('collection.title', 'h2', 'id="collection-title"')}
+<section id="collection" class="col collection" aria-labelledby="collection-title">
+${secHead('collection.title', 'collection-title', 'eyebrow.collection', 'collection.lead')}
 <div class="grid">
 ${sorted.map((s, i) => renderCard(s, { index: i + 1, sha256: sums[zipName(s)]?.sha256 })).join('\n')}
 </div>
 </section>
-<section id="proof" class="col numbered" aria-labelledby="proof-title">
-${t('proof.title', 'h2', 'id="proof-title"')}
-<details class="acc">
-<summary>${t('proof.show')}</summary>
-${t('proof.p', 'p')}
+<section id="proof" class="col" aria-labelledby="proof-title">
+${secHead('proof.title', 'proof-title', 'eyebrow.proof', 'proof.p')}
+<div class="stats">
+<div class="stat"><span class="stat-num">${sorted.length}</span>${tc('stat.skills', 'span', 'stat-label')}</div>
+<div class="stat">${tc('stat.casesNum', 'span', 'stat-num', live)}${tc('stat.cases', 'span', 'stat-label')}</div>
+<div class="stat"><span class="stat-num">${roleCount}</span>${tc('stat.roles', 'span', 'stat-label')}</div>
+</div>
+<div class="proof-box">
 <div class="table-wrap"><table class="proof">
 <thead><tr>${t('proof.skill', 'th', 'scope="col"')}${t('proof.real', 'th', 'scope="col"')}${t('proof.rules', 'th', 'scope="col"')}</tr></thead>
 <tbody>
@@ -339,59 +418,69 @@ ${layers}
 </ol>
 </details>
 ${renderRecipes(opts.recipes ?? [], sorted)}
-</details>
+</div>
 </section>
-<section id="install" class="col numbered" aria-labelledby="install-title">
-${t('install.title', 'h2', 'id="install-title"')}
-${t('install.lead', 'p')}
+<section id="install" class="col" aria-labelledby="install-title">
+${secHead('install.title', 'install-title', 'eyebrow.install', 'install.secLead')}
+<ol class="steps">
+${stepCard(1, 'step.all', ['add --all'])}
+${stepCard(2, 'step.one', ['add <skill>'])}
+${stepCard(3, 'step.keep', ['check', 'update'])}
+</ol>
+<div class="install-more">
+${t('install.scope', 'p', 'class="note"')}
 <details class="acc">
 <summary>${t('install.more')}</summary>
 <ol class="cmds">
 ${npxRows()}
 </ol>
 </details>
-${t('install.npx', 'p', 'class="note"')}
-${t('install.scope', 'p', 'class="note"')}
 <details class="acc">
 <summary>${t('install.fallback')}</summary>
 ${t('install.fallback.p', 'p')}
-<ol class="steps">
+<ol class="zip-steps">
 ${steps('install.s', 3)}
 </ol>
 ${Number.isFinite(opts.allBytes) && opts.allBytes > 0 ? `<p>${allLink(opts.allBytes)}</p>` : ''}
 <p class="meta"><a href="downloads/checksums.json">${t('download.checksums')}</a></p>
 </details>
+</div>
 </section>
-<section id="agents" class="col numbered" aria-labelledby="agents-title">
-${t('agents.title', 'h2', 'id="agents-title"')}
-<details class="acc">
-<summary>${t('agents.show')}</summary>
+<section id="agents" class="col" aria-labelledby="agents-title">
+${secHead('agents.title', 'agents-title', 'eyebrow.agents', 'agents.lead')}
+<div class="agent-card">
+<div class="agent-info">
 ${t('agents.p', 'p')}
 <ul class="agent-files">
-<li><a href="skills.json">${t('agents.json')}</a></li>
-<li><a href="llms.txt">${t('agents.txt')}</a></li>
+<li><a class="file-pill" href="skills.json"><svg class="file-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path d="M7 3h7l5 5v13H7z M14 3v5h5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>${t('agents.json')}</a></li>
+<li><a class="file-pill" href="llms.txt"><svg class="file-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path d="M7 3h7l5 5v13H7z M14 3v5h5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>${t('agents.txt')}</a></li>
 </ul>
+</div>
+<div class="agent-prompt-box">
 ${t('agents.promptLabel', 'h3')}
 <div class="codebox"><pre lang="en"><code class="agent-prompt">${esc(promptPlain)}</code></pre><button type="button" class="btn copy" data-copy="${esc(promptPlain)}" data-agent-prompt="${esc(promptTemplate)}">${t('agents.copyPrompt')}</button></div>
-</details>
+</div>
+</div>
 </section>
-<section id="limits" class="col numbered" aria-labelledby="limits-title">
-${t('limits.title', 'h2', 'id="limits-title"')}
-<ul class="limits">
-<li>${t('limits.p1')}</li>
-<li>${t('limits.p2')}</li>
-<li>${t('limits.p3')}</li>
+<section id="limits" class="col" aria-labelledby="limits-title">
+${secHead('limits.title', 'limits-title', 'eyebrow.limits', 'limits.lead')}
+<ul class="limit-grid">
+<li class="limit"><svg class="limit-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 7.5v5.5M12 16.2v.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>${t('limits.p1', 'p')}</li>
+<li class="limit"><svg class="limit-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 7.5v5.5M12 16.2v.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>${t('limits.p2', 'p')}</li>
+<li class="limit"><svg class="limit-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 7.5v5.5M12 16.2v.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>${t('limits.p3', 'p')}</li>
 </ul>
 </section>
-<section id="questions" class="col numbered" aria-labelledby="questions-title">
-${t('questions.title', 'h2', 'id="questions-title"')}
+<section id="questions" class="col" aria-labelledby="questions-title">
+${secHead('questions.title', 'questions-title', 'eyebrow.questions')}
+<div class="faq-box">
 ${qa('what')}
 ${qa('node')}
 ${qa('edit')}
-${qa('made', `\n<ol class="steps">\n${steps('made.s', 5)}\n</ol>`)}
+${qa('made', `\n<ol class="made-steps">\n${steps('made.s', 5)}\n</ol>`)}
+</div>
 </section>
 <script type="application/json" id="sf-manifest">${manifest}</script>`;
-  return renderLayout({ title: 'Skill Foundry', depth: 0, body });
+  return renderLayout({ title: 'Skill Foundry', depth: 0, body, version: opts.version });
 }
 
 function renderChangelog(md) {
@@ -445,22 +534,18 @@ export function renderSkillPage(skill, opts) {
   const dl = opts.download;
   if (!dl || typeof dl.sha256 !== 'string' || !Number.isFinite(dl.bytes)) throw new TypeError('renderSkillPage: download {sha256, bytes} required');
   const s = { ...skill, zipBytes: Number.isFinite(skill.zipBytes) && skill.zipBytes > 0 ? skill.zipBytes : dl.bytes };
-  const toc = [`<a href="#install">${t('skill.install')}</a>`, ...SECTIONS.map((q, i) => `<a href="#${q.id}"><span class="num" aria-hidden="true">${i + 1}</span>${t(q.key)}</a>`)].join('\n');
-  const facts = [`<li><span data-i18n="version">${esc(EN.version)}</span> <code class="ver">${esc(s.version)}</code></li>`,
-    ...(s.roles || []).map((r) => t(`role.${r}`, 'li', `class="role" data-role="${esc(r)}"`))].join('\n');
+  const toc = [`<a href="#install">${t('nav.install')}</a>`, ...SECTIONS.map((q, i) => `<a href="#${q.id}">${t(q.key)}</a>`)].join('\n');
   const parts = [];
   parts.push(`<header class="skill-head">
 <p class="back"><a href="../../index.html#collection">${t('back')}</a></p>
 <h1 lang="en">${esc(s.title)}</h1>
 <p class="lead" lang="en">${esc(sentence(s.tagline))}</p>
-<ul class="facts">
-${facts}
-</ul>
-${liveLine(s)}
+${metaRow(s)}
 <p class="hero-actions"><a class="btn primary" href="#install">${t('skill.cta')}</a></p>
 </header>
 <nav class="qbar" aria-label="${esc(EN['toc.label'])}" data-i18n-aria="toc.label">
 <div class="qbar-tabs">
+<span class="qbar-ind" aria-hidden="true"></span>
 ${toc}
 </div>
 <div class="qbar-progress" aria-hidden="true"></div>
@@ -570,14 +655,17 @@ ${t('limits.title', 'h2', 'id="h-limits"')}
 </section>
 <section id="questions" class="numbered" aria-labelledby="h-questions">
 ${t('questions.title', 'h2', 'id="h-questions"')}
+<div class="faq-box">
 ${qa('node')}
 ${qa('edit')}
+</div>
 </section>`);
   return renderLayout({
     title: `${s.title} | Skill Foundry`,
     description: s.tagline,
     depth: 2,
-    local: { install: '#install', proof: '#proven' },
+    local: { install: '#h-install' },
+    version: typeof opts.version === 'string' && opts.version ? opts.version : undefined,
     image: opts.siteUrl ? `${String(opts.siteUrl).replace(/\/$/, '')}/skills/${s.name}/banner.png` : undefined,
     body: parts.join('\n'),
   });
