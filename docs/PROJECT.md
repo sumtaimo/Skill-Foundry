@@ -63,7 +63,7 @@ Rules that apply to every skill (the full text is in `AGENTS.md`, SKILL QUALITY 
 | `src/skills/_template/` | Starting folder for a new skill, with all layer files |
 | `src/skills/<name>/` | 10 ready skills: `skill-smith` (factory), `a11y-audit`, `changelog-writer`, `copy-tight`, `design-system`, `figure-craft`, `spec-writer`, `test-planner`, `ui-polish`, `ux-review` |
 | `src/factory/` | lint, evals, live evals, routing evals, run recorder, skill guard, pack, install, `registry.json`, `locks.json`, `migration.json` |
-| `src/site/` | Showcase site generator (`npm run dev`, dark-first Bento UI with real-agent outputs) |
+| `src/site/` | Showcase site generator (`npm run dev`, `docs/site/LANDING-SPEC.md`, real-agent outputs) |
 | `tests/` | `npm test` (node --test) |
 | `.harness/` | Agentic-Harness 1.0.18; locked unless the owner approves in chat |
 

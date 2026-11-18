@@ -1,6 +1,6 @@
-# Skill Foundry (`v1.0.0`)
+# Skill Foundry (`v1.0.1`)
 
-A factory for AI agent skills by **TAIMO**. Each skill is a self-contained folder structured into ten core layers (`docs/factory/STANDARD.md`), verified by a machine linter, fresh real-agent evals, portable empty-project checks, and routing tests. The showcase site (`src/site/`) uses a dark-first Bento layout with light mode and EN/KH toggles and displays only real recorded agent outputs. Node 24, ES modules, zero runtime dependencies (`playwright` is a dev dependency for browser checks).
+A factory for AI agent skills by **TAIMO**. Each skill is a self-contained folder structured into ten core layers (`docs/factory/STANDARD.md`), verified by a machine linter, fresh real-agent evals, portable empty-project checks, and routing tests. The showcase site (`src/site/`, specified in `docs/site/LANDING-SPEC.md`) uses a calm, neutral React Bits–inspired layout with light/dark themes and EN/KH toggles and displays only real recorded agent outputs. Node 24, ES modules, zero runtime dependencies (`playwright` is a dev dependency for browser checks).
 
 Read `docs/PROJECT.md` first for project goals, per-skill status, and quality rules.
 
@@ -9,7 +9,7 @@ Read `docs/PROJECT.md` first for project goals, per-skill status, and quality ru
 Requires Node.js and git. Tested on Linux, macOS, and Windows.
 
 ```sh
-npx github:sumtaimo/Skill-Foundry --version                 # project version (1.0.0)
+npx github:sumtaimo/Skill-Foundry --version                 # project version (1.0.1)
 npx github:sumtaimo/Skill-Foundry list                      # ready skills, versions, roles
 npx github:sumtaimo/Skill-Foundry add test-planner          # install one skill
 npx github:sumtaimo/Skill-Foundry add --default             # install the default skill set
@@ -35,7 +35,7 @@ Existing text and settings outside managed blocks are preserved. Downloadable `.
 npm install
 npm test                         # full suite (factory, CLI, recipes, showcase, Playwright visual checks)
 node src/factory/lint-skills.mjs # lint all skills against STANDARD.md & QUALITY-LAYERS.md
-npm run dev                      # build and preview the dark-first Bento showcase locally
+npm run dev                      # build and preview the showcase site locally
 ```
 
 ## Work in this repository (the lab)

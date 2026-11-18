@@ -437,14 +437,14 @@ function footGroups(foot) {
 }
 
 for (const [label, get] of [['landing', html], ['skill page', skillPage]]) {
-  test(`${label}: footer has one meta group with by TAIMO, version and year, no divider`, async () => {
+  test(`${label}: footer has one meta group with version and year TAIMO, no by TAIMO and no divider`, async () => {
     const v = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).version;
     const f = /<footer[^>]*>([\s\S]*?)<\/footer>/.exec(await get());
     assert.ok(f, 'footer exists');
     const text = (s) => s.replace(/<[^>]+>/g, ' ');
-    const meta = footGroups(f[1]).filter((g) => /by\s+TAIMO/i.test(text(g.inner)) && text(g.inner).includes(v) && /\b20\d\d\b/.test(text(g.inner)));
-    assert.equal(meta.length, 1, 'exactly one group holds by TAIMO, version and year');
-    assert.equal(count(f[1], /by\s+TAIMO/gi), 1, 'by TAIMO appears once');
+    const meta = footGroups(f[1]).filter((g) => /TAIMO/.test(text(g.inner)) && text(g.inner).includes(v) && /\b20\d\d\b/.test(text(g.inner)));
+    assert.equal(meta.length, 1, 'exactly one group holds version and year TAIMO');
+    assert.doesNotMatch(f[1], /\bby\s+TAIMO\b/i, 'by TAIMO removed from footer');
     assert.doesNotMatch(f[1], /<hr\b/i, 'no hr in footer');
     const cols = f[1].indexOf('class="foot-cols"');
     assert.ok(cols !== -1, 'foot-cols exists');
@@ -578,7 +578,8 @@ for (const [label, get] of [['landing', html], ['skill page', skillPage]]) {
     assert.ok(kids.length >= 2, 'footer block has columns and meta');
     const last = kids[kids.length - 1];
     assert.match(last.open, /class="foot-meta[\s"]/, 'last child is .foot-meta');
-    assert.match(last.outer, /by\s+TAIMO/i, 'meta holds by TAIMO');
+    assert.match(last.outer, /TAIMO/, 'meta holds TAIMO');
+    assert.doesNotMatch(last.outer, /\bby\s+TAIMO\b/i, 'by TAIMO removed');
     assert.equal(count(foot, /class="foot-meta[\s"]/g), 1, 'one meta group');
     const cols = inner(foot, /<div class="foot-cols"[^>]*>/);
     assert.ok(cols !== null, 'foot-cols exists');

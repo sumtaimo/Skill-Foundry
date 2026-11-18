@@ -203,7 +203,8 @@ export function renderLayout(o) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
-<script>(function(){try{var t=localStorage.getItem('sf-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);var m=document.querySelector('meta[name="color-scheme"]');if(m)m.content=t;}}catch(e){}})();</script>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%231d1d1b'/%3E%3Cpath d='M5 8.5h11c0 2.2-1.4 3.4-3.2 3.7v2.3h2.2v2H7v-2h2.2v-2.3C7.2 11.9 5.5 10.6 5 8.5zm11.8.4 2.7-1.4v2.6l-2.7-1.2z' fill='%23f9f9f8'/%3E%3C/svg%3E">
+<script>(function(){try{if('scrollRestoration' in history)history.scrollRestoration='manual';if(!location.hash)window.scrollTo(0,0);var t=localStorage.getItem('sf-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);var m=document.querySelector('meta[name="color-scheme"]');if(m)m.content=t;}}catch(e){}})();</script>
 <title>${esc(o.title)}</title>
 <meta name="description" content="${esc(desc)}">${o.image ? `
 <meta property="og:title" content="${esc(o.title)}">
@@ -219,7 +220,7 @@ export function renderLayout(o) {
 <body>
 <a class="skip" href="#main">${t('skip')}</a>
 <header class="top"><div class="top-in">
-<a class="brand" href="${up}index.html"><svg class="mark" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" focusable="false"><rect width="24" height="24" rx="7" fill="currentColor" opacity=".08"/><path d="M5 9h11.5c0 2-1.5 3-3 3.2V14h2v2.5H7.5V14h2v-1.8C7 12 5 10.8 5 9zm12 .2 2.5-1.2v2z" fill="currentColor"/></svg><span class="brand-name">Skill Foundry</span></a>
+<a class="brand" href="${up}index.html"><svg class="mark" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" focusable="false"><rect width="24" height="24" rx="6" fill="currentColor"/><path class="mark-fg" d="M4.5 8.5h11.5c0 2.2-1.5 3.4-3.3 3.7v2.3h2.3v2H6.8v-2h2.2v-2.3C6.8 11.9 5 10.6 4.5 8.5zm12.2.4 2.8-1.4v2.8l-2.8-1.4z"/></svg><span class="brand-name">Skill Foundry</span></a>
 <div class="top-actions">
 <div class="top-tools">
 <button type="button" class="tool-btn" data-action="theme" aria-pressed="false"><span class="tool-chip" aria-hidden="true"><svg class="i-moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><svg class="i-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>${t('theme.toDark', 'span', 'class="sr"')}</button>
@@ -237,7 +238,7 @@ ${o.body}
 <footer class="foot"><div class="wrap foot-in">
 <div class="foot-cols">
 <div class="foot-col foot-about">
-<p class="foot-brand"><svg class="mark" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M5 9h11.5c0 2-1.5 3-3 3.2V14h2v2.5H7.5V14h2v-1.8C7 12 5 10.8 5 9zm12 .2 2.5-1.2v2z" fill="currentColor"/></svg><span>Skill Foundry</span></p>
+<p class="foot-brand"><svg class="mark" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><rect width="24" height="24" rx="6" fill="currentColor"/><path class="mark-fg" d="M4.5 8.5h11.5c0 2.2-1.5 3.4-3.3 3.7v2.3h2.3v2H6.8v-2h2.2v-2.3C6.8 11.9 5 10.6 4.5 8.5zm12.2.4 2.8-1.4v2.8l-2.8-1.4z"/></svg><span>Skill Foundry</span></p>
 ${t('foot.tagline', 'p', 'class="foot-tag"')}
 </div>
 <nav class="foot-col" aria-label="${esc(EN['foot.product'])}" data-i18n-aria="foot.product">
@@ -257,7 +258,7 @@ ${t('foot.project', 'p', 'class="foot-h"')}
 </ul>
 </nav>
 </div>
-<p class="foot-meta">${t('hero.by', 'span')}<span class="foot-sep" aria-hidden="true">·</span>${o.version ? t('foot.version', 'span', 'class="foot-ver"', { v: o.version }) + '<span class="foot-sep" aria-hidden="true">·</span>' : ''}${t('foot.year', 'span', '', { y: Number.isInteger(o.year) ? o.year : new Date().getUTCFullYear() })}</p>
+<p class="foot-meta">${o.version ? t('foot.version', 'span', 'class="foot-ver"', { v: o.version }) + '<span class="foot-sep" aria-hidden="true">·</span>' : ''}${t('foot.year', 'span', '', { y: Number.isInteger(o.year) ? o.year : new Date().getUTCFullYear() })}</p>
 </div></footer>
 </body>
 </html>
@@ -292,7 +293,6 @@ export function featuredSkill(skills) {
 
 function renderHero(skills, opts = {}) {
   if (!skills.length) return `<section class="hero">${t('hero.title', 'h1')}</section>`;
-  const live = skills.reduce((a, s) => ({ p: a.p + (s.live ? s.live.passed : 0), t: a.t + (s.live ? s.live.total : 0) }), { p: 0, t: 0 });
   const f = featuredSkill(skills);
   const cmd = esc(npxCommand('add --all'));
   return `<section class="hero" aria-labelledby="hero-title">
@@ -303,7 +303,6 @@ ${t('hero.sub', 'p', 'class="lead"')}
 ${t('hero.installLabel', 'p', 'class="cmd-label"')}
 <div class="codebox"><pre><code class="npx-cmd">${cmd}</code></pre><button type="button" class="btn primary copy" data-copy="${cmd}">${t('copy.copy')}</button></div>
 </div>
-<div class="hero-actions hero-cta"><a class="btn ghost" href="#collection">${t('hero.browse')}<span aria-hidden="true">→</span></a>${t('chip.cases', 'span', 'class="trust"', live)}</div>
 <p class="sr">${opts.version ? tc('hero.version', 'span', 'ver', { v: opts.version }) : '<span class="ver"></span>'}</p>
 </section>
 <section id="result" class="real-result stage" aria-labelledby="result-title">
@@ -543,8 +542,8 @@ export function renderSkillPage(skill, opts) {
 <p class="back"><a href="../../index.html#collection">${t('back')}</a></p>
 <h1 lang="en">${esc(s.title)}</h1>
 <p class="lead" lang="en">${esc(sentence(s.tagline))}</p>
-${metaRow(s)}
 <p class="hero-actions"><a class="btn primary" href="#install">${t('skill.cta')}</a></p>
+${metaRow(s)}
 </header>
 <nav class="qbar" aria-label="${esc(EN['toc.label'])}" data-i18n-aria="toc.label">
 <div class="qbar-tabs">

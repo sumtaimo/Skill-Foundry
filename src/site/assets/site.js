@@ -268,7 +268,7 @@
   /* Stats count up from 0 once when first visible; the final text stays the real number. */
   function countUp(el) {
     var final = el.textContent;
-    var parts = final.split(/(d+)/);
+    var parts = final.split(/(\d+)/);
     if (parts.length < 2) return;
     var t0 = 0, dur = 600;
     function frame(ts) {
@@ -293,6 +293,8 @@
   }
 
   function init() {
+    if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
+    if (!window.location.hash) window.scrollTo(0, 0);
     if (lang !== 'en') applyLang(lang);
     else syncButtons();
     document.addEventListener('click', function (ev) {

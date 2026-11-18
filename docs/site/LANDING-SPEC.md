@@ -40,7 +40,7 @@ Source of truth for names: the run's shared interface contract. Current markup: 
 | `#agents` | Let an AI agent pick and install a skill | `<div class="agent-card">` (`--r-lg`): left the explanation and links to existing files only (`skills.json`, `llms.txt`, `render.mjs:407-408`); right the agent prompt codebox with Copy (`render.mjs:411`) | 2 columns | stacked, text first |
 | `#limits` | Say honestly what the skills do not do | `<ul class="limit-grid">` of three `<li class="limit">` (texts `limits.p1..p3`), each with a small neutral icon (decorative, `aria-hidden`) | 3 columns | 1 column |
 | `#questions` | Answer common questions | Each question `<details class="faq">` with `<summary>` (16px, 500, plus/minus icon right), all inside one `--r-lg` box with thin dividers; answers muted. Existing questions: what, node, edit, made (`render.mjs:424-427`) | full width, max content width | full width |
-| `footer.foot` | Navigation and project facts | `<div class="foot-cols">`: col 1 logo + one-line tagline; col 2 Product (Collection, Install, For agents); col 3 Project (GitHub repo, Changelog only if it exists, License MIT); plus ONE meta group "by TAIMO · Skill Foundry version x.y.z · (c) year" (build `version`, current year) on its own full-width row at the bottom of the footer block, left aligned, 24px space above, no divider line; columns above stay top-aligned. Transparent background, 13px muted. Same on every page | 3 columns, meta row below | 1 column, meta row below, wraps inside itself |
+| `footer.foot` | Navigation and project facts | `<div class="foot-cols">`: col 1 logo + one-line tagline; col 2 Product (Collection, Install, For agents); col 3 Project (GitHub repo, Changelog only if it exists, License MIT); plus ONE meta group "Skill Foundry version x.y.z · (c) year TAIMO" (build `version`, current year) on its own full-width row at the bottom of the footer block, left aligned, 24px space above, no divider line; columns above stay top-aligned. Transparent background, 13px muted. Same on every page | 3 columns, meta row below | 1 column, meta row below, wraps inside itself |
 
 All ids and h2s (`proof-title`, `install-title`, `agents-title`, `limits-title`, `questions-title`) stay unchanged.
 
@@ -89,7 +89,7 @@ Questions
 13. Given `#questions`, then each question is `details.faq` inside one `--r-lg` box; when a summary is activated (click, Enter or Space), then it opens and the icon becomes minus.
 
 Footer
-14. Given any page, then `footer.foot` has `.foot-cols` with brand, Product and Project columns and ONE meta group holding by TAIMO, the build version and the current year on its own full-width left-aligned row at the bottom (24px above, no divider line; see H9); Changelog link appears only if the changelog page exists.
+14. Given any page, then `footer.foot` has `.foot-cols` with brand, Product and Project columns and ONE meta group holding the build version and the current year TAIMO on its own full-width left-aligned row at the bottom (24px above, no divider line; see H9); Changelog link appears only if the changelog page exists.
 
 Global
 15. Given the landing, then exactly one `btn primary` exists, and no search input or role filter exists.
@@ -174,7 +174,9 @@ Tightens the header tools, the stage title and the footer meta row for every vis
 Rules
 - Header right side = two groups, 12px gap: (a) `div.top-tools`: inline-flex, 1px `var(--line)` border, `var(--surface)` background, radius `var(--r-md)`, padding 2px, no gap, holding in order the theme button, the language button (existing Khmer/English behaviour and label) and `a.gh-btn`, with thin 1px dividers between the three; (b) the black Install `btn cta` on its own.
 - `a.gh-btn`: href `https://github.com/sumtaimo/Skill-Foundry`, `target="_blank"`, `rel="noopener noreferrer"`, inline SVG GitHub mark 16px `currentColor` (decorative), accessible label from i18n key `gh.label` (English "Skill Foundry on GitHub", plus Khmer).
-- Size: each tool button shows a 32x32 chip (radius `var(--r-sm)`, hover `var(--surface-2)`) via inner `span.tool-chip` or negative margins, while the element box stays at least 44x44. Install looks 36px tall inside a 44px element if needed, otherwise 44px.
+- Size: each tool button shows a 32x32 chip (radius `var(--r-sm)`, hover `var(--surface-2)`) via inner `span.tool-chip` or negative margins, while the element box stays at least 44x44. `.btn` (including Install and skill CTA) renders a compact 34px-tall Stripe-sized pill via `::before` inside its 44px element box.
+- Hero install box: holds the `add --all` command box (with `Copy`) without a separate `Browse skills` button or duplicate cases text below it.
+- Initial load scroll position: `history.scrollRestoration = 'manual'` and `window.scrollTo(0, 0)` when there is no URL `#hash` so opening or reloading a page never restores a scrolled-down position at the bottom.
 - Stage: the title "A real result from <skill>" sits in the right column directly above the REQUEST text, with the request and See the full result button; same id, heading level and `data-i18n`.
 - Footer: meta row as in section 3 (`footer.foot`).
 - No leftover CSS or markup from removed parts; nothing unused after the change.
