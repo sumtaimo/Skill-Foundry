@@ -74,7 +74,9 @@ Rules that apply to every skill (the full text is in `AGENTS.md`, SKILL QUALITY 
 3. Pilot: figure-craft showcase comes from a recorded real run (refrigerator). **[built]**
 4. Migrate skills to the layer files; all portable ready skills checked with `chk-portable`. **[built]**
 5. Recipes for combining skills. **[built]** (3 recipes in `src/factory/recipes.json`: `ship-a-change`, `tokens-then-polish`, `spec-then-retest`)
-6. Additional domain skills added one skill per session under `docs/factory/STANDARD.md` with fresh real-agent proof. **[planned]**
+6. Additional domain skills added one skill per session under `docs/factory/STANDARD.md` with fresh real-agent proof: **[in progress on `lab`]**
+   - `ui-craft` draft `0.1.0` (`[built]` on `lab` `@f82dd71`, pending fresh-agent live/portable/routing recordings -> `1.0.0` `ready` and Skill Foundry `1.1.0`).
+   - Ordered continuation tasks (`UI-2026-01` .. `UI-2026-05`: `ui-craft` `ready` -> `design-system` `1.1.0` -> `ui-polish` `1.1.0` -> `ux-review` `1.0.1` -> `svg-mechanism` `1.0.0`) are tracked in `.harness/backlog.json` (`status: BACKLOG`) and documented end-to-end in `docs/factory/notes/2026-ui-upgrade-handoff.md`.
 
 ## 7. Rules for every agent
 

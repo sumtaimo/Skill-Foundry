@@ -2,5 +2,130 @@
   "version": "2.0.0",
   "project": "Skill Foundry",
   "maxAutoTasksPerRun": 3,
-  "tasks": []
+  "tasks": [
+    {
+      "id": "UI-2026-01",
+      "title": "Promote ui-craft to ready 1.0.0 (live evals, portable check, routing, site tests)",
+      "priority": 1,
+      "status": "BACKLOG",
+      "source": "advisor-handoff",
+      "role": "DEV_ENGINEER",
+      "skills": [
+        "skill-smith"
+      ],
+      "targetFiles": [
+        "src/skills/ui-craft/**",
+        "docs/skills/ui-craft/**",
+        "src/factory/registry.json",
+        "src/factory/routing/**",
+        "tests/ui-craft.test.mjs",
+        "tests/site-finder.test.mjs"
+      ],
+      "goal": "Follow docs/factory/notes/2026-ui-upgrade-handoff.md (UI-2026-01) on branch lab. First run 1-case smoke test (`node src/factory/live-evals.mjs ui-craft --run --case vague-no-surface-ask --engine agy` or `--engine claude`) to confirm CLI quota/hooks work. Then run remaining 7 live cases, save generated HTML into src/skills/ui-craft/evals/live/files/ and verify with checkPage, run portable-check --record, update src/factory/routing/cases.json (r11, r19, r24, ay10 -> ui-craft + uc1..uc4) and routing-evals --run, update tests/site-finder.test.mjs line 172, promote ui-craft to version 1.0.0 status ready. Finally ask PO in chat to approve bumping root package.json (1.0.1 -> 1.1.0) & CHANGELOG.md and committing Session 1 on lab.",
+      "acceptanceCriteria": [
+        "node src/factory/live-evals.mjs ui-craft passes 8/8 from real fresh-agent recordings.",
+        "src/skills/ui-craft/evals/portable.json passes checkRecording with 0 problems.",
+        "node src/factory/routing-evals.mjs passes 0 failed and 0 stale.",
+        "checkPage passes at 1440px and 390px light/dark reduced-motion on live-generated HTML in evals/live/files/.",
+        "npm run guard passes with at most one skill (ui-craft) changed."
+      ],
+      "verifyCmd": "node src/factory/lint-skills.mjs ui-craft && node src/factory/live-evals.mjs ui-craft && node --test tests/ui-craft.test.mjs tests/site-finder.test.mjs && npm run guard"
+    },
+    {
+      "id": "UI-2026-02",
+      "title": "Upgrade design-system to 1.1.0 with optional 2026 glass, z-index, radius and weight tokens",
+      "priority": 2,
+      "status": "BACKLOG",
+      "source": "advisor-handoff",
+      "role": "DEV_ENGINEER",
+      "skills": [
+        "skill-smith"
+      ],
+      "targetFiles": [
+        "src/skills/design-system/**",
+        "docs/skills/design-system/**",
+        "src/factory/registry.json",
+        "tests/design-system.test.mjs"
+      ],
+      "goal": "Follow docs/factory/notes/2026-ui-upgrade-handoff.md (UI-2026-02) on branch lab after UI-2026-01 is committed. Add optional 2026 token groups (--glass-bg, --glass-blur, --r-xs..--r-xl, --z-sticky..--z-toast, --glow, --btn-gloss, --font-weight-medium: 500, optional user-named web font support) while preserving full backward compatibility with 1.0.0 cases and midtone-teal showcase. Re-record live-evals and portable-check, bump design-system to 1.1.0 (with root CHANGELOG.md note in editor session), and verify npm run release:check.",
+      "acceptanceCriteria": [
+        "Existing 14 design-system live cases and midtone-teal showcase continue to pass without regression.",
+        "New eval case(s) verify optional 2026 glass/z-index/weight tokens via real-agent live recordings and portable check.",
+        "npm run guard passes with only design-system touched."
+      ],
+      "verifyCmd": "node src/factory/lint-skills.mjs design-system && node src/factory/live-evals.mjs design-system && node --test tests/design-system.test.mjs && npm run guard"
+    },
+    {
+      "id": "UI-2026-03",
+      "title": "Upgrade ui-polish to 1.1.0 for 2026 token compatibility and ui-craft boundary sync",
+      "priority": 3,
+      "status": "BACKLOG",
+      "source": "advisor-handoff",
+      "role": "DEV_ENGINEER",
+      "skills": [
+        "skill-smith"
+      ],
+      "targetFiles": [
+        "src/skills/ui-polish/**",
+        "docs/skills/ui-polish/**",
+        "src/factory/registry.json",
+        "src/factory/recipes/**",
+        "tests/ui-polish.test.mjs"
+      ],
+      "goal": "Follow docs/factory/notes/2026-ui-upgrade-handoff.md (UI-2026-03) on branch lab after UI-2026-02 is committed. Teach ui-polish Token Mode to accept 2026 tokens (--glass-bg, --r-xs..--r-xl, --z-*, --glow, weight 500, tabular-nums, backdrop-filter) without flattening them, redirect new screen design cleanly to ui-craft, re-record live-evals, portable-check, and recipe tokens-then-polish (`node src/factory/recipe-run.mjs tokens-then-polish --record`).",
+      "acceptanceCriteria": [
+        "ui-polish live evals, portable-check, checkPage, and tokens-then-polish recipe all pass from fresh real-agent recordings.",
+        "npm run guard passes with only ui-polish touched."
+      ],
+      "verifyCmd": "node src/factory/lint-skills.mjs ui-polish && node src/factory/live-evals.mjs ui-polish && node --test tests/ui-polish.test.mjs tests/factory-recipes.test.mjs && npm run guard"
+    },
+    {
+      "id": "UI-2026-04",
+      "title": "Sync ux-review 1.0.1 negative boundaries with ui-polish and ui-craft",
+      "priority": 4,
+      "status": "BACKLOG",
+      "source": "advisor-handoff",
+      "role": "DEV_ENGINEER",
+      "skills": [
+        "skill-smith"
+      ],
+      "targetFiles": [
+        "src/skills/ux-review/**",
+        "docs/skills/ux-review/**",
+        "src/factory/registry.json",
+        "tests/ux-review.test.mjs"
+      ],
+      "goal": "Follow docs/factory/notes/2026-ui-upgrade-handoff.md (UI-2026-04) on branch lab after UI-2026-03 is committed. Remove pixel overlap between R-ux-review-8/9 (44px/8px target size/distance) and ui-polish (R-ui-polish-1/7), distinguish persistent nav links vs hero CTAs in R-ux-review-30, point screen-creation requests to ui-craft, and re-record live-evals and portable-check.",
+      "acceptanceCriteria": [
+        "ux-review live evals and portable-check pass from fresh real-agent recordings.",
+        "npm run guard passes with only ux-review touched."
+      ],
+      "verifyCmd": "node src/factory/lint-skills.mjs ux-review && node src/factory/live-evals.mjs ux-review && node --test tests/ux-review.test.mjs && npm run guard"
+    },
+    {
+      "id": "UI-2026-05",
+      "title": "Create svg-mechanism 1.0.0 skill for 2D animated architecture and mechanism SVGs",
+      "priority": 5,
+      "status": "BACKLOG",
+      "source": "advisor-handoff",
+      "role": "DEV_ENGINEER",
+      "skills": [
+        "skill-smith"
+      ],
+      "targetFiles": [
+        "src/skills/svg-mechanism/**",
+        "docs/skills/svg-mechanism/**",
+        "src/factory/registry.json",
+        "src/factory/routing/**",
+        "tests/svg-mechanism.test.mjs"
+      ],
+      "goal": "Follow docs/factory/notes/2026-ui-upgrade-handoff.md (UI-2026-05) on branch lab after UI-2026-04 is committed. Create portable 10-layer skill svg-mechanism (roles DEV_ENGINEER, UX_DESIGNER) for animated 2D architecture/mechanism SVGs synced to design-system/ui-craft CSS tokens, with <defs> gradients, play/pause + prefers-reduced-motion fallback, and checkPage viewBox checks, keeping figure-craft untouched. Record live-evals, portable-check, routing-evals, and ask PO before bumping package.json to 1.2.0 and merging lab -> master.",
+      "acceptanceCriteria": [
+        "lint-skills svg-mechanism passes with 0 problems.",
+        "live-evals, portable-check, routing-evals, and Playwright checkPage pass on recorded real-agent SVGs.",
+        "npm run guard passes with only svg-mechanism touched."
+      ],
+      "verifyCmd": "node src/factory/lint-skills.mjs svg-mechanism && node src/factory/live-evals.mjs svg-mechanism && node --test tests/svg-mechanism.test.mjs && npm run guard"
+    }
+  ]
 }
