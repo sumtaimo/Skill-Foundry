@@ -10,6 +10,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { runEvals } from '../src/factory/evals.mjs';
 import { lintSkill } from '../src/factory/lint-skills.mjs';
+import { checkPage, SKIP_REASON } from '../src/factory/visual.mjs';
 
 const SCRIPT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'src', 'skills', 'ui-polish', 'engine', 'contrast.mjs');
 const C = await import(pathToFileURL(SCRIPT).href);
@@ -17,7 +18,7 @@ const C = await import(pathToFileURL(SCRIPT).href);
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIR = path.join(ROOT, 'src', 'skills', 'ui-polish');
 const ASK = 'Paste the HTML and CSS of the finished screen you want polished.';
-const NEW = 'This skill polishes a finished UI; it does not design new screens.';
+const NEW = 'This skill polishes a finished UI; it does not design new screens. Use ui-craft to design one.';
 const TEXT = 'This skill does not rewrite text; every word is kept as written.';
 const shape = (body) => `## UI polish: x\n\n1 fix.\n\n### Fixes\n${body}\n\n### Contrast\n| a | b | c |\n\n### Polished code\n\`\`\`\n${body}\n\`\`\`\n\n### Not changed\n- All visible text, word for word.\n- Brand hue kept: blue.\n\n### Open questions\n- None.`;
 
@@ -34,7 +35,7 @@ const answers = {
 
 // Reference answers for the token cases are made from each case's own expectations (they show the shape, they are not proof).
 for (const c of JSON.parse(readFileSync(path.join(DIR, 'evals', 'cases.json'), 'utf8'))) {
-  if (c.id.startsWith('tokens-') || ['script-one-command', 'passing-dark-button', 'shared-stylesheet', 'overflow-measured'].includes(c.id)) answers[c.id] = shape(c.expect.filter((e) => e.type === 'contains').map((e) => e.value).join('\n'));
+  if (c.id.startsWith('tokens-') || ['script-one-command', 'passing-dark-button', 'shared-stylesheet', 'overflow-measured', 'foundation-components', 'modern-group-kept', 'drift-kept', 'khmer-tokens', 'khmer-default'].includes(c.id)) answers[c.id] = shape(c.expect.filter((e) => e.type === 'contains').map((e) => e.value).join('\n'));
 }
 
 test('ui-polish lint is clean', async () => {
@@ -45,7 +46,7 @@ test('ui-polish lint is clean', async () => {
 test('ui-polish evals pass on reference answers', () => {
   const cases = JSON.parse(readFileSync(path.join(DIR, 'evals', 'cases.json'), 'utf8'));
   assert.equal(cases.length, Object.keys(answers).length);
-  for (const id of ['tokens-css', 'tokens-tailwind', 'tokens-no-match', 'tokens-fail-contrast']) assert.ok(cases.some((c) => c.id === id), id);
+  for (const id of ['tokens-css', 'tokens-tailwind', 'tokens-no-match', 'tokens-fail-contrast', 'foundation-components', 'modern-group-kept', 'drift-kept', 'khmer-tokens', 'khmer-default']) assert.ok(cases.some((c) => c.id === id), id);
   const byPrompt = Object.fromEntries(cases.map((c) => [c.prompt, answers[c.id]]));
   const r = runEvals(DIR, (p) => ({ text: byPrompt[p] }));
   assert.equal(r.failed, 0, JSON.stringify(r.results.filter((x) => !x.ok)));
@@ -65,7 +66,7 @@ test('ui-polish rejects inline style objects in utility-class code', () => {
 
 test('ui-polish version matches CHANGELOG and registry', () => {
   const v = /^version:\s*(\S+)/m.exec(readFileSync(path.join(DIR, 'SKILL.md'), 'utf8'))[1];
-  assert.equal(v, '1.0.0');
+  assert.equal(v, '1.1.0');
   assert.match(readFileSync(path.join(DIR, 'CHANGELOG.md'), 'utf8'), new RegExp(`## ${v} - \\d{4}-\\d{2}-\\d{2}`));
   const reg = JSON.parse(readFileSync(path.join(ROOT, 'src', 'factory', 'registry.json'), 'utf8'));
   assert.equal(reg.find((x) => x.name === 'ui-polish').version, v);
@@ -81,6 +82,15 @@ test('ui-polish token cases reject an invented token name, a redefined token and
   const raw = runEvals(DIR, () => ({ text: shape('1. **Spacing**: 13px. padding: 12px; background: #2563eb; Invoice 1042') }));
   assert.equal(raw.results.find((x) => x.id === 'tokens-css').ok, false, 'raw values only');
   assert.ok(ok('tokens-css').find((x) => x.id === 'tokens-css').ok);
+});
+
+test('ui-polish foundation cases reject a flattened modern group, an invented variable and negative Khmer tracking', () => {
+  const bad = (id, extra) => runEvals(DIR, () => ({ text: `${answers[id]}\n${extra}` })).results.find((x) => x.id === id).ok;
+  assert.equal(bad('foundation-components', 'padding: var(--card-gap);'), false, 'invented variable');
+  assert.equal(bad('foundation-components', ':root { --card-padding: 12px; }'), false, 'variable redefined');
+  assert.equal(bad('khmer-default', 'padding: var(--space-12);'), false, 'default mode must not use variables');
+  const flat = runEvals(DIR, () => ({ text: shape('1. **Tokens**: padding: 12px; backdrop-filter: blur(12px); Acme Billing') }));
+  assert.equal(flat.results.find((x) => x.id === 'modern-group-kept').ok, false, 'flattened glass');
 });
 
 test('chk-contrast-script: the contrast script agrees with the reference table, uses only node: imports and never writes', () => {
@@ -129,4 +139,12 @@ test('contrast script reads tokens.css and design-tokens.json of the design-syst
   assert.throws(() => C.run(['--tokens', css, '--color-nope', '#ffffff']), /no token named --color-nope/);
   const scale = C.run(['--tokens', css, '--scale', '--color-neutral-', '--on', '--color-surface-default']);
   assert.ok(scale.length >= 10);
+});
+
+test('ui-polish polished pages from real agents pass checkPage (layout, overflow, both themes)', async (t) => {
+  for (const n of ['foundation-components', 'modern-group-kept', 'drift-kept', 'khmer-tokens']) {
+    const res = await checkPage(path.join(DIR, 'evals', 'live', 'files', `${n}.html`), { widths: [1440, 390], themes: ['light', 'dark'], reducedMotion: true });
+    if (res.skipped === SKIP_REASON) { t.skip(SKIP_REASON); return; }
+    assert.equal(res.ok, true, `${n}: ${JSON.stringify(res.problems)}`);
+  }
 });

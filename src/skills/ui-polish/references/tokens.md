@@ -6,6 +6,7 @@ Read this file only when there is a token file (layer 02). The skill needs no ot
 
 - **CSS file** (`tokens.css`): custom properties such as `--space-12: 12px;`. Use the light values in the root block. Dark values sit in a `prefers-color-scheme: dark` block and a `[data-theme="dark"]` block; reading them is only for the dark-theme check of layer 06, step 18. A `var(--other)` value is an alias; follow it to the final value.
 - **JSON file** (`design-tokens.json`, W3C design tokens): every token has `$type` and `$value`; aliases are written in braces, such as `{color.neutral.900}`. The CSS name of a JSON path is `--` plus the path joined with hyphens: `color.primary.800` is `--color-primary-800`, `space.12` is `--space-12`, `font.size.md` is `--font-size-md`, `font.weight.strong` is `--font-weight-strong`. Role tokens live under `color.role.light` and `color.role.dark`, and their CSS name has no `role`: `color.role.light.text-muted` is `--color-text-muted`. Motion tokens have no `motion` in the CSS name: `motion.duration-base` is `--duration-base`. `control.target-min` is `--size-target-min`. When only the JSON file exists, the page must load the custom properties; say so under "Open questions" (layer 06, step 16).
+- **Foundation folder** (`design/tokens.css`, `design/variables.json`): a project that has a `design/` folder from a design foundation keeps its tokens there. `design/tokens.css` is the file to read; `design/variables.json` only tells which tier a name is in (primitive, semantic role, component) and what it points at. Read both, never edit either (rule 23).
 - **Gap files** (`tokens.gaps.css`, `design-tokens.gaps.json`): read them after the main file; they only add tokens.
 - The script reads both formats: `node engine/contrast.mjs --tokens <file> --list` prints every token with its final value. Use it, instead of reading a long file by eye, when it can run.
 - Use only names that the file really has. A token file from another tool, or with other names, is read by meaning (a token whose name says "spacing 12" or "muted text"); when the meaning is not clear from the name and value, do not use the token.
@@ -33,10 +34,10 @@ Names below are the ones a token file made by a design-system skill has. Another
 | Margin, padding, gap | `--space-0`, `-4`, `-8`, `-12`, `-16`, `-24`, `-32`, `-48`, `-64` (the number is the px) |
 | Font size 12, 14, 16, 18, 20, 24, 30 (and 36, 48 when the file has them) | `--font-size-xs`, `-sm`, `-md`, `-lg`, `-xl`, `-2xl`, `-3xl` (and `-4xl`, `-5xl`) |
 | Line-height 1.5; headings 1.25; display 1.2 | `--line-height-body`; `--line-height-heading`; `--line-height-display` |
-| Font weight 400; 600 | `--font-weight-regular`; `--font-weight-strong` |
+| Font weight 400; 500; 600 | `--font-weight-regular`; `--font-weight-medium` (only when the file has it); `--font-weight-strong` |
 | Paragraph max-width | `--measure` |
 | Font family | `--font-family-sans`, `-heading`, `-mono` |
-| Radius | `--radius-sm`, `-md`, `-lg`, `-full`; a control `--radius-control` |
+| Radius | `--radius-sm`, `-md`, `-lg`, `-full`; a control `--radius-control`; with the modern group also `--r-xs`, `-sm`, `-md`, `-lg`, `-xl` (see "The modern group") |
 | Control height | `--control-height-sm`, `-md`, `-lg`; the 44 px click target `--size-target-min` |
 | Border width 1px; 2px; focus outline width | `--border-width-hairline`; `--border-width-thick`; `--border-width-focus` |
 | Shadow | `--shadow-1`, `-2`, `-3` |
@@ -51,6 +52,46 @@ Rules for choosing:
 4. A zero value stays `0`.
 5. A value with no matching token stays a plain value and is listed under "Open questions" in one line each, for example "`#7c3aed` on the Beta badge has no matching token; add one to the token file or confirm it stays". A group the file does not have at all (no radius tokens, no motion tokens) is one line for the whole group, and its default-mode scale is used (layer 04, step 6e).
 6. Never write a token name from this table that the file does not have.
+
+## Order of choice: component, role, primitive
+
+When the file has component variables, a value takes the first variable that fits, in this order:
+
+1. **Component variable**, when the element is that component and the property is one the component names: `--button-primary-bg`, `--button-primary-bg-hover`, `--button-primary-bg-pressed`, `--button-primary-text`, `--button-secondary-text`, `--button-secondary-border`, `--button-radius`, `--button-height`, `--button-padding-x`; `--input-bg`, `--input-text`, `--input-border`, `--input-border-focus`, `--input-radius`, `--input-height`; `--card-bg`, `--card-border`, `--card-radius`, `--card-shadow`, `--card-padding`.
+2. **Semantic role**: `--color-*` (the table above).
+3. **Primitive**: a scale or size token (`--color-primary-800`, `--space-12`), only when no component variable and no role covers the value.
+
+Rules for it:
+
+- Write the exact CSS name from the file. Check that the name is in `design/tokens.css` before you use it; a component variable that the file does not have is never written, and the role variable is used instead.
+- A component variable replaces a value when the values are equal, or when the raw value breaks a rule (off scale, too small a target, failing contrast): the component variable is on the scale by construction. A passing value that differs stays as it is and is a drift line (below).
+- A button's one primary action uses `--button-primary-bg` with `--button-primary-text` (hover `--button-primary-bg-hover`, pressed `--button-primary-bg-pressed`); other actions use `--button-secondary-text` and `--button-secondary-border` on a transparent background. A file with no button variables uses `--color-action-primary-*` as in "Primary and secondary actions".
+- Run the contrast script on the component pair by its names, for example `--button-primary-text` on `--button-primary-bg`; the contrast cell names the component variables.
+- A fix cites the variable it uses by its exact name, and the one fix per kind of value of rule 20 still holds.
+
+## The modern group
+
+A file may have the modern group: `--glass-bg`, `--glass-blur`, `--r-xs`, `--r-sm`, `--r-md`, `--r-lg`, `--r-xl`, `--z-sticky`, `--z-dropdown`, `--z-command`, `--z-modal`, `--z-toast`, `--glow`, `--btn-gloss`, `--font-weight-medium`. The polish keeps every one of these that the input already uses, and uses them when a fix needs a value of that kind. It never flattens them into plain values:
+
+- **Glass**: `background: var(--glass-bg); backdrop-filter: blur(var(--glass-blur));` (with `-webkit-backdrop-filter` when the input has it). Keep both lines together. Text on glass is checked against the surface behind it: run the script on the text token against `--color-surface-default` (the glass is translucent over it), and when the input has no solid fallback, add `background: var(--color-surface-raised)` before the glass line, as a **States** or **Contrast** fix.
+- **Radius**: a radius that is already `--r-*` stays that token. A raw radius takes the nearest `--r-*` when the input already uses an `--r-*` token, else the nearest `--radius-*` as before (4, 6, 10, 14, 16 px for `--r-xs` to `--r-xl`); a component keeps its component variable (`--card-radius`).
+- **Layers**: `z-index` takes `--z-sticky`, `--z-dropdown`, `--z-command`, `--z-modal` or `--z-toast` by the role of the element (sticky bar, menu, command palette, dialog, toast). A raw `z-index: 9999` on a dialog becomes `var(--z-modal)`; a number that fits no role goes under Open questions. Never reorder the layers.
+- **Glow and gloss**: `--glow` stays as the page or section background image, and `--btn-gloss` stays as the primary button's `background-image` over `--button-primary-bg` (or `--color-action-primary-bg`). Do not remove either to make the code simpler.
+- **Weight 500**: a `font-weight: 500` becomes `var(--font-weight-medium)`; the polish adds no new weight. Rule 8 counts the weights the input already uses: token mode may keep three (400, 500, 600) when the input has them, and never adds a fourth.
+- **Numbers**: keep `font-variant-numeric: tabular-nums` on amounts, tables and counters. Keep fluid headings written with `clamp()`: do not turn them into a fixed size; a `clamp()` whose end values are on the type scale passes rule 2, and its middle term is kept as written. A heading's negative tracking, for example `letter-spacing: -0.02em`, is kept for Latin text and removed for Khmer (below).
+- **Motion**: a transition on `transform` or `opacity` of 120 to 240 ms is kept and uses `--duration-*` and `--ease-*`; it still goes off under `prefers-reduced-motion: reduce`.
+
+## Raw values that a variable already holds (drift)
+
+A raw colour or size in the code that a variable already holds is a **drift finding**: the reply names the variable to use.
+
+- Equal value (`#0f766e` where `--color-brand` is `#0f766e`, `8px` where `--card-radius` is `8px`): write the variable. This is a Tokens fix.
+- Different value that passes its rule (a `#111111` button, a `20px` card padding where `--card-padding` is `16px`): keep it and write one Open questions line that starts with "Drift:" and gives both values and the variable, as in rule 28. Never replace it without the owner's answer that names the value; "use tokens" is not that answer.
+- Different value that fails a rule: the fix is needed, and it uses the variable.
+
+## Khmer text
+
+Khmer text is any element with `lang="km"` or text in the Khmer script. It takes `line-height: var(--line-height-khmer)` (1.6) when the file has that variable, else `line-height: 1.6`, and `letter-spacing: 0`. This holds for headings too. Never apply negative tracking (`letter-spacing: -0.02em`) or a line-height under 1.6 to Khmer. When the file has a `:lang(km)` block and the page loads it, the page already does this; do not repeat it. This replaces the 1.5 and 1.2 to 1.3 of rule 3 for Khmer text only.
 
 ## Primary and secondary actions
 

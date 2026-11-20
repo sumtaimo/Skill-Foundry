@@ -13,6 +13,9 @@ Checks anyone can run by search, in any project:
 7. Token mode: search the polished code for "var(--". Every name found must be in the token file or in the input code.
 8. Token mode: search the polished code for "#" colours. Each one left must be a value with no matching token, listed under "Open questions".
 9. Token mode: the polished code has no ":root" block and no line that sets a token of the token file.
+9a. Token mode: search the polished code for `--glass`, `backdrop-filter`, `--r-`, `--z-`, `--glow`, `--btn-gloss`, `--font-weight-medium`, `tabular-nums` and `clamp(` that the input had: each is still there as a variable or as written, none replaced by a plain value.
+9b. Token mode: for each `--button-`, `--input-` and `--card-` name in the polished code, the name is in the token file (rule 32).
+9c. Search the polished code for `letter-spacing` and `line-height` on Khmer text: 0 and 1.6 (or `--line-height-khmer`), never negative.
 
 6a. For every colour pair that passed before (rule 4), compare its ratio before and after in the script output. The ratio after is equal or higher.
 6b. Search the reply for every raw value that was replaced by a token: its value is equal to the token's value, or it broke a rule. A passing raw value with a different token value is still in the polished code and in "Open questions".
@@ -26,7 +29,8 @@ Reviewer checklist, answered yes or no (the same list is in references/README.md
 12. No visible text changed, and no element was added or removed.
 13. Every brand colour kept its hue.
 14. The reply follows the format in layer 08, with one ratio-source sentence.
-15. Token mode: tokens are used wherever one matches, no token name was invented, and the token file was not edited.
+15. Token mode: variables are used wherever one matches (component, then role, then primitive), no name was invented, the modern group was kept, each drift is a fix or a "Drift:" line, and the token file was not edited.
+15a. Khmer text has line-height 1.6 and letter-spacing 0.
 16. No passing pair got a lower ratio, no passing value was replaced by a different token value, and the script was run as one plain command or the reply says it could not run.
 
 Hand the answers to layer 08 for the quality bar and to layer 10 for the record.

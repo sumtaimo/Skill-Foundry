@@ -6,7 +6,7 @@
 4. Only when there is input code, find the token file, in this order, and stop at the first hit:
    a. Tokens pasted in the message (a block of `--name: value` custom properties, or W3C design-token JSON).
    b. A file the user names ("our tokens are in styles/tokens.css"). Read it.
-   c. A file in the project named `tokens.css` or `design-tokens.json` (also `tokens.gaps.css` and `design-tokens.gaps.json`, read after the main file). Search the project by file name once; skip dependency folders and this skill folder.
+   c. A file in the project: `design/tokens.css` (with `design/variables.json` beside it) first, else `tokens.css` or `design-tokens.json` (also `tokens.gaps.css` and `design-tokens.gaps.json`, read after the main file). Look in `design/` first, then search the project by file name once; skip dependency folders and this skill folder.
 4d. A file found by step 4c is used only when the page loads it: the code links or imports it, or already uses `var(--name)` names that the file defines (rule 29). If the page does not load it, work in default mode, never rewrite a value to its tokens, and write one "Open questions" line: "<file> was found but the page does not load it; values were not rewritten to its tokens." A file from step 4a or 4b is always used: the user gave it.
 5. A token file in use (step 4a, 4b, or 4c loaded by the page): work in token mode. Read references/tokens.md now. Read the token file only; never edit, move or rewrite it (rule 23).
 6. No token file found: work in default mode. Do not ask for one and do not mention tokens in the reply (the only exception is step 4d).

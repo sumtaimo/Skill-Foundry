@@ -1,7 +1,7 @@
 ---
 name: ui-polish
-description: Runs a final polish pass on the HTML and CSS (or JSX) of a finished UI, fixing spacing, type, contrast, visual hierarchy, interactive states and layout against fixed numeric rules, and returns the numbered fixes plus the polished code with every word of text kept. When the project has a design-token file (tokens.css or design-tokens.json), the fixes use its tokens instead of raw values. Use when asked for a "final polish", a "pixel pass", or to "make this screen look cleaner" on code the user pastes. Do not use to design a new screen from scratch, to rewrite UI copy (use copy-tight), to create or change design tokens (use design-system), or for a full accessibility audit.
-version: 1.0.0
+description: Runs a final polish pass on the HTML and CSS (or JSX) of a finished UI, fixing spacing, type, contrast, visual hierarchy, interactive states and layout against fixed numeric rules, and returns the numbered fixes plus the polished code with every word of text kept. When the project has a design-token file (design/tokens.css, tokens.css or design-tokens.json), the fixes use its variables by exact name (component variables first, then colour roles, then primitives) and keep its glass, radius, layer, glow and weight-500 styles. Use when asked for a "final polish", a "pixel pass", or to "make this screen look cleaner" on code the user pastes. Do not use to design a new screen from scratch (use ui-craft), to rewrite UI copy (use copy-tight), to build tokens or change a variable (use design-system), or for a full accessibility audit.
+version: 1.1.0
 ---
 
 # ui-polish
@@ -9,7 +9,7 @@ version: 1.0.0
 Takes the code of a finished screen and makes it look finished: on-scale spacing, a clear type scale,
 readable contrast, one primary action, and visible hover, focus and disabled states.
 Every fix cites a numbered rule, and the polished code keeps the same text, the same elements and the same brand hue.
-When the project has a design-token file, every fix is written with its tokens, and the file itself is never edited.
+When the project has a design-token file, every fix is written with its variables (component, then role, then primitive), the modern group is kept, a raw value that a variable holds is reported as drift, and the file itself is never edited. Khmer text gets line-height 1.6 and no negative tracking.
 Contrast ratios come from the script in this folder, not from hand arithmetic.
 
 ## When to use
@@ -17,9 +17,9 @@ Contrast ratios come from the script in this folder, not from hand arithmetic.
 - Use when someone pastes HTML, CSS, JSX or Tailwind markup of a finished screen and asks for a final polish or pixel pass.
 - Use when someone says a screen "looks off", "looks cluttered" or "needs a clean-up" and gives the code.
 - Use it the same way when the project has design tokens: say where the token file is, or paste it; the skill also looks for one.
-- Do not use to design a new screen, page or flow; reply with the fixed sentence in layer 06, step 2.
+- Do not use to design a new screen, page or flow; reply with the fixed sentence in layer 06, step 2 (it names ui-craft).
 - Do not use to rewrite or shorten text; say so with the fixed sentence in layer 06, step 3, then polish the code with the text unchanged.
-- Do not use to create, complete or correct design tokens; this skill only reads a token file.
+- Do not use to build tokens or change a variable; this skill only reads a token file (the fixed sentence in layer 06, step 15 names design-system).
 - Do not use without code; ask for it with the exact sentence in layer 03, step 3.
 
 ## Procedure
@@ -50,7 +50,7 @@ The contrast script is `engine/contrast.mjs` in this folder (Node.js, no depende
 - R-ui-polish-5: A view MUST have exactly one primary action; other actions MUST use a secondary or quiet style.
 - R-ui-polish-6: Every interactive element MUST have a hover style, a :focus-visible outline of at least 2 px, and, when it can be disabled, a disabled style.
 - R-ui-polish-7: Every click or tap target MUST be at least 44 by 44 px.
-- R-ui-polish-8: A page MUST use at most two font weights; emphasis MUST come from weight or colour before size.
+- R-ui-polish-8: A page MUST use at most two font weights; emphasis MUST come from weight or colour before size. In token mode the weights the input already uses (400, 500, 600) are kept as their tokens and none is added.
 - R-ui-polish-9: Every transition or animation MUST be turned off under prefers-reduced-motion: reduce.
 - R-ui-polish-10: NEVER change, add or remove any visible text, and NEVER add or remove elements, features or content.
 - R-ui-polish-11: NEVER change a brand colour's hue; to fix contrast, change only its lightness or the text colour on it. With a token file, the brand colours are the ones the token file gives.
@@ -63,7 +63,7 @@ The contrast script is `engine/contrast.mjs` in this folder (Node.js, no depende
 - R-ui-polish-18: SKILL.md MUST stay within 150 lines, with frontmatter name, description and semver version.
 - R-ui-polish-19: Every relative link MUST point to a file inside the skill folder.
 - R-ui-polish-20: With a token file, every colour, spacing, font size, line-height, font weight, radius, control size, focus width and duration in the polished code that has a matching token MUST be written as var(--name) of that token, chosen by references/tokens.md; the token scales replace the default scales of rules 1 to 3.
-- R-ui-polish-21: With a token file, the one primary action MUST use the file's primary-fill tokens (in a design-system file: --color-action-primary-bg with --color-action-primary-text), unless its own pair already passes with a different value (rule 28).
+- R-ui-polish-21: With a token file, the one primary action MUST use the file's primary-fill tokens (--button-primary-bg with --button-primary-text when the file has them, else --color-action-primary-bg with --color-action-primary-text), unless its own pair already passes with a different value (rule 28).
 - R-ui-polish-22: NEVER write a token name that is not in the token file; a value with no matching token MUST stay a plain value and MUST be listed under Open questions.
 - R-ui-polish-23: NEVER edit, rewrite or redefine the token file or a token; a token pair below its ratio MUST be reported with its ratio under Contrast and under Open questions.
 - R-ui-polish-24: Every ratio MUST come from the contrast script when commands can be run, else from the reference table; the reply MUST say which with the fixed sentence of layer 08, step 6.
@@ -75,6 +75,11 @@ The contrast script is `engine/contrast.mjs` in this folder (Node.js, no depende
 - R-ui-polish-29: Token mode starts only when the user gives the token file or the page loads it; when a token file is found but the page does not load it, the skill MUST say so under Open questions and NEVER rewrite values to its tokens.
 - R-ui-polish-30: When a screenshot or measurement sheet is given, text that overflows or overlaps its box MUST be fixed (layer 04, step 12a) and each fix MUST cite the measurement; without one, the skill NEVER claims to have checked order, page length, overflow or overlap.
 - R-ui-polish-31: When several pages share one stylesheet, the reply MUST give one patch for the stylesheet plus a short delta per page, NEVER one full patch per page.
+
+- R-ui-polish-32: With a token file, each value MUST take the first variable that fits: component variable (--button-*, --input-*, --card-*), then role (--color-*), then primitive; every fix cites the exact CSS name; NEVER invent a name; NEVER edit the token files.
+- R-ui-polish-33: With the modern group, the polish MUST keep and use --glass-bg with backdrop-filter and --glass-blur, --r-xs to --r-xl, --z-*, --glow, --btn-gloss, weight 500, tabular-nums and clamp() headings; NEVER replace them with plain values.
+- R-ui-polish-34: Each raw colour or size that a variable already holds MUST be reported as drift with the variable to use; written as the variable when equal or when a rule needs the fix, else kept and listed as "Drift:" under Open questions with both values (rule 28 unchanged).
+- R-ui-polish-35: Khmer text MUST have line-height 1.6 (--line-height-khmer when the file has it) and letter-spacing 0; NEVER negative letter-spacing on Khmer.
 
 Each rule's check or reviewer item is in `RULES.json`.
 

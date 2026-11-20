@@ -53,7 +53,7 @@ Output: "Paste the HTML and CSS of the finished screen you want polished."
 
 Input: "Design a new onboarding flow."
 
-Output: "This skill polishes a finished UI; it does not design new screens."
+Output: "This skill polishes a finished UI; it does not design new screens. Use ui-craft to design one."
 
 ## Example 4: with a token file
 

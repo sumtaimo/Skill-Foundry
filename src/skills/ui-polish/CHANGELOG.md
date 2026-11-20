@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.0 - 2026-11-20
+
+- Token mode reads the design foundation: `design/tokens.css` (with `design/variables.json` beside it) is looked for first. Each value takes the first variable that fits, in this order: component variable (`--button-*`, `--input-*`, `--card-*`), then colour role (`--color-*`), then primitive. Every fix cites the variable by its exact CSS name; a name the file does not have is never written; the token files are never edited. New rule R-ui-polish-32; rule 21 uses `--button-primary-bg` with `--button-primary-text` when the file has them.
+- Token mode keeps the modern group instead of flattening it: `--glass-bg` with `backdrop-filter` and `--glass-blur`, `--r-xs` to `--r-xl`, `--z-sticky` to `--z-toast`, `--glow`, `--btn-gloss`, weight 500 (`--font-weight-medium`), `tabular-nums` and fluid `clamp()` headings. Glass text is checked against the surface behind it. New rule R-ui-polish-33; rule 8 keeps the weights the input already uses and adds none.
+- Drift: a raw colour or size that a variable already holds is reported with the variable to use. Equal values become the variable; a different value that passes is kept and listed as "Drift:" under Open questions with both values. Rule 28 is unchanged. New rule R-ui-polish-34.
+- Khmer: line-height 1.6 (`--line-height-khmer` when the file has it) and letter-spacing 0, headings too; never negative tracking. Works in default mode too. New rule R-ui-polish-35; rule 3 gives way to it for Khmer text.
+- Boundaries: the new-design sentence now names ui-craft ("... it does not design new screens. Use ui-craft to design one.") and the token sentence names design-system ("This skill does not edit tokens; change a variable with design-system."). The description says the same.
+- Five new eval cases (21 in total): `foundation-components`, `modern-group-kept`, `drift-kept`, `khmer-tokens`, `khmer-default`. `new-design-declined` expects the new sentence.
+
 ## 1.0.0 - 2026-11-15
 
 - First version: a final polish pass on finished UI code, with numbered fixes tied to rules R-ui-polish-1 to R-ui-polish-19 and the full polished code.

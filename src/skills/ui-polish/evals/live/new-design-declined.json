@@ -2,13 +2,7 @@
   "case": "new-design-declined",
   "prompt": "Design a new pricing page for our app from scratch, with three plans.",
   "agent": "claude",
-  "tools": [
-    "Read",
-    "Glob",
-    "Grep",
-    "Bash(node:*)"
-  ],
-  "recordedAt": "2026-11-16",
-  "output": "This skill polishes a finished UI; it does not design new screens.",
+  "recordedAt": "2026-11-20",
+  "output": "This skill polishes a finished UI; it does not design new screens. Use ui-craft to design one.",
   "files": []
 }
