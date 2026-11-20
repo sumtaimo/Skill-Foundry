@@ -2,7 +2,7 @@
 
 Review against `docs/factory/REVIEW.md`. Status: draft. Version 0.1.0.
 
-Honest record: the author (an AI agent) prepared this draft and checked lint, reference evals, starter-stub integration, and Playwright visual output on the reference HTML. Fresh real-agent runs (`claude -p` live evals, routing evals, portable check) remain unchecked until TAIMO approves token spend and promoting `ui-craft` to `ready`.
+Honest record: the author (an AI agent) prepared this draft and checked lint, reference evals, starter-stub integration, and Playwright visual output on the reference HTML. Fresh real-agent runs (`claude -p` live evals, routing evals, portable check) remain unchecked until the owner approves token spend and promoting `ui-craft` to `ready`.
 
 ## Clarity
 - [x] Procedure is numbered, imperative, one action per step
@@ -29,4 +29,4 @@ Honest record: the author (an AI agent) prepared this draft and checked lint, re
 - [ ] Live evals: `1 of 8` recorded and passed with fresh `agy` agent (`polish-only-declined`); remaining 7 cases blocked by `agy` quota (`RESOURCE_EXHAUSTED 429`) and `claude -p` user hook failure (`SessionEnd hook ... failed: Hook cancelled`)
 - [ ] Portable check recorded in empty project (`node src/factory/portable-check.mjs ui-craft --prompt "..." --record`)
 - [ ] Status promoted from `draft` to `ready` and `package.json` version bumped (`1.0.1` -> `1.1.0`) once live/portable/routing recordings complete
-- [ ] Final reviewer: TAIMO
+- [ ] Final reviewer: the owner
