@@ -210,6 +210,8 @@ test('pointers: ordinary skills declare no allowedTools; skills with an engine/ 
     const raw = readFileSync(join(p, '.harness', 'skills', s.name, 'SKILL.md'), 'utf8');
     if (existsSync(join(s.dir, 'engine'))) assert.match(raw, /^allowedTools: \["Edit","Write","Bash"\]$/m, s.name);
     else assert.doesNotMatch(raw, /allowedTools/, s.name);
+    assert.match(raw, /^---\nschema_version: 1\n/, `${s.name}: pointer starts with schema_version`);
+    assert.equal(JSON.parse(readFileSync(join(p, '.claude', 'skills', s.name, '.foundry.json'), 'utf8')).schemaVersion, 1, `${s.name}: stamp schemaVersion`);
     assert.doesNotMatch(raw, /Bash\(node:\*\)/, 'a literal Bash(node:*) would replace the role\'s whole Bash rule set');
   }
   assert.ok(['a11y-audit', 'design-system', 'ui-polish', 'figure-craft'].every((n) => /allowedTools/.test(readFileSync(join(p, '.harness', 'skills', n, 'SKILL.md'), 'utf8'))), 'engine skills found');

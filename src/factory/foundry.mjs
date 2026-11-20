@@ -27,10 +27,12 @@ import { spawnSync } from 'node:child_process';
 
 const HERE = fileURLToPath(import.meta.url);
 const REPO = resolve(dirname(HERE), '..', '..');
-/** Roles the Agentic-Harness knows (v1.0.9 lab). A project's own `.harness/roles/*.json` adds more; see projectRoles(). */
+/** Roles the Agentic-Harness knows (checked against v1.0.22 lab). A project's own `.harness/roles/*.json` adds more; see projectRoles(). */
 export const ROLES = ['PO_ARCHITECT', 'BA_ANALYST', 'DEV_ENGINEER', 'QA_AUDITOR', 'UX_DESIGNER', 'REVIEWER', 'SECURITY', 'COORDINATOR'];
 const STAMP = '.foundry.json';
 const MARK = 'installed-by: skill-foundry';
+/** Format version of the harness pointer and `.foundry.json` (not a skill version). A harness skips a pointer whose schema is newer than it knows. */
+export const SCHEMA_VERSION = 1;
 
 const sha = (b) => createHash('sha256').update(b).digest('hex');
 /** Project/product version of Skill Foundry itself (from package.json), separate from each skill's own version. */
@@ -130,7 +132,7 @@ function harnessPointer(project, s, { syncHarness = false } = {}) {
   const tags = (() => { try { return JSON.parse(readFileSync(join(s.dir, 'preview.json'), 'utf8')).tags ?? []; } catch { return []; } })();
   const keywords = s.keywords?.length ? s.keywords : tags;
   const tools = pointerTools(s);
-  writeFileSync(file, `---\nname: ${s.name}\ndescription: ${s.description}\nroles: ${JSON.stringify(s.roles)}\n${tools.length ? `allowedTools: ${JSON.stringify(tools)}\n` : ''}keywords: ${JSON.stringify(keywords)}\n${s.engine && hasEngine(s) ? `engine: ${s.engine}\n` : ''}autoApply: ${harnessMatchesKeywords(project) ? 'false' : 'true'}\n${MARK} ${s.version}\n---\n` +
+  writeFileSync(file, `---\nschema_version: ${SCHEMA_VERSION}\nname: ${s.name}\ndescription: ${s.description}\nroles: ${JSON.stringify(s.roles)}\n${tools.length ? `allowedTools: ${JSON.stringify(tools)}\n` : ''}keywords: ${JSON.stringify(keywords)}\n${s.engine && hasEngine(s) ? `engine: ${s.engine}\n` : ''}autoApply: ${harnessMatchesKeywords(project) ? 'false' : 'true'}\n${MARK} ${s.version}\n---\n` +
     `# ${s.name}\n\nWhen the task matches this skill (${s.description.split('. ')[0]}.), read \`.claude/skills/${s.name}/SKILL.md\` and follow it, starting from the goal the user states. When the task does not match, ignore this skill.\n`);
   return { path: rel, status };
 }
@@ -163,7 +165,7 @@ export function addSkill(name, { project = process.cwd(), root = REPO, force = f
   }
   for (const f of Object.keys(old?.files ?? {})) if (!(f in src) && !kept.includes(f)) rmSync(join(target, f), { force: true });
   const pv = foundryVersion(root);
-  writeFileSync(stampPath, JSON.stringify({ name, version: s.version, ...(pv ? { foundryVersion: pv } : {}), hash: total(src), source: 'github:sumtaimo/Skill-Foundry', files: src }, null, 2) + '\n');
+  writeFileSync(stampPath, JSON.stringify({ schemaVersion: SCHEMA_VERSION, name, version: s.version, ...(pv ? { foundryVersion: pv } : {}), hash: total(src), source: 'github:sumtaimo/Skill-Foundry', files: src }, null, 2) + '\n');
   return { name, action: old ? 'updated' : 'added', kept, ...ptr() };
 }
 
