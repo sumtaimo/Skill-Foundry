@@ -1,0 +1,8 @@
+{
+  "case": "gate-cold-start",
+  "prompt": "Design the dashboard for our app.",
+  "agent": "claude",
+  "recordedAt": "2026-11-20",
+  "output": "This is a whole product screen and the project has no design foundation yet. Use defaults for a prototype, or build the foundation first with design-system? (defaults / foundation)",
+  "files": []
+}

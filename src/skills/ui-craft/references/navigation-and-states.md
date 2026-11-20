@@ -4,7 +4,7 @@
 
 - Keep header `position: sticky` or `fixed` at `top: 16px` (`12px` mobile), `z-index: var(--z-sticky)`, `max-width: 1120px`, centered, `border-radius: var(--r-xl)`.
 - Add subtle glass styling only after scrolling past `8px` (`[data-scrolled="true"]` or `.is-scrolled`). Never let sticky bars overlap anchor targets (`scroll-margin-top: 96px` on section headings).
-- Active pill navigation: position a `.nav-indicator` pill (`background: var(--surface-2)`, `border-radius: var(--r-sm)`, `z-index: -1`) behind the active tab and animate `transform` + `width` cleanly when switching tabs.
+- Active pill navigation: position a `.nav-indicator` pill (`background: var(--color-surface-subtle)`, `border-radius: var(--r-sm)`, `z-index: -1`) behind the active tab and animate `transform` + `width` cleanly when switching tabs.
 
 ## 2. Mobile Collapse (< 768px) & Sidebar Icon-Rail
 
@@ -24,11 +24,11 @@ Include command palette markup, keyboard bindings, and empty search handling whe
 
 Every interactive/data surface MUST cover:
 
-1. **Default**: calm resting surface, clear `1px` `--line` border.
-2. **Hover**: crisp `--line-strong` border / subtle `-1px` button lift (no layout shift).
-3. **Focus-Visible**: `outline: 2px solid var(--focus); outline-offset: 2px;` on every interactive control (`button`, `a`, `input`, `summary`, `[role="option"]`).
-4. **Active / Selected**: highlighted pill (`--surface-2`, `aria-current="page"` or `aria-selected="true"`, `font-weight: 500`) + tactile active press (`transform: translateY(0)`).
+1. **Default**: calm resting surface, clear `1px` `--color-border-default` border.
+2. **Hover**: crisp `--color-border-strong` border / subtle `-1px` button lift (no layout shift).
+3. **Focus-Visible**: `outline: 2px solid var(--color-border-focus); outline-offset: 2px;` on every interactive control (`button`, `a`, `input`, `summary`, `[role="option"]`).
+4. **Active / Selected**: highlighted pill (`--color-surface-subtle`, `aria-current="page"` or `aria-selected="true"`, `font-weight: 500`) + tactile active press (`transform: translateY(0)`).
 5. **Disabled**: `opacity: 0.5; cursor: not-allowed; pointer-events: none;` with clear `disabled` or `aria-disabled="true"`.
 6. **Loading Skeleton**: fixed-height placeholder blocks (`min-height` matching loaded card/row so `CLS = 0`), `aria-busy="true"`, soft shimmer gradient disabled under `prefers-reduced-motion: reduce`.
 7. **Empty Search / Filter State**: clear icon (`aria-hidden="true"`), honest summary sentence, and primary/secondary `Reset filters` button (`>= 44x44px`).
-8. **Inline Error State**: `role="alert"`, `--danger` text on `--danger-bg`, concise recovery action (`Retry` button), preserving user input untouched.
+8. **Inline Error State**: `role="alert"`, `--color-danger-text` text on `--color-danger-bg-subtle`, concise recovery action (`Retry` button), preserving user input untouched.

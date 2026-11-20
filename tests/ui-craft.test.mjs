@@ -1,11 +1,11 @@
 /**
- * ui-craft: lint is clean, rule check IDs are covered, evals pass on 2026 UI/navigation/state/AI reference patterns,
+ * ui-craft: lint is clean, rule check IDs are covered, evals pass on modern UI/navigation/state/AI reference patterns,
  * starter harness integration works for DEV_ENGINEER and UX_DESIGNER, and rendered HTML passes checkPage.
  * @governed-by PO_ARCHITECT
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { readFileSync, readdirSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -31,6 +31,8 @@ const RULE_CHECKS = [
   'uicraft-inline-ai',
   'uicraft-semantic-a11y',
   'uicraft-refuse-out-of-scope',
+  'uicraft-foundation-first',
+  'uicraft-cold-start-gate',
 ];
 
 const REFERENCE_HTML = `<!doctype html>
@@ -42,19 +44,19 @@ const REFERENCE_HTML = `<!doctype html>
 <style>
 :root {
   color-scheme: light dark;
-  --bg: #ffffff;
-  --surface: #fafafa;
-  --surface-2: #f4f4f5;
-  --glass-bg: color-mix(in srgb, var(--surface) 74%, transparent);
-  --fg: #09090b;
-  --muted: #52525b;
-  --line: #e4e4e7;
-  --line-strong: #a1a1aa;
-  --accent: #18181b;
-  --fg-on-accent: #ffffff;
-  --focus: #2563eb;
-  --danger: #b91c1c;
-  --danger-bg: #fef2f2;
+  --color-surface-default: #ffffff;
+  --color-surface-raised: #fafafa;
+  --color-surface-subtle: #f4f4f5;
+  --glass-bg: color-mix(in srgb, var(--color-surface-raised) 74%, transparent);
+  --color-text-default: #09090b;
+  --color-text-muted: #52525b;
+  --color-border-default: #e4e4e7;
+  --color-border-strong: #a1a1aa;
+  --color-action-primary-bg: #18181b;
+  --color-action-primary-text: #ffffff;
+  --color-border-focus: #2563eb;
+  --color-danger-text: #b91c1c;
+  --color-danger-bg-subtle: #fef2f2;
   --btn-gloss: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 60%);
   --r-xs: 4px;
   --r-sm: 6px;
@@ -68,42 +70,42 @@ const REFERENCE_HTML = `<!doctype html>
   --z-toast: 100;
 }
 :root[data-theme="dark"] {
-  --bg: #09090b;
-  --surface: #121216;
-  --surface-2: #1c1c22;
-  --glass-bg: color-mix(in srgb, var(--surface) 78%, transparent);
-  --fg: #fafafa;
-  --muted: #a1a1aa;
-  --line: #27272a;
-  --line-strong: #52525b;
-  --accent: #fafafa;
-  --fg-on-accent: #09090b;
-  --focus: #60a5fa;
-  --danger: #f87171;
-  --danger-bg: rgba(185, 28, 28, 0.16);
+  --color-surface-default: #09090b;
+  --color-surface-raised: #121216;
+  --color-surface-subtle: #1c1c22;
+  --glass-bg: color-mix(in srgb, var(--color-surface-raised) 78%, transparent);
+  --color-text-default: #fafafa;
+  --color-text-muted: #a1a1aa;
+  --color-border-default: #27272a;
+  --color-border-strong: #52525b;
+  --color-action-primary-bg: #fafafa;
+  --color-action-primary-text: #09090b;
+  --color-border-focus: #60a5fa;
+  --color-danger-text: #f87171;
+  --color-danger-bg-subtle: rgba(185, 28, 28, 0.16);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #09090b;
-    --surface: #121216;
-    --surface-2: #1c1c22;
-    --glass-bg: color-mix(in srgb, var(--surface) 78%, transparent);
-    --fg: #fafafa;
-    --muted: #a1a1aa;
-    --line: #27272a;
-    --line-strong: #52525b;
-    --accent: #fafafa;
-    --fg-on-accent: #09090b;
-    --focus: #60a5fa;
-    --danger: #f87171;
-    --danger-bg: rgba(185, 28, 28, 0.16);
+    --color-surface-default: #09090b;
+    --color-surface-raised: #121216;
+    --color-surface-subtle: #1c1c22;
+    --glass-bg: color-mix(in srgb, var(--color-surface-raised) 78%, transparent);
+    --color-text-default: #fafafa;
+    --color-text-muted: #a1a1aa;
+    --color-border-default: #27272a;
+    --color-border-strong: #52525b;
+    --color-action-primary-bg: #fafafa;
+    --color-action-primary-text: #09090b;
+    --color-border-focus: #60a5fa;
+    --color-danger-text: #f87171;
+    --color-danger-bg-subtle: rgba(185, 28, 28, 0.16);
   }
 }
 * { box-sizing: border-box; }
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--fg);
+  background: var(--color-surface-default);
+  color: var(--color-text-default);
   font-family: system-ui, -apple-system, sans-serif;
   font-size: 16px;
   line-height: 1.5;
@@ -118,9 +120,9 @@ body {
   justify-content: space-between;
   gap: 12px;
   padding: 8px 16px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--r-xl);
-  background: var(--surface);
+  background: var(--color-surface-raised);
   transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1), opacity 180ms ease;
 }
 @supports (backdrop-filter: blur(20px)) {
@@ -132,9 +134,9 @@ body {
   min-width: 44px;
   padding: 0 20px;
   border-radius: var(--r-md);
-  border: 1px solid var(--line);
-  background: var(--surface);
-  color: var(--fg);
+  border: 1px solid var(--color-border-default);
+  background: var(--color-surface-raised);
+  color: var(--color-text-default);
   font-size: 15px;
   font-weight: 500;
   cursor: pointer;
@@ -143,15 +145,15 @@ body {
   gap: 8px;
   transition: transform 140ms cubic-bezier(0.2, 0, 0, 1), border-color 140ms ease;
 }
-.btn:hover { border-color: var(--line-strong); transform: translateY(-1px); }
+.btn:hover { border-color: var(--color-border-strong); transform: translateY(-1px); }
 .btn:active { transform: translateY(0); }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.btn:focus-visible, kbd:focus-visible, input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.btn:focus-visible, kbd:focus-visible, input:focus-visible { outline: 2px solid var(--color-border-focus); outline-offset: 2px; }
 .btn-primary {
-  background-color: var(--accent);
+  background-color: var(--color-action-primary-bg);
   background-image: var(--btn-gloss);
-  color: var(--fg-on-accent);
-  border-color: var(--accent);
+  color: var(--color-action-primary-text);
+  border-color: var(--color-action-primary-bg);
 }
 .bento {
   display: grid;
@@ -161,16 +163,16 @@ body {
 }
 .card {
   padding: 24px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--r-lg);
-  background: var(--surface);
+  background: var(--color-surface-raised);
 }
 .card h1, .card h2 { letter-spacing: -0.02em; font-weight: 600; margin: 0 0 8px; }
-.skeleton { min-height: 64px; border-radius: var(--r-md); background: var(--surface-2); }
-.alert { padding: 12px 16px; border-radius: var(--r-md); background: var(--danger-bg); color: var(--danger); border: 1px solid var(--line); }
-.ai-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; padding: 12px; border: 1px solid var(--line); border-radius: var(--r-lg); }
-kbd { font-variant-numeric: tabular-nums; padding: 2px 6px; border: 1px solid var(--line); border-radius: var(--r-xs); }
-dialog#cmd { z-index: var(--z-command); border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); color: var(--fg); max-width: 92vw; }
+.skeleton { min-height: 64px; border-radius: var(--r-md); background: var(--color-surface-subtle); }
+.alert { padding: 12px 16px; border-radius: var(--r-md); background: var(--color-danger-bg-subtle); color: var(--color-danger-text); border: 1px solid var(--color-border-default); }
+.ai-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; padding: 12px; border: 1px solid var(--color-border-default); border-radius: var(--r-lg); }
+kbd { font-variant-numeric: tabular-nums; padding: 2px 6px; border: 1px solid var(--color-border-default); border-radius: var(--r-xs); }
+dialog#cmd { z-index: var(--z-command); border: 1px solid var(--color-border-default); border-radius: var(--r-lg); background: var(--color-surface-raised); color: var(--color-text-default); max-width: 92vw; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-property: opacity, background-color, border-color, color !important; transition-duration: 120ms !important; }
   .btn:hover { transform: none !important; }
@@ -190,7 +192,7 @@ dialog#cmd { z-index: var(--z-command); border: 1px solid var(--line); border-ra
     <section class="bento">
       <article class="card">
         <h1>2026 UI Craft Shell</h1>
-        <p style="max-width:65ch;color:var(--muted)">Complete states, keyboard navigation and accessible contrast.</p>
+        <p style="max-width:65ch;color:var(--color-text-muted)">Complete states, keyboard navigation and accessible contrast.</p>
         <button type="button" class="btn" disabled>Disabled preview</button>
       </article>
       <article class="card" aria-busy="true">
@@ -199,7 +201,7 @@ dialog#cmd { z-index: var(--z-command); border: 1px solid var(--line); border-ra
       </article>
       <article class="card">
         <h2>Empty Search</h2>
-        <p style="color:var(--muted)">No results match the current filter.</p>
+        <p style="color:var(--color-text-muted)">No results match the current filter.</p>
         <button type="button" class="btn">Reset filters</button>
       </article>
       <article class="card">
@@ -209,7 +211,7 @@ dialog#cmd { z-index: var(--z-command); border: 1px solid var(--line); border-ra
       </article>
     </section>
     <section class="ai-bar" aria-label="Inline AI bar">
-      <input type="text" aria-label="Ask AI" placeholder="Refine spacing or states..." style="min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);color:var(--fg);flex:1;min-width:180px">
+      <input type="text" aria-label="Ask AI" placeholder="Refine spacing or states..." style="min-height:44px;padding:0 12px;border:1px solid var(--color-border-default);border-radius:var(--r-md);background:var(--color-surface-raised);color:var(--color-text-default);flex:1;min-width:180px">
       <button type="button" class="btn">Summarize</button>
       <span role="status" aria-live="polite" style="align-self:center">Ready</span>
       <button type="button" class="btn">Stop</button>
@@ -245,7 +247,10 @@ test('ui-craft reference outputs pass cases.json and negative boundaries reject 
     },
     'vague-no-surface-ask': { text: '1. Which screen or component are we building?\n2. Which stack (HTML/CSS, Tailwind, React)?' },
     'polish-only-declined': { text: 'This skill designs and builds new UI screens and components; for a pixel pass on finished code, use ui-polish.' },
-    'tokens-only-declined': { text: 'This skill builds UI components and screens; to generate a standalone token file (tokens.css / design-tokens.json), use design-system.' },
+    'tokens-only-declined': { text: 'This skill builds UI components and screens; to build or change tokens and variables (tokens.css / design-tokens.json), use design-system.' },
+    'gate-cold-start': { text: 'This is a whole product screen and the project has no design foundation yet. Use defaults for a prototype, or build the foundation first with design-system? (defaults / foundation)' },
+    'reads-design-foundation': { text: mdOut('Settings', 'Read design/tokens.css first.\n```css\n.btn{background:var(--button-primary-bg);}\n.field{border:1px solid var(--input-border);}\n.card{border-radius:var(--card-radius);}\n.btn:focus-visible{outline:2px solid var(--color-border-focus);}\n```') },
+    'khmer-line-height': { text: mdOut('Khmer sign-up', ':root{--color-text-default:#111;--line-height-khmer:1.6;}\n:lang(km){line-height:var(--line-height-khmer);letter-spacing: 0;}') },
   };
   const cases = JSON.parse(readFileSync(path.join(DIR, 'evals', 'cases.json'), 'utf8'));
   assert.equal(cases.length, Object.keys(answers).length);
@@ -283,5 +288,25 @@ test('ui-craft reference HTML renders cleanly in Playwright at 1440px & 390px (l
     assert.deepEqual(res.problems, []);
   } finally {
     rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
+test('ui-craft foundation-first and cold-start gate are written into the layers and rules', () => {
+  const read = (f) => readFileSync(path.join(DIR, f), 'utf8');
+  const l2 = read('layers/02-context.md');
+  for (const s of ['design/STATUS.md', 'design/BRIEF.md', 'design/tokens.css', 'design/components', '--button-*', 'Never edit a file in `design/`']) assert.ok(l2.includes(s), `layer 02 lacks ${s}`);
+  const l3 = read('layers/03-inputs.md');
+  assert.ok(l3.includes('Use defaults for a prototype, or build the foundation first with design-system? (defaults / foundation)'));
+  assert.match(l3, /whole product screen/);
+  assert.match(read('SKILL.md'), /R-ui-craft-19[\s\S]*R-ui-craft-20/);
+});
+
+test('ui-craft has no private token names, no year wording and one Khmer line-height in the skill text', () => {
+  const files = ['SKILL.md', 'RULES.json', 'preview.json', ...['layers', 'references', 'examples'].flatMap((d) => readdirSync(path.join(DIR, d)).map((f) => `${d}/${f}`))];
+  for (const f of files) {
+    const txt = readFileSync(path.join(DIR, f), 'utf8');
+    assert.doesNotMatch(txt, /2026/, `${f} has the year`);
+    assert.doesNotMatch(txt, /--(bg|surface|surface-2|fg|muted|line|line-strong|accent|focus|danger|dot)(?![\w-])/, `${f} has a private token name`);
+    assert.doesNotMatch(txt, /1\.55|1\.65/, `${f} has a second Khmer line-height`);
   }
 });

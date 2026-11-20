@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Settings</title>
+  <link rel="stylesheet" href="design/tokens.css">
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+  <main class="page">
+    <h1>Settings</h1>
+
+    <section class="card" aria-labelledby="profile-title">
+      <h2 id="profile-title">Profile</h2>
+
+      <form id="profile-form" novalidate data-state="idle">
+        <div class="field">
+          <label for="name">Name</label>
+          <input id="name" name="name" type="text" autocomplete="name"
+                 value="" aria-describedby="name-error" required>
+          <p id="name-error" class="field-error" role="alert" hidden>Enter a name.</p>
+          <div class="skeleton" aria-hidden="true"></div>
+        </div>
+
+        <p id="save-error" class="banner" role="alert" hidden>
+          <span>Could not save your changes.</span>
+          <button type="button" class="btn btn-secondary" id="retry">Retry</button>
+        </p>
+
+        <div class="actions">
+          <button type="submit" class="btn btn-primary" id="save" disabled>Save</button>
+          <p id="save-status" class="status" role="status"></p>
+        </div>
+      </form>
+    </section>
+
+    <section class="card card-danger" aria-labelledby="danger-title">
+      <h2 id="danger-title">Danger zone</h2>
+      <!-- Placeholder copy: replace with your real product text. -->
+      <p>Deleting your account cannot be undone.</p>
+      <button type="button" class="btn btn-danger" id="delete">Delete account</button>
+    </section>
+  </main>
+
+  <script src="settings.js"></script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 {
   "title": "ui-craft",
-  "tagline": "Build modern 2026 UI screens, navigation, motion, lifecycle states and inline AI bars.",
+  "tagline": "Build modern UI screens, navigation, motion, lifecycle states and inline AI bars.",
   "prompt": "Build a modern workspace header with a frosted glass sticky bar, Ctrl+K command palette, bento cards, and loading/empty/error states.",
   "outputs": [
     "Light & dark surface, glass, radius, and z-index CSS tokens",

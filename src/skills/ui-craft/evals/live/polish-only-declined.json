@@ -1,8 +1,8 @@
 {
   "case": "polish-only-declined",
   "prompt": "Do a pixel pass on this finished settings card HTML and CSS without adding or removing any elements or changing the words: <div class=\"card\"><h2>Settings</h2><button>Save</button></div>",
-  "agent": "agy",
-  "recordedAt": "2026-11-18",
-  "output": "This skill designs and builds new UI screens and components; for a pixel pass on finished code, use ui-polish.",
+  "agent": "claude",
+  "recordedAt": "2026-11-20",
+  "output": "This is a polish pass on finished code, which `ui-polish` handles, not `ui-craft`, so please run it with that skill.",
   "files": []
 }

@@ -12,7 +12,7 @@
 Stack: vanilla · Theme: light + dark · States: complete
 
 ### Architecture & Tokens
-- Light/dark semantic tokens (`--bg`, `--surface`, `--surface-2`, `--glass-bg`, `--fg`, `--muted`, `--line`, `--r-*`, `--z-*`).
+- Light/dark semantic tokens (`--color-surface-default`, `--color-surface-raised`, `--color-surface-subtle`, `--glass-bg`, `--color-text-default`, `--color-text-muted`, `--color-border-default`, `--r-*`, `--z-*`).
 - Floating glass header (`z-index: var(--z-sticky)`) using `backdrop-filter: blur(20px) saturate(1.4)` with opaque fallback.
 - Full 8 lifecycle states (`data-state="ready | loading | empty | error"`) + native `<dialog>` command palette (`z-index: var(--z-command)`).
 
@@ -46,4 +46,24 @@ Stack: vanilla · Theme: light + dark · States: complete
 **Output:**
 ```text
 This skill designs and builds new UI screens and components; for a pixel pass on finished code, use ui-polish.
+```
+
+## Example 5: Foundation Present (`design/tokens.css`)
+
+**Input:**
+> Build the settings screen from the design folder.
+
+**Output shape:**
+- First reads `design/STATUS.md`, `design/BRIEF.md`, `design/tokens.css`; links `design/tokens.css` and writes no palette of its own.
+- Buttons use `--button-primary-bg`, `--button-radius`, inputs `--input-border`, cards `--card-bg`; everything else `--color-*`, `--space-*`, `--r-*`, `--z-*`. No raw hex or radius px. Khmer text gets `line-height: var(--line-height-khmer)`.
+- Missing variables are named in Open questions for `design-system`; no file in `design/` is touched.
+
+## Example 6: Cold Start Gate
+
+**Input (empty project, no tokens):**
+> Design the dashboard for our app.
+
+**Output:**
+```text
+This is a whole product screen and the project has no design foundation yet. Use defaults for a prototype, or build the foundation first with design-system? (defaults / foundation)
 ```
