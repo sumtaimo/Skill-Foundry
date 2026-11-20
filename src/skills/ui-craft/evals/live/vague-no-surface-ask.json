@@ -1,0 +1,8 @@
+{
+  "case": "vague-no-surface-ask",
+  "prompt": "Make my UI look modern and awesome.",
+  "agent": "claude",
+  "recordedAt": "2026-11-19",
+  "output": "ខ្ញុំត្រូវការព័ត៌មានបន្ថែមមុននឹងចាប់ផ្តើម។\n\n- **Screen, component, ឬ flow** ណាដែលយើងកំពុងបង្កើត ហើយអ្នកប្រើប្រាស់ប្រភេទណា? (ឧ. dashboard, landing page, navbar, command palette…)\n- **Stack** ប្រភេទណា (`HTML/CSS`, `Tailwind`, ឬ `React/JSX`) ហើយមាន brand colours ឬ `tokens.css` ដែរទេ?",
+  "files": []
+}

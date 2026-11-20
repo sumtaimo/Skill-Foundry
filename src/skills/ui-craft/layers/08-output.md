@@ -12,6 +12,7 @@ Structure the response cleanly so either a human developer or the next harness w
 3. **Code section**:
    - Provide clean, runnable files or complete code blocks matching the detected stack (HTML/CSS/JS, Tailwind JSX, or CSS stylesheet).
    - Never truncate code with `// ... rest unchanged` on generated new screens/components.
+   - Put the complete code inside the reply itself as fenced code blocks. Saving a file is optional and extra, never a replacement: a reply that only points to a file path, or only summarises the code, is incomplete. Never publish or upload the code anywhere without the user asking.
    - In `css-handoff` mode (`UX_DESIGNER`), include the full CSS code followed by a structured **Markup Handoff Contract** block naming every required class, semantic tag, `aria-*` attribute, and `data-state` hook.
 4. **Interactive States & Keyboard Contract**: Summarize keyboard shortcuts (`Cmd/Ctrl+K`, arrows, `Enter`, `Escape`) and how loading, empty, error, and reduced-motion states behave.
 5. **Verification & Open Questions**: State which checks ran (browser widths/themes or contrast verification) vs what remains for runtime wiring or product copy decisions.

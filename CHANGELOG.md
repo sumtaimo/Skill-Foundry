@@ -4,6 +4,11 @@ Versions of Skill Foundry itself (the `skill-foundry` command and the set of ski
 version in its folder. Versions move slowly: a bump needs the owner's approval in chat; record smaller changes under the
 current version.
 
+## 1.1.0 - 2026-11-19
+
+- `ui-craft` 1.0.0 is ready: modern 2026 product UI, command palette, adaptive navigation, lifecycle states and inline AI bars for `DEV_ENGINEER` and `UX_DESIGNER`, proven by real-agent live, portable and routing evals.
+- `live-evals.mjs` and `portable-check.mjs` wait up to 1200s per run (were 600s and 900s) so long UI builds can finish.
+
 ## 1.0.1 - 2026-11-18
 
 - Redesign the showcase site (`src/site/`, `docs/site/LANDING-SPEC.md`): light-first neutral React Bits–style layout with dark mode and EN/KH toggles, solid brand logo mark and favicon, unclipped hero heading, floating glass header with grouped tool buttons (`theme`, `lang`, GitHub), compact (`34px`) Stripe-height buttons, skill detail action above metadata, open `#proof` table without skill link underlines, simplified two-column footer (`Skill Foundry version 1.0.1` above `License MIT · © 2026 TAIMO`), and reliable scroll-to-top on load/reload.

@@ -163,13 +163,13 @@ test('install panel: npx commands in workflow order, each with its own copy butt
   assert.doesNotMatch(panel, /<details[^>]*\sopen/, 'fallback is closed by default');
 });
 
-test('the site knows all eight roles in both languages, and the UX designer has two ready skills', async () => {
+test('the site knows all eight roles in both languages, and the UX designer has three ready skills', async () => {
   const html = readFileSync(join(await site(), 'index.html'), 'utf8');
   assert.deepEqual(ROLES, ['PO_ARCHITECT', 'BA_ANALYST', 'DEV_ENGINEER', 'QA_AUDITOR', 'UX_DESIGNER', 'REVIEWER', 'SECURITY', 'COORDINATOR']);
   for (const lang of ['en', 'kh']) for (const role of ROLES) assert.ok(DICTS[lang][`role.${role}`], `${lang} label for ${role}`);
   const byName = Object.fromEntries(ready.map((r) => [r.name, r.roles]));
   assert.ok(byName['design-system'].includes('UX_DESIGNER') && byName['ux-review'].includes('UX_DESIGNER'));
-  assert.deepEqual(ready.filter((r) => r.roles.includes('UX_DESIGNER')).map((r) => r.name).sort(), ['design-system', 'ux-review']);
+  assert.deepEqual(ready.filter((r) => r.roles.includes('UX_DESIGNER')).map((r) => r.name).sort(), ['design-system', 'ui-craft', 'ux-review']);
 });
 
 test('header Install CTA and hero pill jump on the index (no proof link or repeated toc strip)', async () => {

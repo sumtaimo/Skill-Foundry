@@ -1,6 +1,6 @@
 {
   "agent": "claude -p (fresh context, saw only skill names and descriptions)",
-  "recordedAt": "2026-11-15",
+  "recordedAt": "2026-11-19",
   "descriptions": {
     "skill-smith": "Build a new Skill Foundry skill from the template, as ten layers, portable for other people, so it passes the factory linter, evals and review and has a recorded real run. Use when asked for a new skill or to turn a repeated workflow into a skill. Do not use for a typo fix in an existing skill.",
     "figure-craft": "Draws a detailed isometric figure that explains how a thing works, from the goal the user states, with a token palette, a shared iso engine and a geometry, layout and detail lint. Use for any request for an explanatory diagram, technical illustration or interactive explainer of an object or system. Do not use for data charts, photos, logos, UI mockups or decorative art.",
@@ -11,7 +11,8 @@
     "design-system": "Builds one complete, consistent design-token set from a brand hex colour, a description of the style, or the project's existing tokens (filling only the gaps, never overwriting), and writes design-tokens.json (W3C format), tokens.css with light and dark mode, and a report with every contrast ratio. Use when asked for a \"design system\", \"design tokens\", a \"colour palette from this hex\", a \"theme\" or \"dark mode tokens\". Do not use to design or build a screen or page, or to polish finished UI code (use ui-polish).",
     "spec-writer": "Writes testable acceptance criteria as numbered Given-When-Then clauses (AC-1, AC-2 ...) from a feature request, user story or requirement text, each traced to a phrase of that text; what the text does not state becomes open questions for the Product Owner. Use when asked to \"write acceptance criteria\", \"turn this user story into Given-When-Then\" or \"spec this requirement\". Do not use for a regression checklist for a change or diff (use test-planner), test code, UI design, copy rewriting (use copy-tight), estimates or priorities.",
     "ux-review": "Reviews the usability of an existing screen or flow from its code, a step-by-step description of the flow, or both, and returns a numbered list of findings, each with the place, what the user experiences, the rule it breaks, a severity from S1 to S4 and one recommendation in words. Use when asked for a \"UX review\", a \"usability review\", \"where will users get stuck in this flow\" or to \"rate the usability problems by severity\". Do not use to fix or polish the code (use ui-polish), to rewrite text (use copy-tight), to check contrast, ARIA or screen readers, to design a new screen, or to plan what to retest (use test-planner).",
-    "a11y-audit": "Audits the HTML or JSX a user gives for what users cannot see (semantic elements and landmarks, heading order, page language and title, names for controls and form fields, errors and required state, keyboard access, ARIA, status messages, link purpose, tables, media, zoom) and returns numbered findings, each with the element, a rule id, the WCAG 2.2 success criterion (level A or AA), who is affected and the exact fix as a small code change. Use when asked for an \"accessibility audit\", \"a11y check\", \"screen reader check\" or \"ARIA review\" of code the user pastes. Do not use to fix contrast, focus style, spacing or target size (use ui-polish), to judge usability, to rewrite text (use copy-tight) or to certify conformance."
+    "a11y-audit": "Audits the HTML or JSX a user gives for what users cannot see (semantic elements and landmarks, heading order, page language and title, names for controls and form fields, errors and required state, keyboard access, ARIA, status messages, link purpose, tables, media, zoom) and returns numbered findings, each with the element, a rule id, the WCAG 2.2 success criterion (level A or AA), who is affected and the exact fix as a small code change. Use when asked for an \"accessibility audit\", \"a11y check\", \"screen reader check\" or \"ARIA review\" of code the user pastes. Do not use to fix contrast, focus style, spacing or target size (use ui-polish), to judge usability, to rewrite text (use copy-tight) or to certify conformance.",
+    "ui-craft": "Designs and builds modern 2026 product UI screens, adaptive navigation, command palettes, bento layouts, micro-interactions, complete lifecycle states and inline AI bars in HTML/CSS, Tailwind or React/JSX. Use when asked to \"design a screen\", \"build a UI component\", \"make a navbar or sidebar\", \"build a command palette\", \"create a landing page or dashboard\", or \"add AI prompt bars and loading/empty/error states\". Do not use to polish pasted finished code (use ui-polish), create standalone design-token files (use design-system), draw isometric technical objects (use figure-craft), audit accessibility only (use a11y-audit) or rewrite copy only (use copy-tight)."
   },
   "answers": {
     "r1": "copy-tight",
@@ -24,7 +25,7 @@
     "r8": "figure-craft",
     "r9": "copy-tight",
     "r10": "none",
-    "r11": "none",
+    "r11": "ui-craft",
     "r12": "skill-smith",
     "r13": "test-planner",
     "r14": "test-planner",
@@ -32,12 +33,12 @@
     "r16": "none",
     "r17": "ui-polish",
     "r18": "ui-polish",
-    "r19": "none",
+    "r19": "ui-craft",
     "r20": "copy-tight",
     "r21": "design-system",
     "r22": "design-system",
     "r23": "design-system",
-    "r24": "none",
+    "r24": "ui-craft",
     "r25": "copy-tight",
     "r26": "ui-polish",
     "r-uip-1": "ui-polish",
@@ -57,7 +58,7 @@
     "ux4": "ui-polish",
     "ux5": "copy-tight",
     "ux6": "test-planner",
-    "ux7": "none",
+    "ux7": "ui-craft",
     "ux8": "a11y-audit",
     "ux9": "none",
     "ay1": "a11y-audit",
@@ -69,6 +70,10 @@
     "ay7": "none",
     "ay8": "ux-review",
     "ay9": "none",
-    "ay10": "none"
+    "ay10": "ui-craft",
+    "uc1": "ui-craft",
+    "uc2": "ui-craft",
+    "uc3": "ui-craft",
+    "uc4": "ui-craft"
   }
 }

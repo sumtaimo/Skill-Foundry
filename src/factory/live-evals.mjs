@@ -118,12 +118,12 @@ export function runLive(skillDir, { engine = 'claude', cases: caseIds, spawn = s
     if (isAgy && spawn === spawnSync) {
       const workDir = mkdtempSync(join(tmpdir(), 'sf-live-'));
       try {
-        res = spawn(engine, ['-p', input, '--add-dir', resolve(skillDir), '--disable-slash-commands', '--output-format', 'text'], { cwd: workDir, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', timeout: 600000 });
+        res = spawn(engine, ['-p', input, '--add-dir', resolve(skillDir), '--disable-slash-commands', '--output-format', 'text'], { cwd: workDir, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', timeout: 1200000 });
       } finally { rmSync(workDir, { recursive: true, force: true }); }
     } else {
       res = process.platform === 'win32' && spawn === spawnSync
-        ? spawn(winCommandLine(engine, ['-p']), { input, encoding: 'utf8', shell: true, timeout: 600000 })
-        : spawn(engine, ['-p'], { input, encoding: 'utf8', timeout: 600000 });
+        ? spawn(winCommandLine(engine, ['-p']), { input, encoding: 'utf8', shell: true, timeout: 1200000 })
+        : spawn(engine, ['-p'], { input, encoding: 'utf8', timeout: 1200000 });
     }
     if (res.error) throw new Error(`runLive: ${engine} failed on ${c.id}: ${res.error.message}`);
     if (res.status !== 0) {

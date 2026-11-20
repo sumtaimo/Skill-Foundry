@@ -18,4 +18,5 @@ Steps:
    - What screen, component, or flow are we building and who uses it?
    - Which stack should it output (`HTML/CSS`, `Tailwind`, or `React/JSX`), and do you have brand colours or `tokens.css`?
    Stop and wait for answers without generating speculative mock screens.
+   Keep this reply under 10 lines in total: one short opening sentence, then the two questions (one example list at most). Do not explain the skill, its layers, or why you are asking; no headings, no separators (`---`), no sub-bullets.
 3. Otherwise map every provided input into **Required tokens**, **Components needed**, and **Interactive states needed**, then pass them to Layer 04.

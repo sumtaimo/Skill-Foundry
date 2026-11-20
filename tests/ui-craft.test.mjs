@@ -260,7 +260,7 @@ test('ui-craft reference outputs pass cases.json and negative boundaries reject 
 
 test('ui-craft version matches SKILL.md, CHANGELOG.md and registry.json', () => {
   const v = /^version:\s*(\S+)/m.exec(readFileSync(path.join(DIR, 'SKILL.md'), 'utf8'))[1];
-  assert.equal(v, '0.1.0');
+  assert.equal(v, '1.0.0');
   assert.match(readFileSync(path.join(DIR, 'CHANGELOG.md'), 'utf8'), new RegExp(`## ${v.replace(/\./g, '\\.')} - \\d{4}-\\d{2}-\\d{2}`));
   const reg = JSON.parse(readFileSync(path.join(ROOT, 'src', 'factory', 'registry.json'), 'utf8'));
   const entry = reg.find((x) => x.name === 'ui-craft');

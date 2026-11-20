@@ -110,7 +110,7 @@ export function listProduced(dir) {
  * @param {string} skill @param {string} prompt
  * @param {{out?:string, engine?:string, timeoutMs?:number}} [opts]
  */
-export async function portableCheck(skill, prompt, { out, engine = 'claude', timeoutMs = 900000 } = {}) {
+export async function portableCheck(skill, prompt, { out, engine = 'claude', timeoutMs = 1200000 } = {}) {
   if (typeof prompt !== 'string' || !prompt.trim()) throw new TypeError('portableCheck: prompt required');
   const md = readFileSync(join(REPO_ROOT, 'src', 'skills', skill, 'SKILL.md'), 'utf8');
   if (/^scope:\s*factory\s*$/m.test(md)) throw new Error(`${skill} has scope: factory and only runs inside this repository`);

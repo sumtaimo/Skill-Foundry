@@ -1,12 +1,16 @@
 ---
 name: ui-craft
 description: Designs and builds modern 2026 product UI screens, adaptive navigation, command palettes, bento layouts, micro-interactions, complete lifecycle states and inline AI bars in HTML/CSS, Tailwind or React/JSX. Use when asked to "design a screen", "build a UI component", "make a navbar or sidebar", "build a command palette", "create a landing page or dashboard", or "add AI prompt bars and loading/empty/error states". Do not use to polish pasted finished code (use ui-polish), create standalone design-token files (use design-system), draw isometric technical objects (use figure-craft), audit accessibility only (use a11y-audit) or rewrite copy only (use copy-tight).
-version: 0.1.0
+version: 1.0.0
 ---
 
 # UI Craft
 
 Build modern, calm, tactile product interfaces (floating glass headers, command-first navigation, crisp gradients, responsive bento grids, GPU-friendly motion and complete lifecycle states) tailored to the project's stack and design tokens.
+
+## Delivery rule (read first)
+
+Your reply MUST contain the complete, runnable code as fenced code blocks: every file, start to end, never an excerpt. A file path, a summary or a published page is not a delivery. Do not call any publish, artifact, page-hosting or upload tool unless the user asked for one, even if your environment suggests it; if you also write files, paste their full contents in the reply.
 
 ## When to use
 
@@ -41,9 +45,9 @@ References (read as needed for copy-ready 2026 patterns):
 - `R-ui-craft-2`: Define semantic light and dark tokens (`--bg`, `--surface`, `--surface-2`, `--glass-bg`, `--line`, `--line-strong`, `--fg`, `--muted`, `--accent`) and pair translucent glass surfaces (`backdrop-filter`) with opaque contrast fallbacks so text stays legible across scroll positions.
 - `R-ui-craft-3`: Body/normal text pairs MUST reach at least `4.5:1` contrast and large headings (>= 24 px or bold >= 19 px), borders and focus rings MUST reach at least `3:1` in both light and dark modes.
 - `R-ui-craft-4`: Typography MUST keep body text >= `16px` (`line-height: 1.5`, prose `<= 65ch`), purposeful weights (`400, 500, 600, 700`), `-0.02em` heading tracking, and `font-variant-numeric: tabular-nums` on counters, shortcuts, prices and timestamps.
-- `R-ui-craft-5`: Spacing MUST follow a `4px` base grid with consistent radius tokens (`4 / 6 / 10 / 14 / 16 px` or project `--r-*` tokens), `1px` hairline borders, and an explicit `--z-*` layering scale (`sticky`, `dropdown`, `command`, `modal`, `toast`).
+- `R-ui-craft-5`: Spacing MUST follow a `4px` base grid with consistent radius tokens (`4 / 6 / 10 / 14 / 16 px` or project `--r-*` tokens), `1px` hairline borders, and an explicit `--z-*` layering scale with these exact names: `--z-sticky`, `--z-dropdown`, `--z-command`, `--z-modal`, `--z-toast` (no shortened names like `--z-cmd` or `--z-nav`).
 - `R-ui-craft-6`: Interactive controls MUST provide >= `44x44px` click/tap targets, tactile hover/active press feedback, restrained top-edge highlights/gradients, and at most ONE primary filled action per view.
-- `R-ui-craft-7`: Multi-view or searchable interfaces MUST support command-first navigation (`Ctrl+K`/`Cmd+K` dialog, arrow-key/Enter/Escape handling, visible `<kbd>` badges) when command navigation fits the screen.
+- `R-ui-craft-7`: Multi-view or searchable interfaces MUST support command-first navigation (`Ctrl+K`/`Cmd+K` palette built on the native `<dialog>` element with `showModal()`, not a `div role="dialog"`, arrow-key/Enter/Escape handling, visible `<kbd>` badges) when command navigation fits the screen.
 - `R-ui-craft-8`: Navigation rails, floating glass bars, sticky section bars (with active sliding pill indicators) and mobile drawers MUST NEVER collide with content or cause horizontal overflow at `390px` or `1440px`.
 - `R-ui-craft-9`: Micro-interactions MUST animate GPU-friendly properties (`transform`, `opacity`) with fast crisp curves (`120ms`–`240ms`) and honor `@media (prefers-reduced-motion: reduce)` by disabling spatial motion while keeping clear state changes.
 - `R-ui-craft-10`: Interactive and data-backed views MUST implement all applicable lifecycle states: default, hover, `:focus-visible`, active/selected, disabled, dimension-locked loading skeleton, empty search/filter with reset, and inline error with retry.
