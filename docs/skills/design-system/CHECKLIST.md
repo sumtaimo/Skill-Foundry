@@ -2,7 +2,7 @@
 
 Review against `docs/factory/REVIEW.md`. Status: ready. Version 1.0.0.
 
-Honest record: the author (an AI agent) ticked this list; the owner (TAIMO) is the final reviewer. Every live answer
+Honest record: the author (an AI agent) ticked this list; the owner is the final reviewer. Every live answer
 came from a fresh real agent (`claude -p`, one per case, started outside the repository so no repository rules reached
 it, with only the skill folder and an output folder). The worked examples in `examples/README.md` are hand-written and are not proof.
 
