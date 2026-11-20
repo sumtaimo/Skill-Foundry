@@ -16,8 +16,9 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIR = path.join(ROOT, 'src', 'skills', 'ux-review');
 const read = (p) => readFileSync(path.join(DIR, p), 'utf8');
 const NOTHING = "Paste the screen's code or describe the flow step by step.";
-const FIX = 'This skill reviews usability; it does not change code.';
-const DESIGN = 'This skill reviews an existing screen or flow; it does not design new screens.';
+const FIX = 'This skill reviews usability; it does not change code. To fix the code, use ui-polish.';
+const DESIGN = 'This skill reviews an existing screen or flow; it does not design new screens. To design a screen, use ui-craft.';
+const SIZES = 'Target sizes, gaps and token values are measured by ui-polish; this review judges whether the user can complete the task.';
 
 test('ux-review lint is clean', async () => {
   assert.deepEqual(await lintSkill(DIR, { testsDir: path.join(ROOT, 'tests') }), []);
@@ -28,6 +29,19 @@ test('ux-review fixed sentences appear word for word in the skill layers', () =>
   assert.ok(read('layers/06-states.md').includes(FIX));
   assert.ok(read('layers/06-states.md').includes(DESIGN));
   assert.ok(read('SKILL.md').includes(FIX) && read('SKILL.md').includes(NOTHING.replace("'", "'")));
+});
+
+test('ux-review boundaries with ui-polish, ui-craft and the design foundation', () => {
+  assert.ok(read('layers/06-states.md').includes(SIZES));
+  const rules = JSON.parse(read('RULES.json'));
+  const text = (id) => rules.find((r) => r.id === id).text;
+  assert.ok(!/44|\b8 px\b/.test(text('R-ux-review-8') + text('R-ux-review-9')), 'no pixel threshold in rules 8 and 9');
+  assert.ok(text('R-ux-review-8').includes('ui-polish'));
+  assert.ok(/persistent navigation/.test(text('R-ux-review-30')) && /counted apart/.test(text('R-ux-review-30')));
+  assert.ok(text('R-ux-review-33').includes('design-system') && text('R-ux-review-33').includes('a11y-audit'));
+  for (const f of ['SKILL.md', 'RULES.json', 'CHANGELOG.md', 'layers/06-states.md', 'references/README.md']) {
+    assert.ok(!/(^|[^-\d])2026(?![-\d])/.test(read(f)), `no 2026 wording in ${f}`);
+  }
 });
 
 test('ux-review has a severity scale of four levels and thirteen usability rules', () => {
@@ -58,7 +72,7 @@ test('ux-review evals reject answers that break the boundary', () => {
 
 test('ux-review version matches CHANGELOG and registry', () => {
   const v = /^version:\s*(\S+)/m.exec(read('SKILL.md'))[1];
-  assert.equal(v, '1.0.0');
+  assert.equal(v, '1.0.1');
   assert.match(read('CHANGELOG.md'), new RegExp(`## ${v} - \\d{4}-\\d{2}-\\d{2}`));
   const reg = JSON.parse(readFileSync(path.join(ROOT, 'src', 'factory', 'registry.json'), 'utf8'));
   const e = reg.find((x) => x.name === 'ux-review');

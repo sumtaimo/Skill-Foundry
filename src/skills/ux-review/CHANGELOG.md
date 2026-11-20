@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.1 - 2026-11-20
+
+- Overlap with ui-polish removed: R-ux-review-8 (was target size 44 px) is now Reach and R-ux-review-9 (was gap 8 px) is now Grouping. The review no longer measures sizes or gaps or states a pixel threshold; a hit problem that stops the user in the main goal is a finding about the task and its recommendation ends with "; the sizes are for ui-polish." A plain request to measure sizes, gaps or tokens gets one fixed sentence that names ui-polish (layer 06, clause 18).
+- R-ux-review-30: the first screen allows at most 7 controls that compete in its content (hero actions, cards). Persistent navigation (header, rail, sidebar repeated on every screen) is counted apart and judged by R-ux-review-7. New defined terms: persistent navigation and hero action.
+- The fix-the-code sentence now ends with "To fix the code, use ui-polish." and the design sentence with "To design a screen, use ui-craft."
+- New rule R-ux-review-33: a design token's name, value or absence is never a finding; tokens (design-system) and contrast (a11y-audit) are not reviewed.
+- Cases changed or added; the reasons are in the checklist.
+
 ## 1.0.0 - 2026-11-15
 
 - First version: a numbered list of usability findings for an existing screen or flow, from its code, a step-by-step description, or both.

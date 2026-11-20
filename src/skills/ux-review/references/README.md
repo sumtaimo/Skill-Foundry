@@ -13,8 +13,8 @@ For every rule: what to look at, when it is broken, and when the fact is not sho
 | R-ux-review-5 Error prevention | Actions that delete, pay, send or overwrite; fields with a format or limit | The action runs at once with no confirmation and no undo; the format or limit appears only after a failed submit | The handler or next step of the action is not in the input |
 | R-ux-review-6 Error recovery | Each error message and what happens to the entered data | The message is far from its cause (page top, alert box, another step); it does not say what to do next; fields are cleared or the user is sent back to the start | The input shows no error path |
 | R-ux-review-7 Choices | The number of choices at one level in each step | 8 or more choices with no groups, no search and no preselected default | The input does not list or count the choices |
-| R-ux-review-8 Target size | Width and height of each target, in px | Either side is under 44 px (include padding; a 16 px icon with 4 px padding is 24 px) | No size is stated or computable; a token has no shown value |
-| R-ux-review-9 Target distance | Gap between neighbouring targets; where targets used in sequence sit | The gap is under 8 px; a field and the button that submits it, or two controls used in sequence, are in different groups or separated by unrelated content | No gap or position is stated |
+| R-ux-review-8 Reach | A control the main goal needs, and what the input shows about its hit area | The input shows a target so small that the user probably misses it or hits its neighbour in the main goal; the finding says what the user does wrong, quotes the size as evidence only, states no threshold, and its recommendation ends with "; the sizes are for ui-polish." | No size is stated or computable; a token has no shown value; the size only departs from a scale (not reported) |
+| R-ux-review-9 Grouping | Where targets used in sequence sit; neighbours with opposite effects | A field and the button that submits it, or two controls used in sequence, are in different groups or separated by unrelated content; Save and Delete (opposite effects) sit together with nothing to tell them apart; when the cause is a gap or a size, the recommendation ends with "; the sizes are for ui-polish." | No gap or position is stated |
 | R-ux-review-10 Memory load | Every value the user needs at a later step | The user must carry a code, a number, a choice or a name from one step to another; a step asks again for something already entered | The later step is not in the input |
 | R-ux-review-11 Consistency | Labels and positions of the same action across the screens of the input | The same action has two labels or two positions; one label names two different actions | Only one screen is in the input and the action appears once |
 | R-ux-review-12 Familiar patterns | Each control against the table below | The control behaves differently from its row | The behaviour of the control is not in the input |
@@ -24,7 +24,7 @@ For every rule: what to look at, when it is broken, and when the fact is not sho
 | R-ux-review-27 Section order | The order and tops of the sections; the section that holds the main action; each lead-in sentence and its heading | The main action section starts after 3 screens; details come before the action; a lead-in sentence sits above its heading | No layout input and the code gives no section order |
 | R-ux-review-28 Page length | Page height and section heights, divided by the screen height | Page above 6 screens; a section above 2 screens with its extra part not behind a control | No height is given; never estimate it from code |
 | R-ux-review-29 Duplicated blocks | Text, answers, lists and pictures of the whole page | The same content of 20 words or more, or the same picture or answer, appears twice on the page and the second is not a short link to the first | Only part of the page is given |
-| R-ux-review-30 Calls to action | Primary actions per view; clickable controls in the first screen | More than 1 primary action in one view (a repeated card button counts once per card in view); more than 7 clickable controls in the first screen | The code or sheet gives no count and no view |
+| R-ux-review-30 Calls to action | Primary actions per view; hero actions and cards in the first screen, counted apart from persistent navigation | More than 1 primary action in one view (a repeated card button counts once per card in view); more than 7 content controls in the first screen. Persistent navigation is judged by R-ux-review-7 and never added to the 7 | The code or sheet gives no count and no view, or does not say which controls are persistent navigation |
 
 Counting rules: a step is a screen, dialog or stage at which the user must act before moving on. A confirmation dialog for a destructive action is required by R-ux-review-5 and is not counted as a step for R-ux-review-13.
 
@@ -88,7 +88,7 @@ The severity describes the effect on the user, never the effort of the fix.
 ## What this review never contains
 
 - Corrected or new code, in any form.
-- Contrast ratios, colour judgements, focus styles, spacing scales, type scales.
+- Contrast ratios, colour judgements, focus styles, spacing scales, type scales, pixel sizes or gaps measured against a threshold, and token names or values.
 - Semantic elements, ARIA attributes, keyboard order, screen-reader output.
 - Rewritten labels, messages or other text.
 - A design for a new screen, or a list of what a new screen should contain.
@@ -106,6 +106,7 @@ Answer each line yes or no. Any "no" blocks the reply until it is fixed.
 - [ ] Pages from one template give one finding that lists the pages.
 - [ ] Nothing that is not shown is reported as a finding; it is an open question.
 - [ ] There are at most 8 open questions, and none is about code correctness.
+- [ ] A size, gap or hit finding is about what the user does wrong, quotes no px threshold and names ui-polish; no finding is about a token; persistent navigation is not added to the count of content controls.
 - [ ] The findings are numbered 1 to N, most severe first, and the counts add up.
 - [ ] The reply reports no contrast, focus style, spacing scale, semantics, ARIA or screen-reader output.
 - [ ] The "Not reviewed" and "Severity scale" sections are the fixed lines.

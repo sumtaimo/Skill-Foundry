@@ -21,6 +21,8 @@ Defined terms, used by every layer:
 - **First screen**: what the user sees without scrolling: 1440 by 900 px on desktop and 390 by 844 px on a phone, unless the layout input gives another size.
 - **View**: one screen height of the page; a page of 3 screens has 3 views.
 - **Primary action**: the one filled or most prominent action in a view that carries the main goal of that view; a call to action is any link or button that asks the user to start something.
+- **Persistent navigation**: a header, rail, sidebar or footer menu that stays the same on every screen of the product. It is counted apart from the actions in the content of a screen.
+- **Hero action**: a button or link in the content of the first screen that asks the user to start something. Hero actions, cards and other content controls are the controls that compete for attention in R-ux-review-30.
 - **Template**: one page structure used for many pages: the same sections in the same order and the same markup, only the content differs.
 
 Clauses:

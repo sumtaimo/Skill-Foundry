@@ -2,7 +2,7 @@
   "case": "design-request",
   "prompt": "Design a new onboarding screen for our fitness app.",
   "agent": "claude",
-  "recordedAt": "2026-11-16",
-  "output": "This skill reviews an existing screen or flow; it does not design new screens.",
+  "recordedAt": "2026-11-20",
+  "output": "This skill reviews an existing screen or flow; it does not design new screens. To design a screen, use ui-craft.",
   "files": []
 }
