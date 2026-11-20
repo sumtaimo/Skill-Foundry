@@ -10,6 +10,7 @@ These are the scales of default mode, used when the project has no token file. W
 | Font size | 12, 14, 16, 18, 20, 24, 30, 36, 48 px; body text 16 px or more |
 | Line-height | body 1.5; headings 1.2 to 1.3 |
 | Font weight | at most two per page, for example 400 and 600 |
+| Khmer text | line-height 1.6, letter-spacing 0 (headings too) |
 | Paragraph width | max-width 65ch or less |
 | Target size | 44 by 44 px or more |
 
@@ -89,4 +90,5 @@ Answer each line yes or no. Any "no" blocks the reply until it is fixed.
 - [ ] No external font, script, stylesheet, image or link was added.
 - [ ] No pair that passed before has a lower ratio after, no passing value was swapped for a different token value (each is an Open question with both values), and the script was run as one plain command or the reply says it could not run.
 - [ ] The reply follows the format in layer 08, with one true ratio-source sentence under the contrast table.
-- [ ] With a token file: no raw value is left where a token matches, every var(--name) is in the token file or the input, the primary action uses the primary-fill tokens, and the token file was not edited.
+- [ ] With a token file: no raw value is left where a variable matches (component, then role, then primitive), every var(--name) is in the token file or the input, the primary action uses the primary-fill variables, the modern group (glass, `--r-*`, `--z-*`, glow, gloss, weight 500, tabular-nums, clamp) was kept, each drift is a fix or a "Drift:" line, and the token file was not edited.
+- [ ] Khmer text has line-height 1.6 and letter-spacing 0.

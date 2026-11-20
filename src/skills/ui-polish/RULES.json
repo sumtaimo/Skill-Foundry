@@ -11,7 +11,7 @@
   },
   {
     "id": "R-ui-polish-3",
-    "text": "Body text MUST have line-height 1.5; headings MUST have line-height 1.2 to 1.3; paragraphs MUST have max-width 65ch or less.",
+    "text": "Body text MUST have line-height 1.5; headings MUST have line-height 1.2 to 1.3; paragraphs MUST have max-width 65ch or less; Khmer text follows rule 35 instead.",
     "checklist": "Body line-height is 1.5, heading line-height 1.2 to 1.3, paragraph width 65ch or less."
   },
   {
@@ -36,7 +36,7 @@
   },
   {
     "id": "R-ui-polish-8",
-    "text": "A page MUST use at most two font weights; emphasis MUST come from weight or colour before size.",
+    "text": "A page MUST use at most two font weights; emphasis MUST come from weight or colour before size. In token mode the weights the input already uses (400, 500, 600) are kept as their tokens and the polish adds none.",
     "checklist": "The polished code uses at most two font weights."
   },
   {
@@ -96,12 +96,12 @@
   },
   {
     "id": "R-ui-polish-20",
-    "text": "With a token file, every colour, spacing, font size, line-height, font weight, radius, control size, focus width and duration that has a matching token MUST be written as var(--name) of that token; the token scales replace the default scales.",
+    "text": "With a token file, every colour, spacing, font size, line-height, font weight, radius, control size, focus width and duration in the polished code that has a matching token MUST be written as var(--name) of that token, chosen by references/tokens.md; the token scales replace the default scales of rules 1 to 3.",
     "checklist": "With a token file, the polished code has no raw value where the file has a matching token."
   },
   {
     "id": "R-ui-polish-21",
-    "text": "With a token file, the one primary action MUST use the file's primary-fill tokens, unless its own pair already passes with a different value (rule 28).",
+    "text": "With a token file, the one primary action MUST use the file's primary-fill variables (--button-primary-bg with --button-primary-text when the file has them, else --color-action-primary-bg with --color-action-primary-text), unless its own pair already passes with a different value (rule 28).",
     "checklist": "With a token file, the primary action uses the primary-fill tokens of the file."
   },
   {
@@ -153,5 +153,25 @@
     "id": "R-ui-polish-31",
     "text": "When several pages share one stylesheet, the reply MUST give one patch for the stylesheet plus a short delta per page, NEVER one full patch per page.",
     "checklist": "Pages that share a stylesheet got one stylesheet patch and per-page deltas only."
+  },
+  {
+    "id": "R-ui-polish-32",
+    "text": "With a token file, each value MUST take the first variable that fits in this order: component variable (--button-*, --input-*, --card-*), then semantic role (--color-*), then primitive; every fix MUST cite the variable by its exact CSS name, NEVER invent a name, and NEVER edit the token files.",
+    "checklist": "Each variable is used in the order component, role, primitive; every name is in the token file and cited exactly."
+  },
+  {
+    "id": "R-ui-polish-33",
+    "text": "With a token file that has the modern group, the polish MUST keep and use --glass-bg with backdrop-filter and --glass-blur, --r-xs to --r-xl, --z-sticky/-dropdown/-command/-modal/-toast, --glow, --btn-gloss, weight 500, tabular-nums and fluid clamp() headings, NEVER replace them with plain values.",
+    "checklist": "Every modern-group variable and style the input had is still in the polished code, none flattened to a plain value."
+  },
+  {
+    "id": "R-ui-polish-34",
+    "text": "Each raw colour or size that a variable already holds MUST be reported as a drift finding with the variable to use: written as the variable when the values are equal or a rule needs the fix, else kept and listed under Open questions as \"Drift:\" with both values (rule 28 stays as written).",
+    "checklist": "Each raw value that a variable holds is a Tokens fix or a Drift line with both values and the variable."
+  },
+  {
+    "id": "R-ui-polish-35",
+    "text": "Khmer text MUST have line-height 1.6 (the --line-height-khmer variable when the file has it) and letter-spacing 0; NEVER apply negative letter-spacing or a line-height under 1.6 to Khmer text.",
+    "checklist": "Khmer text has line-height 1.6 and letter-spacing 0, no negative tracking."
   }
 ]

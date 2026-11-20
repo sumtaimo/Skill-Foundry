@@ -1,8 +1,8 @@
 # Layer 05: Rules
 
-1. Apply every rule in RULES.json (R-ui-polish-1 to R-ui-polish-15, R-ui-polish-20 to R-ui-polish-24, and R-ui-polish-26 to R-ui-polish-31) to the polished code.
+1. Apply every rule in RULES.json (R-ui-polish-1 to R-ui-polish-15, R-ui-polish-20 to R-ui-polish-24, and R-ui-polish-26 to R-ui-polish-35) to the polished code.
 2. R-ui-polish-1 and R-ui-polish-2: every spacing and font-size number is on its scale; body text is 16 px or more. In token mode the number is written as its token.
-3. R-ui-polish-3: body line-height 1.5, heading line-height 1.2 to 1.3, paragraph max-width 65ch or less.
+3. R-ui-polish-3: body line-height 1.5, heading line-height 1.2 to 1.3, paragraph max-width 65ch or less. Khmer text: line-height 1.6 and letter-spacing 0 (rule 35).
 4. R-ui-polish-4: every text colour pair meets 4.5:1 (or 3:1 for large text), and every ratio in the reply is a number with ":1".
 5. R-ui-polish-5: exactly one primary action.
 6. R-ui-polish-6 and R-ui-polish-7: every interactive element has hover, :focus-visible and, if it can be disabled, disabled styles, and is at least 44 by 44 px.
@@ -21,4 +21,6 @@
 19. R-ui-polish-27 and R-ui-polish-28: no passing pair has a lower ratio after; no passing value was swapped for a different token value; each such case is an Open questions line with both values.
 20. R-ui-polish-29: a token file found but not loaded by the page was reported, not used.
 21. R-ui-polish-30 and R-ui-polish-31: overflow fixes quote their measurement and exist only when a screenshot or sheet was given; pages with one shared stylesheet got one stylesheet patch plus deltas.
-22. R-ui-polish-16 to R-ui-polish-19 and R-ui-polish-25 apply to the skill folder itself; a run of the skill does not change them.
+22. R-ui-polish-32 and R-ui-polish-33: in token mode each value took a component variable first, then a role, then a primitive, by exact name; the modern group is kept and used, not flattened.
+23. R-ui-polish-34 and R-ui-polish-35: each raw value that a variable holds is a Tokens fix (equal) or a "Drift:" Open questions line (different, passing); Khmer text has line-height 1.6 and letter-spacing 0.
+24. R-ui-polish-16 to R-ui-polish-19 and R-ui-polish-25 apply to the skill folder itself; a run of the skill does not change them.

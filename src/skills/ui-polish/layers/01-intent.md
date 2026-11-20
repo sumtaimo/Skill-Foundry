@@ -8,6 +8,8 @@ Defined terms, used by every layer:
 - **Token file**: a file of design tokens the project already has: CSS custom properties (usually `tokens.css`) or W3C design tokens (usually `design-tokens.json`), pasted in the message or found in the project. This skill reads it and never edits it.
 - **Token mode**: the way the skill works when there is a token file: fixes are written with the file's tokens. Without one the skill works in **default mode**, with its own scales.
 - **Scale**: the fixed lists of allowed numbers. In default mode they are in references/README.md (spacing, type, line-height, weight); in token mode they are the values of the token file.
+- **Variable**: a custom property of the token file, by its exact CSS name. There are three tiers: primitives (`--color-primary-800`, `--space-12`), semantic roles (`--color-text-muted`) and component variables (`--button-primary-bg`, `--input-border`, `--card-radius`). The modern group (`--glass-bg`, `--r-*`, `--z-*`, `--glow`, `--btn-gloss`) is part of the file when it has it.
+- **Drift**: a raw colour or size in the code that a variable already holds.
 - **Matching token**: the token references/tokens.md gives for a value. A value with none is a **value with no matching token**.
 - **Primary action**: the one button or link the screen most wants the user to press.
 - **Brand colour**: any colour the input uses for buttons, links, accents or a logo. In token mode, the brand colours are the ones the token file gives.

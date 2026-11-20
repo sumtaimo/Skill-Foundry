@@ -271,7 +271,7 @@
     "expect": [
       {
         "type": "contains",
-        "value": "This skill polishes a finished UI; it does not design new screens."
+        "value": "This skill polishes a finished UI; it does not design new screens. Use ui-craft to design one."
       },
       {
         "type": "notContains",
@@ -876,6 +876,448 @@
       {
         "type": "contains",
         "value": "Ratios computed with the contrast script."
+      }
+    ]
+  },
+  {
+    "id": "foundation-components",
+    "prompt": "final polish on this invoice card. Our design tokens are in design/tokens.css, pasted below; use them.\n\ndesign/tokens.css:\n```css\n:root {\n  color-scheme: light dark;\n  --color-brand: #0f766e;\n  --color-primary-50: #f0fdfc;\n  --color-primary-100: #dff9f7;\n  --color-primary-200: #c1f4f0;\n  --color-primary-300: #93eee7;\n  --color-primary-400: #75cfc8;\n  --color-primary-500: #52c0b7;\n  --color-primary-600: #3ba199;\n  --color-primary-700: #238a82;\n  --color-primary-800: #0f766e;\n  --color-primary-900: #0c403c;\n  --color-neutral-50: #f4fbfa;\n  --color-neutral-100: #e9f2f1;\n  --color-neutral-200: #d2dfde;\n  --color-neutral-300: #b9c6c5;\n  --color-neutral-400: #96b0ae;\n  --color-neutral-500: #7a9492;\n  --color-neutral-600: #617b79;\n  --color-neutral-700: #4a6462;\n  --color-neutral-800: #364342;\n  --color-neutral-900: #202d2c;\n  --color-neutral-950: #0f1918;\n  --color-success-50: #f0fbf4;\n  --color-success-100: #e4f7eb;\n  --color-success-200: #bcf5d1;\n  --color-success-300: #91edb3;\n  --color-success-400: #65df92;\n  --color-success-500: #4ac778;\n  --color-success-600: #2bb05c;\n  --color-success-700: #16a34a;\n  --color-success-800: #116831;\n  --color-success-900: #0c3d1e;\n  --color-warning-50: #fdf7f0;\n  --color-warning-100: #fcefe0;\n  --color-warning-200: #fbdbb6;\n  --color-warning-300: #f9c385;\n  --color-warning-400: #faa94c;\n  --color-warning-500: #e68e28;\n  --color-warning-600: #d97706;\n  --color-warning-700: #ab5e05;\n  --color-warning-800: #744106;\n  --color-warning-900: #492904;\n  --color-danger-50: #fbf0f0;\n  --color-danger-100: #f8e2e2;\n  --color-danger-200: #f2c2c2;\n  --color-danger-300: #eb9494;\n  --color-danger-400: #e56161;\n  --color-danger-500: #dc2626;\n  --color-danger-600: #bd1e1e;\n  --color-danger-700: #951818;\n  --color-danger-800: #661313;\n  --color-danger-900: #3f0e0e;\n  --color-info-50: #f0f4fd;\n  --color-info-100: #dee7fb;\n  --color-info-200: #bfd0f5;\n  --color-info-300: #8faef2;\n  --color-info-400: #5787f0;\n  --color-info-500: #2563eb;\n  --color-info-600: #124bc8;\n  --color-info-700: #0f3c9f;\n  --color-info-800: #0d2b6d;\n  --color-info-900: #0d1d40;\n  --font-family-sans: system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif;\n  --font-family-heading: system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif;\n  --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;\n  --font-size-xs: 12px;\n  --font-size-sm: 14px;\n  --font-size-md: 16px;\n  --font-size-lg: 18px;\n  --font-size-xl: 20px;\n  --font-size-2xl: 24px;\n  --font-size-3xl: 30px;\n  --line-height-body: 1.5;\n  --line-height-heading: 1.25;\n  --line-height-display: 1.2;\n  --font-weight-regular: 400;\n  --font-weight-strong: 600;\n  --measure: 65ch;\n  --space-0: 0px;\n  --space-4: 4px;\n  --space-8: 8px;\n  --space-12: 12px;\n  --space-16: 16px;\n  --space-24: 24px;\n  --space-32: 32px;\n  --space-48: 48px;\n  --space-64: 64px;\n  --control-height-sm: 32px;\n  --control-height-md: 40px;\n  --control-height-lg: 48px;\n  --size-target-min: 44px;\n  --radius-sm: 4px;\n  --radius-md: 6px;\n  --radius-lg: 8px;\n  --radius-full: 9999px;\n  --radius-control: var(--radius-md);\n  --shadow-1: 0 1px 2px 0px rgba(15, 25, 24, 0.08);\n  --shadow-2: 0 2px 6px -1px rgba(15, 25, 24, 0.1);\n  --shadow-3: 0 8px 16px -4px rgba(15, 25, 24, 0.12);\n  --border-width-hairline: 1px;\n  --border-width-thick: 2px;\n  --border-width-focus: 2px;\n  --duration-fast: 100ms;\n  --duration-base: 150ms;\n  --duration-slow: 200ms;\n  --ease-standard: cubic-bezier(0.2, 0, 0, 1);\n  --ease-enter: cubic-bezier(0, 0, 0.2, 1);\n  --ease-exit: cubic-bezier(0.4, 0, 1, 1);\n  --breakpoint-sm: 640px;\n  --breakpoint-md: 768px;\n  --breakpoint-lg: 1024px;\n  --breakpoint-xl: 1280px;\n  --density-control-x: 12px;\n  --density-control-y: 8px;\n  --density-row: 40px;\n  --density-stack: 12px;\n  --density-section: 32px;\n  --glass-bg: #ffffffb8;\n  --glow: radial-gradient(640px 320px at 50% 0%, rgba(15, 118, 110, 0.1), transparent 70%);\n  --btn-gloss: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 60%);\n  --glass-blur: 12px;\n  --r-xs: 4px;\n  --r-sm: 6px;\n  --r-md: 10px;\n  --r-lg: 14px;\n  --r-xl: 16px;\n  --z-sticky: 20;\n  --z-dropdown: 40;\n  --z-command: 60;\n  --z-modal: 80;\n  --z-toast: 100;\n  --font-weight-medium: 500;\n  --color-surface-default: #ffffff;\n  --color-surface-subtle: var(--color-neutral-50);\n  --color-surface-raised: #ffffff;\n  --color-surface-sunken: var(--color-neutral-100);\n  --color-surface-inverse: var(--color-neutral-900);\n  --color-text-default: var(--color-neutral-900);\n  --color-text-muted: var(--color-neutral-700);\n  --color-text-disabled: var(--color-neutral-400);\n  --color-text-inverse: var(--color-neutral-50);\n  --color-text-link: var(--color-primary-800);\n  --color-text-link-hover: var(--color-primary-900);\n  --color-border-default: var(--color-neutral-200);\n  --color-border-strong: var(--color-neutral-600);\n  --color-border-focus: var(--color-primary-800);\n  --color-action-primary-bg: var(--color-primary-800);\n  --color-action-primary-bg-hover: var(--color-primary-900);\n  --color-action-primary-bg-pressed: var(--color-primary-900);\n  --color-action-primary-text: #ffffff;\n  --color-action-secondary-text: var(--color-primary-800);\n  --color-action-secondary-border: var(--color-primary-800);\n  --color-selected-bg: var(--color-primary-50);\n  --color-selected-text: var(--color-primary-800);\n  --color-success-bg-subtle: var(--color-success-50);\n  --color-success-border: var(--color-success-200);\n  --color-success-text: var(--color-success-800);\n  --color-success-bg: var(--color-success-700);\n  --color-success-text-on: #000000;\n  --color-warning-bg-subtle: var(--color-warning-50);\n  --color-warning-border: var(--color-warning-200);\n  --color-warning-text: var(--color-warning-800);\n  --color-warning-bg: var(--color-warning-600);\n  --color-warning-text-on: #000000;\n  --color-danger-bg-subtle: var(--color-danger-50);\n  --color-danger-border: var(--color-danger-200);\n  --color-danger-text: var(--color-danger-600);\n  --color-danger-bg: var(--color-danger-500);\n  --color-danger-text-on: #ffffff;\n  --color-info-bg-subtle: var(--color-info-50);\n  --color-info-border: var(--color-info-200);\n  --color-info-text: var(--color-info-600);\n  --color-info-bg: var(--color-info-500);\n  --color-info-text-on: #ffffff;\n}\n\n:root {\n  --button-primary-bg: var(--color-action-primary-bg);\n  --button-primary-bg-hover: var(--color-action-primary-bg-hover);\n  --button-primary-bg-pressed: var(--color-action-primary-bg-pressed);\n  --button-primary-text: var(--color-action-primary-text);\n  --button-secondary-text: var(--color-action-secondary-text);\n  --button-secondary-border: var(--color-action-secondary-border);\n  --button-radius: var(--radius-control);\n  --button-height: var(--control-height-md);\n  --button-padding-x: var(--density-control-x);\n  --input-bg: var(--color-surface-default);\n  --input-text: var(--color-text-default);\n  --input-border: var(--color-border-strong);\n  --input-border-focus: var(--color-border-focus);\n  --input-radius: var(--radius-control);\n  --input-height: var(--control-height-md);\n  --card-bg: var(--color-surface-raised);\n  --card-border: var(--color-border-default);\n  --card-radius: var(--radius-lg);\n  --card-shadow: var(--shadow-1);\n  --card-padding: var(--space-16);\n  --line-height-khmer: 1.6;\n}\n\n/* Khmer needs a taller line and no negative letter-spacing. */\n:lang(km) {\n  letter-spacing: 0;\n  line-height: var(--line-height-khmer);\n}\n```\n\nCode:\n<style>\n.invoice{padding:13px;background:#ffffff;border:1px solid #d2dfde;border-radius:5px;box-shadow:0 1px 2px 0px rgba(15, 25, 24, 0.08);font-family:system-ui}\n.invoice h2{font-size:22px;margin:0 0 5px;color:#202d2c}\n.invoice p{font-size:13px;color:#999999}\n.invoice input{border:1px solid #595959;border-radius:5px;height:36px;padding:0 8px;background:#ffffff}\n.invoice button{background:#0f766e;color:#fff;border:none;border-radius:5px;padding:6px 10px}\n</style>\n<div class=\"invoice\"><h2>Invoice 1042</h2><p>Due on 30 November. Pay by bank transfer or card.</p><label>Reference <input type=\"text\" value=\"INV-1042\"></label><button>Pay now</button><button>Download PDF</button></div>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## UI polish:"
+      },
+      {
+        "type": "contains",
+        "value": "### Fixes"
+      },
+      {
+        "type": "contains",
+        "value": "### Contrast"
+      },
+      {
+        "type": "contains",
+        "value": "### Polished code"
+      },
+      {
+        "type": "contains",
+        "value": "### Not changed"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Invoice 1042"
+      },
+      {
+        "type": "contains",
+        "value": "Due on 30 November. Pay by bank transfer or card."
+      },
+      {
+        "type": "contains",
+        "value": "Reference"
+      },
+      {
+        "type": "contains",
+        "value": "Pay now"
+      },
+      {
+        "type": "contains",
+        "value": "Download PDF"
+      },
+      {
+        "type": "contains",
+        "value": "**Tokens**"
+      },
+      {
+        "type": "contains",
+        "value": "Token file: not edited."
+      },
+      {
+        "type": "contains",
+        "value": "var(--card-padding)"
+      },
+      {
+        "type": "contains",
+        "value": "var(--card-radius)"
+      },
+      {
+        "type": "contains",
+        "value": "var(--card-border)"
+      },
+      {
+        "type": "contains",
+        "value": "var(--input-radius)"
+      },
+      {
+        "type": "contains",
+        "value": "Drift:"
+      },
+      {
+        "type": "contains",
+        "value": "var(--button-primary-bg)"
+      },
+      {
+        "type": "contains",
+        "value": "var(--button-primary-text)"
+      },
+      {
+        "type": "contains",
+        "value": "var(--button-secondary-text)"
+      },
+      {
+        "type": "contains",
+        "value": "Ratios "
+      },
+      {
+        "type": "notContains",
+        "value": ":root"
+      },
+      {
+        "type": "notContains",
+        "value": "--card-gap"
+      },
+      {
+        "type": "notContains",
+        "value": "--button-danger"
+      },
+      {
+        "type": "notContains",
+        "value": "--input-padding"
+      },
+      {
+        "type": "notContains",
+        "value": "--card-title"
+      },
+      {
+        "type": "contains",
+        "value": "--input-border"
+      },
+      {
+        "type": "contains",
+        "value": "#595959"
+      }
+    ]
+  },
+  {
+    "id": "modern-group-kept",
+    "prompt": "final polish on this app header and dialog. Our design tokens are in design/tokens.css, pasted below; use them.\n\ndesign/tokens.css:\n```css\n:root {\n  color-scheme: light dark;\n  --color-brand: #0f766e;\n  --color-primary-50: #f0fdfc;\n  --color-primary-100: #dff9f7;\n  --color-primary-200: #c1f4f0;\n  --color-primary-300: #93eee7;\n  --color-primary-400: #75cfc8;\n  --color-primary-500: #52c0b7;\n  --color-primary-600: #3ba199;\n  --color-primary-700: #238a82;\n  --color-primary-800: #0f766e;\n  --color-primary-900: #0c403c;\n  --color-neutral-50: #f4fbfa;\n  --color-neutral-100: #e9f2f1;\n  --color-neutral-200: #d2dfde;\n  --color-neutral-300: #b9c6c5;\n  --color-neutral-400: #96b0ae;\n  --color-neutral-500: #7a9492;\n  --color-neutral-600: #617b79;\n  --color-neutral-700: #4a6462;\n  --color-neutral-800: #364342;\n  --color-neutral-900: #202d2c;\n  --color-neutral-950: #0f1918;\n  --color-success-50: #f0fbf4;\n  --color-success-100: #e4f7eb;\n  --color-success-200: #bcf5d1;\n  --color-success-300: #91edb3;\n  --color-success-400: #65df92;\n  --color-success-500: #4ac778;\n  --color-success-600: #2bb05c;\n  --color-success-700: #16a34a;\n  --color-success-800: #116831;\n  --color-success-900: #0c3d1e;\n  --color-warning-50: #fdf7f0;\n  --color-warning-100: #fcefe0;\n  --color-warning-200: #fbdbb6;\n  --color-warning-300: #f9c385;\n  --color-warning-400: #faa94c;\n  --color-warning-500: #e68e28;\n  --color-warning-600: #d97706;\n  --color-warning-700: #ab5e05;\n  --color-warning-800: #744106;\n  --color-warning-900: #492904;\n  --color-danger-50: #fbf0f0;\n  --color-danger-100: #f8e2e2;\n  --color-danger-200: #f2c2c2;\n  --color-danger-300: #eb9494;\n  --color-danger-400: #e56161;\n  --color-danger-500: #dc2626;\n  --color-danger-600: #bd1e1e;\n  --color-danger-700: #951818;\n  --color-danger-800: #661313;\n  --color-danger-900: #3f0e0e;\n  --color-info-50: #f0f4fd;\n  --color-info-100: #dee7fb;\n  --color-info-200: #bfd0f5;\n  --color-info-300: #8faef2;\n  --color-info-400: #5787f0;\n  --color-info-500: #2563eb;\n  --color-info-600: #124bc8;\n  --color-info-700: #0f3c9f;\n  --color-info-800: #0d2b6d;\n  --color-info-900: #0d1d40;\n  --font-family-sans: system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif;\n  --font-family-heading: system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif;\n  --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;\n  --font-size-xs: 12px;\n  --font-size-sm: 14px;\n  --font-size-md: 16px;\n  --font-size-lg: 18px;\n  --font-size-xl: 20px;\n  --font-size-2xl: 24px;\n  --font-size-3xl: 30px;\n  --line-height-body: 1.5;\n  --line-height-heading: 1.25;\n  --line-height-display: 1.2;\n  --font-weight-regular: 400;\n  --font-weight-strong: 600;\n  --measure: 65ch;\n  --space-0: 0px;\n  --space-4: 4px;\n  --space-8: 8px;\n  --space-12: 12px;\n  --space-16: 16px;\n  --space-24: 24px;\n  --space-32: 32px;\n  --space-48: 48px;\n  --space-64: 64px;\n  --control-height-sm: 32px;\n  --control-height-md: 40px;\n  --control-height-lg: 48px;\n  --size-target-min: 44px;\n  --radius-sm: 4px;\n  --radius-md: 6px;\n  --radius-lg: 8px;\n  --radius-full: 9999px;\n  --radius-control: var(--radius-md);\n  --shadow-1: 0 1px 2px 0px rgba(15, 25, 24, 0.08);\n  --shadow-2: 0 2px 6px -1px rgba(15, 25, 24, 0.1);\n  --shadow-3: 0 8px 16px -4px rgba(15, 25, 24, 0.12);\n  --border-width-hairline: 1px;\n  --border-width-thick: 2px;\n  --border-width-focus: 2px;\n  --duration-fast: 100ms;\n  --duration-base: 150ms;\n  --duration-slow: 200ms;\n  --ease-standard: cubic-bezier(0.2, 0, 0, 1);\n  --ease-enter: cubic-bezier(0, 0, 0.2, 1);\n  --ease-exit: cubic-bezier(0.4, 0, 1, 1);\n  --breakpoint-sm: 640px;\n  --breakpoint-md: 768px;\n  --breakpoint-lg: 1024px;\n  --breakpoint-xl: 1280px;\n  --density-control-x: 12px;\n  --density-control-y: 8px;\n  --density-row: 40px;\n  --density-stack: 12px;\n  --density-section: 32px;\n  --glass-bg: #ffffffb8;\n  --glow: radial-gradient(640px 320px at 50% 0%, rgba(15, 118, 110, 0.1), transparent 70%);\n  --btn-gloss: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 60%);\n  --glass-blur: 12px;\n  --r-xs: 4px;\n  --r-sm: 6px;\n  --r-md: 10px;\n  --r-lg: 14px;\n  --r-xl: 16px;\n  --z-sticky: 20;\n  --z-dropdown: 40;\n  --z-command: 60;\n  --z-modal: 80;\n  --z-toast: 100;\n  --font-weight-medium: 500;\n  --color-surface-default: #ffffff;\n  --color-surface-subtle: var(--color-neutral-50);\n  --color-surface-raised: #ffffff;\n  --color-surface-sunken: var(--color-neutral-100);\n  --color-surface-inverse: var(--color-neutral-900);\n  --color-text-default: var(--color-neutral-900);\n  --color-text-muted: var(--color-neutral-700);\n  --color-text-disabled: var(--color-neutral-400);\n  --color-text-inverse: var(--color-neutral-50);\n  --color-text-link: var(--color-primary-800);\n  --color-text-link-hover: var(--color-primary-900);\n  --color-border-default: var(--color-neutral-200);\n  --color-border-strong: var(--color-neutral-600);\n  --color-border-focus: var(--color-primary-800);\n  --color-action-primary-bg: var(--color-primary-800);\n  --color-action-primary-bg-hover: var(--color-primary-900);\n  --color-action-primary-bg-pressed: var(--color-primary-900);\n  --color-action-primary-text: #ffffff;\n  --color-action-secondary-text: var(--color-primary-800);\n  --color-action-secondary-border: var(--color-primary-800);\n  --color-selected-bg: var(--color-primary-50);\n  --color-selected-text: var(--color-primary-800);\n  --color-success-bg-subtle: var(--color-success-50);\n  --color-success-border: var(--color-success-200);\n  --color-success-text: var(--color-success-800);\n  --color-success-bg: var(--color-success-700);\n  --color-success-text-on: #000000;\n  --color-warning-bg-subtle: var(--color-warning-50);\n  --color-warning-border: var(--color-warning-200);\n  --color-warning-text: var(--color-warning-800);\n  --color-warning-bg: var(--color-warning-600);\n  --color-warning-text-on: #000000;\n  --color-danger-bg-subtle: var(--color-danger-50);\n  --color-danger-border: var(--color-danger-200);\n  --color-danger-text: var(--color-danger-600);\n  --color-danger-bg: var(--color-danger-500);\n  --color-danger-text-on: #ffffff;\n  --color-info-bg-subtle: var(--color-info-50);\n  --color-info-border: var(--color-info-200);\n  --color-info-text: var(--color-info-600);\n  --color-info-bg: var(--color-info-500);\n  --color-info-text-on: #ffffff;\n}\n\n:root {\n  --button-primary-bg: var(--color-action-primary-bg);\n  --button-primary-bg-hover: var(--color-action-primary-bg-hover);\n  --button-primary-bg-pressed: var(--color-action-primary-bg-pressed);\n  --button-primary-text: var(--color-action-primary-text);\n  --button-secondary-text: var(--color-action-secondary-text);\n  --button-secondary-border: var(--color-action-secondary-border);\n  --button-radius: var(--radius-control);\n  --button-height: var(--control-height-md);\n  --button-padding-x: var(--density-control-x);\n  --input-bg: var(--color-surface-default);\n  --input-text: var(--color-text-default);\n  --input-border: var(--color-border-strong);\n  --input-border-focus: var(--color-border-focus);\n  --input-radius: var(--radius-control);\n  --input-height: var(--control-height-md);\n  --card-bg: var(--color-surface-raised);\n  --card-border: var(--color-border-default);\n  --card-radius: var(--radius-lg);\n  --card-shadow: var(--shadow-1);\n  --card-padding: var(--space-16);\n  --line-height-khmer: 1.6;\n}\n\n/* Khmer needs a taller line and no negative letter-spacing. */\n:lang(km) {\n  letter-spacing: 0;\n  line-height: var(--line-height-khmer);\n}\n```\n\nCode:\n<style>\n.bar{position:sticky;top:0;z-index:20;background:var(--glass-bg);-webkit-backdrop-filter:blur(var(--glass-blur));backdrop-filter:blur(var(--glass-blur));padding:14px 16px;border-bottom:1px solid var(--color-border-default)}\n.hero{background-image:var(--glow);padding:50px 24px}\n.hero h1{font-size:clamp(30px,5vw,48px);letter-spacing:-0.02em;font-weight:500;margin:0 0 10px}\n.amount{font-variant-numeric:tabular-nums;font-size:13px;font-weight:500}\n.dlg{position:fixed;z-index:9999;background:var(--glass-bg);backdrop-filter:blur(var(--glass-blur));border-radius:10px;padding:20px}\n.go{background-color:var(--color-action-primary-bg);background-image:var(--btn-gloss);color:#fff;border:0;border-radius:10px;padding:10px 14px}\n</style>\n<header class=\"bar\">Acme Billing</header>\n<section class=\"hero\"><h1>Your balance</h1><p class=\"amount\">1,204.50 USD</p></section>\n<div class=\"dlg\"><p>Confirm this payment?</p><button class=\"go\">Confirm</button><button>Cancel</button></div>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## UI polish:"
+      },
+      {
+        "type": "contains",
+        "value": "### Fixes"
+      },
+      {
+        "type": "contains",
+        "value": "### Contrast"
+      },
+      {
+        "type": "contains",
+        "value": "### Polished code"
+      },
+      {
+        "type": "contains",
+        "value": "### Not changed"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Acme Billing"
+      },
+      {
+        "type": "contains",
+        "value": "Your balance"
+      },
+      {
+        "type": "contains",
+        "value": "1,204.50 USD"
+      },
+      {
+        "type": "contains",
+        "value": "Confirm this payment?"
+      },
+      {
+        "type": "contains",
+        "value": "Confirm"
+      },
+      {
+        "type": "contains",
+        "value": "Cancel"
+      },
+      {
+        "type": "contains",
+        "value": "Token file: not edited."
+      },
+      {
+        "type": "contains",
+        "value": "var(--glass-bg)"
+      },
+      {
+        "type": "contains",
+        "value": "backdrop-filter"
+      },
+      {
+        "type": "contains",
+        "value": "var(--glass-blur)"
+      },
+      {
+        "type": "contains",
+        "value": "var(--glow)"
+      },
+      {
+        "type": "contains",
+        "value": "var(--btn-gloss)"
+      },
+      {
+        "type": "contains",
+        "value": "var(--z-modal)"
+      },
+      {
+        "type": "contains",
+        "value": "var(--z-sticky)"
+      },
+      {
+        "type": "contains",
+        "value": "tabular-nums"
+      },
+      {
+        "type": "contains",
+        "value": "clamp("
+      },
+      {
+        "type": "contains",
+        "value": "var(--font-weight-medium)"
+      },
+      {
+        "type": "contains",
+        "value": "var(--r-md)"
+      },
+      {
+        "type": "contains",
+        "value": "R-ui-polish-33"
+      },
+      {
+        "type": "notContains",
+        "value": ":root"
+      },
+      {
+        "type": "notContains",
+        "value": "blur(12px)"
+      },
+      {
+        "type": "notContains",
+        "value": "--z-overlay"
+      },
+      {
+        "type": "notContains",
+        "value": "--glass-bg-strong"
+      }
+    ]
+  },
+  {
+    "id": "drift-kept",
+    "prompt": "final polish on this card; use the tokens, not raw values. Our design tokens are in design/tokens.css, pasted below; use them.\n\ndesign/tokens.css:\n```css\n:root {\n  color-scheme: light dark;\n  --color-brand: #0f766e;\n  --color-primary-50: #f0fdfc;\n  --color-primary-100: #dff9f7;\n  --color-primary-200: #c1f4f0;\n  --color-primary-300: #93eee7;\n  --color-primary-400: #75cfc8;\n  --color-primary-500: #52c0b7;\n  --color-primary-600: #3ba199;\n  --color-primary-700: #238a82;\n  --color-primary-800: #0f766e;\n  --color-primary-900: #0c403c;\n  --color-neutral-50: #f4fbfa;\n  --color-neutral-100: #e9f2f1;\n  --color-neutral-200: #d2dfde;\n  --color-neutral-300: #b9c6c5;\n  --color-neutral-400: #96b0ae;\n  --color-neutral-500: #7a9492;\n  --color-neutral-600: #617b79;\n  --color-neutral-700: #4a6462;\n  --color-neutral-800: #364342;\n  --color-neutral-900: #202d2c;\n  --color-neutral-950: #0f1918;\n  --color-success-50: #f0fbf4;\n  --color-success-100: #e4f7eb;\n  --color-success-200: #bcf5d1;\n  --color-success-300: #91edb3;\n  --color-success-400: #65df92;\n  --color-success-500: #4ac778;\n  --color-success-600: #2bb05c;\n  --color-success-700: #16a34a;\n  --color-success-800: #116831;\n  --color-success-900: #0c3d1e;\n  --color-warning-50: #fdf7f0;\n  --color-warning-100: #fcefe0;\n  --color-warning-200: #fbdbb6;\n  --color-warning-300: #f9c385;\n  --color-warning-400: #faa94c;\n  --color-warning-500: #e68e28;\n  --color-warning-600: #d97706;\n  --color-warning-700: #ab5e05;\n  --color-warning-800: #744106;\n  --color-warning-900: #492904;\n  --color-danger-50: #fbf0f0;\n  --color-danger-100: #f8e2e2;\n  --color-danger-200: #f2c2c2;\n  --color-danger-300: #eb9494;\n  --color-danger-400: #e56161;\n  --color-danger-500: #dc2626;\n  --color-danger-600: #bd1e1e;\n  --color-danger-700: #951818;\n  --color-danger-800: #661313;\n  --color-danger-900: #3f0e0e;\n  --color-info-50: #f0f4fd;\n  --color-info-100: #dee7fb;\n  --color-info-200: #bfd0f5;\n  --color-info-300: #8faef2;\n  --color-info-400: #5787f0;\n  --color-info-500: #2563eb;\n  --color-info-600: #124bc8;\n  --color-info-700: #0f3c9f;\n  --color-info-800: #0d2b6d;\n  --color-info-900: #0d1d40;\n  --font-family-sans: system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif;\n  --font-family-heading: system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif;\n  --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;\n  --font-size-xs: 12px;\n  --font-size-sm: 14px;\n  --font-size-md: 16px;\n  --font-size-lg: 18px;\n  --font-size-xl: 20px;\n  --font-size-2xl: 24px;\n  --font-size-3xl: 30px;\n  --line-height-body: 1.5;\n  --line-height-heading: 1.25;\n  --line-height-display: 1.2;\n  --font-weight-regular: 400;\n  --font-weight-strong: 600;\n  --measure: 65ch;\n  --space-0: 0px;\n  --space-4: 4px;\n  --space-8: 8px;\n  --space-12: 12px;\n  --space-16: 16px;\n  --space-24: 24px;\n  --space-32: 32px;\n  --space-48: 48px;\n  --space-64: 64px;\n  --control-height-sm: 32px;\n  --control-height-md: 40px;\n  --control-height-lg: 48px;\n  --size-target-min: 44px;\n  --radius-sm: 4px;\n  --radius-md: 6px;\n  --radius-lg: 8px;\n  --radius-full: 9999px;\n  --radius-control: var(--radius-md);\n  --shadow-1: 0 1px 2px 0px rgba(15, 25, 24, 0.08);\n  --shadow-2: 0 2px 6px -1px rgba(15, 25, 24, 0.1);\n  --shadow-3: 0 8px 16px -4px rgba(15, 25, 24, 0.12);\n  --border-width-hairline: 1px;\n  --border-width-thick: 2px;\n  --border-width-focus: 2px;\n  --duration-fast: 100ms;\n  --duration-base: 150ms;\n  --duration-slow: 200ms;\n  --ease-standard: cubic-bezier(0.2, 0, 0, 1);\n  --ease-enter: cubic-bezier(0, 0, 0.2, 1);\n  --ease-exit: cubic-bezier(0.4, 0, 1, 1);\n  --breakpoint-sm: 640px;\n  --breakpoint-md: 768px;\n  --breakpoint-lg: 1024px;\n  --breakpoint-xl: 1280px;\n  --density-control-x: 12px;\n  --density-control-y: 8px;\n  --density-row: 40px;\n  --density-stack: 12px;\n  --density-section: 32px;\n  --glass-bg: #ffffffb8;\n  --glow: radial-gradient(640px 320px at 50% 0%, rgba(15, 118, 110, 0.1), transparent 70%);\n  --btn-gloss: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 60%);\n  --glass-blur: 12px;\n  --r-xs: 4px;\n  --r-sm: 6px;\n  --r-md: 10px;\n  --r-lg: 14px;\n  --r-xl: 16px;\n  --z-sticky: 20;\n  --z-dropdown: 40;\n  --z-command: 60;\n  --z-modal: 80;\n  --z-toast: 100;\n  --font-weight-medium: 500;\n  --color-surface-default: #ffffff;\n  --color-surface-subtle: var(--color-neutral-50);\n  --color-surface-raised: #ffffff;\n  --color-surface-sunken: var(--color-neutral-100);\n  --color-surface-inverse: var(--color-neutral-900);\n  --color-text-default: var(--color-neutral-900);\n  --color-text-muted: var(--color-neutral-700);\n  --color-text-disabled: var(--color-neutral-400);\n  --color-text-inverse: var(--color-neutral-50);\n  --color-text-link: var(--color-primary-800);\n  --color-text-link-hover: var(--color-primary-900);\n  --color-border-default: var(--color-neutral-200);\n  --color-border-strong: var(--color-neutral-600);\n  --color-border-focus: var(--color-primary-800);\n  --color-action-primary-bg: var(--color-primary-800);\n  --color-action-primary-bg-hover: var(--color-primary-900);\n  --color-action-primary-bg-pressed: var(--color-primary-900);\n  --color-action-primary-text: #ffffff;\n  --color-action-secondary-text: var(--color-primary-800);\n  --color-action-secondary-border: var(--color-primary-800);\n  --color-selected-bg: var(--color-primary-50);\n  --color-selected-text: var(--color-primary-800);\n  --color-success-bg-subtle: var(--color-success-50);\n  --color-success-border: var(--color-success-200);\n  --color-success-text: var(--color-success-800);\n  --color-success-bg: var(--color-success-700);\n  --color-success-text-on: #000000;\n  --color-warning-bg-subtle: var(--color-warning-50);\n  --color-warning-border: var(--color-warning-200);\n  --color-warning-text: var(--color-warning-800);\n  --color-warning-bg: var(--color-warning-600);\n  --color-warning-text-on: #000000;\n  --color-danger-bg-subtle: var(--color-danger-50);\n  --color-danger-border: var(--color-danger-200);\n  --color-danger-text: var(--color-danger-600);\n  --color-danger-bg: var(--color-danger-500);\n  --color-danger-text-on: #ffffff;\n  --color-info-bg-subtle: var(--color-info-50);\n  --color-info-border: var(--color-info-200);\n  --color-info-text: var(--color-info-600);\n  --color-info-bg: var(--color-info-500);\n  --color-info-text-on: #ffffff;\n}\n\n:root {\n  --button-primary-bg: var(--color-action-primary-bg);\n  --button-primary-bg-hover: var(--color-action-primary-bg-hover);\n  --button-primary-bg-pressed: var(--color-action-primary-bg-pressed);\n  --button-primary-text: var(--color-action-primary-text);\n  --button-secondary-text: var(--color-action-secondary-text);\n  --button-secondary-border: var(--color-action-secondary-border);\n  --button-radius: var(--radius-control);\n  --button-height: var(--control-height-md);\n  --button-padding-x: var(--density-control-x);\n  --input-bg: var(--color-surface-default);\n  --input-text: var(--color-text-default);\n  --input-border: var(--color-border-strong);\n  --input-border-focus: var(--color-border-focus);\n  --input-radius: var(--radius-control);\n  --input-height: var(--control-height-md);\n  --card-bg: var(--color-surface-raised);\n  --card-border: var(--color-border-default);\n  --card-radius: var(--radius-lg);\n  --card-shadow: var(--shadow-1);\n  --card-padding: var(--space-16);\n  --line-height-khmer: 1.6;\n}\n\n/* Khmer needs a taller line and no negative letter-spacing. */\n:lang(km) {\n  letter-spacing: 0;\n  line-height: var(--line-height-khmer);\n}\n```\n\nCode:\n<style>\n.card{padding:16px;background:#ffffff;border:1px solid #d2dfde;border-radius:12px;font-family:system-ui}\n.card h2{font-size:20px;margin:0 0 8px;color:#202d2c}\n.card a{color:#0f766e;font-size:16px}\n.card button{background:#111111;color:#ffffff;border:none;border-radius:6px;padding:8px 12px}\n</style>\n<div class=\"card\"><h2>Team plan</h2><a href=\"/plans\">See all plans</a><button>Upgrade</button></div>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## UI polish:"
+      },
+      {
+        "type": "contains",
+        "value": "### Fixes"
+      },
+      {
+        "type": "contains",
+        "value": "### Contrast"
+      },
+      {
+        "type": "contains",
+        "value": "### Polished code"
+      },
+      {
+        "type": "contains",
+        "value": "### Not changed"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Team plan"
+      },
+      {
+        "type": "contains",
+        "value": "See all plans"
+      },
+      {
+        "type": "contains",
+        "value": "Upgrade"
+      },
+      {
+        "type": "contains",
+        "value": "Token file: not edited."
+      },
+      {
+        "type": "contains",
+        "value": "Drift:"
+      },
+      {
+        "type": "contains",
+        "value": "#111111"
+      },
+      {
+        "type": "contains",
+        "value": "12px"
+      },
+      {
+        "type": "contains",
+        "value": "var(--card-padding)"
+      },
+      {
+        "type": "contains",
+        "value": "var(--card-border)"
+      },
+      {
+        "type": "contains",
+        "value": "var(--color-text-link)"
+      },
+      {
+        "type": "notContains",
+        "value": ":root"
+      }
+    ]
+  },
+  {
+    "id": "khmer-tokens",
+    "prompt": "final polish on this Khmer welcome card. Our design tokens are in design/tokens.css, pasted below; use them.\n\ndesign/tokens.css:\n```css\n:root {\n  color-scheme: light dark;\n  --color-brand: #0f766e;\n  --color-primary-50: #f0fdfc;\n  --color-primary-100: #dff9f7;\n  --color-primary-200: #c1f4f0;\n  --color-primary-300: #93eee7;\n  --color-primary-400: #75cfc8;\n  --color-primary-500: #52c0b7;\n  --color-primary-600: #3ba199;\n  --color-primary-700: #238a82;\n  --color-primary-800: #0f766e;\n  --color-primary-900: #0c403c;\n  --color-neutral-50: #f4fbfa;\n  --color-neutral-100: #e9f2f1;\n  --color-neutral-200: #d2dfde;\n  --color-neutral-300: #b9c6c5;\n  --color-neutral-400: #96b0ae;\n  --color-neutral-500: #7a9492;\n  --color-neutral-600: #617b79;\n  --color-neutral-700: #4a6462;\n  --color-neutral-800: #364342;\n  --color-neutral-900: #202d2c;\n  --color-neutral-950: #0f1918;\n  --color-success-50: #f0fbf4;\n  --color-success-100: #e4f7eb;\n  --color-success-200: #bcf5d1;\n  --color-success-300: #91edb3;\n  --color-success-400: #65df92;\n  --color-success-500: #4ac778;\n  --color-success-600: #2bb05c;\n  --color-success-700: #16a34a;\n  --color-success-800: #116831;\n  --color-success-900: #0c3d1e;\n  --color-warning-50: #fdf7f0;\n  --color-warning-100: #fcefe0;\n  --color-warning-200: #fbdbb6;\n  --color-warning-300: #f9c385;\n  --color-warning-400: #faa94c;\n  --color-warning-500: #e68e28;\n  --color-warning-600: #d97706;\n  --color-warning-700: #ab5e05;\n  --color-warning-800: #744106;\n  --color-warning-900: #492904;\n  --color-danger-50: #fbf0f0;\n  --color-danger-100: #f8e2e2;\n  --color-danger-200: #f2c2c2;\n  --color-danger-300: #eb9494;\n  --color-danger-400: #e56161;\n  --color-danger-500: #dc2626;\n  --color-danger-600: #bd1e1e;\n  --color-danger-700: #951818;\n  --color-danger-800: #661313;\n  --color-danger-900: #3f0e0e;\n  --color-info-50: #f0f4fd;\n  --color-info-100: #dee7fb;\n  --color-info-200: #bfd0f5;\n  --color-info-300: #8faef2;\n  --color-info-400: #5787f0;\n  --color-info-500: #2563eb;\n  --color-info-600: #124bc8;\n  --color-info-700: #0f3c9f;\n  --color-info-800: #0d2b6d;\n  --color-info-900: #0d1d40;\n  --font-family-sans: system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif;\n  --font-family-heading: system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif;\n  --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;\n  --font-size-xs: 12px;\n  --font-size-sm: 14px;\n  --font-size-md: 16px;\n  --font-size-lg: 18px;\n  --font-size-xl: 20px;\n  --font-size-2xl: 24px;\n  --font-size-3xl: 30px;\n  --line-height-body: 1.5;\n  --line-height-heading: 1.25;\n  --line-height-display: 1.2;\n  --font-weight-regular: 400;\n  --font-weight-strong: 600;\n  --measure: 65ch;\n  --space-0: 0px;\n  --space-4: 4px;\n  --space-8: 8px;\n  --space-12: 12px;\n  --space-16: 16px;\n  --space-24: 24px;\n  --space-32: 32px;\n  --space-48: 48px;\n  --space-64: 64px;\n  --control-height-sm: 32px;\n  --control-height-md: 40px;\n  --control-height-lg: 48px;\n  --size-target-min: 44px;\n  --radius-sm: 4px;\n  --radius-md: 6px;\n  --radius-lg: 8px;\n  --radius-full: 9999px;\n  --radius-control: var(--radius-md);\n  --shadow-1: 0 1px 2px 0px rgba(15, 25, 24, 0.08);\n  --shadow-2: 0 2px 6px -1px rgba(15, 25, 24, 0.1);\n  --shadow-3: 0 8px 16px -4px rgba(15, 25, 24, 0.12);\n  --border-width-hairline: 1px;\n  --border-width-thick: 2px;\n  --border-width-focus: 2px;\n  --duration-fast: 100ms;\n  --duration-base: 150ms;\n  --duration-slow: 200ms;\n  --ease-standard: cubic-bezier(0.2, 0, 0, 1);\n  --ease-enter: cubic-bezier(0, 0, 0.2, 1);\n  --ease-exit: cubic-bezier(0.4, 0, 1, 1);\n  --breakpoint-sm: 640px;\n  --breakpoint-md: 768px;\n  --breakpoint-lg: 1024px;\n  --breakpoint-xl: 1280px;\n  --density-control-x: 12px;\n  --density-control-y: 8px;\n  --density-row: 40px;\n  --density-stack: 12px;\n  --density-section: 32px;\n  --glass-bg: #ffffffb8;\n  --glow: radial-gradient(640px 320px at 50% 0%, rgba(15, 118, 110, 0.1), transparent 70%);\n  --btn-gloss: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 60%);\n  --glass-blur: 12px;\n  --r-xs: 4px;\n  --r-sm: 6px;\n  --r-md: 10px;\n  --r-lg: 14px;\n  --r-xl: 16px;\n  --z-sticky: 20;\n  --z-dropdown: 40;\n  --z-command: 60;\n  --z-modal: 80;\n  --z-toast: 100;\n  --font-weight-medium: 500;\n  --color-surface-default: #ffffff;\n  --color-surface-subtle: var(--color-neutral-50);\n  --color-surface-raised: #ffffff;\n  --color-surface-sunken: var(--color-neutral-100);\n  --color-surface-inverse: var(--color-neutral-900);\n  --color-text-default: var(--color-neutral-900);\n  --color-text-muted: var(--color-neutral-700);\n  --color-text-disabled: var(--color-neutral-400);\n  --color-text-inverse: var(--color-neutral-50);\n  --color-text-link: var(--color-primary-800);\n  --color-text-link-hover: var(--color-primary-900);\n  --color-border-default: var(--color-neutral-200);\n  --color-border-strong: var(--color-neutral-600);\n  --color-border-focus: var(--color-primary-800);\n  --color-action-primary-bg: var(--color-primary-800);\n  --color-action-primary-bg-hover: var(--color-primary-900);\n  --color-action-primary-bg-pressed: var(--color-primary-900);\n  --color-action-primary-text: #ffffff;\n  --color-action-secondary-text: var(--color-primary-800);\n  --color-action-secondary-border: var(--color-primary-800);\n  --color-selected-bg: var(--color-primary-50);\n  --color-selected-text: var(--color-primary-800);\n  --color-success-bg-subtle: var(--color-success-50);\n  --color-success-border: var(--color-success-200);\n  --color-success-text: var(--color-success-800);\n  --color-success-bg: var(--color-success-700);\n  --color-success-text-on: #000000;\n  --color-warning-bg-subtle: var(--color-warning-50);\n  --color-warning-border: var(--color-warning-200);\n  --color-warning-text: var(--color-warning-800);\n  --color-warning-bg: var(--color-warning-600);\n  --color-warning-text-on: #000000;\n  --color-danger-bg-subtle: var(--color-danger-50);\n  --color-danger-border: var(--color-danger-200);\n  --color-danger-text: var(--color-danger-600);\n  --color-danger-bg: var(--color-danger-500);\n  --color-danger-text-on: #ffffff;\n  --color-info-bg-subtle: var(--color-info-50);\n  --color-info-border: var(--color-info-200);\n  --color-info-text: var(--color-info-600);\n  --color-info-bg: var(--color-info-500);\n  --color-info-text-on: #ffffff;\n}\n\n:root {\n  --button-primary-bg: var(--color-action-primary-bg);\n  --button-primary-bg-hover: var(--color-action-primary-bg-hover);\n  --button-primary-bg-pressed: var(--color-action-primary-bg-pressed);\n  --button-primary-text: var(--color-action-primary-text);\n  --button-secondary-text: var(--color-action-secondary-text);\n  --button-secondary-border: var(--color-action-secondary-border);\n  --button-radius: var(--radius-control);\n  --button-height: var(--control-height-md);\n  --button-padding-x: var(--density-control-x);\n  --input-bg: var(--color-surface-default);\n  --input-text: var(--color-text-default);\n  --input-border: var(--color-border-strong);\n  --input-border-focus: var(--color-border-focus);\n  --input-radius: var(--radius-control);\n  --input-height: var(--control-height-md);\n  --card-bg: var(--color-surface-raised);\n  --card-border: var(--color-border-default);\n  --card-radius: var(--radius-lg);\n  --card-shadow: var(--shadow-1);\n  --card-padding: var(--space-16);\n  --line-height-khmer: 1.6;\n}\n\n/* Khmer needs a taller line and no negative letter-spacing. */\n:lang(km) {\n  letter-spacing: 0;\n  line-height: var(--line-height-khmer);\n}\n```\n\nCode:\n<style>\n.k{padding:16px;font-family:system-ui}\n.k h2{font-size:24px;line-height:1.2;letter-spacing:-0.02em;margin:0 0 8px}\n.k p{font-size:16px;line-height:1.5;margin:0 0 16px}\n.k button{padding:8px 16px;min-height:44px;min-width:44px}\n</style>\n<div class=\"k\" lang=\"km\"><h2>សូមស្វាគមន៍</h2><p>សូមពិនិត្យព័ត៌មានរបស់អ្នក</p><button>រក្សាទុក</button><button>បោះបង់</button></div>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## UI polish:"
+      },
+      {
+        "type": "contains",
+        "value": "### Fixes"
+      },
+      {
+        "type": "contains",
+        "value": "### Contrast"
+      },
+      {
+        "type": "contains",
+        "value": "### Polished code"
+      },
+      {
+        "type": "contains",
+        "value": "### Not changed"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "សូមស្វាគមន៍"
+      },
+      {
+        "type": "contains",
+        "value": "សូមពិនិត្យព័ត៌មានរបស់អ្នក"
+      },
+      {
+        "type": "contains",
+        "value": "រក្សាទុក"
+      },
+      {
+        "type": "contains",
+        "value": "បោះបង់"
+      },
+      {
+        "type": "contains",
+        "value": "Token file: not edited."
+      },
+      {
+        "type": "contains",
+        "value": "var(--line-height-khmer)"
+      },
+      {
+        "type": "contains",
+        "value": "R-ui-polish-35"
+      },
+      {
+        "type": "notContains",
+        "value": ":root"
+      }
+    ]
+  },
+  {
+    "id": "khmer-default",
+    "prompt": "final polish on this Khmer welcome card:\n<style>\n.k{padding:16px;font-family:system-ui}\n.k h2{font-size:24px;line-height:1.2;letter-spacing:-0.02em;margin:0 0 8px}\n.k p{font-size:16px;line-height:1.5;margin:0 0 16px}\n.k button{padding:8px 16px;min-height:44px;min-width:44px}\n</style>\n<div class=\"k\" lang=\"km\"><h2>សូមស្វាគមន៍</h2><p>សូមពិនិត្យព័ត៌មានរបស់អ្នក</p><button>រក្សាទុក</button><button>បោះបង់</button></div>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## UI polish:"
+      },
+      {
+        "type": "contains",
+        "value": "### Fixes"
+      },
+      {
+        "type": "contains",
+        "value": "### Contrast"
+      },
+      {
+        "type": "contains",
+        "value": "### Polished code"
+      },
+      {
+        "type": "contains",
+        "value": "### Not changed"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "សូមស្វាគមន៍"
+      },
+      {
+        "type": "contains",
+        "value": "សូមពិនិត្យព័ត៌មានរបស់អ្នក"
+      },
+      {
+        "type": "contains",
+        "value": "រក្សាទុក"
+      },
+      {
+        "type": "contains",
+        "value": "បោះបង់"
+      },
+      {
+        "type": "contains",
+        "value": "1.6"
+      },
+      {
+        "type": "contains",
+        "value": "R-ui-polish-35"
+      },
+      {
+        "type": "notContains",
+        "value": "var(--"
+      },
+      {
+        "type": "notContains",
+        "value": ":root"
       }
     ]
   }
