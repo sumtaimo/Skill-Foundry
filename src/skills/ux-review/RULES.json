@@ -36,13 +36,13 @@
   },
   {
     "id": "R-ux-review-8",
-    "text": "Target size: every target MUST be at least 44 by 44 px.",
-    "checklist": "Each size finding gives the size in px from the input."
+    "text": "Reach: a control the main goal needs MUST be easy enough to hit that the user does not miss it or hit its neighbour; a hit problem is a finding about what the user does wrong, never a measurement, and its recommendation ends with \"; the sizes are for ui-polish.\"",
+    "checklist": "Each reach finding says what the user does wrong, quotes the size only as evidence, states no px threshold and names ui-polish."
   },
   {
     "id": "R-ux-review-9",
-    "text": "Target distance: two neighbouring targets MUST be at least 8 px apart, and targets used one after the other in the same step MUST be in the same visible group.",
-    "checklist": "Each distance finding gives the gap in px or names the two groups."
+    "text": "Grouping: targets used one after the other in the same step MUST be in the same visible group, and neighbouring targets with opposite effects MUST be visibly separated; the review states no pixel gap, and when the cause is a gap or a size the recommendation ends with \"; the sizes are for ui-polish.\"",
+    "checklist": "Each grouping finding names the two groups or the two opposite controls and states no px gap and, when the cause is a gap or size, names ui-polish."
   },
   {
     "id": "R-ux-review-10",
@@ -81,7 +81,7 @@
   },
   {
     "id": "R-ux-review-17",
-    "text": "NEVER fix, rewrite or produce code; a request to fix the code MUST get the exact sentence \"This skill reviews usability; it does not change code.\".",
+    "text": "NEVER fix, rewrite or produce code; a request to fix the code MUST get the exact sentence \"This skill reviews usability; it does not change code. To fix the code, use ui-polish.\".",
     "checklist": "The reply has no code block, and a fix request starts with the exact sentence."
   },
   {
@@ -96,7 +96,7 @@
   },
   {
     "id": "R-ux-review-20",
-    "text": "A request to design a new screen MUST get the exact sentence \"This skill reviews an existing screen or flow; it does not design new screens.\" and no design.",
+    "text": "A request to design a new screen MUST get the exact sentence \"This skill reviews an existing screen or flow; it does not design new screens. To design a screen, use ui-craft.\" and no design.",
     "checklist": "A design request gets the exact sentence and no design."
   },
   {
@@ -146,8 +146,8 @@
   },
   {
     "id": "R-ux-review-30",
-    "text": "Calls to action: a view MUST hold at most 1 primary action, and the first screen at most 7 clickable controls; a primary action repeated on every card of a list counts once per card in view.",
-    "checklist": "Each call-to-action finding gives the counts from the input and names the view."
+    "text": "Calls to action: a view MUST hold at most 1 primary action, and the first screen at most 7 controls that compete in its content (hero actions, cards); persistent navigation (a header, rail or sidebar that repeats on every screen) is counted apart, judged by R-ux-review-7, and never added to that count; a primary action repeated on every card of a list counts once per card in view.",
+    "checklist": "Each call-to-action finding gives the content count and the persistent-navigation count apart and names the view."
   },
   {
     "id": "R-ux-review-31",
@@ -158,5 +158,10 @@
     "id": "R-ux-review-32",
     "text": "Pages built from one template MUST give one finding for a break that comes from the template, naming the template and listing the pages; a break on one page is its own finding.",
     "checklist": "A template break appears once and lists its pages."
+  },
+  {
+    "id": "R-ux-review-33",
+    "text": "NEVER report a design token's name, value or absence as a finding, and never review tokens (design-system) or contrast (a11y-audit); a token is only resolved to a number as evidence for a finding about the task.",
+    "checklist": "No finding is about a token; a token appears only inside an evidence quote."
   }
 ]

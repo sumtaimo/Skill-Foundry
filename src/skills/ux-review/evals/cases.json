@@ -425,7 +425,7 @@
     "expect": [
       {
         "type": "contains",
-        "value": "This skill reviews usability; it does not change code."
+        "value": "This skill reviews usability; it does not change code. To fix the code, use ui-polish."
       },
       {
         "type": "contains",
@@ -510,6 +510,10 @@
       {
         "type": "maxLines",
         "value": 70
+      },
+      {
+        "type": "contains",
+        "value": "ui-polish"
       }
     ]
   },
@@ -519,7 +523,7 @@
     "expect": [
       {
         "type": "contains",
-        "value": "This skill reviews an existing screen or flow; it does not design new screens."
+        "value": "This skill reviews an existing screen or flow; it does not design new screens. To design a screen, use ui-craft."
       },
       {
         "type": "notContains",
@@ -536,6 +540,10 @@
       {
         "type": "maxLines",
         "value": 2
+      },
+      {
+        "type": "contains",
+        "value": "ui-craft"
       }
     ]
   },
@@ -929,15 +937,7 @@
       },
       {
         "type": "contains",
-        "value": "R-ux-review-8"
-      },
-      {
-        "type": "contains",
         "value": "R-ux-review-9"
-      },
-      {
-        "type": "contains",
-        "value": "--size-6"
       },
       {
         "type": "contains",
@@ -945,7 +945,15 @@
       },
       {
         "type": "contains",
-        "value": "24"
+        "value": "ui-polish"
+      },
+      {
+        "type": "notContains",
+        "value": "44"
+      },
+      {
+        "type": "notContains",
+        "value": "8 px"
       },
       {
         "type": "maxLines",
@@ -1300,6 +1308,288 @@
       {
         "type": "contains",
         "value": "../index.html#install"
+      }
+    ]
+  },
+  {
+    "id": "size-request-redirected-to-ui-polish",
+    "prompt": "UX review of this note form, and also check that the button is at least 44 px and the gaps are 8 px. The user wants to save a short note.\n\n<form id=\"note\">\n  <label for=\"t\">Note</label>\n  <textarea id=\"t\"></textarea>\n  <button id=\"save\" type=\"button\" onclick=\"save()\">Save note</button>\n  <p id=\"msg\"></p>\n</form>\n<style>\nbutton { height: 36px; padding: 0 12px; border: 1px solid #333; background: #eee; margin-top: 6px; }\n</style>\n<script>\nasync function save() {\n  document.getElementById(\"save\").textContent = \"Saving...\";\n  await fetch(\"/api/notes\", { method: \"POST\", body: document.getElementById(\"t\").value });\n  document.getElementById(\"save\").textContent = \"Save note\";\n  document.getElementById(\"msg\").textContent = \"Note saved\";\n}\n</script>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## UX review:"
+      },
+      {
+        "type": "contains",
+        "value": "Main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Steps to main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Findings:"
+      },
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Not reviewed"
+      },
+      {
+        "type": "contains",
+        "value": "- Semantics, ARIA and screen-reader output: an accessibility audit."
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "### Severity scale"
+      },
+      {
+        "type": "contains",
+        "value": "- S1 Blocker: the user cannot complete the main goal, or loses data or money."
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "notContains",
+        "value": "This skill reviews usability; it does not change code."
+      },
+      {
+        "type": "notContains",
+        "value": "This skill reviews an existing screen or flow; it does not design new screens."
+      },
+      {
+        "type": "notContains",
+        "value": "This skill does not rewrite text; wording is quoted as written."
+      },
+      {
+        "type": "notContains",
+        "value": "Contrast, focus styles, spacing scales, semantics, ARIA and screen-reader output are not part of this review."
+      },
+      {
+        "type": "notContains",
+        "value": "Paste the screen's code or describe the flow step by step."
+      },
+      {
+        "type": "contains",
+        "value": "Target sizes, gaps and token values are measured by ui-polish; this review judges whether the user can complete the task."
+      },
+      {
+        "type": "notContains",
+        "value": "R-ux-review-8"
+      },
+      {
+        "type": "notContains",
+        "value": "R-ux-review-9"
+      },
+      {
+        "type": "notContains",
+        "value": "44 px"
+      },
+      {
+        "type": "notContains",
+        "value": "36"
+      },
+      {
+        "type": "notContains",
+        "value": "8 px"
+      },
+      {
+        "type": "maxLines",
+        "value": 70
+      }
+    ]
+  },
+  {
+    "id": "design-tokens-not-a-finding",
+    "prompt": "UX review of this account page. The user wants to delete their account. Our token file design/tokens.css has:\n\n:root { --space-3: 13px; --color-muted: #aaa; --color-surface: #fff; --btn-h: 40px; }\n\nCode:\n\n<section class=\"card\">\n  <h2>Account</h2>\n  <p class=\"muted\">Deleting removes all your projects.</p>\n  <button class=\"danger\" onclick=\"removeAccount()\">Delete account</button>\n</section>\n<style>\n.card { padding: var(--space-3); background: var(--color-surface); }\n.muted { color: var(--color-muted); }\n.danger { height: var(--btn-h); border: 1px solid #900; }\n</style>\n<script>\nfunction removeAccount() { fetch(\"/api/account\", { method: \"DELETE\" }).then(() => { location.href = \"/bye\"; }); }\n</script>",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## UX review:"
+      },
+      {
+        "type": "contains",
+        "value": "Main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Steps to main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Findings:"
+      },
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Not reviewed"
+      },
+      {
+        "type": "contains",
+        "value": "- Semantics, ARIA and screen-reader output: an accessibility audit."
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "### Severity scale"
+      },
+      {
+        "type": "contains",
+        "value": "- S1 Blocker: the user cannot complete the main goal, or loses data or money."
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "notContains",
+        "value": "This skill reviews usability; it does not change code."
+      },
+      {
+        "type": "notContains",
+        "value": "This skill reviews an existing screen or flow; it does not design new screens."
+      },
+      {
+        "type": "notContains",
+        "value": "This skill does not rewrite text; wording is quoted as written."
+      },
+      {
+        "type": "notContains",
+        "value": "Contrast, focus styles, spacing scales, semantics, ARIA and screen-reader output are not part of this review."
+      },
+      {
+        "type": "notContains",
+        "value": "Paste the screen's code or describe the flow step by step."
+      },
+      {
+        "type": "contains",
+        "value": "R-ux-review-5"
+      },
+      {
+        "type": "contains",
+        "value": "Delete account"
+      },
+      {
+        "type": "notContains",
+        "value": "--space-3"
+      },
+      {
+        "type": "notContains",
+        "value": "13px"
+      },
+      {
+        "type": "notContains",
+        "value": "--color-muted"
+      },
+      {
+        "type": "notContains",
+        "value": "#aaa"
+      },
+      {
+        "type": "notContains",
+        "value": "ratio"
+      },
+      {
+        "type": "maxLines",
+        "value": 70
+      }
+    ]
+  },
+  {
+    "id": "persistent-nav-not-counted-with-hero",
+    "prompt": "Do a UX review of our product home page from this measurement sheet. The visitor wants to start a free trial.\n\nMeasurement sheet (viewport 1440 by 900 px, page height 2400 px):\n- persistent header, the same on every screen of the product: logo, 6 nav links (Product, Pricing, Docs, Blog, Company, Sign in) and a search box\n- first screen content: one h1 \"Plan projects with your team\" at top 220 px, one sentence under it saying who it is for, one filled button \"Start free trial\" and one text link \"See pricing\"\n- sections in order: hero 0 / 900; Features 900 / 800; Customers 1700 / 400; Footer 2100 / 300\n- clickable controls in the first screen: 9 in total, 8 of them in the persistent header, 1 filled primary button, 1 text link\n- repeated blocks: none",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## UX review:"
+      },
+      {
+        "type": "contains",
+        "value": "Main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Steps to main goal:"
+      },
+      {
+        "type": "contains",
+        "value": "Findings:"
+      },
+      {
+        "type": "contains",
+        "value": "### Findings"
+      },
+      {
+        "type": "contains",
+        "value": "### Not reviewed"
+      },
+      {
+        "type": "contains",
+        "value": "- Semantics, ARIA and screen-reader output: an accessibility audit."
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "### Severity scale"
+      },
+      {
+        "type": "contains",
+        "value": "- S1 Blocker: the user cannot complete the main goal, or loses data or money."
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "notContains",
+        "value": "This skill reviews usability; it does not change code."
+      },
+      {
+        "type": "notContains",
+        "value": "This skill reviews an existing screen or flow; it does not design new screens."
+      },
+      {
+        "type": "notContains",
+        "value": "This skill does not rewrite text; wording is quoted as written."
+      },
+      {
+        "type": "notContains",
+        "value": "Contrast, focus styles, spacing scales, semantics, ARIA and screen-reader output are not part of this review."
+      },
+      {
+        "type": "notContains",
+        "value": "Paste the screen's code or describe the flow step by step."
+      },
+      {
+        "type": "contains",
+        "value": "Layout input: measurement sheet"
+      },
+      {
+        "type": "notContains",
+        "value": "R-ux-review-30"
+      },
+      {
+        "type": "maxLines",
+        "value": 80
       }
     ]
   }

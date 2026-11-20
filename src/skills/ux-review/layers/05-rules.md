@@ -12,4 +12,5 @@
 10. R-ux-review-21: the reply follows layer 08.
 11. R-ux-review-31: a break that depends on a script or run-time content not in the input is capped at S3 (layer 04, clause 9a).
 12. R-ux-review-32: one template on many pages gives one finding that lists the pages (layer 04, clause 9b).
-13. R-ux-review-22 to R-ux-review-25 apply to the skill folder itself; a run of the skill does not change them.
+13. R-ux-review-33: the reply reports no token name, token value or missing token as a finding (layer 06, clause 20).
+14. R-ux-review-22 to R-ux-review-25 apply to the skill folder itself; a run of the skill does not change them.
