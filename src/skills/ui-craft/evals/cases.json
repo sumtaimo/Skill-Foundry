@@ -1,83 +1,288 @@
 [
   {
     "id": "bento-glass-landing",
-    "prompt": "Design and build a modern product showcase landing header and bento feature section in clean HTML and CSS with light and dark mode, a floating frosted-glass navbar, a single crisp primary CTA, and reduced-motion support.",
+    "prompt": "This is a prototype, just use your defaults (no design foundation). Design and build a modern product showcase landing header and bento feature section in clean HTML and CSS with light and dark mode, a floating frosted-glass navbar, a single crisp primary CTA, and reduced-motion support.",
     "expect": [
-      { "type": "contains", "value": "## UI Craft:" },
-      { "type": "contains", "value": "--glass-bg" },
-      { "type": "contains", "value": "backdrop-filter" },
-      { "type": "contains", "value": "--z-sticky" },
-      { "type": "contains", "value": "prefers-reduced-motion" },
-      { "type": "contains", "value": "focus-visible" },
-      { "type": "contains", "value": "44px" }
+      {
+        "type": "contains",
+        "value": "## UI Craft:"
+      },
+      {
+        "type": "contains",
+        "value": "--glass-bg"
+      },
+      {
+        "type": "contains",
+        "value": "backdrop-filter"
+      },
+      {
+        "type": "contains",
+        "value": "--z-sticky"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-reduced-motion"
+      },
+      {
+        "type": "contains",
+        "value": "focus-visible"
+      },
+      {
+        "type": "contains",
+        "value": "44px"
+      }
     ]
   },
   {
     "id": "command-palette-shell",
     "prompt": "Build an interactive app navigation bar with a Ctrl+K command palette dialog, keyboard arrow selection, Escape close, visible kbd shortcut hints, and an empty search state with a reset button in vanilla HTML, CSS, and JavaScript.",
     "expect": [
-      { "type": "contains", "value": "<dialog" },
-      { "type": "contains", "value": "<kbd" },
-      { "type": "contains", "value": "Escape" },
-      { "type": "contains", "value": "--z-command" },
-      { "type": "contains", "value": "focus-visible" }
+      {
+        "type": "contains",
+        "value": "<dialog"
+      },
+      {
+        "type": "contains",
+        "value": "<kbd"
+      },
+      {
+        "type": "contains",
+        "value": "Escape"
+      },
+      {
+        "type": "contains",
+        "value": "--z-command"
+      },
+      {
+        "type": "contains",
+        "value": "focus-visible"
+      }
     ]
   },
   {
     "id": "lifecycle-states-grid",
     "prompt": "Create a workspace project card grid component in HTML and CSS that handles all lifecycle states: default, hover, focus-visible, selected, disabled button, loading skeleton, empty filter state with reset, and inline error with retry.",
     "expect": [
-      { "type": "contains", "value": "skeleton" },
-      { "type": "contains", "value": "disabled" },
-      { "type": "contains", "value": "role=\"alert\"" },
-      { "type": "contains", "value": "focus-visible" },
-      { "type": "contains", "value": "prefers-reduced-motion" }
+      {
+        "type": "contains",
+        "value": "skeleton"
+      },
+      {
+        "type": "contains",
+        "value": "disabled"
+      },
+      {
+        "type": "contains",
+        "value": "role=\"alert\""
+      },
+      {
+        "type": "contains",
+        "value": "focus-visible"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-reduced-motion"
+      }
     ]
   },
   {
     "id": "inline-ai-action-bar",
     "prompt": "Design a compact inline AI prompt bar component with quick-action chips, a live streaming feedback status with a stop button, and an undo/revert trigger after applying changes.",
     "expect": [
-      { "type": "contains", "value": "aria-live" },
-      { "type": "contains", "value": "Stop" },
-      { "type": "contains", "value": "Undo" },
-      { "type": "contains", "value": "focus-visible" }
+      {
+        "type": "contains",
+        "value": "aria-live"
+      },
+      {
+        "type": "contains",
+        "value": "Stop"
+      },
+      {
+        "type": "contains",
+        "value": "Undo"
+      },
+      {
+        "type": "contains",
+        "value": "focus-visible"
+      }
     ]
   },
   {
     "id": "ux-designer-css-handoff",
     "prompt": "You are running as a CSS-only UX_DESIGNER role (you may only write CSS stylesheets). Style a sticky section sub-bar with a sliding active pill highlight and light/dark tokens, and hand off what engineering must wire.",
     "expect": [
-      { "type": "contains", "value": "Markup Handoff Contract" },
-      { "type": "contains", "value": "prefers-reduced-motion" },
-      { "type": "contains", "value": "data-theme=\"dark\"" },
-      { "type": "notContains", "value": "<!DOCTYPE html>" }
+      {
+        "type": "contains",
+        "value": "Markup Handoff Contract"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-reduced-motion"
+      },
+      {
+        "type": "contains",
+        "value": "data-theme=\"dark\""
+      },
+      {
+        "type": "notContains",
+        "value": "<!DOCTYPE html>"
+      }
     ]
   },
   {
     "id": "vague-no-surface-ask",
     "prompt": "Make my UI look modern and awesome.",
     "expect": [
-      { "type": "notContains", "value": "<!DOCTYPE html>" },
-      { "type": "maxLines", "value": 12 }
+      {
+        "type": "notContains",
+        "value": "<!DOCTYPE html>"
+      },
+      {
+        "type": "maxLines",
+        "value": 12
+      }
     ]
   },
   {
     "id": "polish-only-declined",
     "prompt": "Do a pixel pass on this finished settings card HTML and CSS without adding or removing any elements or changing the words: <div class=\"card\"><h2>Settings</h2><button>Save</button></div>",
     "expect": [
-      { "type": "contains", "value": "ui-polish" },
-      { "type": "notContains", "value": "<!DOCTYPE html>" },
-      { "type": "maxLines", "value": 4 }
+      {
+        "type": "contains",
+        "value": "ui-polish"
+      },
+      {
+        "type": "notContains",
+        "value": "<!DOCTYPE html>"
+      },
+      {
+        "type": "maxLines",
+        "value": 4
+      }
     ]
   },
   {
     "id": "tokens-only-declined",
     "prompt": "Generate only a standalone design-tokens.json and tokens.css palette from our brand hex #0d9488.",
     "expect": [
-      { "type": "contains", "value": "design-system" },
-      { "type": "notContains", "value": "<!DOCTYPE html>" },
-      { "type": "maxLines", "value": 4 }
+      {
+        "type": "contains",
+        "value": "design-system"
+      },
+      {
+        "type": "notContains",
+        "value": "<!DOCTYPE html>"
+      },
+      {
+        "type": "maxLines",
+        "value": 4
+      }
+    ]
+  },
+  {
+    "id": "gate-cold-start",
+    "prompt": "Design the dashboard for our app.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "design-system"
+      },
+      {
+        "type": "contains",
+        "value": "defaults"
+      },
+      {
+        "type": "notContains",
+        "value": "<!DOCTYPE html>"
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "maxLines",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": "reads-design-foundation",
+    "prompt": "Build the settings screen (a profile card with a name input, a Save button and a danger-zone card) in HTML and CSS from our design folder. The project already has these files.\n\ndesign/STATUS.md:\n- step_completed: foundation (variables, tokens.css, design-tokens.json)\n- next_skill: ui-craft (build the first screen from design/tokens.css)\n\ndesign/BRIEF.md:\n- Product: team workspace; Brand colour: #0d9488; Archetype: calm-workspace; Font: system; Modes: light and dark\n\ndesign/tokens.css (excerpt of the generated file):\n:root {\n  --color-surface-default: #ffffff;  --color-surface-raised: #f8fafa;  --color-surface-subtle: #f0f4f4;\n  --color-text-default: #111817;  --color-text-muted: #4b5958;\n  --color-border-default: #dbe3e2;  --color-border-strong: #8a9a98;  --color-border-focus: #0b6b62;\n  --color-action-primary-bg: #0b6b62;  --color-action-primary-text: #ffffff;\n  --color-danger-text: #b42318;  --color-danger-bg-subtle: #fef3f2;  --color-danger-border: #d92d20;\n  --font-family-sans: system-ui, sans-serif;  --font-size-md: 16px;  --line-height-body: 1.5;  --line-height-khmer: 1.6;\n  --space-8: 8px;  --space-16: 16px;  --space-24: 24px;  --space-32: 32px;\n  --radius-md: 8px;  --radius-lg: 12px;  --shadow-1: 0 1px 3px rgba(17,24,23,.06);\n  --duration-fast: 120ms;  --glass-bg: color-mix(in srgb, var(--color-surface-raised) 72%, transparent);  --glass-blur: 12px;\n  --r-md: 10px;  --z-sticky: 20;\n  --button-primary-bg: var(--color-action-primary-bg);  --button-primary-bg-hover: #095a52;  --button-primary-text: var(--color-action-primary-text);\n  --button-radius: var(--radius-md);  --button-height: 44px;  --button-padding-x: var(--space-16);\n  --input-bg: var(--color-surface-default);  --input-text: var(--color-text-default);  --input-border: var(--color-border-strong);\n  --input-border-focus: var(--color-border-focus);  --input-radius: var(--radius-md);  --input-height: 44px;\n  --card-bg: var(--color-surface-raised);  --card-border: var(--color-border-default);  --card-radius: var(--radius-lg);\n  --card-shadow: var(--shadow-1);  --card-padding: var(--space-24);\n}\n(dark mode and the rest of the variables are in the same file.)",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "design/tokens.css"
+      },
+      {
+        "type": "contains",
+        "value": "--button-primary-bg"
+      },
+      {
+        "type": "contains",
+        "value": "--input-border"
+      },
+      {
+        "type": "contains",
+        "value": "--card-radius"
+      },
+      {
+        "type": "contains",
+        "value": "focus-visible"
+      },
+      {
+        "type": "notContains",
+        "value": "--bg:"
+      },
+      {
+        "type": "notContains",
+        "value": "--accent:"
+      },
+      {
+        "type": "notContains",
+        "value": "--surface:"
+      },
+      {
+        "type": "notContains",
+        "value": "#0b6b62"
+      },
+      {
+        "type": "notContains",
+        "value": "#dbe3e2"
+      },
+      {
+        "type": "notContains",
+        "value": "#b42318"
+      }
+    ]
+  },
+  {
+    "id": "khmer-line-height",
+    "prompt": "This is a prototype, just use your defaults. Build a Khmer-language sign-up card (title, a short Khmer paragraph, an email field and one button) in plain HTML and CSS with light and dark mode.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": ":lang(km)"
+      },
+      {
+        "type": "contains",
+        "value": "1.6"
+      },
+      {
+        "type": "contains",
+        "value": "letter-spacing: 0"
+      },
+      {
+        "type": "notContains",
+        "value": "1.65"
+      },
+      {
+        "type": "notContains",
+        "value": "1.55"
+      },
+      {
+        "type": "contains",
+        "value": "--color-text-default"
+      }
     ]
   }
 ]

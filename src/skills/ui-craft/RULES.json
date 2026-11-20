@@ -1,12 +1,12 @@
 [
   {
     "id": "R-ui-craft-1",
-    "text": "Detect the project's stack and existing token files before writing code; NEVER import unrequested external libraries or fonts unless already present or requested.",
+    "text": "Detect the project's stack and existing token files (design/tokens.css first) before writing code; NEVER import unrequested external libraries or fonts unless already present or requested.",
     "check": "uicraft-detect-stack"
   },
   {
     "id": "R-ui-craft-2",
-    "text": "Define semantic light and dark surface tokens including translucent glass backdrop variables paired with opaque contrast fallbacks.",
+    "text": "Define semantic light and dark surface tokens with the design-system names (--color-surface-*, --color-text-*, --color-border-*) including translucent glass backdrop variables paired with opaque contrast fallbacks.",
     "check": "uicraft-surfaces-glass"
   },
   {
@@ -16,7 +16,7 @@
   },
   {
     "id": "R-ui-craft-4",
-    "text": "Typography MUST keep body text >= 16px (line-height 1.5, prose <= 65ch), purposeful weights (400, 500, 600, 700), -0.02em heading tracking and tabular-nums on counters/shortcuts.",
+    "text": "Typography MUST keep body text >= 16px (line-height 1.5, prose <= 65ch), purposeful weights (400, 500, 600, 700), -0.02em heading tracking that never applies to Khmer, one Khmer line-height of 1.6 with letter-spacing 0 under :lang(km), and tabular-nums on counters/shortcuts.",
     "check": "uicraft-type-rhythm"
   },
   {
@@ -61,7 +61,7 @@
   },
   {
     "id": "R-ui-craft-13",
-    "text": "Responsive layouts MUST prevent clipped headings or sideways scroll across 390px-1440px viewports and preserve legible script line-heights.",
+    "text": "Responsive layouts MUST prevent clipped headings or sideways scroll across 390px-1440px viewports and preserve legible script line-heights (Khmer 1.6).",
     "checklist": "Titles, grids and multilingual strings wrap cleanly without clipping or horizontal page overflow."
   },
   {
@@ -81,12 +81,22 @@
   },
   {
     "id": "R-ui-craft-17",
-    "text": "Refuse requests meant purely for ui-polish, design-system, a11y-audit, copy-tight or figure-craft with a concise redirect sentence.",
+    "text": "Refuse requests meant purely for ui-polish, design-system (building tokens or variables), a11y-audit, copy-tight or figure-craft with a concise redirect sentence.",
     "check": "uicraft-refuse-out-of-scope"
   },
   {
     "id": "R-ui-craft-18",
     "text": "When browser tools are available, verify rendered HTML at 1440px and 390px in light and dark themes with reduced motion, zero console errors and zero overflow.",
     "checklist": "Rendered browser checks at 1440px and 390px pass in light and dark mode with zero errors and zero horizontal scroll."
+  },
+  {
+    "id": "R-ui-craft-19",
+    "text": "When design/tokens.css exists, read design/STATUS.md, BRIEF.md and tokens.css first and use only variables that exist there (component variables first); never write a raw hex, colour or radius where a variable holds it; never edit design/ files.",
+    "check": "uicraft-foundation-first"
+  },
+  {
+    "id": "R-ui-craft-20",
+    "text": "For a whole product screen with no design/tokens.css and no other tokens, ask the one fixed question (defaults for a prototype, or build the foundation first with design-system) instead of silently choosing a palette; a single component, an explicit prototype request or an existing token file skips it.",
+    "check": "uicraft-cold-start-gate"
   }
 ]

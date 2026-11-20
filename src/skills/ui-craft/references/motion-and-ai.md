@@ -27,7 +27,7 @@
 
 When designing AI prompts, copilots, or contextual floating toolbars, include all five building blocks cleanly:
 
-1. **Compact Prompt Input**: single rounded container (`--r-lg`, `1px solid var(--line)`, `--glass-bg` + focus ring on `:focus-within`), leading context icon (`aria-hidden="true"`), text input/textarea (`min-height: 44px`), and keyboard submit (`Enter` / `Cmd+Enter` badge).
+1. **Compact Prompt Input**: single rounded container (`--r-lg`, `1px solid var(--color-border-default)`, `--glass-bg` + focus ring on `:focus-within`), leading context icon (`aria-hidden="true"`), text input/textarea (`min-height: 44px`), and keyboard submit (`Enter` / `Cmd+Enter` badge).
 2. **Quick-Action Chips**: 2–4 concise suggestion pills (`--r-sm`, `min-height: 36px` with `44px` expanded hit area or `>= 44px` tall on touch screens) that prefill/run common actions.
 3. **Live Streaming / Thinking Feedback**: live status container (`role="status" aria-live="polite"`) showing active step indicator (subtle pulsing dot disabled under `reduced-motion`), current stage text, and streaming token output.
 4. **Stop / Cancel Control**: prominent secondary button (`Stop generating`, `Escape` shortcut) immediately visible while streaming.

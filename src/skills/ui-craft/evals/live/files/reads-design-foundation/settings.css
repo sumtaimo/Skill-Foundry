@@ -1,0 +1,125 @@
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--color-surface-default);
+  color: var(--color-text-default);
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-body);
+}
+:lang(km) { line-height: var(--line-height-khmer); letter-spacing: 0; }
+
+.page {
+  width: min(100%, 40rem);
+  margin-inline: auto;
+  padding: var(--space-32) var(--space-16);
+  display: grid;
+  gap: var(--space-24);
+}
+
+h1, h2 { margin: 0; font-weight: 600; letter-spacing: -0.02em; }
+:lang(km) h1, :lang(km) h2 { letter-spacing: 0; }
+h1 { font-size: calc(var(--font-size-md) * 1.75); line-height: 1.2; }
+h2 { font-size: calc(var(--font-size-md) * 1.25); line-height: 1.3; }
+p  { margin: 0; max-width: 65ch; }
+
+/* Cards */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  padding: var(--card-padding);
+  display: grid;
+  gap: var(--space-16);
+}
+.card-danger {
+  background: var(--color-danger-bg-subtle);
+  border-color: var(--color-danger-border);
+}
+.card-danger h2 { color: var(--color-danger-text); }
+.card-danger p  { color: var(--color-text-default); }
+
+/* Form */
+form { display: grid; gap: var(--space-16); }
+.field { display: grid; gap: var(--space-8); position: relative; }
+label { font-weight: 500; }
+
+input {
+  width: 100%;
+  min-height: var(--input-height);
+  padding: 0 var(--space-16);
+  background: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--input-border);
+  border-radius: var(--input-radius);
+  font: inherit;
+}
+input:hover { border-color: var(--input-border-focus); }
+input:focus-visible { outline: 2px solid var(--color-border-focus); outline-offset: 2px; border-color: var(--input-border-focus); }
+input:disabled { opacity: .6; cursor: not-allowed; }
+input[aria-invalid="true"] { border-color: var(--color-danger-border); }
+
+.field-error { color: var(--color-danger-text); }
+
+/* Buttons */
+.btn {
+  min-height: var(--button-height);
+  min-width: var(--button-height);
+  padding: 0 var(--button-padding-x);
+  border-radius: var(--button-radius);
+  border: 1px solid transparent;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--duration-fast), opacity var(--duration-fast);
+}
+.btn:hover:not(:disabled)  { transform: translateY(-1px); }
+.btn:active:not(:disabled) { transform: translateY(1px); }
+.btn:focus-visible { outline: 2px solid var(--color-border-focus); outline-offset: 2px; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.btn-primary { background: var(--button-primary-bg); color: var(--button-primary-text); }
+.btn-primary:hover:not(:disabled) { background: var(--button-primary-bg-hover); }
+
+.btn-secondary { background: var(--color-surface-default); color: var(--color-text-default); border-color: var(--color-border-strong); }
+
+.btn-danger { background: transparent; color: var(--color-danger-text); border-color: var(--color-danger-border); justify-self: start; }
+.card-danger .btn-danger:focus-visible { outline-color: var(--color-danger-border); }
+
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-16); }
+.status { color: var(--color-text-muted); }
+
+/* Inline save error with retry */
+.banner {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-16);
+  padding: var(--space-8) var(--space-16);
+  background: var(--color-danger-bg-subtle);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-md);
+  color: var(--color-danger-text);
+  max-width: none;
+}
+.banner[hidden], .field-error[hidden] { display: none; }
+
+/* Loading: skeleton is exactly as tall as the input, so nothing shifts */
+.skeleton { display: none; }
+form[data-state="loading"] input { visibility: hidden; }
+form[data-state="loading"] .skeleton {
+  display: block; position: absolute; inset: auto 0 0 0;
+  height: var(--input-height);
+  border-radius: var(--input-radius);
+  background: linear-gradient(90deg, var(--color-surface-subtle), var(--color-border-default), var(--color-surface-subtle));
+  background-size: 200% 100%;
+  animation: shimmer 1.2s linear infinite;
+}
+@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+form[data-state="saving"] #save { opacity: .7; }
+
+@media (prefers-reduced-motion: reduce) {
+  .btn { transition: none; }
+  .btn:hover:not(:disabled), .btn:active:not(:disabled) { transform: none; }
+  form[data-state="loading"] .skeleton { animation: none; }
+}

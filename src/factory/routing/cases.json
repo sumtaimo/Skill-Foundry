@@ -60,5 +60,7 @@
   { "id": "uc3", "prompt": "Add an inline AI assistant bar with a streaming state, Stop button and Accept/Undo controls.", "expect": "ui-craft" },
   { "id": "uc4", "prompt": "Create a collapsible sidebar icon rail and a mobile drawer for our workspace app in React.", "expect": "ui-craft" },
   { "id": "ds1", "prompt": "We are starting a new product. Set up its design foundation: colours, type, spacing and radius as variables that light and dark mode both use.", "expect": "design-system" },
-  { "id": "ds2", "prompt": "In our design system, change the default border colour to a lighter grey everywhere, and check that every text colour still has enough contrast.", "expect": "design-system" }
+  { "id": "ds2", "prompt": "In our design system, change the default border colour to a lighter grey everywhere, and check that every text colour still has enough contrast.", "expect": "design-system" },
+  { "id": "uc5", "prompt": "Build the settings screen for our app from the design folder, using the variables in design/tokens.css.", "expect": "ui-craft" },
+  { "id": "uc6", "prompt": "Design the home dashboard screen for our new app; we have no brand colours or tokens yet.", "expect": "ui-craft" }
 ]

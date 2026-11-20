@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project card grid</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --color-surface-default: #ffffff;
+  --color-surface-raised: #fafafa;
+  --color-surface-subtle: #f4f4f5;
+  --glass-bg: color-mix(in srgb, var(--color-surface-raised) 74%, transparent);
+  --color-text-default: #09090b;
+  --color-text-muted: #52525b;
+  --color-border-default: #e4e4e7;
+  --color-border-strong: #a1a1aa;
+  --color-action-primary-bg: #18181b;
+  --color-action-primary-text: #ffffff;
+  --color-border-focus: #2563eb;
+  --color-danger-text: #b91c1c;
+  --color-danger-bg-subtle: #fef2f2;
+  --shadow-1: 0 1px 2px rgba(0,0,0,.05);
+  --shadow-2: 0 8px 24px -8px rgba(0,0,0,.12);
+  --r-sm: 6px; --r-md: 10px; --r-lg: 14px;
+  --z-base: 1; --z-sticky: 20; --z-dropdown: 40; --z-command: 60; --z-modal: 80; --z-toast: 100;
+  --line-height-khmer: 1.6;
+  --dur: 160ms;
+}
+:root[data-theme="dark"] {
+  --color-surface-default: #09090b;
+  --color-surface-raised: #121216;
+  --color-surface-subtle: #1c1c22;
+  --glass-bg: color-mix(in srgb, var(--color-surface-raised) 78%, transparent);
+  --color-text-default: #fafafa;
+  --color-text-muted: #a1a1aa;
+  --color-border-default: #27272a;
+  --color-border-strong: #52525b;
+  --color-action-primary-bg: #fafafa;
+  --color-action-primary-text: #09090b;
+  --color-border-focus: #60a5fa;
+  --color-danger-text: #f87171;
+  --color-danger-bg-subtle: rgba(185,28,28,.16);
+  --shadow-2: 0 10px 28px -8px rgba(0,0,0,.55);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-surface-default: #09090b;
+    --color-surface-raised: #121216;
+    --color-surface-subtle: #1c1c22;
+    --glass-bg: color-mix(in srgb, var(--color-surface-raised) 78%, transparent);
+    --color-text-default: #fafafa;
+    --color-text-muted: #a1a1aa;
+    --color-border-default: #27272a;
+    --color-border-strong: #52525b;
+    --color-action-primary-bg: #fafafa;
+    --color-action-primary-text: #09090b;
+    --color-border-focus: #60a5fa;
+    --color-danger-text: #f87171;
+    --color-danger-bg-subtle: rgba(185,28,28,.16);
+    --shadow-2: 0 10px 28px -8px rgba(0,0,0,.55);
+  }
+}
+:lang(km) { line-height: var(--line-height-khmer); letter-spacing: 0; }
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 16px;
+  background: var(--color-surface-default);
+  color: var(--color-text-default);
+  font: 400 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (min-width: 640px) { body { padding: 24px; } }
+
+/* ---------- Toolbar ---------- */
+.pg { max-width: 1120px; margin: 0 auto; }
+.pg-toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
+.pg-title { margin: 0 auto 0 0; font-size: 1.5rem; font-weight: 600; line-height: 1.2; letter-spacing: -0.02em; }
+.pg-title:lang(km) { letter-spacing: 0; }
+.pg-search {
+  min-height: 44px; min-width: 0; flex: 1 1 220px; padding: 0 12px;
+  background: var(--color-surface-raised); color: inherit;
+  border: 1px solid var(--color-border-default); border-radius: var(--r-md); font: inherit;
+}
+.pg-search:hover { border-color: var(--color-border-strong); }
+
+/* ---------- Buttons ---------- */
+.btn {
+  min-height: 44px; min-width: 44px; padding: 0 16px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font: 500 15px/1 inherit; font-family: inherit;
+  color: var(--color-text-default);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border-default); border-radius: var(--r-md);
+  cursor: pointer;
+  transition: transform var(--dur) ease-out, border-color var(--dur) ease-out;
+}
+.btn:hover { border-color: var(--color-border-strong); transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: .5; cursor: not-allowed; pointer-events: none; }
+.btn--primary { background: var(--color-action-primary-bg); color: var(--color-action-primary-text); border-color: transparent; }
+
+/* One focus ring for every control */
+:is(.btn, .pg-search, .pc-select):focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
+/* ---------- Grid ---------- */
+.pg-grid {
+  display: grid; gap: 16px; margin: 0; padding: 0; list-style: none;
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+}
+
+/* ---------- Card ---------- */
+.pc {
+  position: relative; min-height: 176px; padding: 16px;
+  display: flex; flex-direction: column; gap: 12px;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border-default); border-radius: var(--r-lg);
+  box-shadow: var(--shadow-1);
+  transition: transform var(--dur) ease-out, border-color var(--dur) ease-out, box-shadow var(--dur) ease-out;
+}
+@media (min-width: 640px) { .pc { padding: 24px; } }
+.pc:hover { border-color: var(--color-border-strong); transform: translateY(-1px); box-shadow: var(--shadow-2); }
+.pc:has(.pc-select:focus-visible) { outline: 2px solid var(--color-border-focus); outline-offset: 2px; }
+.pc:has(.pc-select:focus-visible) .pc-select:focus-visible { outline: none; }
+
+.pc-select {
+  all: unset; display: block; cursor: pointer;
+  font-size: 1.0625rem; font-weight: 600; letter-spacing: -0.02em; overflow-wrap: anywhere;
+}
+.pc-select:lang(km) { letter-spacing: 0; }
+.pc-select::after { content: ""; position: absolute; inset: 0; border-radius: inherit; } /* whole card is the hit area */
+.pc-desc { margin: 0; color: var(--color-text-muted); max-width: 65ch; }
+.pc-meta { margin: 0; color: var(--color-text-muted); font-size: .875rem; font-variant-numeric: tabular-nums; }
+.pc-foot { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.pc-foot .btn { position: relative; z-index: var(--z-base); } /* above the stretched select hit area */
+
+/* Selected */
+.pc[data-selected="true"] {
+  background: var(--color-surface-subtle);
+  border-color: var(--color-border-focus);
+  box-shadow: inset 0 0 0 1px var(--color-border-focus);
+}
+.pc[data-selected="true"] .pc-select { font-weight: 700; }
+.pc-check { display: none; width: 20px; height: 20px; color: var(--color-border-focus); }
+.pc[data-selected="true"] .pc-check { display: block; }
+.pc-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+
+/* Disabled (archived) */
+.pc[data-disabled="true"] { opacity: .75; }
+.pc[data-disabled="true"]:hover { transform: none; box-shadow: var(--shadow-1); border-color: var(--color-border-default); }
+
+/* ---------- Loading skeleton (same min-height as .pc: no layout shift) ---------- */
+.pc--skeleton { pointer-events: none; }
+.sk {
+  display: block; height: 14px; border-radius: var(--r-sm);
+  background: linear-gradient(90deg, var(--color-surface-subtle) 25%, var(--color-border-default) 50%, var(--color-surface-subtle) 75%);
+  background-size: 200% 100%;
+  animation: sk-shimmer 1.4s linear infinite;
+}
+.sk--title { width: 60%; height: 18px; }
+.sk--line { width: 100%; }
+.sk--short { width: 70%; }
+.sk--btn { width: 96px; height: 44px; margin-top: auto; border-radius: var(--r-md); }
+@keyframes sk-shimmer { to { background-position: -200% 0; } }
+
+/* ---------- Empty + error panels ---------- */
+.pg-panel {
+  grid-column: 1 / -1; padding: 24px; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  border: 1px dashed var(--color-border-strong); border-radius: var(--r-lg);
+  background: var(--color-surface-raised);
+}
+.pg-panel svg { width: 32px; height: 32px; color: var(--color-text-muted); }
+.pg-panel p { margin: 0; max-width: 65ch; }
+.pg-panel--error {
+  border: 1px solid var(--color-danger-text);
+  background: var(--color-danger-bg-subtle); color: var(--color-danger-text);
+}
+.pg-panel--error svg { color: currentColor; }
+
+/* Panels / cards show only for the matching state */
+.pg-grid > [data-for] { display: none; }
+.pg-grid[data-state="loading"] > [data-for~="loading"],
+.pg-grid[data-state="empty"] > [data-for~="empty"],
+.pg-grid[data-state="error"] > [data-for~="error"],
+.pg-grid[data-state="ready"] > [data-for~="ready"] { display: flex; }
+.pg-grid > li[data-for~="ready"] { list-style: none; }
+.pg-grid[data-state="ready"] > li[data-hidden="true"] { display: none; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sk { animation: none; }
+  .btn, .pc { transition: none; }
+  .btn:hover, .pc:hover { transform: none; }
+}
+</style>
+</head>
+<body>
+<section class="pg" aria-labelledby="pg-h">
+  <div class="pg-toolbar">
+    <h1 class="pg-title" id="pg-h">Projects</h1>
+    <label class="sr-only" for="pg-q">Filter projects</label>
+    <input class="pg-search" id="pg-q" type="search" placeholder="Filter projects" autocomplete="off">
+    <!-- Demo only: switch states. Remove in production. -->
+    <button class="btn" type="button" data-demo="loading">Demo: loading</button>
+    <button class="btn" type="button" data-demo="error">Demo: error</button>
+  </div>
+
+  <p class="sr-only" id="pg-live" role="status" aria-live="polite"></p>
+
+  <ul class="pg-grid" id="pg-grid" data-state="ready" aria-busy="false">
+
+    <!-- Loading skeletons -->
+    <li class="pc pc--skeleton" data-for="loading" aria-hidden="true"><span class="sk sk--title"></span><span class="sk sk--line"></span><span class="sk sk--short"></span><span class="sk sk--btn"></span></li>
+    <li class="pc pc--skeleton" data-for="loading" aria-hidden="true"><span class="sk sk--title"></span><span class="sk sk--line"></span><span class="sk sk--short"></span><span class="sk sk--btn"></span></li>
+    <li class="pc pc--skeleton" data-for="loading" aria-hidden="true"><span class="sk sk--title"></span><span class="sk sk--line"></span><span class="sk sk--short"></span><span class="sk sk--btn"></span></li>
+
+    <!-- Empty filter state -->
+    <li class="pg-panel" data-for="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <p id="pg-empty-text">No projects match your filter.</p>
+      <button class="btn" type="button" id="pg-reset">Reset filters</button>
+    </li>
+
+    <!-- Inline error (the filter input above is left untouched) -->
+    <li class="pg-panel pg-panel--error" data-for="error" role="alert">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <p>Projects could not be loaded.</p>
+      <button class="btn" type="button" id="pg-retry">Retry</button>
+    </li>
+
+    <!-- Cards: placeholder data -->
+    <li data-for="ready" style="display:contents" data-hidden="false">
+      <article class="pc" data-selected="false" data-name="Project one">
+        <div class="pc-head">
+          <h2 style="margin:0;font-size:inherit"><button class="pc-select" type="button" aria-pressed="false">Project one</button></h2>
+          <svg class="pc-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>
+        </div>
+        <p class="pc-desc">Placeholder description.</p>
+        <p class="pc-meta">Updated: placeholder</p>
+        <div class="pc-foot"><button class="btn" type="button">Open</button></div>
+      </article>
+    </li>
+    <li data-for="ready" style="display:contents" data-hidden="false">
+      <article class="pc" data-selected="false" data-name="Project two">
+        <div class="pc-head">
+          <h2 style="margin:0;font-size:inherit"><button class="pc-select" type="button" aria-pressed="false">Project two</button></h2>
+          <svg class="pc-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>
+        </div>
+        <p class="pc-desc">Placeholder description.</p>
+        <p class="pc-meta">Updated: placeholder</p>
+        <div class="pc-foot"><button class="btn" type="button">Open</button></div>
+      </article>
+    </li>
+    <li data-for="ready" style="display:contents" data-hidden="false">
+      <article class="pc" data-selected="false" data-disabled="true" data-name="Project three archived">
+        <div class="pc-head">
+          <h2 style="margin:0;font-size:inherit"><button class="pc-select" type="button" aria-pressed="false">Project three (archived)</button></h2>
+          <svg class="pc-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>
+        </div>
+        <p class="pc-desc">Placeholder description.</p>
+        <p class="pc-meta">Archived</p>
+        <div class="pc-foot"><button class="btn" type="button" disabled>Open</button></div>
+      </article>
+    </li>
+  </ul>
+</section>
+
+<script>
+(() => {
+  const grid = document.getElementById('pg-grid');
+  const q = document.getElementById('pg-q');
+  const live = document.getElementById('pg-live');
+  const items = [...grid.querySelectorAll('li[data-for~="ready"]')];
+
+  function setState(s) {
+    grid.dataset.state = s;
+    grid.setAttribute('aria-busy', String(s === 'loading'));
+  }
+
+  function applyFilter() {
+    const term = q.value.trim().toLowerCase();
+    let shown = 0;
+    items.forEach(li => {
+      const match = li.querySelector('.pc').dataset.name.toLowerCase().includes(term);
+      li.dataset.hidden = String(!match);
+      if (match) shown++;
+    });
+    if (shown === 0) {
+      document.getElementById('pg-empty-text').textContent = `No projects match "${q.value.trim()}".`;
+      setState('empty');
+    } else {
+      setState('ready');
+    }
+    live.textContent = `${shown} project${shown === 1 ? '' : 's'} shown`;
+  }
+
+  q.addEventListener('input', applyFilter);
+
+  document.getElementById('pg-reset').addEventListener('click', () => {
+    q.value = ''; applyFilter(); q.focus();
+  });
+
+  grid.addEventListener('click', e => {
+    const btn = e.target.closest('.pc-select');
+    if (!btn) return;
+    const card = btn.closest('.pc');
+    if (card.dataset.disabled === 'true') return;
+    const on = card.dataset.selected !== 'true';
+    card.dataset.selected = String(on);
+    btn.setAttribute('aria-pressed', String(on));
+  });
+
+  // Demo wiring: replace with your real fetch.
+  document.querySelector('[data-demo="loading"]').addEventListener('click', () => {
+    setState('loading'); setTimeout(applyFilter, 1500);
+  });
+  document.querySelector('[data-demo="error"]').addEventListener('click', () => setState('error'));
+  document.getElementById('pg-retry').addEventListener('click', () => {
+    setState('loading'); setTimeout(applyFilter, 800);
+  });
+})();
+</script>
+</body>
+</html>

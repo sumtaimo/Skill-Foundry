@@ -2,7 +2,7 @@
   "case": "tokens-only-declined",
   "prompt": "Generate only a standalone design-tokens.json and tokens.css palette from our brand hex #0d9488.",
   "agent": "claude",
-  "recordedAt": "2026-11-19",
-  "output": "នេះជំហ៊ានតូចតែច្បាស់: **R-ui-craft-17** ហាមឃ្លៃ — បំណងស្នើគ្រាន់តែ `design-tokens.json` + `tokens.css` ជារបស់ skill **`design-system`** ទៅវិញ ។",
+  "recordedAt": "2026-11-20",
+  "output": "This request is for tokens only, so it belongs to the `design-system` skill, not `ui-craft`. Please run `design-system` to generate `design-tokens.json` and `tokens.css` from `#0d9488`.",
   "files": []
 }

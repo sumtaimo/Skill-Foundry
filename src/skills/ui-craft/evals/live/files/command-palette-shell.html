@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>App navigation with command palette</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --color-surface-default: #ffffff;
+  --color-surface-raised: #fafafa;
+  --color-surface-subtle: #f4f4f5;
+  --glass-blur: 20px;
+  --glass-bg: color-mix(in srgb, var(--color-surface-raised) 74%, transparent);
+  --color-text-default: #09090b;
+  --color-text-muted: #52525b;
+  --color-border-default: #e4e4e7;
+  --color-border-strong: #a1a1aa;
+  --color-action-primary-bg: #18181b;
+  --color-action-primary-text: #ffffff;
+  --color-border-focus: #2563eb;
+  --btn-gloss: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,0) 60%);
+  --shadow-1: 0 1px 2px rgba(0,0,0,.05);
+  --shadow-2: 0 8px 24px -8px rgba(0,0,0,.12);
+  --r-xs: 4px; --r-sm: 6px; --r-md: 10px; --r-lg: 14px; --r-xl: 16px;
+  --z-base: 1; --z-sticky: 20; --z-dropdown: 40; --z-command: 60; --z-modal: 80; --z-toast: 100;
+  --line-height-khmer: 1.6;
+}
+:root[data-theme="dark"] {
+  --color-surface-default: #09090b;
+  --color-surface-raised: #121216;
+  --color-surface-subtle: #1c1c22;
+  --glass-bg: color-mix(in srgb, var(--color-surface-raised) 78%, transparent);
+  --color-text-default: #fafafa;
+  --color-text-muted: #a1a1aa;
+  --color-border-default: #27272a;
+  --color-border-strong: #52525b;
+  --color-action-primary-bg: #fafafa;
+  --color-action-primary-text: #09090b;
+  --color-border-focus: #60a5fa;
+  --shadow-2: 0 10px 28px -8px rgba(0,0,0,.55);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-surface-default: #09090b;
+    --color-surface-raised: #121216;
+    --color-surface-subtle: #1c1c22;
+    --glass-bg: color-mix(in srgb, var(--color-surface-raised) 78%, transparent);
+    --color-text-default: #fafafa;
+    --color-text-muted: #a1a1aa;
+    --color-border-default: #27272a;
+    --color-border-strong: #52525b;
+    --color-action-primary-bg: #fafafa;
+    --color-action-primary-text: #09090b;
+    --color-border-focus: #60a5fa;
+    --shadow-2: 0 10px 28px -8px rgba(0,0,0,.55);
+  }
+}
+:lang(km) { line-height: var(--line-height-khmer); letter-spacing: 0; }
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-padding-top: 96px; }
+body {
+  margin: 0;
+  background: var(--color-surface-default);
+  color: var(--color-text-default);
+  font: 400 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+}
+h1 { font-size: clamp(1.875rem, 4vw, 3rem); line-height: 1.12; letter-spacing: -0.02em; font-weight: 600; margin: 0 0 12px; }
+h1:lang(km) { letter-spacing: 0; }
+p { max-width: 65ch; color: var(--color-text-muted); margin: 0; }
+kbd {
+  font: 500 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+  padding: 4px 6px;
+  min-width: 24px;
+  text-align: center;
+  color: var(--color-text-muted);
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-border-strong);
+  border-bottom-width: 2px;
+  border-radius: var(--r-xs);
+}
+
+/* Focus + controls */
+:where(button, a, input):focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; min-width: 44px; padding: 0 12px;
+  font: 500 15px/1 inherit; font-family: inherit;
+  color: var(--color-text-default);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: transform 120ms ease, border-color 120ms ease, background-color 120ms ease;
+}
+.btn:hover { border-color: var(--color-border-strong); transform: translateY(-1px); box-shadow: var(--shadow-1); }
+.btn:active { transform: translateY(0); }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: .5; cursor: not-allowed; pointer-events: none; }
+.btn svg { width: 18px; height: 18px; flex: none; }
+.btn-primary {
+  color: var(--color-action-primary-text);
+  background: var(--btn-gloss), var(--color-action-primary-bg);
+  border-color: transparent;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.14), var(--shadow-2);
+}
+
+/* Navbar */
+.nav-wrap { position: sticky; top: 16px; z-index: var(--z-sticky); padding: 0 16px; }
+.nav {
+  position: relative;
+  max-width: 1120px; margin: 0 auto;
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 8px 8px 16px;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--r-xl);
+}
+@supports (backdrop-filter: blur(20px)) {
+  .nav-wrap[data-scrolled="true"] .nav {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+    box-shadow: var(--shadow-2);
+  }
+}
+.brand { font-weight: 700; letter-spacing: -0.02em; margin-right: 8px; white-space: nowrap; }
+.nav-links { position: relative; display: flex; gap: 4px; margin-right: auto; }
+.nav-links a {
+  position: relative; z-index: 1;
+  display: inline-flex; align-items: center;
+  min-height: 44px; padding: 0 14px;
+  color: var(--color-text-muted); text-decoration: none; font-weight: 500;
+  border-radius: var(--r-sm);
+  transition: color 120ms ease;
+}
+.nav-links a:hover, .nav-links a[aria-current="page"] { color: var(--color-text-default); }
+.nav-indicator {
+  position: absolute; left: 0; top: 0; height: 100%; width: 0;
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--r-sm);
+  transition: transform 200ms cubic-bezier(.2,.8,.2,1), width 200ms cubic-bezier(.2,.8,.2,1);
+  pointer-events: none;
+}
+.search-trigger { min-width: 0; }
+.search-trigger .label { color: var(--color-text-muted); }
+.menu-btn { display: none; }
+.drawer {
+  position: absolute; left: 0; right: 0; top: calc(100% + 8px);
+  z-index: var(--z-dropdown);
+  display: grid; gap: 4px; padding: 8px;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-2);
+}
+.drawer[hidden] { display: none; }
+.drawer a {
+  display: flex; align-items: center; min-height: 44px; padding: 0 14px;
+  border-radius: var(--r-sm); color: var(--color-text-default); text-decoration: none; font-weight: 500;
+}
+.drawer a:hover { background: var(--color-surface-subtle); }
+.drawer a[aria-current="page"] { background: var(--color-surface-subtle); }
+
+@media (max-width: 767px) {
+  .nav-links { display: none; }
+  .brand { margin-right: auto; }
+  .menu-btn { display: inline-flex; }
+  .search-trigger .label, .search-trigger kbd { display: none; }
+}
+@media (min-width: 768px) { .drawer { display: none !important; } }
+
+main { max-width: 1120px; margin: 0 auto; padding: 64px 16px 160px; }
+main section[hidden] { display: none; }
+.hint { margin-top: 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; color: var(--color-text-muted); }
+
+/* Command palette */
+dialog.palette {
+  z-index: var(--z-command);
+  width: min(560px, calc(100vw - 32px));
+  max-height: min(480px, calc(100dvh - 32px));
+  margin: 12vh auto auto;
+  padding: 0;
+  color: var(--color-text-default);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-2);
+  overflow: hidden;
+}
+dialog.palette[open] { display: flex; flex-direction: column; animation: pop 160ms cubic-bezier(.2,.8,.2,1); }
+dialog.palette::backdrop { background: rgba(0,0,0,.35); animation: fade 160ms ease; }
+@keyframes pop { from { opacity: 0; transform: translateY(-8px) scale(.98); } }
+@keyframes fade { from { opacity: 0; } }
+.palette-search { display: flex; align-items: center; gap: 12px; padding: 0 16px; border-bottom: 1px solid var(--color-border-default); }
+.palette-search svg { width: 18px; height: 18px; color: var(--color-text-muted); flex: none; }
+.palette-search input {
+  flex: 1; min-width: 0; min-height: 56px;
+  font: inherit; color: inherit; background: transparent; border: 0;
+}
+.palette-search input:focus-visible { outline-offset: -2px; }
+.palette-list { list-style: none; margin: 0; padding: 8px; overflow-y: auto; }
+.palette-list [role="option"] {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  min-height: 44px; padding: 0 12px;
+  border-radius: var(--r-sm); cursor: pointer;
+}
+.palette-list [role="option"] small { color: var(--color-text-muted); font-size: 14px; }
+.palette-list [aria-selected="true"] {
+  background: var(--color-surface-subtle);
+  box-shadow: inset 0 0 0 1px var(--color-border-strong);
+  font-weight: 500;
+}
+.palette-empty { padding: 32px 16px; text-align: center; display: grid; justify-items: center; gap: 12px; }
+.palette-empty[hidden] { display: none; }
+.palette-empty svg { width: 28px; height: 28px; color: var(--color-text-muted); }
+.palette-empty p { color: var(--color-text-default); overflow-wrap: anywhere; }
+.palette-foot {
+  display: flex; flex-wrap: wrap; gap: 16px; padding: 12px 16px;
+  color: var(--color-text-muted); font-size: 14px;
+  border-top: 1px solid var(--color-border-default);
+}
+.palette-foot span { display: inline-flex; align-items: center; gap: 6px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition-property: color, background-color, border-color !important; transition-duration: 1ms !important; }
+  .btn:hover { transform: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="nav-wrap" id="navWrap">
+  <header class="nav">
+    <span class="brand">Workspace</span>
+
+    <nav class="nav-links" id="navLinks" aria-label="Primary">
+      <span class="nav-indicator" id="indicator" aria-hidden="true"></span>
+      <a href="#overview">Overview</a>
+      <a href="#projects">Projects</a>
+      <a href="#reports">Reports</a>
+      <a href="#settings">Settings</a>
+    </nav>
+
+    <button class="btn search-trigger" id="openPalette" type="button"
+            aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <span class="label">Search commands</span>
+      <kbd id="triggerKbd">Ctrl K</kbd>
+    </button>
+
+    <button class="btn" id="themeBtn" type="button" aria-label="Toggle theme">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    </button>
+
+    <button class="btn menu-btn" id="menuBtn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="drawer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+
+    <nav class="drawer" id="drawer" aria-label="Mobile" hidden>
+      <a href="#overview">Overview</a>
+      <a href="#projects">Projects</a>
+      <a href="#reports">Reports</a>
+      <a href="#settings">Settings</a>
+    </nav>
+  </header>
+</div>
+
+<main id="main">
+  <section id="view-overview">
+    <h1>Overview</h1>
+    <p>Placeholder view. Replace with your product content.</p>
+    <div class="hint"><span>Open the command palette with</span> <kbd class="mod">Ctrl</kbd><kbd>K</kbd></div>
+  </section>
+  <section id="view-projects" hidden><h1>Projects</h1><p>Placeholder view.</p></section>
+  <section id="view-reports" hidden><h1>Reports</h1><p>Placeholder view.</p></section>
+  <section id="view-settings" hidden><h1>Settings</h1><p>Placeholder view.</p></section>
+</main>
+
+<dialog class="palette" id="palette" aria-label="Command menu">
+  <div class="palette-search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" type="text" role="combobox" autocomplete="off" spellcheck="false"
+           placeholder="Type a command or search…" aria-label="Search commands"
+           aria-expanded="true" aria-controls="results" aria-autocomplete="list">
+    <kbd>Esc</kbd>
+  </div>
+
+  <ul class="palette-list" id="results" role="listbox" aria-label="Commands"></ul>
+
+  <div class="palette-empty" id="empty" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5M8.5 8.5l5 5m0-5-5 5"/></svg>
+    <p id="emptyMsg"></p>
+    <button class="btn" id="resetBtn" type="button">Clear search</button>
+  </div>
+
+  <div class="palette-foot" aria-hidden="true">
+    <span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span>
+    <span><kbd>Enter</kbd> Select</span>
+    <span><kbd>Esc</kbd> Close</span>
+  </div>
+  <div class="sr-only" id="live" role="status" aria-live="polite"></div>
+</dialog>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var dlg = $("palette"), q = $("q"), list = $("results"), empty = $("empty");
+  var emptyMsg = $("emptyMsg"), live = $("live"), trigger = $("openPalette");
+  var root = document.documentElement;
+  var isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+  var modName = isMac ? "⌘" : "Ctrl";
+  var lastFocus = null, active = 0, shown = [];
+
+  // Platform-correct shortcut hints
+  $("triggerKbd").textContent = modName + " K";
+  document.querySelectorAll("kbd.mod").forEach(function (k) { k.textContent = modName; });
+
+  // Commands (placeholders: replace with real app actions)
+  var commands = [
+    { label: "Go to Overview", hint: "Page",   words: "home dashboard", run: function () { location.hash = "#overview"; } },
+    { label: "Go to Projects", hint: "Page",   words: "work",           run: function () { location.hash = "#projects"; } },
+    { label: "Go to Reports",  hint: "Page",   words: "analytics",      run: function () { location.hash = "#reports"; } },
+    { label: "Go to Settings", hint: "Page",   words: "preferences",    run: function () { location.hash = "#settings"; } },
+    { label: "Toggle theme",   hint: "Action", words: "dark light mode", run: toggleTheme }
+  ];
+
+  /* ---------- Palette ---------- */
+  function render() {
+    var term = q.value.trim().toLowerCase();
+    shown = commands.filter(function (c) {
+      return !term || (c.label + " " + c.words).toLowerCase().indexOf(term) !== -1;
+    });
+    list.textContent = "";
+    shown.forEach(function (c, i) {
+      var li = document.createElement("li");
+      li.id = "cmd-" + i;
+      li.setAttribute("role", "option");
+      var a = document.createElement("span"); a.textContent = c.label;
+      var b = document.createElement("small"); b.textContent = c.hint;
+      li.append(a, b);
+      li.addEventListener("pointermove", function () { if (active !== i) setActive(i); });
+      li.addEventListener("click", function () { run(i); });
+      list.appendChild(li);
+    });
+    var none = shown.length === 0;
+    list.hidden = none;
+    empty.hidden = !none;
+    if (none) {
+      emptyMsg.textContent = 'No matching commands for "' + q.value.trim() + '"';
+      q.removeAttribute("aria-activedescendant");
+    }
+    live.textContent = none ? "No results" : shown.length + (shown.length === 1 ? " result" : " results");
+    setActive(0);
+  }
+
+  function setActive(i) {
+    if (!shown.length) return;
+    active = (i + shown.length) % shown.length;
+    Array.prototype.forEach.call(list.children, function (li, n) {
+      li.setAttribute("aria-selected", n === active ? "true" : "false");
+    });
+    var el = list.children[active];
+    q.setAttribute("aria-activedescendant", el.id);
+    el.scrollIntoView({ block: "nearest" });
+  }
+
+  function run(i) {
+    var c = shown[i];
+    if (!c) return;
+    dlg.close();
+    c.run();
+  }
+
+  function openPalette() {
+    if (dlg.open) return;
+    lastFocus = document.activeElement;
+    q.value = "";
+    render();
+    dlg.showModal();
+    q.focus();
+  }
+
+  function reset() { q.value = ""; render(); q.focus(); }
+
+  q.addEventListener("input", render);
+  q.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowDown") { e.preventDefault(); setActive(active + 1); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setActive(active - 1); }
+    else if (e.key === "Home") { e.preventDefault(); setActive(0); }
+    else if (e.key === "End") { e.preventDefault(); setActive(shown.length - 1); }
+    else if (e.key === "Enter") { e.preventDefault(); run(active); }
+  });
+  $("resetBtn").addEventListener("click", reset);
+  dlg.addEventListener("click", function (e) { if (e.target === dlg) dlg.close(); }); // backdrop
+  dlg.addEventListener("close", function () {
+    if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
+  });
+  trigger.addEventListener("click", openPalette);
+
+  document.addEventListener("keydown", function (e) {
+    if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === "k") {
+      e.preventDefault();
+      dlg.open ? dlg.close() : openPalette();
+    }
+  });
+  // Escape is handled natively by <dialog> (fires "close", focus returns to the trigger).
+
+  /* ---------- Navigation ---------- */
+  var links = document.querySelectorAll("#navLinks a, #drawer a");
+  var indicator = $("indicator"), navLinks = $("navLinks");
+  var menuBtn = $("menuBtn"), drawer = $("drawer");
+
+  function route() {
+    var id = (location.hash || "#overview").slice(1);
+    if (!$("view-" + id)) id = "overview";
+    document.querySelectorAll("main section").forEach(function (s) { s.hidden = s.id !== "view-" + id; });
+    links.forEach(function (a) {
+      if (a.getAttribute("href") === "#" + id) a.setAttribute("aria-current", "page");
+      else a.removeAttribute("aria-current");
+    });
+    moveIndicator();
+    closeDrawer();
+  }
+  function moveIndicator() {
+    var a = navLinks.querySelector('[aria-current="page"]');
+    if (!a || !navLinks.offsetWidth) { indicator.style.width = "0"; return; }
+    indicator.style.width = a.offsetWidth + "px";
+    indicator.style.transform = "translateX(" + a.offsetLeft + "px)";
+  }
+  function closeDrawer() {
+    drawer.hidden = true;
+    menuBtn.setAttribute("aria-expanded", "false");
+  }
+  menuBtn.addEventListener("click", function () {
+    var open = drawer.hidden;
+    drawer.hidden = !open;
+    menuBtn.setAttribute("aria-expanded", String(open));
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !drawer.hidden && !dlg.open) { closeDrawer(); menuBtn.focus(); }
+  });
+  window.addEventListener("hashchange", route);
+  window.addEventListener("resize", function () { moveIndicator(); if (innerWidth >= 768) closeDrawer(); });
+
+  // Glass appears after scrolling past 8px
+  var wrap = $("navWrap");
+  function onScroll() { wrap.dataset.scrolled = String(scrollY > 8); }
+  addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+
+  /* ---------- Theme ---------- */
+  function toggleTheme() {
+    var dark = root.dataset.theme
+      ? root.dataset.theme === "dark"
+      : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+  }
+  $("themeBtn").addEventListener("click", toggleTheme);
+
+  route();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(moveIndicator);
+})();
+</script>
+</body>
+</html>

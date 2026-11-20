@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="km">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ចុះឈ្មោះ</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --color-surface-default: #ffffff;
+      --color-surface-raised: #fafafa;
+      --color-surface-subtle: #f4f4f5;
+      --color-text-default: #09090b;
+      --color-text-muted: #52525b;
+      --color-border-default: #e4e4e7;
+      --color-border-strong: #71717a;
+      --color-action-primary-bg: #18181b;
+      --color-action-primary-text: #ffffff;
+      --color-border-focus: #2563eb;
+      --color-danger-text: #b91c1c;
+      --color-danger-bg-subtle: #fef2f2;
+      --color-success-text: #15803d;
+      --glow: radial-gradient(640px 320px at 50% 0%, rgba(24, 24, 27, 0.06), transparent 70%);
+      --btn-gloss: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 60%);
+      --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-2: 0 8px 24px -8px rgba(0, 0, 0, 0.12);
+      --r-md: 10px;
+      --r-lg: 14px;
+      --z-base: 1;
+      --z-sticky: 20;
+      --z-dropdown: 40;
+      --z-command: 60;
+      --z-modal: 80;
+      --z-toast: 100;
+      --line-height-khmer: 1.6;
+      --duration-fast: 160ms;
+    }
+
+    :root[data-theme="dark"] {
+      --color-surface-default: #09090b;
+      --color-surface-raised: #121216;
+      --color-surface-subtle: #1c1c22;
+      --color-text-default: #fafafa;
+      --color-text-muted: #a1a1aa;
+      --color-border-default: #27272a;
+      --color-border-strong: #71717a;
+      --color-action-primary-bg: #fafafa;
+      --color-action-primary-text: #09090b;
+      --color-border-focus: #60a5fa;
+      --color-danger-text: #f87171;
+      --color-danger-bg-subtle: rgba(185, 28, 28, 0.16);
+      --color-success-text: #4ade80;
+      --glow: radial-gradient(640px 320px at 50% 0%, rgba(250, 250, 250, 0.08), transparent 70%);
+      --shadow-2: 0 10px 28px -8px rgba(0, 0, 0, 0.55);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --color-surface-default: #09090b;
+        --color-surface-raised: #121216;
+        --color-surface-subtle: #1c1c22;
+        --color-text-default: #fafafa;
+        --color-text-muted: #a1a1aa;
+        --color-border-default: #27272a;
+        --color-border-strong: #71717a;
+        --color-action-primary-bg: #fafafa;
+        --color-action-primary-text: #09090b;
+        --color-border-focus: #60a5fa;
+        --color-danger-text: #f87171;
+        --color-danger-bg-subtle: rgba(185, 28, 28, 0.16);
+        --color-success-text: #4ade80;
+        --glow: radial-gradient(640px 320px at 50% 0%, rgba(250, 250, 250, 0.08), transparent 70%);
+        --shadow-2: 0 10px 28px -8px rgba(0, 0, 0, 0.55);
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    :lang(km) {
+      line-height: var(--line-height-khmer);
+      letter-spacing: 0;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      background: var(--glow), var(--color-surface-default);
+      color: var(--color-text-default);
+      font-family: "Noto Sans Khmer", "Khmer OS Battambang", "Leelawadee UI", "Khmer UI",
+        system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    .card {
+      width: min(420px, 100%);
+      padding: 24px;
+      background: var(--color-surface-raised);
+      border: 1px solid var(--color-border-default);
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow-2);
+    }
+    @media (max-width: 639px) { .card { padding: 16px; } }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.5rem, 4vw, 1.875rem);
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    h1:not(:lang(km)) { letter-spacing: -0.025em; line-height: 1.12; }
+
+    .lede {
+      margin: 0 0 20px;
+      max-width: 65ch;
+      color: var(--color-text-muted);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    input[type="email"] {
+      width: 100%;
+      min-height: 44px;
+      padding: 0 12px;
+      font: inherit;
+      color: var(--color-text-default);
+      background: var(--color-surface-default);
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--r-md);
+      transition: border-color var(--duration-fast) ease;
+    }
+    input[type="email"]::placeholder { color: var(--color-text-muted); opacity: 1; }
+    input[type="email"]:hover { border-color: var(--color-text-muted); }
+    input[type="email"]:focus-visible,
+    button:focus-visible {
+      outline: 2px solid var(--color-border-focus);
+      outline-offset: 2px;
+    }
+    input[aria-invalid="true"] { border-color: var(--color-danger-text); }
+    input:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .msg {
+      min-height: 1.6em;
+      margin: 8px 0 16px;
+      font-size: 0.9375rem;
+    }
+    .msg[data-state="error"] { color: var(--color-danger-text); }
+    .msg[data-state="success"] { color: var(--color-success-text); }
+
+    .btn {
+      width: 100%;
+      min-height: 44px;
+      padding: 0 20px;
+      font: inherit;
+      font-weight: 600;
+      color: var(--color-action-primary-text);
+      background-color: var(--color-action-primary-bg);
+      background-image: var(--btn-gloss);
+      border: 1px solid transparent;
+      border-radius: var(--r-md);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), var(--shadow-1);
+      cursor: pointer;
+      transition: transform var(--duration-fast) ease, opacity var(--duration-fast) ease;
+    }
+    .btn:hover { opacity: 0.92; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0) scale(0.99); }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; animation: none !important; }
+      .btn:hover, .btn:active { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <form class="card" id="signup" novalidate aria-labelledby="title">
+      <h1 id="title">ចុះឈ្មោះគណនី</h1>
+      <p class="lede">
+        បញ្ចូលអ៊ីមែលរបស់អ្នកដើម្បីបង្កើតគណនី។ យើងនឹងផ្ញើតំណភ្ជាប់បញ្ជាក់ទៅកាន់ប្រអប់សំបុត្ររបស់អ្នក។
+      </p>
+
+      <label for="email">អ៊ីមែល</label>
+      <input id="email" name="email" type="email" inputmode="email"
+             autocomplete="email" placeholder="name@example.com"
+             aria-describedby="msg" required>
+      <p class="msg" id="msg" role="status" aria-live="polite" data-state="idle"></p>
+
+      <button class="btn" type="submit">ចុះឈ្មោះ</button>
+    </form>
+  </main>
+
+  <script>
+    const form = document.getElementById('signup');
+    const email = document.getElementById('email');
+    const msg = document.getElementById('msg');
+
+    function show(state, text) {
+      msg.dataset.state = state;
+      msg.textContent = text;
+      email.toggleAttribute('aria-invalid', false);
+      if (state === 'error') email.setAttribute('aria-invalid', 'true');
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!email.value.trim() || !email.checkValidity()) {
+        show('error', 'សូមបញ្ចូលអ៊ីមែលឱ្យបានត្រឹមត្រូវ។');
+        email.focus();
+        return;
+      }
+      show('success', 'យើងបានផ្ញើតំណភ្ជាប់ទៅកាន់ប្រអប់សំបុត្ររបស់អ្នកហើយ។');
+    });
+
+    email.addEventListener('input', () => {
+      if (msg.dataset.state === 'error') show('idle', '');
+    });
+  </script>
+</body>
+</html>

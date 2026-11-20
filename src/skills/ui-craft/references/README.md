@@ -1,6 +1,6 @@
 # UI Craft References
 
-Use these modules to assemble modern 2026 interfaces without repeating boilerplate across projects:
+Use these modules to assemble modern interfaces without repeating boilerplate across projects:
 
 - [Surfaces, Glass, Gradients, Typography & Z-Index](surfaces-and-tokens.md): semantic light/dark tokens, frosted glass headers, specular top-edge button highlights, ambient dot/glow textures, fluid typography, and `z-index` layering.
 - [Navigation, Command Palettes & Lifecycle States](navigation-and-states.md): floating glass navbar, sliding active pill indicator, collapsible sidebar icon-rail, `⌘K` command dialog, mobile drawers, and complete default/hover/focus/disabled/skeleton/empty/error UI templates.
@@ -18,7 +18,7 @@ Use these modules to assemble modern 2026 interfaces without repeating boilerpla
 | Need | Skill |
 |---|---|
 | Pixel cleanup on existing pasted UI without redesign | `ui-polish` |
-| Standalone `tokens.css` & `design-tokens.json` generator | `design-system` |
+| Building or changing tokens and variables (`design/tokens.css`, `design-tokens.json`, a brand palette, "change the border colour everywhere") | `design-system` |
 | Markup-only WCAG audit (`aria-*`, landmarks, `lang`) | `a11y-audit` |
 | Flow/usability review without code changes | `ux-review` |
 | Shorten button/toast microcopy only | `copy-tight` |

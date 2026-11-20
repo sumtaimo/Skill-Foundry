@@ -10,7 +10,8 @@ Run machine checks first whenever Node.js or a browser runner is available, then
 4. **Keyboard & Interactive State Review**:
    - Confirm Tab order reaches all nav links, `⌘K` button, dialog results, and AI bar actions with visible `:focus-visible` ring.
    - Confirm interactive DOM/CSS handles default, hover, active, disabled, loading skeleton, empty search/filter reset, and inline error retry states.
-5. **Reviewer Checklist (all must be YES)**:
+5. **Foundation Check**: with `design/tokens.css`, every `var(--...)` in the output exists in it (or in the declared additive block), and no raw hex, rgb() colour or radius px value sits where a variable holds it.
+6. **Reviewer Checklist (all must be YES)**:
    - Does the output match the detected stack without adding unrequested external libraries or font CDNs?
    - Is there at most ONE filled primary action per view?
    - Do decorative SVGs carry `aria-hidden="true"` and use `currentColor` / `var(--...)` only?
