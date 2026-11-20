@@ -2,7 +2,7 @@
 
 Review against `docs/factory/REVIEW.md`. Status: ready. Version 1.0.0.
 
-Honest record: the author (an AI agent) ticked this list; the owner (TAIMO) is the final reviewer. Live answers came from fresh real agents (`claude -p`, one per case); the worked examples are hand-written and are not proof.
+Honest record: the author (an AI agent) ticked this list; the owner is the final reviewer. Live answers came from fresh real agents (`claude -p`, one per case); the worked examples are hand-written and are not proof.
 
 ## Clarity
 - [x] Procedure is numbered, imperative, one action per step
