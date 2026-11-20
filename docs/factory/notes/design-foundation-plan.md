@@ -177,7 +177,7 @@ updates the skills that already exist:
 |---|---|
 | New | `component-kit` |
 | Updated | `design-system` (main change), `ui-craft`, `ui-polish`, small alignment in `ux-review`, `a11y-audit` |
-| Not a skill | review (S0), recipe (S7), harness defaults (S8) |
+| Not a skill | review (S0), recipe (S7), handoff prompt for the Agentic-Harness repo (S8, last) |
 
 
 | # | Session | Scope | Done when |
@@ -190,7 +190,7 @@ updates the skills that already exist:
 | S5 | `ui-polish` | token mode uses the variables vocabulary; reports raw values as drift | re-recorded evals + `tokens-then-polish` |
 | S6 | `ux-review`, `a11y-audit` | small alignment only (overlaps from the handoff note) | re-recorded evals |
 | S7 | Recipe `product-from-zero` | empty project → brief → variables → components → one screen → `set color.border` → whole product updated | `recipe-run.mjs --record` passes |
-| S8 | Harness defaults | registry `roles` set from the real role table of S0 (see 5a); default install for harness projects | `tests/factory-foundry-cli.test.mjs` passes |
+| S8 (last) | Handoff to the Agentic-Harness repo | outside this repo's boundary: only write the prompt in section 10 and set registry `roles` from S0's real role table. Nothing is changed in the harness from here | owner pastes the prompt into the harness repo session |
 
 Version bumps (`design-system` likely 2.0.0 or 1.1.0 with aliases; project version) need the owner's OK in chat.
 
@@ -261,3 +261,23 @@ So, until S0 confirms the roles in a real user project:
 | 2 | Cross-stack drift: no drift check exists; parsing Swift/Kotlin/Dart gives false positives; conflicts with `R-ui-polish-28` | REAL | 3.4 `check` web only, report only, hash for generated files |
 | 3 | Roles: only DEV can write `design/**` or run `node`; `component-kit` crossed two roles; `ui-craft` silently uses defaults; harness has no `next_skill` | REAL | 5a role table, S0 (b), S3 split, S4 gate |
 | 4 | Khmer: three different line-heights, negative tracking applies to Khmer; `STATUS.md` and `build/` churn | PARTIAL | 3.2 Khmer variables, section 8 |
+
+## 10. S8 handoff: prompt for the Agentic-Harness repository (do last)
+
+Boundary: Skill Foundry builds skills. How the harness offers, fetches and orders them is the harness's job,
+so it is changed in the Agentic-Harness repository, not here. When S1 to S7 are done and released, the owner
+pastes this prompt into a session on that repository:
+
+> Skill Foundry has released a design path: `design-system` (brief, Figma-style variables, `set`/`check`),
+> `component-kit` (specs, then code) and `ui-craft` (screens from `design/`). Each skill does one step,
+> writes its result under `design/` and ends with a `STATUS.md` naming the next skill. Please make the harness:
+> 1. Keep one default skill at first setup, never many at once. Today that default is the landing-page skill.
+>    When a project needs design work, offer `design-system` as the default design skill.
+> 2. Fetch skills on demand, one at a time: when a task needs a skill the project does not have, fetch only that
+>    skill (`npx github:sumtaimo/Skill-Foundry add <skill>`) for the role that needs it, instead of loading all skills.
+> 3. Follow the order a skill writes in `design/STATUS.md` (`next_skill`), asking the user before each next step,
+>    or continuing automatically when the user turned that on in the harness.
+> 4. When a user asks to create a new skill, first look up Skill Foundry's catalogue (`npx github:sumtaimo/Skill-Foundry list`);
+>    if a skill matches, suggest it instead of creating a new one.
+> 5. Check that role permissions let the role that owns each step write `design/**` and run the skill's engine.
+
