@@ -252,7 +252,7 @@ export async function recordRun(opts) {
     files,
     checks: { expectations: expect.length, failures },
     status: failures.length === 0 ? 'pass' : 'fail',
-    report: String(res.report ?? '').slice(0, 4000),
+    report: String(res.report ?? '').slice(0, 12000), // a path d report plus a set printout is longer than 4000
   };
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
   // The same real run is the skill's live eval recording (docs/factory/STANDARD.md section 13): it points at the run's files.
