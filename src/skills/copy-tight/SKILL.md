@@ -1,7 +1,7 @@
 ---
 name: copy-tight
 description: Rewrites UI copy (buttons, labels, errors, empty states, tooltips) to be short and plain without changing meaning. Use when asked to "shorten this copy", "make this plain", "tighten this text" or when a UI string is too wordy. Do not use for long-form docs, blog posts, translation or changelog entries; use changelog-writer for those.
-version: 0.2.0
+version: 1.0.0
 ---
 
 # copy-tight
@@ -36,7 +36,7 @@ Follow the layers in order. Each layer file is the detailed chapter for that ste
 - R-copy-tight-4: The rewrite MUST NEVER change numbers, names or their capital letters.
 - R-copy-tight-5: Legal text MUST NEVER be rewritten; it is returned with the fixed note.
 - R-copy-tight-6: The output MUST contain the rewritten copy and the change list.
-- R-copy-tight-7: The change list and every reason MUST NEVER quote removed words.
+- R-copy-tight-7: The change list and every reason MUST NEVER repeat a removed word or phrase in any form (no double quotes, no single quotes, no backticks, no bare word).
 - R-copy-tight-8: The rewrite MUST NEVER add a new action, promise or fact that the original does not state (for example a next step such as "Try again" that the source never gave).
 - R-copy-tight-9: The answer MUST contain only the rewritten copy and the change list: nothing before or after them, such as a note about searching or editing project files, a question or an offer.
 
@@ -61,7 +61,7 @@ Use [references/checklist.md](references/checklist.md). A second reader confirms
 One string:
 
 1. `Rewritten copy:` the new string.
-2. `What changed:` at most 5 short bullets naming the concrete change for that string (for example "dropped the time phrase", "active voice, amount kept"), never containing a removed word. Fixed bullets: `- No change needed`, `- Length limit was not met; meaning kept.`
+2. `What changed:` at most 5 short bullets naming the concrete change for that string (for example "dropped the time phrase", "active voice, amount kept"), never repeating a removed word in any form (no quotes, no backticks). Fixed bullets: `- No change needed`, `- Length limit was not met; meaning kept.`
 3. For legal text: the original text unchanged, then `What changed:` followed by `Legal text is returned unchanged.`
 
 Two or more strings: `Rewritten copy:` then one table with the columns `ID | Before | After | Saved | Reason`, one row per input string in the original order, nothing dropped (an unchanged string is a row whose reason starts `Kept:`), then `What changed:` with at most 3 count bullets. Details: [layers/08-output.md](layers/08-output.md).

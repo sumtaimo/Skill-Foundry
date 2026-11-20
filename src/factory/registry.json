@@ -46,7 +46,7 @@
   },
   {
     "name": "copy-tight",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "purpose": "Rewrites UI copy to be short and plain without changing meaning, numbers, names or legal text.",
     "status": "ready",
     "roles": [

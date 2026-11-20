@@ -1,14 +1,14 @@
 {
   "skill": "copy-tight",
-  "prompt": "Here are the strings on our settings screen, please tighten them (ids in front):\nset.title: Please review and update your account settings below\nset.save: Click here in order to save all of your changes\nset.err: We were unable to save your settings at this time\nset.proof: Real output from an agent [keep as is]",
-  "recordedAt": "2026-11-16",
+  "prompt": "Shorten this copy: We were unable to process your payment at this time.",
+  "recordedAt": "2026-11-20",
   "agent": "claude -p in an empty project outside the repository",
-  "skillSha": "4c05bd85556393092243fca2b60b232f221ce9513c85b065ff829f6ed7832659",
+  "skillSha": "b250b386c7f97fe65438e1ecd5c69e16a141647845bf097c6eb226c0872a2a5b",
   "exit": 0,
   "usedSkill": true,
   "leakedRepoRules": false,
   "touchedRepo": [],
   "produced": 0,
-  "cost": 0.1825288,
-  "answer": "Rewritten copy:\n\n| ID | Before | After | Saved | Reason |\n|---|---|---|---|---|\n| set.title | Please review and update your account settings below | Review and update your account settings | 14 | Removed the polite opener and the word saying where the settings are; both actions kept |\n| set.save | Click here in order to save all of your changes | Save all changes | 31 | Button now starts with its verb; removed the click instruction and the purpose phrase |\n| set.err | We were unable to save your settings at this time | Couldn't save your settings | 22 | Shorter wording for the failure; removed the time phrase |\n| set.proof | Real output from an agent | Real output from an agent | 0 | Kept: marked keep as is |\n\nWhat changed:\n- 4 strings in, 4 rows out: 3 changed, 1 kept.\n- Total characters saved: 67."
+  "cost": 0.0916469,
+  "answer": "Rewritten copy: We couldn't process your payment.\n\nWhat changed:\n- Dropped the time phrase at the end\n- Swapped the long passive-style verb phrase for a short active one"
 }

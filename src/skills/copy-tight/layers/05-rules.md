@@ -6,7 +6,7 @@ Apply every rule below to every string. The ids match `RULES.json`.
 2. R-copy-tight-4: The rewrite MUST NEVER change numbers, names or their capital letters.
 3. R-copy-tight-5: Legal text MUST NEVER be rewritten; it is returned with the fixed note `Legal text is returned unchanged.`
 4. R-copy-tight-6: The output MUST contain the rewritten copy and the change list.
-5. R-copy-tight-7: The change list and every reason MUST NEVER quote removed words.
+5. R-copy-tight-7: The change list and every reason MUST NEVER repeat a removed word or phrase in any form (no double quotes, no single quotes, no backticks, no bare word).
 6. R-copy-tight-8: The rewrite MUST NEVER add a new action, promise or fact that the original does not state (for example a next step such as "Try again" that the source never gave). Keep a next step only when the original already has one.
 7. R-copy-tight-9: The answer MUST contain only the rewritten copy and the change list: nothing before or after them, such as a note about searching or editing project files, a question or an offer.
 8. R-copy-tight-10: For a list of strings the answer MUST have exactly one table row per input string, in the original order; it MUST NEVER drop, merge or reorder a string. A string that stays the same is listed as `Kept`.

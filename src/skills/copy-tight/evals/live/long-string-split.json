@@ -1,8 +1,8 @@
 {
   "case": "long-string-split",
   "prompt": "shorten this copy: Your subscription will renew automatically on 3 January 2027 for $12.00 unless you cancel it before that date from the Billing page, and we will email you a receipt after every payment that we take from your account.",
-  "agent": "claude -p (fresh, only the skill folder; tools Read Glob Grep; cwd outside the repository)",
-  "recordedAt": "2026-11-16",
-  "output": "Rewritten copy:\nYour subscription renews automatically on 3 January 2027 for $12.00 unless you cancel before then on the Billing page. We'll email you a receipt after every payment.\n\nWhat changed:\n- Split into two sentences: billing terms first, then receipts\n- Switched to present tense and shortened the receipt promise\n- Swapped the repeated deadline for a shorter time phrase\n- Dropped the closing clause about who collects each payment\n- Kept 3 January 2027, $12.00, Billing exactly",
+  "agent": "claude",
+  "recordedAt": "2026-11-20",
+  "output": "Rewritten copy:\nYour subscription renews automatically on 3 January 2027 for $12.00. Cancel before that date from the Billing page to stop it. We email you a receipt after every payment.\n\nWhat changed:\n- Split the one long sentence into three, one idea each.\n- Swapped the \"unless you cancel\" clause for a direct instruction; date, amount and Billing page kept.\n- Shortened the receipt clause to active voice and dropped the account-source detail.",
   "files": []
 }

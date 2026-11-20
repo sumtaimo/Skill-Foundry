@@ -1,8 +1,8 @@
 {
   "case": "already-tight",
   "prompt": "make this plain: Save changes",
-  "agent": "claude -p (fresh, only the skill folder; tools Read Glob Grep; cwd outside the repository)",
-  "recordedAt": "2026-11-16",
+  "agent": "claude",
+  "recordedAt": "2026-11-20",
   "output": "Rewritten copy:\nSave changes\n\nWhat changed:\n- No change needed",
   "files": []
 }

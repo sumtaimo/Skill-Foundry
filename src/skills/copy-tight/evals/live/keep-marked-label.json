@@ -1,8 +1,8 @@
 {
   "case": "keep-marked-label",
   "prompt": "shorten these strings. Keep the label in quotes exactly as it is, do not reword it.\n1. \"Real output from an agent\"\n2. Click here in order to see the full answer that was recorded by the agent\n3. Please wait while we load your results",
-  "agent": "claude -p (fresh, only the skill folder; tools Read Glob Grep; cwd outside the repository)",
-  "recordedAt": "2026-11-16",
-  "output": "Rewritten copy:\n\n| ID | Before | After | Saved | Reason |\n|---|---|---|---|---|\n| 1 | \"Real output from an agent\" | \"Real output from an agent\" | 0 | Kept: claim wording, marked keep as is |\n| 2 | Click here in order to see the full answer that was recorded by the agent | See the agent's full recorded answer | 37 | Dropped link opener and purpose phrase; passive became possessive; starts with See |\n| 3 | Please wait while we load your results | Loading your results... | 15 | Dropped polite request; progress shown with an -ing verb |\n\nWhat changed:\n- 3 strings in, 3 rows out: 2 changed, 1 kept.\n- Total characters saved: 52.",
+  "agent": "claude",
+  "recordedAt": "2026-11-20",
+  "output": "Rewritten copy:\n\n| ID | Before | After | Saved | Reason |\n|---|---|---|---|---|\n| 1 | \"Real output from an agent\" | \"Real output from an agent\" | 0 | Kept: claim wording |\n| 2 | Click here in order to see the full answer that was recorded by the agent | See the full answer the agent recorded | 35 | Dropped the link-instruction lead-in and the wordy purpose phrase; passive recording turned active |\n| 3 | Please wait while we load your results | Loading your results | 18 | Dropped the polite request and the first-person clause; now a short status line |\n\nWhat changed:\n- 3 strings in, 3 rows out: 2 changed, 1 kept.\n- Total characters saved: 53.",
   "files": []
 }

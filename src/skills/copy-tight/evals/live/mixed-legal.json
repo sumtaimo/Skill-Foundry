@@ -1,8 +1,8 @@
 {
   "case": "mixed-legal",
   "prompt": "shorten this copy: Please click here in order to save all of your changes. By saving you agree to the Privacy Policy.",
-  "agent": "claude -p (fresh, only the skill folder; tools Read Glob Grep; cwd outside the repository)",
-  "recordedAt": "2026-11-16",
-  "output": "Rewritten copy:\nSave all your changes. By saving you agree to the Privacy Policy.\n\nWhat changed:\n- Dropped the polite opener and the link phrase, so the line now opens with Save\n- Cut the purpose phrase and the filler between all and your\n- Legal text is returned unchanged.",
+  "agent": "claude",
+  "recordedAt": "2026-11-20",
+  "output": "Rewritten copy:\nSave all your changes. By saving you agree to the Privacy Policy.\n\nWhat changed:\n- Dropped the polite opener and the pointing instruction; the sentence now starts with the verb.\n- Shortened the purpose phrase and the wordy phrase before changes; meaning kept.\n- Legal text is returned unchanged.",
   "files": []
 }

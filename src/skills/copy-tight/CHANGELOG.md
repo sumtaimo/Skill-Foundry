@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.0 - 2026-11-20
+
+- Version 1.0.0; fresh real-agent proof.
+- Tighten R-copy-tight-7: a reason or change bullet never repeats a removed word or phrase in any form (no double quotes, single quotes or backticks), because fresh agents still repeated removed words inside quotes.
+
 ## 0.2.0 - 2026-11-14
 
 - Fix: a portable-check agent added text around the answer (a note about searching project files, an offer to edit). New rule R-copy-tight-9: the answer holds only the rewritten copy and the change list (SKILL.md, layers 05, 07, 08, checklist item 10).

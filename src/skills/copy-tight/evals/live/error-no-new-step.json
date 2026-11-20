@@ -1,8 +1,8 @@
 {
   "case": "error-no-new-step",
   "prompt": "shorten this copy: An unexpected error has occurred while attempting to save your changes.",
-  "agent": "claude -p (fresh, only the skill folder; tools Read Glob Grep; cwd outside the repository)",
-  "recordedAt": "2026-11-16",
-  "output": "Rewritten copy:\nWe couldn't save your changes.\n\nWhat changed:\n- Swapped the vague opening for a direct statement of what failed\n- Dropped the phrase about trying to do it\n- Active voice with \"we\" as the subject\n- Kept \"your changes\"; no next step added",
+  "agent": "claude",
+  "recordedAt": "2026-11-20",
+  "output": "Rewritten copy: Couldn't save your changes.\n\nWhat changed:\n- Replaced the long lead-in with a short active statement of the failure\n- Kept \"your changes\" and the save action as they were",
   "files": []
 }

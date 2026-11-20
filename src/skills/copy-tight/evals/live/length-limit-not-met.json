@@ -1,8 +1,8 @@
 {
   "case": "length-limit-not-met",
   "prompt": "shorten this copy to at most 10 characters: Your payment of $1,250.00 was declined by your bank.",
-  "agent": "claude -p (fresh, only the skill folder; tools Read Glob Grep; cwd outside the repository)",
-  "recordedAt": "2026-11-16",
-  "output": "Rewritten copy:\nYour bank declined $1,250.00.\n\nWhat changed:\n- Made it active, with the bank as the subject\n- Amount kept exactly\n- Length limit was not met; meaning kept.",
+  "agent": "claude",
+  "recordedAt": "2026-11-20",
+  "output": "Rewritten copy:\nBank declined $1,250.00\n\nWhat changed:\n- Switched to active voice, so the bank is the subject; amount kept exactly.\n- Dropped the possessives and the lead-in noun phrase.\n- Length limit was not met; meaning kept.",
   "files": []
 }
