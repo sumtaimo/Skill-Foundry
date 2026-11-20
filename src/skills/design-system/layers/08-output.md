@@ -35,7 +35,7 @@ Hue check: ...
 - None.
 ```
 
-2a. For `set`, `check` and `explain` the reply is the command's printout, word for word, and nothing before or after it.
+2a. For a `set`, `check` or `explain` on its own the reply is the command's printout, word for word, and nothing before or after it. When the same request also needed `init` (layer 06, step 10e), the reply is the `init` report, one blank line, then each printout; never only the last printout.
 3. Each contrast row is one role with its lowest ratio over the surfaces listed. Never shorten the table, and never replace numbers with words like "good" or "AA".
 4. Describe safety checks in words ("no font files, imports or links"); never quote the strings layer 07 searches for, because the reply is checked as text together with the files.
 5. Quality bar: a developer can load tokens.css and get a working light and dark theme with no other file; a designer finds the brand hex untouched at a named step and as `--color-brand`; every text pair a screen needs has a ratio that passes; nobody finds a brand name the user only compared to.

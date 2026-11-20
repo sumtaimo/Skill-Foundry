@@ -58,5 +58,7 @@
   { "id": "uc1", "prompt": "Build a floating glass navbar with a Ctrl+K command palette for our SaaS app.", "expect": "ui-craft" },
   { "id": "uc2", "prompt": "Make a bento dashboard grid with loading skeletons, an empty filter state and inline error retry.", "expect": "ui-craft" },
   { "id": "uc3", "prompt": "Add an inline AI assistant bar with a streaming state, Stop button and Accept/Undo controls.", "expect": "ui-craft" },
-  { "id": "uc4", "prompt": "Create a collapsible sidebar icon rail and a mobile drawer for our workspace app in React.", "expect": "ui-craft" }
+  { "id": "uc4", "prompt": "Create a collapsible sidebar icon rail and a mobile drawer for our workspace app in React.", "expect": "ui-craft" },
+  { "id": "ds1", "prompt": "We are starting a new product. Set up its design foundation: colours, type, spacing and radius as variables that light and dark mode both use.", "expect": "design-system" },
+  { "id": "ds2", "prompt": "In our design system, change the default border colour to a lighter grey everywhere, and check that every text colour still has enough contrast.", "expect": "design-system" }
 ]

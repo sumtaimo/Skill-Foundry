@@ -1,6 +1,6 @@
 # design-system review (2026-11-15, second round: mid-tone fill, saturation cap, showcase swatches)
 
-Review against `docs/factory/REVIEW.md`. Status: ready. Version 1.1.0 (2026-11-20, UI-2026-02; see the section at the end).
+Review against `docs/factory/REVIEW.md`. Status: ready. Version 1.2.0 (2026-11-20; see the sections at the end: 1.1.0 UI-2026-02, then 1.2.0 design foundation).
 
 Honest record: the author (an AI agent) ticked this list; the owner is the final reviewer. Every live answer
 came from a fresh real agent (`claude -p`, one per case, started outside the repository so no repository rules reached
@@ -71,3 +71,33 @@ Real-agent results are marked **real**; engine unit tests are marked **code**.
 - [ ] Known weakness, not fixed: current fresh agents often add one lead-in sentence before the report ("The engine exited 0… Here is the report"), also on the old case `mood-calm`. Four wording changes (SKILL.md top line, layers 07, 08, 09, the engine's last line) did not remove it. The cases do not forbid it (parity with the 14 older cases); R-design-system-14 asks for no text before the heading. Owner to decide
 - [x] Runners (`live-evals`, `portable-check`, `run-skill`) start the agent with the user's machine hooks off (`--settings` temp file, `disableAllHooks`) because a hook on the machine hung every headless run; the user's own settings are not changed
 - [x] `npm run guard` ok. `npm test`: 409 passed, 2 failed, both from the recipe `tokens-then-polish`, now stale because design-system changed; a re-record was refused (the agent used neither skill and tried to publish an artifact). The owner chose to leave it for UI-2026-03 (ui-polish 1.1.0), which re-records it; until then `npm run release:check` is NOT READY on that gate only
+
+# design-system 1.2.0: design foundation with variables (2026-11-20, branch `plan/design-foundation`)
+
+Review against `docs/factory/REVIEW.md`. Plan: `docs/factory/notes/design-foundation-plan.md` (session S1, owner decisions D1 to D5). Real-agent results are marked **real**; engine tests and my own recomputation are marked **code**. The owner approved version 1.2.0 in chat.
+
+## Clarity and rules
+- [x] New rules R-design-system-23 to R-design-system-27 (foundation written by `init`, changed only by `set`, `check --code` only reports, Khmer line, stop after `init`); R-9, R-12 and R-22 reworded; SKILL.md 102 lines; lint 0 problems (**code**)
+- [x] Ten core layers updated; new path d in layers 01 to 10; no repository path in the skill text; the word "2026" is gone from the skill text (the flag `--modern` and every token name are unchanged)
+- [x] Cold start: the one-sentence ask is replaced by a six-line brief with a recommended answer on each line, asked once; answers saved in `design/BRIEF.md`
+
+## Engine (`engine/variables.mjs`, no dependencies)
+- [x] `init`, `set`, `check`, `explain`, `build`; three tiers (117 primitive, 43 semantic, 20 component variables), light and dark per semantic colour, scopes, code names (**code**, `tests/design-system-variables.test.mjs`, 17 tests)
+- [x] `set` checks 43 contrast pairs in light and dark first and writes nothing when one fails; names the nearest passing value (a refused `#cccccc` muted text gives `#6b6b6b`); a value the user set is kept when the brand colour changes later; a colour role changes light mode only unless `--mode` says otherwise (**code**)
+- [x] `check` finds a hand-edited generated file, broken aliases and cycles; `check --code` reports raw colours, raw sizes and a wrong scope in web files, ignores `href="#abc"`, and never edits code (**code**)
+- [x] Paths a, b and c are unchanged: `engine/tokens.mjs` has only an override hook that is empty on those paths; the 17 earlier cases pass on the engine output (**code**, `tests/design-system.test.mjs`, 20 tests)
+
+## Evals
+- [x] 21 live cases, all re-recorded with fresh agents (`claude -p` through `run-skill`, skill folder and case prompt only): the 17 earlier cases, the changed `no-input` (the brief) and the new `foundation-ok`, `foundation-set-border`, `foundation-set-refused`, `foundation-defaults`. `live-evals` 21 of 21 (**real**)
+- [x] The agents ran the engine and did not write the files by hand: `check` prints CHECK PASSED on the foundation of each recorded run (**code**)
+- [x] Independent recomputation with separate code (Python, WCAG formula, resolving the `var()` chains of the agents' tokens.css per mode): 96 role-and-mode checks over four recorded foundations, 0 failing. `foundation-set-border` has `--color-border-default: #c9d3d2` in light; the refused run has its border unchanged (**code**)
+- [x] The first portable run answered with only the last printout when one request needed `init` and then `set`; that was a gap in the skill, not in the case. Layers 06 and 08 and SKILL.md now say the reply is the `init` report, a blank line, then each printout; the portable check and the two set cases were run again and follow it (**real**)
+- [x] Routing 62 of 62 with the new description, including two new cases `ds1` (design foundation) and `ds2` (change the border colour everywhere) (**real**)
+- [x] Portable check re-recorded in an empty project outside the repository: skill used, no repository rules leaked, repository not touched, six files produced; the answer is the `init` report and the `set` printout (**real**)
+- [x] Recipe `tokens-then-polish` re-recorded after the skill changed (**real**)
+
+## Known limits (named, planned for S2, not hidden)
+- Paths a and b still write the plain token files; path d is chosen by an explicit request or an existing `design/variables.json`. Making path d the default for them is a later change.
+- Not in 1.2.0: more than two font weights, brands as modes, density and platform modes, stacks other than web (CSS), Figma import and export, component specs (`component-kit`).
+- The recorder of the factory kept only 4000 characters of a reply; a path d reply is longer, so it now keeps 12000 (`src/factory/run-skill.mjs`, a separate commit).
+

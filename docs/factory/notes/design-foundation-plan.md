@@ -281,3 +281,20 @@ pastes this prompt into a session on that repository:
 >    if a skill matches, suggest it instead of creating a new one.
 > 5. Check that role permissions let the role that owns each step write `design/**` and run the skill's engine.
 
+## 11. S1 result (2026-11-20, branch `plan/design-foundation`)
+
+Done and proven with fresh agents (see `docs/skills/design-system/CHECKLIST.md`, section 1.2.0): `design-system` 1.2.0 with
+`engine/variables.mjs` (`init`, `set`, `check`, `explain`, `build`), three tiers, light and dark, scopes, locked values,
+all-or-nothing `set`, web-only report-only `check --code`, the component tier for button, input and card, the Khmer
+line and `:lang(km)`, the once-only brief, and `STATUS.md`. 21 live cases, routing 62 of 62, portable and recipe re-recorded,
+`npm test` 421 pass, `release:check` READY.
+
+Moved to S2 on purpose (small first): font weights beyond two, brands as modes and extended collections, density and
+platform modes, stacks other than web, Figma export and import, three directions as previews, and making path d the
+default for paths a and b. Moved to S3 to S8 as planned: `component-kit`, `ui-craft`, `ui-polish`, `ux-review`, `a11y-audit`,
+the recipe `product-from-zero` and the handoff prompt for the harness repository.
+
+Findings of S1 for later sessions: the recorder kept only 4000 characters of a reply (now 12000); the "2026" wording is
+still in `ui-craft` and in the backlog ids and is removed in S4; harness roles are unchanged in 1.0.23 (only DEV_ENGINEER
+can write `design/**` and run `node`), so `init` and `set` run with DEV_ENGINEER.
+

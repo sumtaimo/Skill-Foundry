@@ -14,5 +14,5 @@
 10b. `set` on a value that is derived (a shadow, the glass fill, the font stack): it exits with its message; give that message and, when it names the variable to change instead (`color/brand`, `font/family/sans`), offer that in one sentence.
 10c. A request to change a variable when design/variables.json does not exist: say there is no foundation yet and give the brief of layer 03, step 7. A request for a product foundation when design/variables.json exists: do not start again; offer `set`, `check` or `explain` in one sentence.
 10d. `check` says DRIFT (a generated file was edited by hand): tell the user plainly and offer `build`, which writes the files again from variables.json and loses the hand edits; run it only after a yes.
-10e. One request that needs `init` and then `set`: the reply is the report of `init`, one blank line, then the printout of each `set`, one paragraph each, and nothing else.
+10e. One request that needs `init` and then `set` (or `check`): the reply starts with the report of `init` (its first line is the "## Design system:" heading), then one blank line, then the printout of each later command, one paragraph each, and nothing else. A reply that has only the last printout is wrong.
 11. Reply in a short, direct tone; do not apologise or explain the fixed sentences further.

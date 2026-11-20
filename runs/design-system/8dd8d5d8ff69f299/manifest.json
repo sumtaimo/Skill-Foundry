@@ -1,0 +1,90 @@
+{
+  "skill": "design-system",
+  "version": "1.2.0",
+  "caseId": "foundation-ok",
+  "inputSha256": "a7948b590f4aeb67aaed03d6768d5f0664abd51c541fd868223de5d496579cb2",
+  "skillSha256": "ea372acc2d63007df79e1590df8bccef1af3e73489e83b835f7b673dbb764312",
+  "key": "8dd8d5d8ff69f2999954a4c64741f03832d99955216b8b6ecdaa01eb771726f1",
+  "startedAt": "2026-11-20T12:00:49.710Z",
+  "finishedAt": "2026-11-20T12:01:56.765Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.5759660000000001,
+  "usage": {
+    "input_tokens": 20,
+    "cache_creation_input_tokens": 46504,
+    "cache_read_input_tokens": 615670,
+    "output_tokens": 4036,
+    "output_tokens_details": {
+      "thinking_tokens": 268
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 46504,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 1897,
+        "cache_read_input_tokens": 76589,
+        "cache_creation_input_tokens": 532,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 532
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [
+    {
+      "path": "design/BRIEF.md",
+      "bytes": 234,
+      "sha256": "79498496316c34178940901864d0d031daf2809f849c926b807b76c93ec30076"
+    },
+    {
+      "path": "design/CHANGES.md",
+      "bytes": 158,
+      "sha256": "626c77b5aafe14fad4b60188df11e0ae3f45ceb068c2ccf3b0db6a3b7270b7b0"
+    },
+    {
+      "path": "design/STATUS.md",
+      "bytes": 558,
+      "sha256": "e66a854a28d015d236cc36bd0dda42eb059ae990b42dda1eb28847733565570d"
+    },
+    {
+      "path": "design/design-system-report.md",
+      "bytes": 4264,
+      "sha256": "5bf5cf5722c268355c654bf2b4b36148dea1b0675ab6828c021302841e846248"
+    },
+    {
+      "path": "design/design-tokens.json",
+      "bytes": 20378,
+      "sha256": "c288161e25e323612799ebcd903a2f6f8c54f1654a1823c4ae3b6f9fb4ce0bc4"
+    },
+    {
+      "path": "design/tokens.css",
+      "bytes": 14750,
+      "sha256": "632ff6485f6cd69b8580ea61cfaf797a71611160335919d9ccc1a19bc79b7d57"
+    },
+    {
+      "path": "design/variables.json",
+      "bytes": 55926,
+      "sha256": "ee6decab6830edaf33d1d6db02d02a3704f5d5aec7d6d96d59b126ee6f6c4400"
+    }
+  ],
+  "checks": {
+    "expectations": 14,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "## Design system: Coffee-booking app\n\nPath d, the design foundation of your product in the design folder. Archetype: calm-workspace. You asked for a calm style, so calm-workspace.\n\nThis report is the whole reply: the files written, the checks run with every result, and the open questions.\n\n### Files\n- variables.json: every variable with its tier, modes and aliases (the one source, changed only with the engine)\n- tokens.css: CSS custom properties, light and dark\n- design-tokens.json: W3C design tokens\n- CHANGES.md: every variable change\n- STATUS.md: what is done and the next step\n- design-system-report.md: this report\n\n### Colours kept\n| Input | Hex | Hue | Placed at |\n|-------|-----|-----|-----------|\n| primary | #8b5e3c | 26° | primary-600 |\n\nStatus colours not given, defaults used: success #16a34a (success-700), warning #d97706 (warning-600), danger #dc2626 (danger-500), info #2563eb (info-500).\n\nHue check: each input hex is unchanged and every step aims at its exact hue; lightness follows the fixed steps and saturation eases toward the palest and darkest steps, and steps 400 to 700 are never more colourful than your colour. Rounding to hex moves the hue at most 0.1° at steps 300 to 800 and 0.3° at the palest and darkest steps.\n\n### Contrast\nText needs 4.5:1; borders of controls and focus rings need 3:1; border-default is for dividers and is not checked. Every text role meets 4.5:1, so it is safe at any size.\n\n| Text | On | Light | Dark | Needs | Result |\n|------|----|-------|------|-------|--------|\n| text-default | all 4 surfaces | 12.89:1 | 9.99:1 | 4.5:1 | pass |\n| text-muted | all 4 surfaces | 6.24:1 | 5.89:1 | 4.5:1 | pass |\n| text-link | all 4 surfaces | 4.79:1 | 5.91:1 | 4.5:1 | pass |\n| selected-text | all 4 surfaces, selected-bg | 4.79:1 | 5.91:1 | 4.5:1 | pass |\n| text-inverse | surface-inverse | 13.94:1 | 13.94:1 | 4.5:1 | pass |\n| action-primary-text | action-primary-bg, action-primary-bg-hover, action-primary-bg-pressed | 5.58:1 | 5.58:1 | 4.5:1 | pass |\n| success-text | surface-default, success-bg-subtle | 6.50:1 | 7.36:1 | 4.5:1 | pass |\n| success-text-on | success-bg | 4.55:1 | 4.55:1 | 4.5:1 | pass |\n| warning-text | surface-default, warning-bg-subtle | 7.89:1 | 6.77:1 | 4.5:1 | pass |\n| warning-text-on | warning-bg | 4.71:1 | 4.71:1 | 4.5:1 | pass |\n| danger-text | surface-default, danger-bg-subtle | 5.59:1 | 7.18:1 | 4.5:1 | pass |\n| danger-text-on | danger-bg | 4.83:1 | 4.83:1 | 4.5:1 | pass |\n| info-text | surface-default, info-bg-subtle | 6.65:1 | 7.50:1 | 4.5:1 | pass |\n| info-text-on | info-bg | 5.17:1 | 5.17:1 | 4.5:1 | pass |\n| border-strong | surface-default, surface-subtle | 3.32:1 | 4.19:1 | 3:1 | pass |\n| border-focus | surface-default, surface-subtle | 5.18:1 | 6.24:1 | 3:1 | pass |\n\nLight and Dark give the lowest ratio of each role over the surfaces listed; 37 pairs checked in each mode.\n\n### How to use\n- Load tokens.css before your own styles. \n- Without a data-theme attribute the page follows the system setting; set data-theme=\"light\" or data-theme=\"dark\" on the html element to force one.\n- Spacing: 0, 4, 8, 12, 16, 24, 32, 48, 64 px. Type sizes: 12, 14, 16, 20, 24, 30, 36 px, body 16 px, line-height 1.5. Weights: 400 and 600.\n- Controls: 36, 44, 52 px high; every click or tap area at least 44 px. Breakpoints: 640, 768, 1024, 1280 px (copy the numbers into media queries).\n- Brand colour on at most 5% of a screen: primary action, focus ring, selected item background.\n- Font: the system font stack. No font files, imports or links.\n- Variables: every value is one variable in variables.json with a tier (primitive, semantic, component); to change one everywhere, ask for it, for example \"change the border colour to #c9d3d2\", and every contrast pair is checked in light and dark before anything is written.\n- Khmer text: one line height (1.6) and no letter-spacing under :lang(km).\n- Next step: STATUS.md names it and the words to continue with; the first screen is built from tokens.css.\n\n### Open questions\n- Your primary colour is close to the warning colour (#d97706); should warning use a different hue?\n- The app is in Khmer and English and uses the system font; do you want a named font with Khmer letters (for example Noto Sans Khmer) first in the stack?"
+}

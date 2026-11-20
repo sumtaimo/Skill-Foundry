@@ -1,0 +1,6 @@
+You are running the skill in /home/user/Skill-Foundry/src/skills/design-system. Read /home/user/Skill-Foundry/src/skills/design-system/SKILL.md and every file it links to, then follow it step by step.
+Write every file you produce into /home/user/Skill-Foundry/runs/design-system/8dcd5a434cb305c5/output and nowhere else. Produce the real output the skill describes, never a placeholder or mock.
+When done, reply with a short report: files produced, checks run and their results, open items.
+
+Input:
+Set up the design foundation for our notes app in the design folder: brand colour #4f46e5, a calm style. Then make the muted text colour #cccccc in light mode.

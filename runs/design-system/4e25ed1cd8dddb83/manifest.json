@@ -1,0 +1,54 @@
+{
+  "skill": "design-system",
+  "version": "1.2.0",
+  "caseId": "screen-declined",
+  "inputSha256": "4239e12fb36c1aab2904c4b9725548f3f50342325190b0c37ec5cacefb00520d",
+  "skillSha256": "ea372acc2d63007df79e1590df8bccef1af3e73489e83b835f7b673dbb764312",
+  "key": "4e25ed1cd8dddb832fd56db7bcd04db30ca13a14e0c3d2aa812400f75f6d6e4e",
+  "startedAt": "2026-11-20T12:10:01.338Z",
+  "finishedAt": "2026-11-20T12:10:10.456Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.21562440000000002,
+  "usage": {
+    "input_tokens": 6,
+    "cache_creation_input_tokens": 22954,
+    "cache_read_input_tokens": 123542,
+    "output_tokens": 363,
+    "output_tokens_details": {
+      "thinking_tokens": 28
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 22954,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 30,
+        "cache_read_input_tokens": 49551,
+        "cache_creation_input_tokens": 2913,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 2913
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [],
+  "checks": {
+    "expectations": 4,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "This skill builds design tokens, not screens. For finished screen code, use ui-polish."
+}

@@ -1,0 +1,90 @@
+{
+  "skill": "design-system",
+  "version": "1.2.0",
+  "caseId": "foundation-set-border",
+  "inputSha256": "e4097b0aba2d1d25b1eba9db3b10c583198ea15e1f95515e23298dde0707e009",
+  "skillSha256": "ea372acc2d63007df79e1590df8bccef1af3e73489e83b835f7b673dbb764312",
+  "key": "81997340e64fd83cec560cb96155fc4210432d6a73e10035e9a838ad6a07eb06",
+  "startedAt": "2026-11-20T12:01:56.877Z",
+  "finishedAt": "2026-11-20T12:02:59.845Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.5088802,
+  "usage": {
+    "input_tokens": 16,
+    "cache_creation_input_tokens": 42977,
+    "cache_read_input_tokens": 462401,
+    "output_tokens": 3626,
+    "output_tokens_details": {
+      "thinking_tokens": 205
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 42977,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 2005,
+        "cache_read_input_tokens": 73093,
+        "cache_creation_input_tokens": 502,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 502
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [
+    {
+      "path": "design/BRIEF.md",
+      "bytes": 192,
+      "sha256": "d430ca66f1ada67a87bd1c172371fc51c43221e3a34d573f6bc8696a48059ac5"
+    },
+    {
+      "path": "design/CHANGES.md",
+      "bytes": 239,
+      "sha256": "d1aec7ce0ed69797c7fa2387e1b844c0dcebec84c7ec5ba10083db0fcb7c4504"
+    },
+    {
+      "path": "design/STATUS.md",
+      "bytes": 558,
+      "sha256": "e66a854a28d015d236cc36bd0dda42eb059ae990b42dda1eb28847733565570d"
+    },
+    {
+      "path": "design/design-system-report.md",
+      "bytes": 4187,
+      "sha256": "644f106c56684bcd24d8307e69f4291ac2c4527a1c886d90de360fe55a852c48"
+    },
+    {
+      "path": "design/design-tokens.json",
+      "bytes": 20310,
+      "sha256": "58ac175aeed849afb87cffc5482a5142240021c92af8ccd9366d568bbcf95b23"
+    },
+    {
+      "path": "design/tokens.css",
+      "bytes": 14572,
+      "sha256": "bc2583bbd912ac4987f4ce6cd6aa0e5092cc79e3d69b800ecc22fd099db6aad6"
+    },
+    {
+      "path": "design/variables.json",
+      "bytes": 56019,
+      "sha256": "bd272ad4ad43a352d6d1e0591a3dd3dfca59dc91174b853c439bd06d678a4ec6"
+    }
+  ],
+  "checks": {
+    "expectations": 7,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "## Design system: Invoicing app\n\nPath d, the design foundation of your product in the design folder. Archetype: precise-fintech. The words precise and trustworthy and an invoicing product call for precise-fintech.\n\nThis report is the whole reply: the files written, the checks run with every result, and the open questions.\n\n### Files\n- variables.json: every variable with its tier, modes and aliases (the one source, changed only with the engine)\n- tokens.css: CSS custom properties, light and dark\n- design-tokens.json: W3C design tokens\n- CHANGES.md: every variable change\n- STATUS.md: what is done and the next step\n- design-system-report.md: this report\n\n### Colours kept\n| Input | Hex | Hue | Placed at |\n|-------|-----|-----|-----------|\n| primary | #0f766e | 175° | primary-800 |\n\nStatus colours not given, defaults used: success #16a34a (success-700), warning #d97706 (warning-600), danger #dc2626 (danger-500), info #2563eb (info-500).\n\nHue check: each input hex is unchanged and every step aims at its exact hue; lightness follows the fixed steps and saturation eases toward the palest and darkest steps, and steps 400 to 700 are never more colourful than your colour. Rounding to hex moves the hue at most 0.2° at steps 300 to 800 and 0.3° at the palest and darkest steps.\n\n### Contrast\nText needs 4.5:1; borders of controls and focus rings need 3:1; border-default is for dividers and is not checked. Every text role meets 4.5:1, so it is safe at any size.\n\n| Text | On | Light | Dark | Needs | Result |\n|------|----|-------|------|-------|--------|\n| text-default | all 4 surfaces | 12.51:1 | 9.82:1 | 4.5:1 | pass |\n| text-muted | all 4 surfaces | 5.60:1 | 5.86:1 | 4.5:1 | pass |\n| text-link | all 4 surfaces | 4.80:1 | 5.65:1 | 4.5:1 | pass |\n| selected-text | all 4 surfaces, selected-bg | 4.80:1 | 5.65:1 | 4.5:1 | pass |\n| text-inverse | surface-inverse | 13.59:1 | 13.59:1 | 4.5:1 | pass |\n| action-primary-text | action-primary-bg, action-primary-bg-hover, action-primary-bg-pressed | 5.47:1 | 5.47:1 | 4.5:1 | pass |\n| success-text | surface-default, success-bg-subtle | 6.50:1 | 7.36:1 | 4.5:1 | pass |\n| success-text-on | success-bg | 6.37:1 | 6.37:1 | 4.5:1 | pass |\n| warning-text | surface-default, warning-bg-subtle | 7.89:1 | 6.77:1 | 4.5:1 | pass |\n| warning-text-on | warning-bg | 6.59:1 | 6.59:1 | 4.5:1 | pass |\n| danger-text | surface-default, danger-bg-subtle | 5.59:1 | 7.18:1 | 4.5:1 | pass |\n| danger-text-on | danger-bg | 4.83:1 | 4.83:1 | 4.5:1 | pass |\n| info-text | surface-default, info-bg-subtle | 6.65:1 | 7.50:1 | 4.5:1 | pass |\n| info-text-on | info-bg | 5.17:1 | 5.17:1 | 4.5:1 | pass |\n| border-strong | surface-default, surface-subtle | 4.34:1 | 4.40:1 | 3:1 | pass |\n| border-focus | surface-default, surface-subtle | 5.22:1 | 7.82:1 | 3:1 | pass |\n\nLight and Dark give the lowest ratio of each role over the surfaces listed; 37 pairs checked in each mode.\n\n### How to use\n- Load tokens.css before your own styles. \n- Without a data-theme attribute the page follows the system setting; set data-theme=\"light\" or data-theme=\"dark\" on the html element to force one.\n- Spacing: 0, 4, 8, 12, 16, 24, 32, 48, 64 px. Type sizes: 12, 14, 16, 18, 20, 24, 30 px, body 16 px, line-height 1.5. Weights: 400 and 600.\n- Controls: 32, 40, 48 px high; every click or tap area at least 44 px. Breakpoints: 640, 768, 1024, 1280 px (copy the numbers into media queries).\n- Brand colour on at most 10% of a screen: primary action, links, focus ring, selected row.\n- Font: the system font stack. No font files, imports or links.\n- Variables: every value is one variable in variables.json with a tier (primitive, semantic, component); to change one everywhere, ask for it, for example \"change the border colour to #c9d3d2\", and every contrast pair is checked in light and dark before anything is written.\n- Khmer text: one line height (1.6) and no letter-spacing under :lang(km).\n- Next step: STATUS.md names it and the words to continue with; the first screen is built from tokens.css.\n\n### Open questions\n- Hover and pressed share primary-900, because the filled button sits near the end of its scale; give pressed its own colour if they must differ.\n\ncolor/border/default = #c9d3d2: 1 variable set, 1 value follows (card/border). 43 contrast pairs checked in light and dark: all pass. Light mode only: dark mode keeps its value; add --mode dark (or --mode both) to change it too."
+}

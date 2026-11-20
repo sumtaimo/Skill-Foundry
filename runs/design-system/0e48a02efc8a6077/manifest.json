@@ -1,0 +1,70 @@
+{
+  "skill": "design-system",
+  "version": "1.2.0",
+  "caseId": "modern-glass",
+  "inputSha256": "4145cf169ffbc822e1d05eb33077334615ebe49e0db4b562e4d64ab9cb05d3d4",
+  "skillSha256": "ea372acc2d63007df79e1590df8bccef1af3e73489e83b835f7b673dbb764312",
+  "key": "0e48a02efc8a6077964f949fe1eadcb3a3f2923c42b690e0dbbbabdcb7dba905",
+  "startedAt": "2026-11-20T12:11:09.346Z",
+  "finishedAt": "2026-11-20T12:11:37.746Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.4974054,
+  "usage": {
+    "input_tokens": 12,
+    "cache_creation_input_tokens": 45259,
+    "cache_read_input_tokens": 338127,
+    "output_tokens": 3383,
+    "output_tokens_details": {
+      "thinking_tokens": 102
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 45259,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 1666,
+        "cache_read_input_tokens": 72188,
+        "cache_creation_input_tokens": 2581,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 2581
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [
+    {
+      "path": "design-system-report.md",
+      "bytes": 3589,
+      "sha256": "50c79e6405adb65cfa75d4289208566f6324d0011a852bcd6ccf562c5cea0459"
+    },
+    {
+      "path": "design-tokens.json",
+      "bytes": 22664,
+      "sha256": "c0b00049942b123f669d7e4769565dee8e853a5c1e4acb38623e91c75cff7c05"
+    },
+    {
+      "path": "tokens.css",
+      "bytes": 14306,
+      "sha256": "cc520b2d1da651c6e8f87906049f209db7eec147b5d6ebdbe5b8316c871eea17"
+    }
+  ],
+  "checks": {
+    "expectations": 39,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "## Design system: AI writing assistant\n\nPath a, from your colour. Archetype: calm-workspace. A writing assistant is a docs and writing product, which calls for a calm, focused workspace.\n\nThis report is the whole reply: the files written, the checks run with every result, and the open questions.\n\n### Files\n- design-tokens.json: W3C design tokens\n- tokens.css: CSS custom properties, light and dark\n- design-system-report.md: this report\n\n### Colours kept\n| Input | Hex | Hue | Placed at |\n|-------|-----|-----|-----------|\n| primary | #4f46e5 | 243° | primary-400 |\n\nStatus colours not given, defaults used: success #16a34a (success-700), warning #d97706 (warning-600), danger #dc2626 (danger-500), info #2563eb (info-500).\n\nHue check: each input hex is unchanged and every step aims at its exact hue; lightness follows the fixed steps and saturation eases toward the palest and darkest steps, and steps 400 to 700 are never more colourful than your colour. Rounding to hex moves the hue at most 0.2° at steps 300 to 800 and 0.9° at the palest and darkest steps.\n\n### Contrast\nText needs 4.5:1; borders of controls and focus rings need 3:1; border-default is for dividers and is not checked. Every text role meets 4.5:1, so it is safe at any size.\n\n| Text | On | Light | Dark | Needs | Result |\n|------|----|-------|------|-------|--------|\n| text-default | all 4 surfaces | 13.60:1 | 10.83:1 | 4.5:1 | pass |\n| text-muted | all 4 surfaces | 4.86:1 | 6.04:1 | 4.5:1 | pass |\n| text-link | all 4 surfaces | 6.17:1 | 6.64:1 | 4.5:1 | pass |\n| selected-text | all 4 surfaces, selected-bg | 6.17:1 | 6.64:1 | 4.5:1 | pass |\n| text-inverse | surface-inverse | 14.73:1 | 14.73:1 | 4.5:1 | pass |\n| action-primary-text | action-primary-bg, action-primary-bg-hover, action-primary-bg-pressed | 6.29:1 | 6.29:1 | 4.5:1 | pass |\n| success-text | surface-default, success-bg-subtle | 6.50:1 | 7.36:1 | 4.5:1 | pass |\n| success-text-on | success-bg | 4.83:1 | 4.83:1 | 4.5:1 | pass |\n| warning-text | surface-default, warning-bg-subtle | 7.89:1 | 6.77:1 | 4.5:1 | pass |\n| warning-text-on | warning-bg | 4.99:1 | 4.99:1 | 4.5:1 | pass |\n| danger-text | surface-default, danger-bg-subtle | 5.59:1 | 7.18:1 | 4.5:1 | pass |\n| danger-text-on | danger-bg | 4.83:1 | 4.83:1 | 4.5:1 | pass |\n| info-text | surface-default, info-bg-subtle | 6.65:1 | 7.50:1 | 4.5:1 | pass |\n| info-text-on | info-bg | 5.17:1 | 5.17:1 | 4.5:1 | pass |\n| border-strong | surface-default, surface-subtle | 3.68:1 | 5.82:1 | 3:1 | pass |\n| border-focus | surface-default, surface-subtle | 6.68:1 | 5.92:1 | 3:1 | pass |\n\nLight and Dark give the lowest ratio of each role over the surfaces listed; 37 pairs checked in each mode.\n\n### How to use\n- Load tokens.css before your own styles. \n- Without a data-theme attribute the page follows the system setting; set data-theme=\"light\" or data-theme=\"dark\" on the html element to force one.\n- Spacing: 0, 4, 8, 12, 16, 24, 32, 48, 64 px. Type sizes: 12, 14, 16, 20, 24, 30, 36 px, body 16 px, line-height 1.5. Weights: 400 and 600.\n- Controls: 36, 44, 52 px high; every click or tap area at least 44 px. Breakpoints: 640, 768, 1024, 1280 px (copy the numbers into media queries).\n- Brand colour on at most 5% of a screen: primary action, focus ring, selected item background.\n- Modern group: --glass-bg with --glass-blur, --r-xs to --r-xl, --z-sticky to --z-toast, --glow, --btn-gloss, --font-weight-medium (buttons and labels only).\n- Font: Inter, then the system stack. Load the font files yourself; these tokens add no font files, imports or links.\n\n### Open questions\n- None."
+}

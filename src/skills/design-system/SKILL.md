@@ -6,7 +6,7 @@ version: 1.2.0
 
 # design-system
 
-Your whole reply is the engine report (for set, check and explain, the command's printout): its first line is "## Design system: <name>". Write no sentence, tick list or "---" before it and nothing after "### Open questions", even when asked for a short report of files, checks and open items (the report is that report).
+Your whole reply is the engine report (for a set, check or explain on its own, the command's printout; when the same request also needed `init`, the `init` report first, then a blank line and each printout): its first line is "## Design system: <name>". Write no sentence, tick list or "---" before it and nothing after "### Open questions", even when asked for a short report of files, checks and open items (the report is that report).
 
 Turns the goal a user states into one token set any agent or developer can read: colour scales that keep
 the user's hue, semantic roles for light and dark mode with every text pair checked for contrast, type,
