@@ -18,7 +18,16 @@ Skill Foundry design skills work like a real product design team with **Figma-st
 - The work runs in small steps with a saved status, so a user low on quota never loses work.
 - It works by default for every project that installs the agentic harness, including an empty project.
 
-## 1a. Two working rules
+## 1a. Scope: skills, not the harness
+
+Skill Foundry builds skills. Orchestration (auto-continue, chaining steps, scheduling, parallel workers) belongs
+to the agentic harness. A skill only does its own step well, writes its result to files, and stops with a clear
+next step. The harness in this repo is older than the latest Agentic-Harness release, so S0 checks the latest
+harness version first and adjusts this plan (roles, skill injection, any new hooks) to it.
+
+Owner direction: a slower, clear start (foundation first) is preferred over a fast start with low quality.
+
+## 1b. Two working rules
 
 1. **Small first, proven first.** Build MVP-1 (section 5) end to end and prove it with a real agent in an
    empty project before any later scope (more brands, density, platform, other stacks, Figma round trip).
@@ -173,7 +182,7 @@ updates the skills that already exist:
 
 | # | Session | Scope | Done when |
 |---|---|---|---|
-| S0 | Review (no skill change) | (a) read the other session's finished work and list conflicts with this plan; (b) install the agentic harness in an **empty folder** and record the real role files (`writablePaths`, `allowedTools`), because user projects may differ from this repo's roles | Conflict list + real role table approved by owner |
+| S0 | Review (no skill change) | (a) read the other session's finished work and list conflicts with this plan; (b) check the latest Agentic-Harness version and what changed against this repo's copy; (c) install the agentic harness in an **empty folder** and record the real role files (`writablePaths`, `allowedTools`), because user projects may differ from this repo's roles | Conflict list + real role table approved by owner |
 | S1 | `design-system`: **MVP-1** | `variables.json` with three tiers, light/dark, **one brand**; engine `init`, `set` (locked values, all-or-nothing), `check` (web only), `explain`; D5 vocabulary (1.0.0 names kept as aliases); weights 400–700; web fonts (D4); Khmer typography variables; one brief message on cold start; `STATUS.md` | a real agent in an empty project: brief → variables → `set color.border` changes everything, all pairs PASS; old 14 cases still pass |
 | S2 | `design-system`: scale-up | more brands (D3) and extended collections, then density, then other stacks, then Figma export/import; three directions as previews | each addition proven in an empty project before the next |
 | S3 | new skill `component-kit` | two separate steps that hand off through files: **spec** (component specs + component-tier variables) and **code** (built in the project's stack) | `checkPage` on every web component in every state and mode |
