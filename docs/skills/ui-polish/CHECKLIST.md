@@ -2,7 +2,7 @@
 
 Review against `docs/factory/REVIEW.md`. Status: ready. Version 1.0.0.
 
-Honest record: the author (an AI agent) ticked this list; the owner (TAIMO) is the final reviewer. Live answers came from fresh real agents (`claude -p`, one per case, read access only); the worked examples are hand-written and are not proof.
+Honest record: the author (an AI agent) ticked this list; the owner is the final reviewer. Live answers came from fresh real agents (`claude -p`, one per case, read access only); the worked examples are hand-written and are not proof.
 
 ## Clarity
 - [x] Procedure is numbered, imperative, one action per step
@@ -49,7 +49,7 @@ Honest record: the author (an AI agent) ticked this list; the owner (TAIMO) is t
 - [x] Portable check in an empty project that has `styles/tokens.css` and `design-tokens.json`: the agent found the token file by itself, used the skill, leaked no repository rules
 - [x] Recipe `tokens-then-polish` recorded: design-system then ui-polish, both used
 - [x] Visual: polished HTML of six live recordings (three of them with the pasted tokens.css) in `evals/live/files/`, `checkPage` 0 problems
-- [ ] Final reviewer: TAIMO. Not covered by an eval: a token file in another tool's naming (the skill says to match by meaning); dark-theme check of token pairs (stated in layer 06, step 18, seen in the recipe answer only)
+- [ ] Final reviewer: the owner. Not covered by an eval: a token file in another tool's naming (the skill says to match by meaning); dark-theme check of token pairs (stated in layer 06, step 18, seen in the recipe answer only)
 
 ## S1, S2, S3 update (2026-11-16, version stays 1.0.0)
 - [x] S1: the script is run as one plain command with its full path (rule 26); the reply says plainly when it could not run. Real agent, `script-one-command`: "Ratios computed with the contrast script." under a sandbox that only allows `node`
@@ -57,4 +57,4 @@ Honest record: the author (an AI agent) ticked this list; the owner (TAIMO) is t
 - [x] S3: optional screenshot or measurement sheet and a text-overflow rule (rule 30); one stylesheet patch plus per-page deltas (rule 31). Real agents, `overflow-measured` and `shared-stylesheet`
 - [x] Four new cases (16 in total); all 12 old cases re-recorded with fresh agents after the change; `tokens-css` expectation changed (reason in CHANGELOG.md); the S2 cases and the recipe were re-recorded once more after one wording fix
 - [x] Portable check and recipe `tokens-then-polish` re-recorded; `checkPage` 0 problems on the 9 HTML files in `evals/live/files/`
-- [ ] Known, not fixed here: the portable agent sometimes rewords the fixed ratio-source sentence and the summary line; the recipe agent added a link to `tokens.css` that the input did not have (rule 12 intends only links already present). Final reviewer: TAIMO
+- [ ] Known, not fixed here: the portable agent sometimes rewords the fixed ratio-source sentence and the summary line; the recipe agent added a link to `tokens.css` that the input did not have (rule 12 intends only links already present). Final reviewer: the owner
