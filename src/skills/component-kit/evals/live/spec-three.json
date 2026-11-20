@@ -1,0 +1,16 @@
+{
+  "case": "spec-three",
+  "prompt": "Project setup: the design folder that design-system wrote for this project is the sample in the skill's examples folder; run the skill's examples/install-sample.mjs with node in the project folder first (add --no-specs when this request has no specs yet). (--no-specs) Write the component specs for button, input and card.",
+  "agent": "claudeRunner via run-skill (fresh agent, skill folder and the case prompt only)",
+  "recordedAt": "2026-11-20",
+  "output": "## Component specs: button, input, card\n\n### Files\n- design/components/button.md\n- design/components/input.md\n- design/components/card.md\n- design/STATUS.md (updated)\n\nThe sample design folder was installed with `--no-specs` first, so `BRIEF.md`, `tokens.css` and `STATUS.md` came from the sample. All paths are under `/home/user/Skill-Foundry/runs/component-kit/8c3f525b8e0e0b7f/output`.\n\n### Check\nThe first run of `node /home/user/Skill-Foundry/src/skills/component-kit/engine/spec-check.mjs spec button input card` failed. The \"Error\" state of each spec had to say how the user retries. I fixed the wording and ran it again:\n```\nPASS design/components/button.md (31 variables)\nPASS design/components/input.md (29 variables)\nPASS design/components/card.md (25 variables)\nSPEC CHECK PASSED (3 specs, 0 problems)\n```\n\n### Variables to add\nNone. Design-system adds component variables, and the specs use the nearest variable until then.\n\n### Next\nStep done: component specs (button, input, card). Next: this skill writes the next specs, or builds the code for these.\nSay \"Write the specs for select, checkbox, dialog and table\" or \"Build button, input and card in plain HTML and CSS\". I used plain HTML and CSS as the stack because the output folder has no project files to detect one from.\nReply yes, change, or stop.",
+  "files": [
+    "design/BRIEF.md",
+    "design/STATUS.md",
+    "design/components/button.md",
+    "design/components/card.md",
+    "design/components/input.md",
+    "design/tokens.css"
+  ],
+  "run": "runs/component-kit/8c3f525b8e0e0b7f"
+}

@@ -1,0 +1,70 @@
+{
+  "skill": "component-kit",
+  "version": "1.0.0",
+  "caseId": "code-no-spec",
+  "inputSha256": "c527f82cba2a5a13f9cc8ceed06a92c6f7306872674d94643a94346c481e7a80",
+  "skillSha256": "fb758310be1f07af9a09a15e735e3e6e4055c8c2a6d4139387e2ee766f1b56ad",
+  "key": "dc04e055bc984a7195782de07fc1ca78441f58de6d46a661efcca969031e81b8",
+  "startedAt": "2026-11-20T15:06:05.822Z",
+  "finishedAt": "2026-11-20T15:06:14.817Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.15320390000000003,
+  "usage": {
+    "input_tokens": 10,
+    "cache_creation_input_tokens": 30717,
+    "cache_read_input_tokens": 238959,
+    "output_tokens": 642,
+    "output_tokens_details": {
+      "thinking_tokens": 79
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 30717,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 85,
+        "cache_read_input_tokens": 59587,
+        "cache_creation_input_tokens": 564,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 564
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [
+    {
+      "path": "design/BRIEF.md",
+      "bytes": 198,
+      "sha256": "15630611abfa12f6c87c11a25d96778d28759589eea8c19d84a9890777832cbf"
+    },
+    {
+      "path": "design/STATUS.md",
+      "bytes": 558,
+      "sha256": "e66a854a28d015d236cc36bd0dda42eb059ae990b42dda1eb28847733565570d"
+    },
+    {
+      "path": "design/tokens.css",
+      "bytes": 14682,
+      "sha256": "b59bf55254314cd20d91e1b93862851c04b27240f7959de9f5d569a38444e4c1"
+    }
+  ],
+  "checks": {
+    "expectations": 3,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "No dialog spec exists, so layer 06 step 2 applies: the whole reply is the fixed sentence, and no code is written.\n\nThere is no spec for dialog yet, so I write the spec first: ask me to \"write the spec for dialog\", and then to build it."
+}

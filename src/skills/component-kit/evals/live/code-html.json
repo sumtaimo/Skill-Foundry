@@ -1,0 +1,17 @@
+{
+  "case": "code-html",
+  "prompt": "Project setup: the design folder that design-system wrote for this project is the sample in the skill's examples folder; run the skill's examples/install-sample.mjs with node in the project folder first (add --no-specs when this request has no specs yet). Build the button and card from their specs in plain HTML and CSS.",
+  "agent": "claudeRunner via run-skill (fresh agent, skill folder and the case prompt only)",
+  "recordedAt": "2026-11-20",
+  "output": "## Component code: button, card\n\n### Files\n- components/button.css\n- components/card.css\n- design/STATUS.md (updated; the sample design folder was installed into `design/` first, with its two specs)\n\n### Check\nStatus before building: `design/tokens.css` found with 180 variables. Button and card specs both showed \"spec ok\".\n\nCommand: `node /home/user/Skill-Foundry/src/skills/component-kit/engine/spec-check.mjs code --dir /home/user/Skill-Foundry/runs/component-kit/742368321c40a198/output/design /home/user/Skill-Foundry/runs/component-kit/742368321c40a198/output/components/button.css /home/user/Skill-Foundry/runs/component-kit/742368321c40a198/output/components/card.css`\n\n```\nPASS ../components/button.css (29 variables)\nPASS ../components/card.css (25 variables)\nCODE CHECK PASSED (2 files, 41 variables, 0 problems)\n```\n\nI used `--dir` and absolute paths because my shell was not in the project root. I did not render the components in a browser. I checked states, Khmer and reduced motion only by reading the CSS.\n\n### Stack\nNo stack found, so these are plain HTML and CSS. Link `design/tokens.css` first, then `components/button.css` and `components/card.css`.\n\n- **Button:** use `<button type=\"button\" class=\"button button--primary\">`. Variants are `--secondary` and `--danger`, sizes are `--sm`, `--lg` and `--icon`. Set `aria-busy=\"true\"` for loading.\n- **Card:** use `<article class=\"card\">`. Variants are `--interactive`, `--selected`, `--empty`, `--error` and `--lg`. An interactive card has one `.card__action` link or button stretched over it.\n\n### Variables to add\nNone.\n\n### Next\nStep done: component code (button, card). Assumed: plain HTML and CSS, since no stack was found. Nothing is left pending. Next: the skill writes the next specs (input, select, checkbox, dialog), or hands over to ui-craft for screens.\nSay \"Write the specs for input, select, checkbox and dialog\".\nReply yes, change, or stop.",
+  "files": [
+    "components/button.css",
+    "components/card.css",
+    "design/BRIEF.md",
+    "design/STATUS.md",
+    "design/components/button.md",
+    "design/components/card.md",
+    "design/tokens.css"
+  ],
+  "run": "runs/component-kit/742368321c40a198"
+}

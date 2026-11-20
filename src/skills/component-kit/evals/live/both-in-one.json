@@ -1,0 +1,14 @@
+{
+  "case": "both-in-one",
+  "prompt": "Project setup: the design folder that design-system wrote for this project is the sample in the skill's examples folder; run the skill's examples/install-sample.mjs with node in the project folder first (add --no-specs when this request has no specs yet). (--no-specs) Write the spec for the button and then build it in React, all in one go.",
+  "agent": "claudeRunner via run-skill (fresh agent, skill folder and the case prompt only)",
+  "recordedAt": "2026-11-20",
+  "output": "## Component specs: button\n\n### Files\n- design/components/button.md\n- design/STATUS.md (updated)\n- design/BRIEF.md, design/tokens.css and the earlier design/STATUS.md lines were copied in by `install-sample.mjs --no-specs`, not written by me.\n\n### Check\nPASS design/components/button.md (35 variables, 3 to add)\nSPEC CHECK PASSED (1 spec, 0 problems)\n\n### Variables to add\n- --button-danger-bg: nearest --color-danger-bg (fill of the danger variant)\n- --button-danger-text: nearest --color-danger-text-on (text of the danger variant)\n- --button-disabled-bg: nearest --color-surface-sunken (fill of a disabled button)\n\ndesign-system adds component variables (`set` and a later command). Until then the specs keep using the nearest variable.\n\n### Next\nStep done: component specs (button). You asked for the spec and the React build in one go, but the skill allows one step per turn (R-component-kit-2). So I wrote no React code. Nothing in this turn is assumed beyond that: the React build has no stack to detect in this empty project, and you named React.\nSay \"Build button in React\".\nReply yes, change, or stop.\n\n### Open items\n- The React button is not built yet.\n- The spec check passed, but the reviewer checklist (a designer reading the spec against the brief) hasn't been done.\n- In STATUS.md I replaced the old `step_completed: foundation …` line with the spec step, as layer 09 says to. The foundation line's text is no longer in the file.",
+  "files": [
+    "design/BRIEF.md",
+    "design/STATUS.md",
+    "design/components/button.md",
+    "design/tokens.css"
+  ],
+  "run": "runs/component-kit/74b9eccd22d08493"
+}

@@ -211,5 +211,25 @@
       "sidebar",
       "micro-interaction"
     ]
+  },
+  {
+    "name": "component-kit",
+    "version": "1.0.0",
+    "purpose": "Turns a project's design variables into component specs (button, input, card, dialog and more, with the eight states, ARIA and Khmer notes) and then into component code in the project's own stack, using only variables that exist.",
+    "status": "ready",
+    "roles": [
+      "DEV_ENGINEER",
+      "UX_DESIGNER"
+    ],
+    "keywords": [
+      "component spec",
+      "component library",
+      "design variables",
+      "button component",
+      "design/tokens.css",
+      "lifecycle states"
+    ],
+    "engine": "optional",
+    "showcase": "spec-three"
   }
 ]

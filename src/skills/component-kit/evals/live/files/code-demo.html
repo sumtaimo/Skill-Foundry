@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Button and card states</title>
+<link rel="stylesheet" href="design/tokens.css">
+<link rel="stylesheet" href="components/button.css">
+<link rel="stylesheet" href="components/card.css">
+<style>
+  /* Demo layout only: components are styled by components/*.css */
+  body {
+    margin: 0;
+    padding: var(--space-24);
+    background-color: var(--color-surface-default);
+    color: var(--color-text-default);
+    font-family: var(--font-family-sans);
+    font-size: var(--font-size-md);
+  }
+  :lang(km) { line-height: var(--line-height-khmer); letter-spacing: 0; }
+  main { max-width: 64rem; margin-inline: auto; }
+  h1, h2, main > h3 { line-height: var(--line-height-heading); }
+  h1 { margin: 0 0 var(--space-12); }
+  h2 { margin: var(--space-48) 0 var(--space-12); }
+  main > h3 { margin: var(--space-24) 0 var(--space-12); font-size: var(--font-size-md); color: var(--color-text-muted); }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    gap: var(--space-24);
+    align-items: start;
+  }
+  .cell { display: flex; flex-direction: column; gap: var(--space-12); align-items: flex-start; }
+  .cell > .label { color: var(--color-text-muted); font-size: var(--font-size-sm); }
+  .cell > .card { align-self: stretch; }
+  .row { display: flex; flex-wrap: wrap; gap: var(--space-12); align-items: center; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Button and card</h1>
+  <p>Every state of both components, built from <code>design/components/button.md</code> and <code>card.md</code>. Hover, focus-visible and active are fixed with the <code>.is-*</code> helper classes so they can be seen together; the live buttons at the end react for real.</p>
+
+  <!-- ============ BUTTON ============ -->
+  <h2>Button</h2>
+
+  <h3>Primary</h3>
+  <div class="grid">
+    <div class="cell"><span class="label">Default</span><button type="button" class="button button--primary"><span class="button__label">Save invoice</span></button></div>
+    <div class="cell"><span class="label">Hover</span><button type="button" class="button button--primary is-hover"><span class="button__label">Save invoice</span></button></div>
+    <div class="cell"><span class="label">Focus-visible</span><button type="button" class="button button--primary is-focus"><span class="button__label">Save invoice</span></button></div>
+    <div class="cell"><span class="label">Active (pressed)</span><button type="button" class="button button--primary is-active"><span class="button__label">Save invoice</span></button></div>
+    <div class="cell"><span class="label">Disabled</span><button type="button" class="button button--primary" disabled><span class="button__label">Save invoice</span></button></div>
+    <div class="cell"><span class="label">Disabled, explained (focusable)</span>
+      <button type="button" class="button button--primary" aria-disabled="true" aria-describedby="why-disabled"><span class="button__label">Send invoice</span></button>
+      <span id="why-disabled" class="label">Add a customer first.</span></div>
+    <div class="cell"><span class="label">Loading (size locked)</span><button type="button" class="button button--primary" aria-busy="true"><span class="button__label">Save invoice</span><span class="button__spinner" aria-hidden="true"></span></button></div>
+    <div class="cell"><span class="label">Error, with retry</span>
+      <div class="button-field">
+        <button type="button" class="button button--primary" aria-describedby="err-primary"><span class="button__label">Try again</span></button>
+        <p class="button-error" id="err-primary" role="alert">The invoice was not saved. Check your connection.</p>
+      </div></div>
+  </div>
+
+  <h3>Secondary</h3>
+  <div class="grid">
+    <div class="cell"><span class="label">Default</span><button type="button" class="button button--secondary"><span class="button__label">Save draft</span></button></div>
+    <div class="cell"><span class="label">Hover</span><button type="button" class="button button--secondary is-hover"><span class="button__label">Save draft</span></button></div>
+    <div class="cell"><span class="label">Focus-visible</span><button type="button" class="button button--secondary is-focus"><span class="button__label">Save draft</span></button></div>
+    <div class="cell"><span class="label">Active (pressed)</span><button type="button" class="button button--secondary is-active"><span class="button__label">Save draft</span></button></div>
+    <div class="cell"><span class="label">Disabled</span><button type="button" class="button button--secondary" disabled><span class="button__label">Save draft</span></button></div>
+    <div class="cell"><span class="label">Loading (size locked)</span><button type="button" class="button button--secondary" aria-busy="true"><span class="button__label">Save draft</span><span class="button__spinner" aria-hidden="true"></span></button></div>
+    <div class="cell"><span class="label">Error, with retry</span>
+      <div class="button-field">
+        <button type="button" class="button button--secondary" aria-describedby="err-secondary"><span class="button__label">Try again</span></button>
+        <p class="button-error" id="err-secondary" role="alert">The draft was not saved.</p>
+      </div></div>
+  </div>
+
+  <h3>Danger</h3>
+  <div class="grid">
+    <div class="cell"><span class="label">Default</span><button type="button" class="button button--danger"><span class="button__label">Delete invoice</span></button></div>
+    <div class="cell"><span class="label">Hover</span><button type="button" class="button button--danger is-hover"><span class="button__label">Delete invoice</span></button></div>
+    <div class="cell"><span class="label">Focus-visible</span><button type="button" class="button button--danger is-focus"><span class="button__label">Delete invoice</span></button></div>
+    <div class="cell"><span class="label">Active (pressed)</span><button type="button" class="button button--danger is-active"><span class="button__label">Delete invoice</span></button></div>
+    <div class="cell"><span class="label">Disabled</span><button type="button" class="button button--danger" disabled><span class="button__label">Delete invoice</span></button></div>
+    <div class="cell"><span class="label">Loading (size locked)</span><button type="button" class="button button--danger" aria-busy="true"><span class="button__label">Delete invoice</span><span class="button__spinner" aria-hidden="true"></span></button></div>
+    <div class="cell"><span class="label">Error, with retry</span>
+      <div class="button-field">
+        <button type="button" class="button button--danger" aria-describedby="err-danger"><span class="button__label">Try again</span></button>
+        <p class="button-error" id="err-danger" role="alert">The invoice was not deleted.</p>
+      </div></div>
+  </div>
+
+  <h3>Sizes, icon-only (the empty state: no label, so an aria-label), icon and Khmer</h3>
+  <div class="row">
+    <button type="button" class="button button--primary button--sm"><span class="button__label">Small</span></button>
+    <button type="button" class="button button--primary"><span class="button__label">Medium</span></button>
+    <button type="button" class="button button--primary button--lg"><span class="button__label">Large</span></button>
+    <button type="button" class="button button--secondary button--icon" aria-label="Add a customer">
+      <svg class="button__icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 2v12M2 8h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <button type="button" class="button button--primary">
+      <svg class="button__icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 2v12M2 8h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <span class="button__label">New invoice</span>
+    </button>
+    <button type="button" class="button button--primary" lang="km"><span class="button__label">រក្សាទុក</span></button>
+    <button type="button" class="button button--secondary" lang="km"><span class="button__label">ផ្ញើ</span></button>
+  </div>
+
+  <h3>Live: press it (loading, then error, then retry works)</h3>
+  <div class="button-field" id="live">
+    <button type="button" class="button button--primary" id="live-button"><span class="button__label">Save invoice</span><span class="button__spinner" aria-hidden="true"></span></button>
+    <p class="button-error" id="live-error" role="alert" hidden>The invoice was not saved. Check your connection.</p>
+  </div>
+
+  <!-- ============ CARD ============ -->
+  <h2>Card</h2>
+  <div class="grid">
+    <div class="cell"><span class="label">Default</span>
+      <article class="card">
+        <header><h3 class="card__title">Invoice 1042</h3><p class="card__meta">Sokha Trading, due 30 Nov</p></header>
+        <p class="card__body">Total 120.00 USD. Sent on 12 Nov.</p>
+        <footer class="card__footer"><button type="button" class="button button--secondary button--sm"><span class="button__label">Send reminder</span></button></footer>
+      </article></div>
+
+    <div class="cell"><span class="label">Hover (interactive)</span>
+      <article class="card card--interactive is-hover">
+        <h3 class="card__title"><a class="card__link" href="#invoice-1043">Invoice 1043</a></h3>
+        <p class="card__body">Total 80.00 USD. Open the invoice.</p>
+      </article></div>
+
+    <div class="cell"><span class="label">Focus-visible (interactive)</span>
+      <article class="card card--interactive is-focus">
+        <h3 class="card__title"><a class="card__link" href="#invoice-1044">Invoice 1044</a></h3>
+        <p class="card__body">Total 45.00 USD. Open the invoice.</p>
+      </article></div>
+
+    <div class="cell"><span class="label">Active (selected)</span>
+      <article class="card card--selected">
+        <h3 class="card__title">Invoice 1045</h3>
+        <p class="card__meta">Selected</p>
+        <p class="card__body">Total 300.00 USD. Chosen for the batch.</p>
+      </article></div>
+
+    <div class="cell"><span class="label">Disabled</span>
+      <article class="card" aria-disabled="true">
+        <h3 class="card__title">Invoice 1046</h3>
+        <p class="card__body">Archived. It cannot be changed.</p>
+      </article></div>
+
+    <div class="cell"><span class="label">Loading (size locked)</span>
+      <article class="card" aria-busy="true">
+        <h3 class="card__title">Invoice 1047</h3>
+        <p class="card__meta">Sokha Trading, due 30 Nov</p>
+        <p class="card__body">Total 120.00 USD. Sent on 12 Nov.</p>
+        <div class="card__skeleton" aria-hidden="true"><span class="card__skeleton-line"></span><span class="card__skeleton-line"></span><span class="card__skeleton-line"></span><span class="card__skeleton-line"></span></div>
+      </article></div>
+
+    <div class="cell"><span class="label">Empty</span>
+      <article class="card card--empty">
+        <h3 class="card__title">Payments</h3>
+        <p class="card__body">No payments yet. Record the first payment when the customer pays.</p>
+        <footer class="card__footer"><button type="button" class="button button--primary button--sm"><span class="button__label">Record payment</span></button></footer>
+      </article></div>
+
+    <div class="cell"><span class="label">Error, with retry</span>
+      <article class="card card--error">
+        <h3 class="card__title">Invoice 1048</h3>
+        <p class="card__error" role="alert">We could not load this invoice.</p>
+        <footer class="card__footer"><button type="button" class="button button--secondary button--sm"><span class="button__label">Try again</span></button></footer>
+      </article></div>
+
+    <div class="cell"><span class="label">Large (lg), Khmer</span>
+      <article class="card card--lg" lang="km">
+        <h3 class="card__title">វិក្កយបត្រ 1049</h3>
+        <p class="card__meta">ត្រូវបង់ថ្ងៃទី ៣០</p>
+        <p class="card__body">សរុប ១២០ ដុល្លារ</p>
+      </article></div>
+  </div>
+</main>
+
+<script>
+  // Demo behaviour only: a button that is busy ignores a second press; the first press fails once, the retry works.
+  (function () {
+    var button = document.getElementById('live-button');
+    var label = button.querySelector('.button__label');
+    var error = document.getElementById('live-error');
+    var failNext = true;
+    button.addEventListener('click', function () {
+      if (button.getAttribute('aria-busy') === 'true') return;
+      button.setAttribute('aria-busy', 'true');
+      error.hidden = true;
+      setTimeout(function () {
+        button.removeAttribute('aria-busy');
+        if (failNext) {
+          failNext = false;
+          label.textContent = 'Try again';
+          error.hidden = false;
+        } else {
+          failNext = true;
+          label.textContent = 'Save invoice';
+        }
+      }, 1500);
+    });
+  })();
+</script>
+</body>
+</html>

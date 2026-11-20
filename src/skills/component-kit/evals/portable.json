@@ -1,0 +1,14 @@
+{
+  "skill": "component-kit",
+  "prompt": "Project setup: the design folder that design-system wrote for this project is the sample in the skill's examples folder; run the skill's examples/install-sample.mjs with node in the project folder first (add --no-specs when this request has no specs yet). (--no-specs) Write the component specs for button, input and card.",
+  "recordedAt": "2026-11-20",
+  "agent": "claude -p in an empty project outside the repository",
+  "skillSha": "a56368b36a6a79af3801ce2112f315a9df26cb5f60e274ee36a72a7908961868",
+  "exit": 0,
+  "usedSkill": true,
+  "leakedRepoRules": false,
+  "touchedRepo": [],
+  "produced": 6,
+  "cost": 0.3850436000000001,
+  "answer": "## Component specs: button, input, card\n\n### Files\n- design/components/button.md\n- design/components/input.md\n- design/components/card.md\n\n### Check\n```\nPASS design/components/button.md (30 variables)\nPASS design/components/input.md (29 variables)\nPASS design/components/card.md (25 variables)\nSPEC CHECK PASSED (3 specs, 0 problems)\n```\nCommand: `node .claude/skills/component-kit/engine/spec-check.mjs spec button input card`\n\n### Variables to add\nNone. design-system adds component variables when they are needed. The specs keep using the nearest existing variable until then.\n\n### Next\nStep done: component specs (button, input, card). Next: this skill builds the code for these, or writes more specs.\nSay \"Build button, input and card in plain HTML and CSS\" (no stack was found in the project) or \"Write the specs for select, checkbox, dialog and table\".\nReply yes, change, or stop.\n\n```json\n{\"step_completed\":\"component-kit\",\"verified_facts\":[\"SPEC CHECK PASSED for button, input, card (design/components/)\",\"design/STATUS.md updated with next-step words\"],\"gaps_or_risks\":[\"The first input.md check failed because the Error state needed the word 'retry'. It was fixed and passes now.\",\"The tool refused `cp` without approval, so the button and card specs are written out from the sample specs, with product wording added.\"],\"next_skill_input\":{\"target_scope\":\"design/components/button.md, input.md, card.md\",\"action_required\":\"Build the three components in the project's stack, or plain HTML and CSS if none is found.\"}}\n```"
+}

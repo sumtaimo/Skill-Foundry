@@ -1,0 +1,9 @@
+{
+  "case": "no-design",
+  "prompt": "Write the component specs for button, input and card.",
+  "agent": "claudeRunner via run-skill (fresh agent, skill folder and the case prompt only)",
+  "recordedAt": "2026-11-20",
+  "output": "There is no design folder with tokens.css in this project, so run design-system first to build the variables, then ask me for the component specs again.",
+  "files": [],
+  "run": "runs/component-kit/cb1bdda6ac8500ed"
+}

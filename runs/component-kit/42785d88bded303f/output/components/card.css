@@ -1,0 +1,119 @@
+/* Card: built from design/components/card.md. Link design/tokens.css before this file.
+   .is-hover / .is-focus mirror the real pseudo-classes so a demo can show them side by side. */
+
+.card {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  padding: var(--card-padding);
+  background-color: var(--card-bg);
+  border: var(--border-width-hairline) solid var(--card-border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  transition: box-shadow var(--duration-base) var(--ease-standard);
+}
+.card--lg { padding: var(--space-24); }
+
+.card__title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-strong);
+  line-height: var(--line-height-heading);
+}
+.card__meta { margin: 0; color: var(--color-text-muted); }
+.card__body { margin: 0; }
+.card__footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-12);
+  margin-top: auto;
+}
+
+/* Interactive: one link, stretched over the whole card */
+.card--interactive { cursor: pointer; }
+.card__link { color: inherit; text-decoration: none; }
+.card__link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--card-radius);
+}
+.card--interactive:not([aria-disabled="true"]):not([aria-busy="true"]):is(:hover, .is-hover) {
+  box-shadow: var(--shadow-2);
+}
+
+/* Focus-visible: the ring is drawn around the whole card from the link's stretched area */
+.card__link:focus-visible { outline: none; }
+.card__link:focus-visible::after,
+.card.is-focus .card__link::after {
+  outline: var(--border-width-focus) solid var(--color-border-focus);
+  outline-offset: var(--border-width-focus);
+}
+
+/* Active: selected or pressed. The inset line adds a shape change, not colour alone. */
+.card--selected,
+.card--interactive:not([aria-disabled="true"]):not([aria-busy="true"]):active {
+  background-color: var(--color-selected-bg);
+  color: var(--color-selected-text);
+  border-color: var(--color-border-focus);
+  box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-focus);
+}
+.card--selected .card__meta { color: inherit; }
+
+/* Disabled */
+.card[aria-disabled="true"] {
+  background-color: var(--color-surface-sunken);
+  color: var(--color-text-disabled);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+.card[aria-disabled="true"] .card__meta { color: inherit; }
+
+/* Loading: size locked. The real content stays in place (hidden); skeleton blocks sit on top. */
+.card__skeleton { display: none; }
+.card[aria-busy="true"] > :not(.card__skeleton) { visibility: hidden; }
+.card[aria-busy="true"] > .card__skeleton {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  padding: var(--card-padding);
+}
+.card--lg[aria-busy="true"] > .card__skeleton { padding: var(--space-24); }
+.card__skeleton-line {
+  height: var(--space-12);
+  background-color: var(--color-surface-sunken);
+  border-radius: var(--card-radius);
+  animation: card-pulse calc(var(--duration-slow) * 4) var(--ease-standard) infinite alternate;
+}
+.card__skeleton-line:first-child { width: 60%; }
+.card__skeleton-line:last-child { width: 85%; }
+@keyframes card-pulse { from { opacity: 1; } to { opacity: 0.4; } }
+
+/* Empty: say what goes here and give one next action */
+.card--empty .card__body { color: var(--color-text-muted); }
+
+/* Error: message, then a "Try again" button (see button.css) */
+.card--error {
+  background-color: var(--color-danger-bg-subtle);
+  border-color: var(--color-danger-border);
+}
+.card__error { margin: 0; color: var(--color-danger-text); }
+
+/* Khmer: taller line, no letter spacing, and the card grows instead of clipping */
+.card:lang(km) .card__title,
+.card:lang(km) .card__body,
+.card:lang(km) .card__meta,
+.card:lang(km) .card__error {
+  line-height: var(--line-height-khmer);
+  letter-spacing: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card { transition: none; }
+  .card__skeleton-line { animation: none; }
+}

@@ -1,0 +1,75 @@
+{
+  "skill": "component-kit",
+  "version": "1.0.0",
+  "caseId": "both-in-one",
+  "inputSha256": "dd83ae30b62e11d40418d9470fb2ecf2d4e8ffdafa18ed7a6d681c7a63170966",
+  "skillSha256": "fb758310be1f07af9a09a15e735e3e6e4055c8c2a6d4139387e2ee766f1b56ad",
+  "key": "74b9eccd22d084938f4273a6eec458b9d2bfd140b8d377cd4c644af6ef554e1c",
+  "startedAt": "2026-11-20T15:06:14.868Z",
+  "finishedAt": "2026-11-20T15:07:01.609Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.28307460000000007,
+  "usage": {
+    "input_tokens": 22,
+    "cache_creation_input_tokens": 39655,
+    "cache_read_input_tokens": 612406,
+    "output_tokens": 6317,
+    "output_tokens_details": {
+      "thinking_tokens": 292
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 39655,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 549,
+        "cache_read_input_tokens": 68445,
+        "cache_creation_input_tokens": 644,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 644
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [
+    {
+      "path": "design/BRIEF.md",
+      "bytes": 198,
+      "sha256": "15630611abfa12f6c87c11a25d96778d28759589eea8c19d84a9890777832cbf"
+    },
+    {
+      "path": "design/STATUS.md",
+      "bytes": 691,
+      "sha256": "16099333a02a9846811cf0c92276af931be615ea3f29493fa746de01bcb96881"
+    },
+    {
+      "path": "design/components/button.md",
+      "bytes": 6209,
+      "sha256": "75d510a2b931c2566dee280a2d7ba69966ab1722c5cc12106e96a80bb08a9667"
+    },
+    {
+      "path": "design/tokens.css",
+      "bytes": 14682,
+      "sha256": "b59bf55254314cd20d91e1b93862851c04b27240f7959de9f5d569a38444e4c1"
+    }
+  ],
+  "checks": {
+    "expectations": 5,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "## Component specs: button\n\n### Files\n- design/components/button.md\n- design/STATUS.md (updated)\n- design/BRIEF.md, design/tokens.css and the earlier design/STATUS.md lines were copied in by `install-sample.mjs --no-specs`, not written by me.\n\n### Check\nPASS design/components/button.md (35 variables, 3 to add)\nSPEC CHECK PASSED (1 spec, 0 problems)\n\n### Variables to add\n- --button-danger-bg: nearest --color-danger-bg (fill of the danger variant)\n- --button-danger-text: nearest --color-danger-text-on (text of the danger variant)\n- --button-disabled-bg: nearest --color-surface-sunken (fill of a disabled button)\n\ndesign-system adds component variables (`set` and a later command). Until then the specs keep using the nearest variable.\n\n### Next\nStep done: component specs (button). You asked for the spec and the React build in one go, but the skill allows one step per turn (R-component-kit-2). So I wrote no React code. Nothing in this turn is assumed beyond that: the React build has no stack to detect in this empty project, and you named React.\nSay \"Build button in React\".\nReply yes, change, or stop.\n\n### Open items\n- The React button is not built yet.\n- The spec check passed, but the reviewer checklist (a designer reading the spec against the brief) hasn't been done.\n- In STATUS.md I replaced the old `step_completed: foundation …` line with the spec step, as layer 09 says to. The foundation line's text is no longer in the file."
+}

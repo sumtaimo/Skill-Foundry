@@ -63,5 +63,35 @@
   { "id": "ds1", "prompt": "We are starting a new product. Set up its design foundation: colours, type, spacing and radius as variables that light and dark mode both use.", "expect": "design-system" },
   { "id": "ds2", "prompt": "In our design system, change the default border colour to a lighter grey everywhere, and check that every text colour still has enough contrast.", "expect": "design-system" },
   { "id": "uc5", "prompt": "Build the settings screen for our app from the design folder, using the variables in design/tokens.css.", "expect": "ui-craft" },
-  { "id": "uc6", "prompt": "Design the home dashboard screen for our new app; we have no brand colours or tokens yet.", "expect": "ui-craft" }
+  { "id": "uc6", "prompt": "Design the home dashboard screen for our new app; we have no brand colours or tokens yet.", "expect": "ui-craft" },
+  {
+    "id": "ck1",
+    "prompt": "Our design folder is ready. Write the component specs for button, input and card from our variables.",
+    "expect": "component-kit"
+  },
+  {
+    "id": "ck2",
+    "prompt": "Turn our design variables into a tabs and toast component spec with all the states and the ARIA keyboard contract.",
+    "expect": "component-kit"
+  },
+  {
+    "id": "ck3",
+    "prompt": "We have specs in design/components. Build the button and card from them in React with Tailwind, using only our variables.",
+    "expect": "component-kit"
+  },
+  {
+    "id": "ck4",
+    "prompt": "Design the invoice dashboard screen for our app using our design folder.",
+    "expect": "ui-craft"
+  },
+  {
+    "id": "ck5",
+    "prompt": "Here is my finished card component code. Do a final polish pass on spacing and hierarchy.",
+    "expect": "ui-polish"
+  },
+  {
+    "id": "ck6",
+    "prompt": "Check the button and dialog HTML I pasted for screen reader and ARIA problems.",
+    "expect": "a11y-audit"
+  }
 ]

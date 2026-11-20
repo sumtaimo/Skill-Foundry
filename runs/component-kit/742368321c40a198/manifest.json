@@ -1,0 +1,90 @@
+{
+  "skill": "component-kit",
+  "version": "1.0.0",
+  "caseId": "code-html",
+  "inputSha256": "569a0dfafeab12fd9e11d5413e7205f554c423b850aa94ada13b27e7dbbb80e4",
+  "skillSha256": "fb758310be1f07af9a09a15e735e3e6e4055c8c2a6d4139387e2ee766f1b56ad",
+  "key": "742368321c40a1984419e03bc2fd697e896855466db18eb594262a1c5dde4c2e",
+  "startedAt": "2026-11-20T15:03:48.781Z",
+  "finishedAt": "2026-11-20T15:04:45.062Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.3173944,
+  "usage": {
+    "input_tokens": 22,
+    "cache_creation_input_tokens": 42686,
+    "cache_read_input_tokens": 630864,
+    "output_tokens": 8352,
+    "output_tokens_details": {
+      "thinking_tokens": 463
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 42686,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 726,
+        "cache_read_input_tokens": 71535,
+        "cache_creation_input_tokens": 585,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 585
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [
+    {
+      "path": "components/button.css",
+      "bytes": 3512,
+      "sha256": "e0024fed68620278874ceeccd4928599817a5eacdafa82fcbf7b112760e13dcb"
+    },
+    {
+      "path": "components/card.css",
+      "bytes": 2808,
+      "sha256": "78f33d1c1285fad054dde63462969ef4f3dfecc5d43833888c89a1206508988f"
+    },
+    {
+      "path": "design/BRIEF.md",
+      "bytes": 198,
+      "sha256": "15630611abfa12f6c87c11a25d96778d28759589eea8c19d84a9890777832cbf"
+    },
+    {
+      "path": "design/STATUS.md",
+      "bytes": 613,
+      "sha256": "51c52e95e373681bc623e2774f5f082f20734fe0923c4caaff0a9c8d7ef0fe2f"
+    },
+    {
+      "path": "design/components/button.md",
+      "bytes": 4168,
+      "sha256": "e1d8c67b78e25fcbdcc3479f7fa45899835d912dbdd88f58fc0761a9d0c32137"
+    },
+    {
+      "path": "design/components/card.md",
+      "bytes": 3467,
+      "sha256": "1f62d68add700922e643273a3f537ff0720ff6751093317a0d1b74aafe53d07f"
+    },
+    {
+      "path": "design/tokens.css",
+      "bytes": 14682,
+      "sha256": "b59bf55254314cd20d91e1b93862851c04b27240f7959de9f5d569a38444e4c1"
+    }
+  ],
+  "checks": {
+    "expectations": 7,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "## Component code: button, card\n\n### Files\n- components/button.css\n- components/card.css\n- design/STATUS.md (updated; the sample design folder was installed into `design/` first, with its two specs)\n\n### Check\nStatus before building: `design/tokens.css` found with 180 variables. Button and card specs both showed \"spec ok\".\n\nCommand: `node /home/user/Skill-Foundry/src/skills/component-kit/engine/spec-check.mjs code --dir /home/user/Skill-Foundry/runs/component-kit/742368321c40a198/output/design /home/user/Skill-Foundry/runs/component-kit/742368321c40a198/output/components/button.css /home/user/Skill-Foundry/runs/component-kit/742368321c40a198/output/components/card.css`\n\n```\nPASS ../components/button.css (29 variables)\nPASS ../components/card.css (25 variables)\nCODE CHECK PASSED (2 files, 41 variables, 0 problems)\n```\n\nI used `--dir` and absolute paths because my shell was not in the project root. I did not render the components in a browser. I checked states, Khmer and reduced motion only by reading the CSS.\n\n### Stack\nNo stack found, so these are plain HTML and CSS. Link `design/tokens.css` first, then `components/button.css` and `components/card.css`.\n\n- **Button:** use `<button type=\"button\" class=\"button button--primary\">`. Variants are `--secondary` and `--danger`, sizes are `--sm`, `--lg` and `--icon`. Set `aria-busy=\"true\"` for loading.\n- **Card:** use `<article class=\"card\">`. Variants are `--interactive`, `--selected`, `--empty`, `--error` and `--lg`. An interactive card has one `.card__action` link or button stretched over it.\n\n### Variables to add\nNone.\n\n### Next\nStep done: component code (button, card). Assumed: plain HTML and CSS, since no stack was found. Nothing is left pending. Next: the skill writes the next specs (input, select, checkbox, dialog), or hands over to ui-craft for screens.\nSay \"Write the specs for input, select, checkbox and dialog\".\nReply yes, change, or stop."
+}

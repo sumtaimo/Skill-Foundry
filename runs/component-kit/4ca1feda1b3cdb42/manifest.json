@@ -1,0 +1,90 @@
+{
+  "skill": "component-kit",
+  "version": "1.0.0",
+  "caseId": "spec-all-capped",
+  "inputSha256": "c7e4a708e37b212cadc7b532ead34ff86500507bc5cbf0c1bb351d64d33abdb2",
+  "skillSha256": "fb758310be1f07af9a09a15e735e3e6e4055c8c2a6d4139387e2ee766f1b56ad",
+  "key": "4ca1feda1b3cdb42f73dca9820e203afd6a7b81b1d4b8b72ac12e79f5d510a44",
+  "startedAt": "2026-11-20T15:08:17.340Z",
+  "finishedAt": "2026-11-20T15:10:08.623Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.5640379,
+  "usage": {
+    "input_tokens": 32,
+    "cache_creation_input_tokens": 64488,
+    "cache_read_input_tokens": 1183219,
+    "output_tokens": 18770,
+    "output_tokens_details": {
+      "thinking_tokens": 235
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 64488,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 825,
+        "cache_read_input_tokens": 93054,
+        "cache_creation_input_tokens": 868,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 868
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [
+    {
+      "path": "design/BRIEF.md",
+      "bytes": 198,
+      "sha256": "15630611abfa12f6c87c11a25d96778d28759589eea8c19d84a9890777832cbf"
+    },
+    {
+      "path": "design/STATUS.md",
+      "bytes": 1078,
+      "sha256": "e63395c2406c1a4ca050c7f556807e83db951da702f175f96162976a304cc7ee"
+    },
+    {
+      "path": "design/components/button.md",
+      "bytes": 5251,
+      "sha256": "1b7025a89334f46ed07750d1fc55892fc7446b00627e57da7b254560cb9e2878"
+    },
+    {
+      "path": "design/components/checkbox.md",
+      "bytes": 4159,
+      "sha256": "1332899afda5c08a8965ae177ec9bad715ed8f57405670b93516abf305351126"
+    },
+    {
+      "path": "design/components/input.md",
+      "bytes": 4538,
+      "sha256": "4b80650e7395c3ea58a83fbea2e95eec8dea8a944027df1034ddc751d8bb42df"
+    },
+    {
+      "path": "design/components/select.md",
+      "bytes": 4566,
+      "sha256": "3aeb11842b72946ae6804317d500ae0683242ce2056500e5ccddffe00a7870f2"
+    },
+    {
+      "path": "design/tokens.css",
+      "bytes": 14682,
+      "sha256": "b59bf55254314cd20d91e1b93862851c04b27240f7959de9f5d569a38444e4c1"
+    }
+  ],
+  "checks": {
+    "expectations": 7,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "## Component specs: button, input, select, checkbox\n\n### Files\n- design/components/button.md\n- design/components/input.md\n- design/components/select.md\n- design/components/checkbox.md\n- design/STATUS.md (updated)\n- design/BRIEF.md, design/STATUS.md and design/tokens.css came from `install-sample.mjs --no-specs`.\n\nAll files are in `/home/user/Skill-Foundry/runs/component-kit/4ca1feda1b3cdb42/output`.\n\n### Check\nThe first run failed: button's Error state didn't say how the user retries. I fixed that and re-ran the checker.\n```\nPASS design/components/button.md (33 variables, 2 to add)\nPASS design/components/input.md (30 variables, 2 to add)\nPASS design/components/select.md (31 variables, 2 to add)\nPASS design/components/checkbox.md (25 variables, 2 to add)\nSPEC CHECK PASSED (4 specs, 0 problems)\n```\nI ran the checker as `node /home/user/Skill-Foundry/src/skills/component-kit/engine/spec-check.mjs spec button input select checkbox`. I did not run the reviewer checklist.\n\n### Variables to add\n- --button-danger-bg: nearest --color-danger-bg\n- --button-ghost-bg-hover: nearest --color-surface-subtle\n- --input-border-error: nearest --color-danger-border\n- --input-placeholder: nearest --color-text-muted\n- --select-list-bg: nearest --color-surface-raised\n- --select-option-bg-hover: nearest --color-surface-subtle\n- --checkbox-bg-checked: nearest --color-action-primary-bg\n- --checkbox-border: nearest --input-border\n\ndesign-system adds component variables (`set` and a later command). Until then the specs use the nearest variable.\n\n### Next\nYou asked for every component in the set, but a spec turn covers at most four. I wrote the first four in set order and put the rest in STATUS.md under `components_pending`: card, dialog, table, nav, tabs, toast, menu, badge. No code was written.\n\nStep done: component specs (button, input, select, checkbox). Next: this skill writes the next specs, or builds the code for these.\nSay \"Write the specs for card, dialog, table and nav\" or \"Build button, input, select and checkbox in <stack>\".\nReply yes, change, or stop.\n\n### Open items\n- `components_pending` still has 8 specs, which need two more turns."
+}

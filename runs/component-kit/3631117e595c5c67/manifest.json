@@ -1,0 +1,85 @@
+{
+  "skill": "component-kit",
+  "version": "1.0.0",
+  "caseId": "spec-new-vars",
+  "inputSha256": "2efc9ee4f2c3ff2298c79b8e06f65c2fcf0f9658059b75fa9e4816d6d16d72a9",
+  "skillSha256": "fb758310be1f07af9a09a15e735e3e6e4055c8c2a6d4139387e2ee766f1b56ad",
+  "key": "3631117e595c5c67b626d8ab0ec8902e0e8d25438fb38dcd4a6371667b97a480",
+  "startedAt": "2026-11-20T15:10:08.688Z",
+  "finishedAt": "2026-11-20T15:11:51.589Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.5036826,
+  "usage": {
+    "input_tokens": 36,
+    "cache_creation_input_tokens": 53367,
+    "cache_read_input_tokens": 1233426,
+    "output_tokens": 16680,
+    "output_tokens_details": {
+      "thinking_tokens": 294
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 53367,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 611,
+        "cache_read_input_tokens": 82096,
+        "cache_creation_input_tokens": 705,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 705
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [
+    {
+      "path": "design/BRIEF.md",
+      "bytes": 198,
+      "sha256": "15630611abfa12f6c87c11a25d96778d28759589eea8c19d84a9890777832cbf"
+    },
+    {
+      "path": "design/STATUS.md",
+      "bytes": 790,
+      "sha256": "9fe36363bb1c39763a583206e5856fc5ee761d5bd34bb81c7f59964dce048a8b"
+    },
+    {
+      "path": "design/components/menu.md",
+      "bytes": 4653,
+      "sha256": "1bed1e4e75ad2123ef690de05e9e203e06d2a4055da1724612dec9b74a9e155f"
+    },
+    {
+      "path": "design/components/tabs.md",
+      "bytes": 4893,
+      "sha256": "4b289083a5d8dc388ca94565cd7bed8f2dd8e36a2a8f2a2242089bb0b502a920"
+    },
+    {
+      "path": "design/components/toast.md",
+      "bytes": 5108,
+      "sha256": "9b70a663cc619efc7c676a6374af5b675e81c8e16baa7e4e86aaa94dc3e327e3"
+    },
+    {
+      "path": "design/tokens.css",
+      "bytes": 14682,
+      "sha256": "b59bf55254314cd20d91e1b93862851c04b27240f7959de9f5d569a38444e4c1"
+    }
+  ],
+  "checks": {
+    "expectations": 7,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "## Component specs: tabs, toast, menu\n\n### Files\n- design/components/tabs.md\n- design/components/toast.md\n- design/components/menu.md\n- design/STATUS.md (updated)\n\nThe sample design folder was installed with `--no-specs` first, so `design/BRIEF.md`, `design/tokens.css` and `design/STATUS.md` come from the sample.\n\n### Check\n```\nPASS components/tabs.md (32 variables, 1 to add)\nPASS components/toast.md (37 variables, 2 to add)\nPASS components/menu.md (29 variables, 2 to add)\nSPEC CHECK PASSED (3 specs, 0 problems)\n```\nThe first run failed on three problems: two Error sections lacked the word \"retry\", and tabs.md named a variable that doesn't exist outside \"Variables to add\". I fixed them and re-ran, and the second run passed.\n\nThe check command needed `--dir <path of design folder>` because the shell was not in the project root.\n\n### Variables to add\n- --tabs-indicator-bg: nearest --color-border-focus (underline of the current tab)\n- --toast-bg: nearest --color-info-bg-subtle (toast background)\n- --z-toast: nearest --shadow-3 (`tokens.css` has no z-index layers)\n- --menu-bg: nearest --color-surface-raised (menu popup background)\n- --z-dropdown: nearest --shadow-2 (same reason)\n\ndesign-system adds component variables (`set` and a later command). The specs keep using the nearest variable until then.\n\n### Next\nStep done: component specs (tabs, toast, menu). Next: this skill builds the code for these, or writes more specs.\nSay \"Build tabs, toast and menu in plain HTML and CSS\" (no stack was found, so that is the default) or name another stack.\nReply yes, change, or stop."
+}
