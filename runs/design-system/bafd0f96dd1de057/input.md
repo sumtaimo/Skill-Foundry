@@ -1,0 +1,1 @@
+Make design tokens for our AI writing assistant. Brand colour #4f46e5, and use the Inter font. We want the 2026 look: a frosted glass header, a soft brand glow behind the hero, glossy buttons, and z-index layers for a sticky header, dropdowns, a command palette, modals and toasts.

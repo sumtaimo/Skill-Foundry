@@ -14,7 +14,7 @@ import { join, resolve, dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { spawn } from 'node:child_process';
-import { isQuotaError, winCommandLine } from './live-evals.mjs';
+import { isQuotaError, winCommandLine, noHookArgs } from './live-evals.mjs';
 
 const HERE = fileURLToPath(import.meta.url);
 const REPO_ROOT = resolve(dirname(HERE), '..', '..');
@@ -129,7 +129,7 @@ export async function claudeRunner({ prompt, outputDir, skillDir }) {
   const args = [
     '-p', '--output-format', 'json',
     '--add-dir', skillDir,
-    '--allowedTools', 'Read', 'Glob', 'Grep', 'Write', 'Edit', 'Bash(node:*)',
+    '--allowedTools', 'Read', 'Glob', 'Grep', 'Write', 'Edit', 'Bash(node:*)', ...noHookArgs(),
   ];
   const r = process.platform === 'win32'
     ? await sh(winCommandLine('claude', args), null, { cwd: outputDir, input: prompt, shell: true })

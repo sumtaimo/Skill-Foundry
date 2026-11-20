@@ -1,0 +1,6 @@
+You are running the skill in C:\Users\ksg-usr\Desktop\Skill Foundry\src\skills\design-system. Read C:\Users\ksg-usr\Desktop\Skill Foundry\src\skills\design-system\SKILL.md and every file it links to, then follow it step by step.
+Write every file you produce into C:\Users\ksg-usr\Desktop\Skill Foundry\runs\design-system\bafd0f96dd1de057\output and nowhere else. Produce the real output the skill describes, never a placeholder or mock.
+When done, reply with a short report: files produced, checks run and their results, open items.
+
+Input:
+Make design tokens for our AI writing assistant. Brand colour #4f46e5, and use the Inter font. We want the 2026 look: a frosted glass header, a soft brand glow behind the hero, glossy buttons, and z-index layers for a sticky header, dropdowns, a command palette, modals and toasts.

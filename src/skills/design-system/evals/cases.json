@@ -1002,5 +1002,407 @@
         "value": "@import"
       }
     ]
+  },
+  {
+    "id": "modern-glass",
+    "prompt": "Make design tokens for our AI writing assistant. Brand colour #4f46e5, and use the Inter font. We want the 2026 look: a frosted glass header, a soft brand glow behind the hero, glossy buttons, and z-index layers for a sticky header, dropdowns, a command palette, modals and toasts.",
+    "expect": [
+      {
+        "type": "fileExists",
+        "value": "design-tokens.json"
+      },
+      {
+        "type": "fileExists",
+        "value": "tokens.css"
+      },
+      {
+        "type": "fileExists",
+        "value": "design-system-report.md"
+      },
+      {
+        "type": "contains",
+        "value": "## Design system:"
+      },
+      {
+        "type": "contains",
+        "value": "### Contrast"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "\"$type\": \"color\""
+      },
+      {
+        "type": "contains",
+        "value": "\"$value\""
+      },
+      {
+        "type": "contains",
+        "value": "prefers-color-scheme: dark"
+      },
+      {
+        "type": "contains",
+        "value": ":root[data-theme=\"dark\"]"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-reduced-motion: reduce"
+      },
+      {
+        "type": "contains",
+        "value": "--size-target-min: 44px"
+      },
+      {
+        "type": "notContains",
+        "value": "@import"
+      },
+      {
+        "type": "notContains",
+        "value": "<link"
+      },
+      {
+        "type": "notContains",
+        "value": "url("
+      },
+      {
+        "type": "contains",
+        "value": "--glass-bg"
+      },
+      {
+        "type": "contains",
+        "value": "--glass-blur: 12px"
+      },
+      {
+        "type": "contains",
+        "value": "--r-xs: 4px"
+      },
+      {
+        "type": "contains",
+        "value": "--r-sm: 6px"
+      },
+      {
+        "type": "contains",
+        "value": "--r-md: 10px"
+      },
+      {
+        "type": "contains",
+        "value": "--r-lg: 14px"
+      },
+      {
+        "type": "contains",
+        "value": "--r-xl: 16px"
+      },
+      {
+        "type": "contains",
+        "value": "--z-sticky: 20"
+      },
+      {
+        "type": "contains",
+        "value": "--z-dropdown: 40"
+      },
+      {
+        "type": "contains",
+        "value": "--z-command: 60"
+      },
+      {
+        "type": "contains",
+        "value": "--z-modal: 80"
+      },
+      {
+        "type": "contains",
+        "value": "--z-toast: 100"
+      },
+      {
+        "type": "contains",
+        "value": "--glow: radial-gradient("
+      },
+      {
+        "type": "contains",
+        "value": "--btn-gloss: linear-gradient("
+      },
+      {
+        "type": "contains",
+        "value": "--font-weight-medium: 500"
+      },
+      {
+        "type": "contains",
+        "value": "--color-brand: #4f46e5"
+      },
+      {
+        "type": "contains",
+        "value": "--font-family-sans: Inter, system-ui"
+      },
+      {
+        "type": "contains",
+        "value": "--glass-bg: #ffffffb8"
+      },
+      {
+        "type": "contains",
+        "value": "rgba(79, 70, 229, 0.1)"
+      },
+      {
+        "type": "contains",
+        "value": "rgba(79, 70, 229, 0.16)"
+      },
+      {
+        "type": "contains",
+        "value": "--radius-control"
+      },
+      {
+        "type": "notContains",
+        "value": "@font-face"
+      },
+      {
+        "type": "notContains",
+        "value": "--z-cmd"
+      },
+      {
+        "type": "notContains",
+        "value": "--z-nav"
+      }
+    ]
+  },
+  {
+    "id": "modern-midtone",
+    "prompt": "Design tokens for our plant-care app, brand colour #0d9488, calm and friendly. Add frosted glass panels and z-index layers too.",
+    "expect": [
+      {
+        "type": "fileExists",
+        "value": "design-tokens.json"
+      },
+      {
+        "type": "fileExists",
+        "value": "tokens.css"
+      },
+      {
+        "type": "fileExists",
+        "value": "design-system-report.md"
+      },
+      {
+        "type": "contains",
+        "value": "## Design system:"
+      },
+      {
+        "type": "contains",
+        "value": "### Contrast"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "\"$type\": \"color\""
+      },
+      {
+        "type": "contains",
+        "value": "\"$value\""
+      },
+      {
+        "type": "contains",
+        "value": "prefers-color-scheme: dark"
+      },
+      {
+        "type": "contains",
+        "value": ":root[data-theme=\"dark\"]"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-reduced-motion: reduce"
+      },
+      {
+        "type": "contains",
+        "value": "--size-target-min: 44px"
+      },
+      {
+        "type": "notContains",
+        "value": "@import"
+      },
+      {
+        "type": "notContains",
+        "value": "<link"
+      },
+      {
+        "type": "notContains",
+        "value": "url("
+      },
+      {
+        "type": "contains",
+        "value": "--glass-bg"
+      },
+      {
+        "type": "contains",
+        "value": "--glass-blur: 12px"
+      },
+      {
+        "type": "contains",
+        "value": "--r-xs: 4px"
+      },
+      {
+        "type": "contains",
+        "value": "--r-sm: 6px"
+      },
+      {
+        "type": "contains",
+        "value": "--r-md: 10px"
+      },
+      {
+        "type": "contains",
+        "value": "--r-lg: 14px"
+      },
+      {
+        "type": "contains",
+        "value": "--r-xl: 16px"
+      },
+      {
+        "type": "contains",
+        "value": "--z-sticky: 20"
+      },
+      {
+        "type": "contains",
+        "value": "--z-dropdown: 40"
+      },
+      {
+        "type": "contains",
+        "value": "--z-command: 60"
+      },
+      {
+        "type": "contains",
+        "value": "--z-modal: 80"
+      },
+      {
+        "type": "contains",
+        "value": "--z-toast: 100"
+      },
+      {
+        "type": "contains",
+        "value": "--glow: radial-gradient("
+      },
+      {
+        "type": "contains",
+        "value": "--btn-gloss: linear-gradient("
+      },
+      {
+        "type": "contains",
+        "value": "--font-weight-medium: 500"
+      },
+      {
+        "type": "contains",
+        "value": "--color-brand: #0d9488"
+      },
+      {
+        "type": "contains",
+        "value": "--color-primary-700: #0d9488"
+      },
+      {
+        "type": "contains",
+        "value": "--color-action-primary-bg: var(--color-primary-800)"
+      },
+      {
+        "type": "contains",
+        "value": "white text on your #0d9488 is 3.74:1"
+      },
+      {
+        "type": "contains",
+        "value": "calm-workspace"
+      },
+      {
+        "type": "contains",
+        "value": "--glass-bg: #111817b8"
+      }
+    ]
+  },
+  {
+    "id": "modern-not-asked",
+    "prompt": "Create design tokens for our project-tracking tool. Brand colour #2563eb; keep it modern and clean.",
+    "expect": [
+      {
+        "type": "fileExists",
+        "value": "design-tokens.json"
+      },
+      {
+        "type": "fileExists",
+        "value": "tokens.css"
+      },
+      {
+        "type": "fileExists",
+        "value": "design-system-report.md"
+      },
+      {
+        "type": "contains",
+        "value": "## Design system:"
+      },
+      {
+        "type": "contains",
+        "value": "### Contrast"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "\"$type\": \"color\""
+      },
+      {
+        "type": "contains",
+        "value": "\"$value\""
+      },
+      {
+        "type": "contains",
+        "value": "prefers-color-scheme: dark"
+      },
+      {
+        "type": "contains",
+        "value": ":root[data-theme=\"dark\"]"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-reduced-motion: reduce"
+      },
+      {
+        "type": "contains",
+        "value": "--size-target-min: 44px"
+      },
+      {
+        "type": "notContains",
+        "value": "@import"
+      },
+      {
+        "type": "notContains",
+        "value": "<link"
+      },
+      {
+        "type": "notContains",
+        "value": "url("
+      },
+      {
+        "type": "contains",
+        "value": "--color-brand: #2563eb"
+      },
+      {
+        "type": "notContains",
+        "value": "--glass-bg"
+      },
+      {
+        "type": "notContains",
+        "value": "--z-sticky"
+      },
+      {
+        "type": "notContains",
+        "value": "--btn-gloss"
+      },
+      {
+        "type": "notContains",
+        "value": "--font-weight-medium"
+      },
+      {
+        "type": "notContains",
+        "value": "--r-xs"
+      }
+    ]
   }
 ]

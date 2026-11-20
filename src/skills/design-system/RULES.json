@@ -31,8 +31,8 @@
   },
   {
     "id": "R-design-system-7",
-    "text": "Spacing MUST use 0, 4, 8, 12, 16, 24, 32, 48, 64 px; font sizes MUST come from 12 to 48 px on the type scale; body MUST be 16 px or more at line-height 1.5; exactly two weights.",
-    "checklist": "Every spacing and font-size value is on its scale; body 16 px or more; two weights."
+    "text": "Spacing MUST use 0, 4, 8, 12, 16, 24, 32, 48, 64 px; font sizes MUST come from 12 to 48 px on the type scale; body MUST be 16 px or more at line-height 1.5; exactly two weights, plus --font-weight-medium: 500 only in the optional 2026 group.",
+    "checklist": "Every spacing and font-size value is on its scale; body 16 px or more; two weights (a third, 500, only with the 2026 group)."
   },
   {
     "id": "R-design-system-8",
@@ -103,5 +103,10 @@
     "id": "R-design-system-21",
     "text": "On path c the neutral scale MUST keep the project's own greys at their value, fill the other steps by interpolation and be contrast-checked; when it cannot pass, the default scale is used and the report says why.",
     "checklist": "The report names the project's greys and the step each sits at, or says why the default scale was used."
+  },
+  {
+    "id": "R-design-system-22",
+    "text": "Only when the user asks for 2026 or modern effects (glass, glow, gloss, z-index layers, the ui-craft tokens) the engine MUST run with --modern, adding --glass-bg, --glass-blur, --r-xs to --r-xl (4, 6, 10, 14, 16 px), --z-sticky, --z-dropdown, --z-command, --z-modal, --z-toast, --glow, --btn-gloss and --font-weight-medium: 500, with every 1.0.0 token unchanged; without that ask the group MUST NOT be added.",
+    "checklist": "With the 2026 ask tokens.css has every token of the group with the exact names and values (dark values for --glass-bg, --glow, --btn-gloss); without it none of them appears."
   }
 ]

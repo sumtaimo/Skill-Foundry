@@ -93,6 +93,20 @@ Write ratios rounded to two decimals with ":1"; a ratio below its minimum is nev
 | breakpoint | `--breakpoint-sm` 640px, `-md` 768px, `-lg` 1024px, `-xl` 1280px | fixed; custom properties do not work in media queries, so copy the numbers there |
 | density | `--density-control-x`, `-control-y`, `-row`, `-stack`, `-section`; `[data-density="compact" / "comfortable" / "spacious"]` | compact 8, 4, 32, 8, 24; comfortable 12, 8, 40, 12, 32; spacious 16, 12, 48, 16, 48 px |
 
+Optional 2026 group (only with the engine flag `--modern`, R-design-system-22; names match ui-craft exactly):
+
+| Token | Light | Dark |
+|-------|-------|------|
+| `--glass-bg` | surface-default + `b8` (72% alpha) | dark surface-default + `b8` |
+| `--glass-blur` | 12px | same |
+| `--r-xs`, `--r-sm`, `--r-md`, `--r-lg`, `--r-xl` | 4, 6, 10, 14, 16 px | same |
+| `--z-sticky`, `--z-dropdown`, `--z-command`, `--z-modal`, `--z-toast` | 20, 40, 60, 80, 100 | same |
+| `--glow` | radial-gradient(640px 320px at 50% 0%, brand at 0.1, transparent 70%) | brand at 0.16 |
+| `--btn-gloss` | linear-gradient(180deg, white 0.16, white 0 at 60%) | white 0.14 |
+| `--font-weight-medium` | 500, for buttons and labels only | same |
+
+In design-tokens.json they sit under `modern` (`--font-weight-medium` under `font.weight.medium`); `--glow` and `--btn-gloss` have `$type` gradient. The 1.0.0 radius tokens (`--radius-*`) stay as they are.
+
 System font stacks (no files, no links):
 
 - Sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif

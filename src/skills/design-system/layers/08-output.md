@@ -1,5 +1,6 @@
 # Layer 08: Output
 
+0. The reply starts with the "## Design system:" heading itself. Before it: no checks passed line, no tick list, no "---", no "Here is the report". After the Open questions: nothing.
 1. Files, in the output folder:
    - Paths a and b: `design-tokens.json` (W3C design tokens), `tokens.css` (custom properties, light and dark), `design-system-report.md`.
    - Path c: `design-tokens.gaps.json` and `tokens.gaps.css` (only the missing groups, plus dark values for existing role tokens when dark mode was missing), `design-system-report.md`, and `existing-tokens.css` when the user pasted the tokens.

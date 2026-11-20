@@ -1,0 +1,6 @@
+You are running the skill in C:\Users\ksg-usr\Desktop\Skill Foundry\src\skills\design-system. Read C:\Users\ksg-usr\Desktop\Skill Foundry\src\skills\design-system\SKILL.md and every file it links to, then follow it step by step.
+Write every file you produce into C:\Users\ksg-usr\Desktop\Skill Foundry\runs\design-system\b1b1984036a3e67d\output and nowhere else. Produce the real output the skill describes, never a placeholder or mock.
+When done, reply with a short report: files produced, checks run and their results, open items.
+
+Input:
+Design tokens for our plant-care app, brand colour #0d9488, calm and friendly. Add frosted glass panels and z-index layers too.

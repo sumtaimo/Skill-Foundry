@@ -19,6 +19,16 @@ const REPO_ROOT = resolve(dirname(HERE), '..', '..');
 export const QUOTA_LIMIT_RE = /^\s*(?:API Error:\s*)?(?:You(?:'ve|’ve| have) (?:hit|reached) your [^\n]*limit|Usage limit reached|Rate limit reached|Credit balance is too low)/im;
 
 /** Quote a command + args into a single Windows cmd.exe command string (avoids Node 24 DEP0190 and preserves spaces/parens). */
+/**
+ * Claude flags that turn off the user's own machine hooks for an eval agent only: a hook (usage collector,
+ * session tracker) can hang a headless run, and it is not part of the skill under test. The user's settings are not changed.
+ */
+export function noHookArgs() {
+  const f = join(mkdtempSync(join(tmpdir(), 'sf-settings-')), 'settings.json');
+  writeFileSync(f, '{ "disableAllHooks": true }');
+  return ['--settings', f];
+}
+
 export function winCommandLine(cmd, args = []) {
   return [cmd, ...args].map((a) => {
     const s = String(a);
@@ -122,8 +132,8 @@ export function runLive(skillDir, { engine = 'claude', cases: caseIds, spawn = s
       } finally { rmSync(workDir, { recursive: true, force: true }); }
     } else {
       res = process.platform === 'win32' && spawn === spawnSync
-        ? spawn(winCommandLine(engine, ['-p']), { input, encoding: 'utf8', shell: true, timeout: 1200000 })
-        : spawn(engine, ['-p'], { input, encoding: 'utf8', timeout: 1200000 });
+        ? spawn(winCommandLine(engine, ['-p', ...noHookArgs()]), { input, encoding: 'utf8', shell: true, timeout: 1200000 })
+        : spawn(engine, ['-p', ...noHookArgs()], { input, encoding: 'utf8', timeout: 1200000 });
     }
     if (res.error) throw new Error(`runLive: ${engine} failed on ${c.id}: ${res.error.message}`);
     if (res.status !== 0) {
