@@ -6,6 +6,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { ROOT, HARNESS_DIR, DIRS, FILES, atomicWriteJson, readJsonSafe, ensureDirs, LESSONS_HEADER, AUTO_LESSONS_HEADER, normalizeTarget, loadConfig, memberModels } from './common.mjs';
 
 export const GOV = {
@@ -112,6 +113,13 @@ export const SKILL_COMPOSITION = 'additive-union';
  * such as Skill Foundry may write pointers with `autoApply: false` and rely on keywords. Read the flag, never a version.
  */
 export const SKILL_MATCH = 'keywords-with-explicit';
+/** Capability flag: a keyword matches when it appears anywhere in the task text (case-insensitive substring, not whole word). */
+export const SKILL_KEYWORD_MATCH = 'substring';
+/** Highest SKILL.md `schema_version` (format of the skill pointer) this harness understands; a missing value means 1. */
+export const SKILL_SCHEMA_MAX = 1;
+const unsupportedSkills = new Map();
+/** Pointers skipped by loadSkills because their schema_version is newer than SKILL_SCHEMA_MAX: [{ name, schemaVersion }]. */
+export const unsupportedSkillPointers = () => [...unsupportedSkills].map(([name, schemaVersion]) => ({ name, schemaVersion }));
 
 /** Load .harness/roles/*.json keyed by role name (e.g. DEV_ENGINEER). */
 export function loadRoles() {
@@ -246,8 +254,16 @@ export function loadSkills() {
       const raw = fs.readFileSync(file, 'utf8');
       const { meta, body } = parseFrontmatter(raw);
       const name = String(meta.name || dir.name);
+      const sv = meta.schema_version === undefined ? 1 : Number(meta.schema_version);
+      if (Number.isFinite(sv) && sv > SKILL_SCHEMA_MAX) {
+        if (!unsupportedSkills.has(name)) process.stderr.write(`SKILL_SCHEMA_UNSUPPORTED ${name} (schema_version ${sv} > ${SKILL_SCHEMA_MAX}; update the harness)\n`);
+        unsupportedSkills.set(name, sv);
+        continue;
+      }
+      unsupportedSkills.delete(name);
       skills[name] = {
         name,
+        schemaVersion: Number.isFinite(sv) ? sv : 1,
         description: String(meta.description || ''),
         roles: (Array.isArray(meta.roles) ? meta.roles : []).map((r) => String(r).toUpperCase()),
         allowedTools: Array.isArray(meta.allowedTools) ? meta.allowedTools : [],
@@ -422,11 +438,19 @@ export function applyEngineRouting(team, routing) {
   return { ...team, members: team.members.map((m) => ({ ...m, engine: routing[ROLE_JOB[String(m.role).toUpperCase()] || 'code'] })) };
 }
 
+const TEST_FILE_RE = /(^|\/)(tests?|__tests__|e2e)(\/|$)|\.(test|spec)\.[a-z0-9*?]+$|(^|\/)(test_[^/]+\.py|[^/]+_test\.(py|go))$/i;
+/** True when `p` matches a test directory or test file convention (JS/TS/Python/Go). */
+export function isTestFilePath(p) {
+  const n = String(p || '').replace(/\\/g, '/').replace(/^\.\//, '');
+  return TEST_FILE_RE.test(n);
+}
+
 /**
  * Level-1 guardrail, shared by the headless controller and the editor workflow: is the orchestrator's
  * delegation allowed? Throws an Error with a plain message on the first broken rule.
  *  - each assignment goes to a lead the orchestrator may delegate to, each lead at most once
  *  - every file is a safe relative path inside that lead's scope (and inside what the user allowed)
+ *  - when a QA_AUDITOR lead exists on the team, only QA_AUDITOR leads may own test files
  *  - no two leads are given overlapping files
  */
 export function validateDelegation(plan, { leads, delegable, userAllowed = [] }) {
@@ -437,6 +461,7 @@ export function validateDelegation(plan, { leads, delegable, userAllowed = [] })
     const n = strip(raw);
     return file === n || file.startsWith(`${n}/`) || (/[*?]/.test(raw) && matchesAny(file, [raw]));
   });
+  const hasQaLead = leads.some((l) => String(l.role).toUpperCase() === 'QA_AUDITOR');
   const seenLeads = new Set(); const claimed = [];
   for (const a of plan.assignments) {
     const lead = leads.find((l) => l.id === a.lead);
@@ -447,6 +472,9 @@ export function validateDelegation(plan, { leads, delegable, userAllowed = [] })
     if (!Array.isArray(a.files) || !a.files.length) throw new Error(`assignment to "${lead.id}" has no files.`);
     a.files = a.files.map((f) => { const s = normalizeTarget(f); if (!s) throw new Error(`assignment to "${lead.id}" has an unsafe path "${f}".`); return s; });
     for (const f of a.files) {
+      if (hasQaLead && String(lead.role).toUpperCase() !== 'QA_AUDITOR' && isTestFilePath(f)) {
+        throw new Error(`lead "${a.lead}" (${lead.role}) may not own test file "${f}" — only lead-qa owns test files.`);
+      }
       if (!leadOwns(lead, f, leads)) throw new Error(`file "${f}" is outside lead "${lead.id}"'s scope (${lead.scope.join(', ')})${withinAll(f, lead.scope) ? '; a more specific scope of another lead owns it (e.g. test files belong to the QA lead)' : ''}.`);
       if (userAllowed.length && !inside(strip(f), userAllowed)) throw new Error(`file "${f}" is outside the files the user allowed (${userAllowed.join(', ')}).`);
       for (const [other, by] of claimed) {
@@ -528,18 +556,18 @@ export function renderAgentFile(lead, role, team, config = (() => { try { return
 }
 
 /** { 'lead-dev.md': content, … } for every lead whose role is known. */
-export function expectedAgentFiles(team, roles) {
+export function expectedAgentFiles(team, roles, config = undefined) {
   const out = {};
   for (const l of (team?.members || []).filter((m) => m.level === 'lead')) {
     const role = roles[String(l.role).toUpperCase()];
-    if (role) out[`${l.id}.md`] = renderAgentFile(l, role, team);
+    if (role) out[`${l.id}.md`] = renderAgentFile(l, role, team, config);
   }
   return out;
 }
 
 /** Write (or check) .claude/agents/*.md. Returns { written[], unchanged[], stale[] }; with check:true nothing is written. */
-export function syncAgents(team, roles, { dir = AGENTS_DIR, check = false } = {}) {
-  const want = expectedAgentFiles(team, roles);
+export function syncAgents(team, roles, { dir = AGENTS_DIR, check = false, config = undefined } = {}) {
+  const want = expectedAgentFiles(team, roles, config);
   const res = { written: [], unchanged: [], stale: [] };
   if (!check) fs.mkdirSync(dir, { recursive: true });
   for (const [f, content] of Object.entries(want)) {
@@ -687,6 +715,736 @@ export function listReleases() {
   try {
     return fs.readdirSync(GOV.releases).filter((d) => d.startsWith('release-')).sort();
   } catch { return []; }
+}
+
+// ───────────────────────────── anti-cheat & root-cause patch audit ─────────────────────────────
+
+const MAX_AUDIT_BYTES = 256 * 1024;
+const NON_CODE_FILE_RE = /\.(md|mdx|txt|json|css|scss|less|svg|png|jpg|jpeg|gif|webp|ico|yml|yaml|toml|lock)$/i;
+const TEST_BYPASS_RE = /(?:\.skip\s*\(|\.only\s*\(|\bx(?:it|test)\s*\(|\b(?:describe|it|test)\.(?:skip|todo)\b|\.todo\s*\()/;
+const EMPTY_CATCH_RE = /(?<![.\w$])catch\s*(?:\([^)]*\))?\s*\{\s*(?:(?:\/\/[^\n]*|\/\*[\s\S]*?\*\/)\s*)*\}/;
+const EMPTY_PROMISE_CATCH_RE = /\.catch\s*\(\s*(?:(?:\([^)]*\)|[A-Za-z_$][\w$]*)\s*=>\s*(?:\{\s*(?:(?:\/\/[^\n]*|\/\*[\s\S]*?\*\/)\s*)*\}|null\b|undefined\b)|function\s*(?:[A-Za-z_$][\w$]*)?\s*\([^)]*\)\s*\{\s*(?:(?:\/\/[^\n]*|\/\*[\s\S]*?\*\/)\s*)*\})\s*\)/;
+const ROOT_CAUSE_RE = /root.?cause|symptom|because|caused by|blast radius/i;
+const NON_DEV_REPORT_KEY_RE = /^(?:lead-)?(?:qa|ba)(?:[-.]|$)/i;
+const isHashOrFlag = (v) => typeof v !== 'string' || /^[0-9a-f]{40}$/i.test(v) || v === 'HEAD';
+
+function parseUnifiedDiffAddedHunks(diffText) {
+  const hunks = [];
+  let cur = null;
+  for (const line of String(diffText || '').split(/\r?\n/)) {
+    if (line.startsWith('@@')) {
+      if (cur && cur.length) hunks.push(cur);
+      cur = [];
+      continue;
+    }
+    if (!cur) continue;
+    if (line.startsWith('+')) cur.push(line.slice(1));
+  }
+  if (cur && cur.length) hunks.push(cur);
+  return hunks;
+}
+
+function diffAddedHunks(oldText, newText) {
+  const a = String(oldText || '').split(/\r?\n/);
+  const b = String(newText || '').split(/\r?\n/);
+  let pre = 0;
+  while (pre < a.length && pre < b.length && a[pre] === b[pre]) pre++;
+  let suf = 0;
+  while (suf < a.length - pre && suf < b.length - pre && a[a.length - 1 - suf] === b[b.length - 1 - suf]) suf++;
+  const aMid = a.slice(pre, a.length - suf);
+  const bMid = b.slice(pre, b.length - suf);
+  if (!bMid.length) return [];
+  if (!aMid.length) return [bMid];
+  if (aMid.length * bMid.length <= 250000) {
+    const m = aMid.length; const n = bMid.length;
+    const dp = Array.from({ length: m + 1 }, () => new Uint32Array(n + 1));
+    for (let i = m - 1; i >= 0; i--) {
+      for (let j = n - 1; j >= 0; j--) {
+        dp[i][j] = aMid[i] === bMid[j] ? 1 + dp[i + 1][j + 1] : Math.max(dp[i + 1][j], dp[i][j + 1]);
+      }
+    }
+    const hunks = []; let cur = [];
+    let i = 0; let j = 0;
+    while (i < m && j < n) {
+      if (aMid[i] === bMid[j]) { if (cur.length) { hunks.push(cur); cur = []; } i++; j++; }
+      else if (dp[i + 1][j] >= dp[i][j + 1]) i++;
+      else cur.push(bMid[j++]);
+    }
+    while (j < n) cur.push(bMid[j++]);
+    if (cur.length) hunks.push(cur);
+    return hunks;
+  }
+  const counts = new Map();
+  for (const l of aMid) counts.set(l, (counts.get(l) || 0) + 1);
+  const added = [];
+  for (const l of bMid) {
+    const c = counts.get(l) || 0;
+    if (c > 0) counts.set(l, c - 1);
+    else added.push(l);
+  }
+  return added.length ? [added] : [];
+}
+
+function insideDir(baseDir, targetPath) {
+  const b = path.resolve(baseDir);
+  const r = path.relative(b, targetPath);
+  return r === '' || (!r.startsWith('..') && !path.isAbsolute(r));
+}
+
+function extractAddedHunks({ rel, root, baseVal, curVal, baselineDir, baseRef, hasGitHead }) {
+  const abs = path.resolve(root, rel);
+  if (!insideDir(root, abs)) return [];
+  let st = null;
+  try { st = fs.statSync(abs); } catch { st = null; }
+  if (st && st.isFile()) {
+    if (st.size > MAX_AUDIT_BYTES) return [];
+    let buf;
+    try { buf = fs.readFileSync(abs); } catch { return []; }
+    if (buf.includes(0)) return [];
+    const diskText = buf.toString('utf8');
+    if (baselineDir && baseVal !== 'HEAD') {
+      const baseAbs = path.resolve(baselineDir, rel);
+      if (insideDir(baselineDir, baseAbs)) {
+        try {
+          const bst = fs.statSync(baseAbs);
+          if (bst.isFile() && bst.size <= MAX_AUDIT_BYTES) {
+            const oldBuf = fs.readFileSync(baseAbs);
+            if (!oldBuf.includes(0)) return diffAddedHunks(oldBuf.toString('utf8'), diskText);
+          }
+        } catch {
+          // Only fall through to git HEAD if inside a git repo; otherwise treat as a new file below.
+        }
+      }
+    }
+    if (hasGitHead()) {
+      const ref = baseRef || 'HEAD';
+      if (ref === 'HEAD') {
+        const stOut = spawnSync('git', ['status', '--porcelain', '--', rel], { cwd: root, encoding: 'utf8', timeout: 5000 });
+        if (stOut.status === 0 && /^\?\?/.test(stOut.stdout || '')) {
+          return [diskText.split(/\r?\n/)];
+        }
+      }
+      const inBase = spawnSync('git', ['cat-file', '-e', `${ref}:${rel}`], { cwd: root, stdio: 'ignore', timeout: 5000 }).status === 0;
+      if (inBase) {
+        const diffArgs = ref === 'HEAD' ? ['diff', '-U0', 'HEAD', '--', rel] : ['diff', '-U0', ref, 'HEAD', '--', rel];
+        const dr = spawnSync('git', ['--no-pager', ...diffArgs], { cwd: root, encoding: 'utf8', maxBuffer: 4 * 1024 * 1024, timeout: 5000 });
+        if (dr.status === 0) return parseUnifiedDiffAddedHunks(dr.stdout || '');
+      }
+    }
+    return [diskText.split(/\r?\n/)];
+  }
+  if (!isHashOrFlag(curVal)) {
+    if (curVal.length > MAX_AUDIT_BYTES || curVal.includes('\0')) return [];
+    return !isHashOrFlag(baseVal) ? diffAddedHunks(baseVal, curVal) : [curVal.split(/\r?\n/)];
+  }
+  return [];
+}
+
+/**
+ * Deterministic zero-dependency scanner for anti-cheat and root-cause signals on newly added lines:
+ *  - test bypasses (.skip, .only, .todo, xit, xtest, describe/it/test.skip|.todo) in test files
+ *  - silent error-swallowing empty/comment-only catch blocks or .catch(() => {} / null) in non-test code files
+ *  - missing root-cause explanation in dev/worker reports on retries (cycle > 1) or bug-fix runs
+ */
+export function auditPatchSignals({ baseFiles = {}, curFiles = {}, root = ROOT, testsChangedAfterFail = [], reports = {}, cycle = 1, isBugFix = false, baselineDir = null, baseRef = 'HEAD', devIds = null, changedCodeFiles = null } = {}) {
+  const signals = [];
+  const skippedTests = [];
+  const emptyCatches = [];
+  const detectedCodeFiles = [];
+  const candidateSet = new Set();
+  for (const f of Object.keys(curFiles || {})) {
+    if (!(f in (baseFiles || {})) || baseFiles[f] !== curFiles[f]) candidateSet.add(f);
+  }
+  for (const f of testsChangedAfterFail || []) if (f) candidateSet.add(f);
+
+  let gitHeadChecked = null;
+  const hasGitHead = () => {
+    if (gitHeadChecked !== null) return gitHeadChecked;
+    try {
+      gitHeadChecked = spawnSync('git', ['rev-parse', '--verify', '-q', baseRef || 'HEAD'], { cwd: root, stdio: 'ignore', timeout: 5000 }).status === 0;
+    } catch { gitHeadChecked = false; }
+    return gitHeadChecked;
+  };
+
+  const seenRel = new Set();
+  for (const rawPath of candidateSet) {
+    const rel = String(rawPath || '').replace(/\\/g, '/').replace(/^\.\//, '');
+    if (!rel || rel.startsWith('..') || path.isAbsolute(rel) || seenRel.has(rel)) continue;
+    seenRel.add(rel);
+    if (NON_CODE_FILE_RE.test(rel)) continue;
+    if (!isTestFilePath(rel) && !/^docs\//i.test(rel)) detectedCodeFiles.push(rel);
+    try {
+      const baseVal = baseFiles?.[rawPath] ?? baseFiles?.[rel];
+      const curVal = curFiles?.[rawPath] ?? curFiles?.[rel];
+      const hunks = extractAddedHunks({ rel, root, baseVal, curVal, baselineDir, baseRef, hasGitHead });
+      if (!hunks.length) continue;
+
+      if (isTestFilePath(rel)) {
+        const matched = new Set();
+        for (const hunk of hunks) {
+          for (const line of hunk) {
+            if (/^\s*\/\//.test(line)) continue;
+            const m = line.match(TEST_BYPASS_RE);
+            if (m) matched.add(m[0].trim());
+          }
+        }
+        if (matched.size) {
+          skippedTests.push(rel);
+          signals.push(`test bypass/skip detected in ${rel} (${[...matched].join(', ')})`);
+        }
+      } else {
+        let foundCatch = false;
+        for (const hunk of hunks) {
+          const cleaned = hunk.map((l) => (/^[ \t]*\/\//.test(l) ? '' : l)).join('\n');
+          if (EMPTY_CATCH_RE.test(cleaned) || EMPTY_PROMISE_CATCH_RE.test(cleaned)) { foundCatch = true; break; }
+        }
+        if (foundCatch) {
+          emptyCatches.push(rel);
+          signals.push(`silent error-swallowing catch block added in ${rel}`);
+        }
+      }
+    } catch { /* never crash on unreadable or transient files */ }
+  }
+
+  let missingRootCause = false;
+  const codeFiles = Array.isArray(changedCodeFiles) ? changedCodeFiles : detectedCodeFiles;
+  const explicitDevIds = Array.isArray(devIds) ? devIds : null;
+  let devText = '';
+  if (typeof reports === 'string') {
+    devText = reports.trim();
+  } else if (reports && typeof reports === 'object') {
+    if (explicitDevIds) {
+      devText = explicitDevIds.map((id) => String(reports[id] || '').trim()).filter(Boolean).join('\n');
+    } else if ('lead-dev' in reports) {
+      devText = String(reports['lead-dev'] || '').trim();
+    } else {
+      devText = Object.entries(reports)
+        .filter(([k]) => !NON_DEV_REPORT_KEY_RE.test(k))
+        .map(([, v]) => String(v || '').trim())
+        .filter(Boolean)
+        .join('\n');
+    }
+  }
+  const devRan = explicitDevIds ? explicitDevIds.length > 0 : Boolean(devText);
+  if ((cycle > 1 || isBugFix) && (codeFiles.length > 0 || devRan)) {
+    if (!devText || !ROOT_CAUSE_RE.test(devText)) {
+      missingRootCause = true;
+      signals.push('dev report on retry/bug-fix omits root cause (expected Symptom, Root Cause, or Blast Radius)');
+    }
+  }
+  return { signals, skippedTests, emptyCatches, missingRootCause };
+}
+
+const SAFETY_SKIP_RE = /^\.harness\/(?:releases|visible|staging|completed|failed|worktrees|logs|archive)(?:\/|$)/i;
+const DOC_SETEXT_RE = /\.(?:md|mdx|txt|rst)$/i;
+const JS_TS_RE = /\.(?:js|mjs|cjs|jsx|ts|tsx)$/i;
+const SAFETY_ENV_RE = /\$\{[^}]+\}|\{\{[^}]+\}\}|<[^>\s]{2,}>|process\.env\.|import\.meta\.env\.|os\.environ|os\.getenv|ENV\[/i;
+const SAFETY_PLACEHOLDER_RE = /(?:^|[^a-z0-9])(?:example|dummy|sample|placeholder|your[_-]|yourkey|test[_-]?key|fake|mock|redacted|changeme|insert[_-]?here|replace[_-]?me|not[_-]?a[_-]?secret|unset)(?:[^a-z0-9]|$)/i;
+const SAFETY_REPEAT_RE = /^(.)\1{7,}$/;
+const SAFETY_TEST_PREFIX_RE = /^(?:sk_test|pk_test|rk_test|sk-test)[_-]/i;
+
+const PRIVATE_KEY_RE = /-----BEGIN (?:RSA |EC |DSA |OPENSSH |PGP )?PRIVATE KEY-----/;
+const PROVIDER_SECRET_PATTERNS = [
+  ['AWS access key', /\b(?:AKIA|ASIA|AROA|AIDA)[A-Z0-9]{16}\b/g],
+  ['GitHub token', /\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{20,}\b|\bgithub_pat_[A-Za-z0-9_]{22,}\b/g],
+  ['Anthropic/OpenAI API key', /\bsk-ant-[A-Za-z0-9_-]{16,}\b|\bsk-(?:proj-|svcacct-)?[A-Za-z0-9_-]{20,}\b/g],
+  ['Slack token', /\bxox[baprs]-[A-Za-z0-9-]{10,}\b/g],
+  ['Google API key', /\bAIza[0-9A-Za-z_-]{30,}\b/g],
+  ['Stripe live key', /\b(?:sk_live|rk_live)_[0-9a-zA-Z]{16,}\b/g]
+];
+const CRED_ASSIGN_RE = /\b(api[_-]?key|secret[_-]?key|access[_-]?token|auth[_-]?token|private[_-]?key|client[_-]?secret|password|passwd|db_pass)['"]?\s*[:=]\s*(['"])([A-Za-z0-9_+=/!@#$%^&*.-]{12,})\2/gi;
+const CRED_URL_RE = /\b((?:postgres(?:ql)?|mongodb(?:\+srv)?|mysql|redis|amqps?|https?)):\/\/([^:\s/@'"`<>]+):([^@\s/'"`<>]{4,})@([^:\s/'"`<>]+)/gi;
+const CONFLICT_BRACKET_RE = /^(?:<{7}(?:\s.*)?|>{7}(?:\s.*)?)\s*$/;
+const CONFLICT_EQ_RE = /^={7}\s*$/;
+const DEBUGGER_STMT_RE = /(?:^|[;{}])\s*debugger\b\s*(?:;|$)/;
+
+function isPlaceholderToken(val) {
+  if (!val) return true;
+  if (SAFETY_ENV_RE.test(val) || SAFETY_PLACEHOLDER_RE.test(val) || SAFETY_REPEAT_RE.test(val) || SAFETY_TEST_PREFIX_RE.test(val)) return true;
+  if (/(?:EXAMPLE|DUMMY|SAMPLE|PLACEHOLDER|YOUR_|REDACTED|FAKE|MOCK|0{10,}|x{10,}|X{10,})/.test(val)) return true;
+  return false;
+}
+
+/**
+ * Deterministic zero-dependency pre-commit patch safety scanner on newly added diff hunks.
+ * Scans all non-binary changed/added files (including .json, .yml, .yaml, .toml, .md, etc.; skips .harness/releases/**):
+ *  - Blocking: leaked API keys/tokens/private keys/credentialed URLs/hardcoded credentials (NEVER echoes matched secret; always redacted)
+ *  - Blocking: unresolved merge conflict markers (<<<<<<<, >>>>>>>, and ======= when not a standalone Markdown Setext heading)
+ *  - Warning (non-blocking): newly added JS/TS `debugger` statements
+ */
+export function scanPatchSafety({ baseFiles = {}, curFiles = {}, root = ROOT, baselineDir = null, baseRef = 'HEAD' } = {}) {
+  const blocking = [];
+  const warnings = [];
+  const secretFiles = [];
+  const conflictFiles = [];
+  const debugFiles = [];
+
+  const candidateSet = new Set();
+  for (const f of Object.keys(curFiles || {})) {
+    if (!(f in (baseFiles || {})) || baseFiles[f] !== curFiles[f]) candidateSet.add(f);
+  }
+
+  let gitHeadChecked = null;
+  const hasGitHead = () => {
+    if (gitHeadChecked !== null) return gitHeadChecked;
+    try {
+      gitHeadChecked = spawnSync('git', ['rev-parse', '--verify', '-q', baseRef || 'HEAD'], { cwd: root, stdio: 'ignore', timeout: 5000 }).status === 0;
+    } catch { gitHeadChecked = false; }
+    return gitHeadChecked;
+  };
+
+  const addUnique = (arr, val) => { if (val && !arr.includes(val)) arr.push(val); };
+
+  const seenRel = new Set();
+  for (const rawPath of candidateSet) {
+    const rel = String(rawPath || '').replace(/\\/g, '/').replace(/^\.\//, '');
+    if (!rel || rel.startsWith('..') || path.isAbsolute(rel) || seenRel.has(rel)) continue;
+    seenRel.add(rel);
+    if (SAFETY_SKIP_RE.test(rel)) continue;
+
+    try {
+      const baseVal = baseFiles?.[rawPath] ?? baseFiles?.[rel];
+      const curVal = curFiles?.[rawPath] ?? curFiles?.[rel];
+      const hunks = extractAddedHunks({ rel, root, baseVal, curVal, baselineDir, baseRef, hasGitHead });
+      if (!hunks.length) continue;
+
+      const flatLines = hunks.flat();
+      let hasBracketMarker = flatLines.some((l) => CONFLICT_BRACKET_RE.test(l));
+      let fileConflict = hasBracketMarker;
+
+      if (!hasBracketMarker && flatLines.some((l) => CONFLICT_EQ_RE.test(l))) {
+        if (!DOC_SETEXT_RE.test(rel)) {
+          fileConflict = true;
+        } else {
+          // For Markdown/text docs, ======= is a Setext H1 underline unless <<<<<<< or >>>>>>> also exists in the file.
+          let diskText = '';
+          try { diskText = fs.readFileSync(path.resolve(root, rel), 'utf8'); } catch { diskText = !isHashOrFlag(curVal) ? String(curVal) : ''; }
+          if (/^(?:<{7}|>{7})(?:\s|$)/m.test(diskText)) fileConflict = true;
+        }
+      }
+      if (fileConflict) {
+        addUnique(conflictFiles, rel);
+        addUnique(blocking, `unresolved merge conflict marker in ${rel}`);
+      }
+
+      const isJsTs = JS_TS_RE.test(rel);
+      for (const line of flatLines) {
+        if (PRIVATE_KEY_RE.test(line) && !/-----BEGIN\s+(?:EXAMPLE|DUMMY|SAMPLE|TEST)\s+PRIVATE\s+KEY-----/i.test(line)) {
+          addUnique(secretFiles, rel);
+          addUnique(blocking, `leaked private key block in ${rel} (redacted)`);
+        }
+
+        for (const [label, re] of PROVIDER_SECRET_PATTERNS) {
+          re.lastIndex = 0;
+          let m;
+          while ((m = re.exec(line)) !== null) {
+            if (!isPlaceholderToken(m[0])) {
+              addUnique(secretFiles, rel);
+              addUnique(blocking, `leaked ${label} in ${rel} (redacted)`);
+              break;
+            }
+          }
+        }
+
+        if (!SAFETY_ENV_RE.test(line)) {
+          CRED_ASSIGN_RE.lastIndex = 0;
+          let cm;
+          while ((cm = CRED_ASSIGN_RE.exec(line)) !== null) {
+            const keyName = cm[1];
+            const secretVal = cm[3];
+            if (!isPlaceholderToken(secretVal)) {
+              addUnique(secretFiles, rel);
+              addUnique(blocking, `hardcoded credential (${keyName}) in ${rel} (redacted)`);
+              break;
+            }
+          }
+        }
+
+        CRED_URL_RE.lastIndex = 0;
+        let um;
+        while ((um = CRED_URL_RE.exec(line)) !== null) {
+          const [, scheme, user, pass, host] = um;
+          const localHost = /^(?:localhost|127\.0\.0\.1|0\.0\.0\.0|\[?::1\]?|example\.com|example\.org)$/i.test(host);
+          const docCred = (/^user(?:name)?$/i.test(user) && /^pass(?:word|wd)?$/i.test(pass));
+          if (!localHost && !docCred && !SAFETY_ENV_RE.test(user) && !isPlaceholderToken(pass)) {
+            addUnique(secretFiles, rel);
+            addUnique(blocking, `credentialed URL (${scheme}://…@${host}) in ${rel} (redacted)`);
+            break;
+          }
+        }
+
+        if (isJsTs && !/^\s*(?:\/\/|\/\*|\*)/.test(line) && DEBUGGER_STMT_RE.test(line)) {
+          addUnique(debugFiles, rel);
+          addUnique(warnings, `debug statement (debugger) added in ${rel}`);
+        }
+      }
+    } catch { /* never crash on transient or unreadable files */ }
+  }
+
+  return {
+    blocked: blocking.length > 0,
+    blocking,
+    warnings,
+    secretFiles,
+    conflictFiles,
+    debugFiles
+  };
+}
+
+// ───────────────────────────── adaptive project layout & role scopes ─────────────────────────────
+
+const LAYOUT_SKIP_DIRS = new Set([
+  '.git', '.harness', '.claude', '.cursor', '.vscode', '.github', '.idea',
+  '.next', '.nuxt', '.svelte-kit', '.astro', '.output', '.cache', '.turbo', '.parcel-cache',
+  '.pytest_cache', '.mypy_cache', '.ruff_cache', '.venv', 'venv', 'env', '__pycache__',
+  'node_modules', 'dist', 'build', 'out', 'coverage', 'target', 'vendor', 'demo-project', '.agent-state',
+  'examples'
+]);
+const STD_DEV_DIRS = new Set(['src']);
+const STD_DOC_DIRS = new Set(['docs']);
+const STD_TEST_DIRS = new Set(['tests', 'test', '__tests__']);
+const EXTRA_DOC_DIRS = new Set(['documentation', 'doc']);
+const EXTRA_TEST_DIRS = new Set(['spec', 'specs', 'e2e', 'cypress', 'playwright', 'unit_tests']);
+const STYLE_ONLY_DIR_NAMES = new Set(['styles', 'style', 'css', 'scss', 'less', 'theme', 'themes']);
+const BACKEND_ONLY_DIRS = new Set(['server', 'api', 'cmd', 'internal', 'pkg', 'backend', 'worker', 'workers', 'prisma', 'db', 'migrations']);
+const KNOWN_CODE_DIRS = new Set([
+  'app', 'pages', 'components', 'lib', 'server', 'api', 'cmd', 'internal', 'pkg',
+  'backend', 'frontend', 'web', 'core', 'utils', 'scripts', 'modules', 'routes',
+  'services', 'views', 'models', 'controllers', 'handlers', 'apps', 'packages',
+  'client', 'worker', 'workers', 'shared', 'common', 'features', 'hooks',
+  'store', 'stores', 'context', 'actions', 'middleware', 'plugins', 'layouts',
+  'templates', 'prisma', 'db', 'migrations', 'website'
+]);
+const UI_CAPABLE_DIRS = new Set([
+  'src', 'app', 'pages', 'components', 'styles', 'style', 'css', 'scss', 'less',
+  'theme', 'themes', 'views', 'layouts', 'templates', 'web', 'frontend', 'client',
+  'apps', 'packages', 'website'
+]);
+const CODE_EXT_RE = /\.(?:js|mjs|cjs|jsx|ts|tsx|py|go|rs|php|rb|java|kt|cs|vue|svelte|astro|html?)$/i;
+const STYLE_EXT_RE = /\.(?:css|scss|less)$/i;
+const UI_EXT_RE = /\.(?:css|scss|less|jsx|tsx|vue|svelte|astro|html?)$/i;
+
+function scanDirStats(rootDir, relDir) {
+  const stats = { fileCount: 0, hasCode: false, hasStyle: false, hasUi: false, hasGo: false, hasPy: false };
+  const walk = (absDir, depth) => {
+    if (stats.fileCount >= 1500 || depth > 4) return;
+    let entries;
+    try { entries = fs.readdirSync(absDir, { withFileTypes: true }); } catch { return; }
+    for (const e of entries) {
+      if (stats.fileCount >= 1500) break;
+      if (e.name.startsWith('.') || LAYOUT_SKIP_DIRS.has(e.name)) continue;
+      const full = path.join(absDir, e.name);
+      if (e.isDirectory()) { walk(full, depth + 1); continue; }
+      if (!e.isFile()) continue;
+      stats.fileCount++;
+      if (STYLE_EXT_RE.test(e.name)) stats.hasStyle = true;
+      if (UI_EXT_RE.test(e.name)) stats.hasUi = true;
+      if (CODE_EXT_RE.test(e.name)) stats.hasCode = true;
+      if (/\.go$/i.test(e.name)) stats.hasGo = true;
+      if (/\.py$/i.test(e.name)) stats.hasPy = true;
+    }
+  };
+  walk(path.join(rootDir, relDir), 0);
+  return stats;
+}
+
+/**
+ * Inspect top-level folders and language manifests under `root` without mutating anything.
+ * Identifies extra code, test, doc, and style folders outside template defaults (`src`, `docs`, `tests`, `test`, `__tests__`).
+ */
+export function detectProjectLayout(root = ROOT) {
+  const extraCodeDirs = [];
+  const extraTestDirs = [];
+  const extraDocDirs = [];
+  const extraStyleDirs = [];
+  const existingCodeDirs = [];
+  let hasGo = fs.existsSync(path.join(root, 'go.mod'));
+  let hasPy = ['pyproject.toml', 'pytest.ini', 'setup.cfg', 'setup.py', 'requirements.txt', 'uv.lock'].some((f) => fs.existsSync(path.join(root, f)));
+  let hasUi = false;
+
+  let top = [];
+  try { top = fs.readdirSync(root, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name)); } catch { top = []; }
+
+  for (const e of top) {
+    if (!e.isDirectory() || e.name.startsWith('.') || LAYOUT_SKIP_DIRS.has(e.name)) continue;
+    const name = e.name;
+    const st = scanDirStats(root, name);
+    if (!st.fileCount) continue;
+    if (st.hasGo) hasGo = true;
+    if (st.hasPy) hasPy = true;
+    if (st.hasUi || st.hasStyle) hasUi = true;
+
+    if (STD_DOC_DIRS.has(name)) continue;
+    if (EXTRA_DOC_DIRS.has(name)) { extraDocDirs.push(name); continue; }
+    if (STD_TEST_DIRS.has(name)) continue;
+    if (EXTRA_TEST_DIRS.has(name)) { extraTestDirs.push(name); continue; }
+
+    if (STYLE_ONLY_DIR_NAMES.has(name)) {
+      if (st.hasStyle || st.fileCount > 0) extraStyleDirs.push(name);
+      if (st.hasCode) { extraCodeDirs.push(name); existingCodeDirs.push(name); }
+      continue;
+    }
+
+    if (STD_DEV_DIRS.has(name)) {
+      existingCodeDirs.push(name);
+      continue;
+    }
+
+    if (KNOWN_CODE_DIRS.has(name) || st.hasCode) {
+      extraCodeDirs.push(name);
+      existingCodeDirs.push(name);
+      if ((UI_CAPABLE_DIRS.has(name) || st.hasUi || st.hasStyle) && (!BACKEND_ONLY_DIRS.has(name) || st.hasStyle || st.hasUi)) {
+        extraStyleDirs.push(name);
+      }
+    }
+  }
+
+  return {
+    extraCodeDirs,
+    extraTestDirs,
+    extraDocDirs,
+    extraStyleDirs: [...new Set(extraStyleDirs)],
+    existingCodeDirs,
+    hasGo,
+    hasPy,
+    hasUi,
+    uncoveredDirsCandidates: [...new Set([...extraCodeDirs, ...extraTestDirs, ...extraDocDirs, ...extraStyleDirs])]
+  };
+}
+
+function cloneJson(v) { return JSON.parse(JSON.stringify(v)); }
+
+function loadRolesFrom(dir) {
+  const roles = {};
+  try {
+    for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.json'))) {
+      const r = readJsonSafe(path.join(dir, f), null);
+      if (r?.name) roles[String(r.name).toUpperCase()] = { ...r, file: f };
+    }
+  } catch { /* no roles dir */ }
+  return roles;
+}
+
+/**
+ * Plan additive scope updates so team.json, charter.md, and roles/*.json match `detectProjectLayout(root)`.
+ * Strictly preserves all existing scopes and never widens past forbiddenPaths or overlap rules.
+ */
+export function planScopeAdaptation(root = ROOT, { team = null, roles = null, charter = null, allowTeam = true, allowCharter = true, allowRoles = true } = {}) {
+  const layout = detectProjectLayout(root);
+  const curTeam = team || loadTeam(path.join(root, '.harness', 'team.json'));
+  const curRoles = roles || loadRolesFrom(path.join(root, '.harness', 'roles'));
+  const curCharter = charter || readCharter(path.join(root, '.harness', 'charter.md'));
+
+  const canRole = (name) => (allowRoles === true ? true : allowRoles && typeof allowRoles === 'object' ? allowRoles[name] === true : false);
+  const forbidden = curCharter?.forbiddenPaths || [];
+  const isSafeGlob = (g) => globProbes(g).every((p) => !matchesAny(p, forbidden));
+  const coveredBy = (g, globs = []) => globs.includes(g) || (globs.length > 0 && globWithin(g, globs));
+
+  const nextTeam = curTeam ? cloneJson(curTeam) : null;
+  const nextRoles = cloneJson(curRoles);
+  let nextAllowed = curCharter?.exists && Array.isArray(curCharter.allowedPaths) && curCharter.allowedPaths.length
+    ? [...curCharter.allowedPaths]
+    : null;
+
+  const changes = [];
+  const charterAdds = [];
+  const addedRolePaths = {};
+  const addCharterPath = (g) => {
+    if (!nextAllowed || !isSafeGlob(g)) return;
+    if (!coveredBy(g, nextAllowed)) {
+      nextAllowed.push(g);
+      charterAdds.push(g);
+    }
+  };
+
+  if (nextTeam && Array.isArray(nextTeam.members)) {
+    const leads = nextTeam.members.filter((m) => m.level === 'lead');
+    const findLead = (roleName, preferredId) => leads.find((l) => l.id === preferredId && String(l.role).toUpperCase() === roleName)
+      || leads.find((l) => String(l.role).toUpperCase() === roleName);
+
+    const leadDev = findLead('DEV_ENGINEER', 'lead-dev');
+    const leadQa = findLead('QA_AUDITOR', 'lead-qa');
+    const leadUx = findLead('UX_DESIGNER', 'lead-ux');
+    const leadBa = findLead('BA_ANALYST', 'lead-ba');
+
+    const conflictsOtherLead = (selfLead, candidateGlob) => leads.some((other) => {
+      if (other.id === selfLead.id) return false;
+      return (other.scope || []).some((og) => {
+        if (isFileTypeGlob(candidateGlob) !== isFileTypeGlob(og)) return false;
+        return globsOverlap(candidateGlob, og);
+      });
+    });
+
+    const addRoleWritable = (roleName, g) => {
+      const r = nextRoles[roleName];
+      if (!r || !Array.isArray(r.writablePaths)) return false;
+      if (coveredBy(g, r.writablePaths)) return true;
+      if (!canRole(roleName)) return false;
+      r.writablePaths.push(g);
+      (addedRolePaths[roleName] ||= []).push(g);
+      return true;
+    };
+
+    const addLeadGlobs = (lead, candidates, { expandRole = false, roleGlobFor = (g) => g } = {}) => {
+      if (!lead || !Array.isArray(lead.scope)) return [];
+      const roleName = String(lead.role).toUpperCase();
+      const roleObj = nextRoles[roleName];
+      const added = [];
+      for (const g of candidates) {
+        if (!isSafeGlob(g)) continue;
+        const rootFolder = `${g.split('/')[0]}/**`;
+        addCharterPath(rootFolder);
+        if (coveredBy(g, lead.scope) || conflictsOtherLead(lead, g)) continue;
+        const roleGlob = roleGlobFor(g);
+        const canFitRole = roleObj && (
+          coveredBy(g, roleObj.writablePaths || [])
+          || (allowTeam && expandRole && addRoleWritable(roleName, roleGlob))
+        );
+        if (!canFitRole) continue;
+        if (allowTeam) {
+          lead.scope.push(g);
+          added.push(g);
+        }
+      }
+      if (added.length) changes.push({ target: 'team', id: lead.id, role: roleName, added });
+      return added;
+    };
+
+    // 1. BA docs folders
+    if (layout.extraDocDirs.length) {
+      addLeadGlobs(leadBa, layout.extraDocDirs.map((d) => `${d}/**`), { expandRole: allowTeam });
+    }
+
+    // 2. Dev code folders
+    if (layout.extraCodeDirs.length) {
+      addLeadGlobs(leadDev, layout.extraCodeDirs.map((d) => `${d}/**`));
+    }
+
+    // 3. UX style globs
+    if (layout.extraStyleDirs.length) {
+      const styleGlobs = [];
+      for (const d of layout.extraStyleDirs) {
+        for (const ext of ['css', 'scss', 'less']) styleGlobs.push(`${d}/**/*.${ext}`);
+      }
+      addLeadGlobs(leadUx, styleGlobs, { expandRole: allowTeam });
+    }
+
+    // 4. QA test folders + colocated tests in code dirs + Go/Python conventions
+    {
+      const qaGlobs = [];
+      for (const d of layout.extraTestDirs) qaGlobs.push(`${d}/**`);
+      for (const d of layout.extraCodeDirs) {
+        qaGlobs.push(`${d}/**/*.test.*`, `${d}/**/*.spec.*`);
+      }
+      if (layout.hasGo) {
+        for (const d of layout.existingCodeDirs) qaGlobs.push(`${d}/**/*_test.go`);
+      }
+      if (layout.hasPy) {
+        for (const d of layout.existingCodeDirs) qaGlobs.push(`${d}/**/test_*.py`, `${d}/**/*_test.py`);
+      }
+      const qaRoleGlob = (g) => {
+        if (g.endsWith('/**/*_test.go')) return '**/*_test.go';
+        if (g.endsWith('/**/test_*.py')) return '**/test_*.py';
+        if (g.endsWith('/**/*_test.py')) return '**/*_test.py';
+        return g;
+      };
+      addLeadGlobs(leadQa, qaGlobs, { expandRole: allowTeam, roleGlobFor: qaRoleGlob });
+    }
+  } else {
+    // Even without team.json, still adapt charter.allowedPaths if present
+    for (const d of layout.uncoveredDirsCandidates) addCharterPath(`${d}/**`);
+  }
+
+  // If allowCharter is false, revert any proposed charter changes
+  if (!allowCharter) {
+    charterAdds.length = 0;
+    nextAllowed = curCharter?.allowedPaths ? [...curCharter.allowedPaths] : null;
+  }
+
+  for (const [roleName, added] of Object.entries(addedRolePaths)) {
+    if (added.length) changes.push({ target: 'role', id: nextRoles[roleName].file || roleName, role: roleName, added });
+  }
+  if (charterAdds.length) changes.push({ target: 'charter', id: 'charter.md', added: charterAdds });
+
+  const uncoveredDirs = layout.uncoveredDirsCandidates.filter((d) => {
+    const rootGlob = `${d}/**`;
+    const matchesAdded = changes.some((c) => c.added.some((g) => g === rootGlob || g.startsWith(`${d}/`)));
+    return matchesAdded;
+  });
+
+  return {
+    changed: changes.length > 0,
+    layout,
+    uncoveredDirs,
+    changes,
+    nextTeam,
+    nextCharterAllowedPaths: charterAdds.length ? nextAllowed : null,
+    nextRoles
+  };
+}
+
+/**
+ * Apply (or preview with dryRun: true) adaptive layout scopes to .harness/team.json, .harness/charter.md,
+ * changed .harness/roles/*.json, and re-sync .claude/agents/*.md. Validates result before writing.
+ */
+export function applyAdaptedScopes(root = ROOT, { dryRun = false, allowTeam = true, allowCharter = true, allowRoles = true, allowSyncAgents = true } = {}) {
+  const harnessDir = path.join(root, '.harness');
+  const teamPath = path.join(harnessDir, 'team.json');
+  const charterPath = path.join(harnessDir, 'charter.md');
+  const rolesDir = path.join(harnessDir, 'roles');
+  const agentsDir = path.join(root, '.claude', 'agents');
+  const cfgPath = path.join(harnessDir, 'config.json');
+
+  const team = readJsonSafe(teamPath, null);
+  const charter = readCharter(charterPath);
+  const roles = loadRolesFrom(rolesDir);
+  const cfg = readJsonSafe(cfgPath, {});
+
+  const plan = planScopeAdaptation(root, { team, roles, charter, allowTeam, allowCharter, allowRoles });
+  if (!plan.changed) return { applied: false, dryRun, writtenFiles: [], syncedAgents: [], ...plan };
+
+  const validationCharter = plan.nextCharterAllowedPaths
+    ? { ...charter, allowedPaths: plan.nextCharterAllowedPaths }
+    : charter;
+  if (plan.nextTeam) {
+    const v = validateTeam(plan.nextTeam, {
+      roles: plan.nextRoles,
+      charter: validationCharter,
+      plannerMaxWorkers: (cfg.planner || {}).maxWorkers || 4,
+      engines: Object.keys(cfg.profiles || {})
+    });
+    if (v.errors.length) return { applied: false, dryRun, errors: v.errors, warnings: v.warnings, writtenFiles: [], syncedAgents: [], ...plan };
+  }
+  if (dryRun) return { applied: false, dryRun: true, writtenFiles: [], syncedAgents: [], ...plan };
+
+  const writtenFiles = [];
+  if (allowTeam && plan.nextTeam && plan.changes.some((c) => c.target === 'team')) {
+    fs.writeFileSync(teamPath, `${JSON.stringify(plan.nextTeam, null, 2)}\n`);
+    writtenFiles.push('.harness/team.json');
+  }
+  if (allowCharter && plan.nextCharterAllowedPaths && fs.existsSync(charterPath)) {
+    const rawCharter = fs.readFileSync(charterPath, 'utf8');
+    const updated = rawCharter.replace(/^(\s*[-*]\s*\**allowedPaths\**\s*:\s*)(.+?)\s*$/mi, (_, pfx) => `${pfx}${plan.nextCharterAllowedPaths.join(', ')}`);
+    if (updated !== rawCharter) {
+      fs.writeFileSync(charterPath, updated);
+      writtenFiles.push('.harness/charter.md');
+    }
+  }
+  for (const c of plan.changes.filter((x) => x.target === 'role')) {
+    const r = plan.nextRoles[c.role];
+    if (!r?.file) continue;
+    const roleOut = { ...r };
+    delete roleOut.file;
+    fs.writeFileSync(path.join(rolesDir, r.file), `${JSON.stringify(roleOut, null, 2)}\n`);
+    writtenFiles.push(`.harness/roles/${r.file}`);
+  }
+  let syncedAgents = [];
+  const teamOrRolesWritten = writtenFiles.includes('.harness/team.json') || writtenFiles.some((w) => w.startsWith('.harness/roles/'));
+  if (allowSyncAgents && plan.nextTeam && teamOrRolesWritten) {
+    const ag = syncAgents(plan.nextTeam, plan.nextRoles, { dir: agentsDir, config: cfg });
+    syncedAgents = ag.written;
+  }
+  return { applied: writtenFiles.length > 0, dryRun: false, writtenFiles, syncedAgents, ...plan };
 }
 
 export { ROOT };

@@ -551,28 +551,194 @@ export function resolveProfile(config, requested, { allowFallback = true } = {})
 
 // ───────────────────────────── verify-command detection ─────────────────────────────
 
+function readHeadText(file, maxBytes = 32768) {
+  try {
+    const fd = fs.openSync(file, 'r');
+    try {
+      const buf = Buffer.allocUnsafe(maxBytes);
+      const n = fs.readSync(fd, buf, 0, maxBytes, 0);
+      return buf.subarray(0, n).toString('utf8');
+    } finally { fs.closeSync(fd); }
+  } catch { return ''; }
+}
+
+function collectWorkspacePackageDirs(root, globs) {
+  const dirs = [];
+  const seen = new Set();
+  const add = (dir) => {
+    const abs = path.resolve(root, dir);
+    if (seen.has(abs)) return;
+    const pkgPath = path.join(abs, 'package.json');
+    if (fs.existsSync(pkgPath)) { seen.add(abs); dirs.push(abs); }
+  };
+  for (const raw of globs || []) {
+    const g = String(raw || '').trim().replace(/\\/g, '/').replace(/^\.\//, '').replace(/\/+$/, '');
+    if (!g || g.startsWith('!')) continue;
+    if (g.endsWith('/**') || g.endsWith('/*')) {
+      const deep = g.endsWith('/**');
+      const base = g.slice(0, deep ? -3 : -2);
+      const baseDir = base ? path.join(root, base) : root;
+      const walk = (d, depth) => {
+        let entries = [];
+        try { entries = fs.readdirSync(d, { withFileTypes: true }); } catch { return; }
+        for (const e of entries) {
+          if (!e.isDirectory() || e.name.startsWith('.') || e.name === 'node_modules') continue;
+          const sub = path.join(d, e.name);
+          add(sub);
+          if (deep && depth < 2) walk(sub, depth + 1);
+        }
+      };
+      walk(baseDir, 0);
+    } else if (!/[*?]/.test(g)) {
+      add(g);
+    }
+  }
+  return dirs;
+}
+
 /**
- * Pick the strongest deterministic check from package.json scripts:
- *   "check" (usually an aggregate)  >  "typecheck" + "test"  >  "build"  >  "lint"
+ * Pick the strongest deterministic check across Node/workspaces and polyglot ecosystems:
+ *   1. root package.json scripts: "check" > "typecheck" + "test" > "build" > "lint"
+ *   2. Node/TS workspaces (npm / pnpm / yarn / bun) when root has no check scripts
+ *   3. Python (.venv/venv pytest, uv.lock, pytest config, or unittest discovery)
+ *   4. Go (go.mod -> go test ./...)
+ *   5. Rust (Cargo.toml -> cargo test)
+ *   6. PHP / Laravel / Composer (artisan -> php artisan test, composer scripts.test, phpunit)
+ *   7. Makefile / GNUmakefile (check > test)
  * Falls back to config.defaultVerifyCmd (always passes) with real=false.
  */
-export function detectVerifyCmd(root, config) {
+export function detectVerifyCmd(root, config = {}) {
   const pkg = readJsonSafe(path.join(root, 'package.json'), null);
   const scripts = pkg?.scripts || {};
-  const has = (n) => typeof scripts[n] === 'string' && scripts[n].trim() && !/no test specified/.test(scripts[n]);
+  // A script that can never fail is no check: the npm-init stub and obvious placeholders ("exit 0", "true", a bare echo).
+  const PLACEHOLDER_SCRIPT = /^\s*(?:exit\s+0|true|:|echo\b[^&|;<>]*)\s*;?\s*$/i;
+  let placeholderSeen = false;
+  const hasScript = (s, n) => {
+    const v = s?.[n];
+    if (typeof v !== 'string' || !v.trim() || /no test specified/.test(v)) return false;
+    if (PLACEHOLDER_SCRIPT.test(v)) { placeholderSeen = true; return false; }
+    return true;
+  };
+  const has = (n) => hasScript(scripts, n);
   const exists = (f) => fs.existsSync(path.join(root, f));
-  const pm = exists('pnpm-lock.yaml') ? 'pnpm' : exists('yarn.lock') ? 'yarn' : (exists('bun.lockb') || exists('bun.lock')) ? 'bun' : 'npm';
+  const pm = (exists('pnpm-lock.yaml') || exists('pnpm-workspace.yaml')) ? 'pnpm'
+    : exists('yarn.lock') ? 'yarn'
+      : (exists('bun.lockb') || exists('bun.lock')) ? 'bun'
+        : 'npm';
   const run = (n) => (n === 'test' && pm !== 'bun' ? `${pm} test` : `${pm} run ${n}`);
   let chosen = has('check') ? ['check'] : ['typecheck', 'test'].filter(has);
   if (!chosen.length) chosen = ['build'].filter(has);
   if (!chosen.length) chosen = ['lint'].filter(has);
   if (chosen.length) return { cmd: chosen.map(run).join(' && '), source: `auto-detected from package.json scripts: ${chosen.join(' + ')}`, real: true };
-  return { cmd: config.defaultVerifyCmd, source: 'default — NO real check (always passes)', real: false };
+
+  // Monorepo / workspace Node projects where root package.json delegates to workspace packages
+  const wsGlobs = (() => {
+    if (Array.isArray(pkg?.workspaces)) return pkg.workspaces;
+    if (Array.isArray(pkg?.workspaces?.packages)) return pkg.workspaces.packages;
+    if (exists('pnpm-workspace.yaml')) {
+      const yaml = readHeadText(path.join(root, 'pnpm-workspace.yaml'));
+      return [...yaml.matchAll(/^\s*-\s*['"]?([^'"#\r\n]+?)['"]?\s*(?:#.*)?$/gm)].map((m) => m[1].trim()).filter(Boolean);
+    }
+    return [];
+  })();
+  if (wsGlobs.length) {
+    const wsPkgs = collectWorkspacePackageDirs(root, wsGlobs)
+      .map((d) => readJsonSafe(path.join(d, 'package.json'), null)?.scripts)
+      .filter(Boolean);
+    const hasWs = (n) => wsPkgs.some((s) => hasScript(s, n));
+    let wsChosen = hasWs('check') ? ['check'] : ['typecheck', 'test'].filter(hasWs);
+    if (!wsChosen.length) wsChosen = ['build'].filter(hasWs);
+    if (!wsChosen.length) wsChosen = ['lint'].filter(hasWs);
+    if (wsChosen.length) {
+      const wsRun = (n) => (
+        pm === 'pnpm' ? (n === 'test' ? 'pnpm -r --if-present test' : `pnpm -r --if-present run ${n}`)
+          : pm === 'yarn' ? `yarn workspaces run ${n}`
+            : pm === 'bun' ? `bun --filter '*' run ${n}`
+              : (n === 'test' ? 'npm test --workspaces --if-present' : `npm run ${n} --workspaces --if-present`)
+      );
+      return {
+        cmd: wsChosen.map(wsRun).join(' && '),
+        source: `auto-detected from workspace package.json scripts (${wsPkgs.length} packages): ${wsChosen.join(' + ')}`,
+        real: true
+      };
+    }
+  }
+
+  // Python
+  const hasPythonTests = () => {
+    try {
+      for (const e of fs.readdirSync(root, { withFileTypes: true })) {
+        if (e.isFile() && (/^test_.*\.py$/i.test(e.name) || /_test\.py$/i.test(e.name))) return true;
+        if (e.isDirectory() && /^(tests?|unit_tests)$/i.test(e.name)) {
+          try { if (fs.readdirSync(path.join(root, e.name)).some((f) => /\.py$/i.test(f))) return true; } catch { /* ignore */ }
+        }
+      }
+    } catch { /* ignore */ }
+    return false;
+  };
+  const venvPytest = ['.venv/bin/pytest', 'venv/bin/pytest', '.venv/Scripts/pytest.exe', 'venv/Scripts/pytest.exe'].find((rel) => exists(rel));
+  if (venvPytest) {
+    return { cmd: venvPytest, source: `auto-detected from Python venv (${venvPytest})`, real: true };
+  }
+  const pyproject = exists('pyproject.toml') ? readHeadText(path.join(root, 'pyproject.toml')) : '';
+  const setupCfg = exists('setup.cfg') ? readHeadText(path.join(root, 'setup.cfg')) : '';
+  const reqText = ['requirements.txt', 'requirements-dev.txt', 'dev-requirements.txt']
+    .map((f) => (exists(f) ? readHeadText(path.join(root, f)) : ''))
+    .join('\n');
+  const hasPytestConfig = exists('pytest.ini') || exists('conftest.py')
+    || /\[tool\.pytest|\bpytest\b/i.test(pyproject)
+    || /\[tool:pytest\]/i.test(setupCfg)
+    || /(^|\n)\s*pytest\b/im.test(reqText);
+  const pyProject = Boolean(pyproject || setupCfg || reqText.trim() || exists('setup.py') || exists('uv.lock') || exists('pytest.ini') || exists('conftest.py'));
+  if (pyProject || hasPythonTests()) {
+    if (exists('uv.lock') && (hasPytestConfig || hasPythonTests())) {
+      return { cmd: 'uv run pytest', source: 'auto-detected from uv.lock (pytest)', real: true };
+    }
+    if (hasPytestConfig) {
+      return { cmd: 'pytest', source: 'auto-detected from Python pytest configuration', real: true };
+    }
+    if (hasPythonTests()) {
+      const pyBin = which('python3') ? 'python3' : (which('python') ? 'python' : 'python3');
+      return { cmd: `${pyBin} -m unittest discover`, source: 'auto-detected from Python tests (unittest)', real: true };
+    }
+  }
+
+  // Go
+  if (exists('go.mod')) {
+    return { cmd: 'go test ./...', source: 'auto-detected from go.mod', real: true };
+  }
+
+  // Rust
+  if (exists('Cargo.toml')) {
+    return { cmd: 'cargo test', source: 'auto-detected from Cargo.toml', real: true };
+  }
+
+  // PHP / Laravel / Composer
+  if (exists('artisan')) {
+    return { cmd: 'php artisan test', source: 'auto-detected from Laravel artisan', real: true };
+  }
+  const composer = readJsonSafe(path.join(root, 'composer.json'), null);
+  if (typeof composer?.scripts?.test === 'string' && composer.scripts.test.trim()) {
+    return { cmd: 'composer test', source: 'auto-detected from composer.json scripts: test', real: true };
+  }
+  if ((exists('phpunit.xml') || exists('phpunit.xml.dist')) && exists('vendor/bin/phpunit')) {
+    return { cmd: './vendor/bin/phpunit', source: 'auto-detected from phpunit configuration', real: true };
+  }
+
+  // Makefile
+  const makeFile = ['Makefile', 'makefile', 'GNUmakefile'].find((f) => exists(f));
+  if (makeFile) {
+    const mk = readHeadText(path.join(root, makeFile));
+    if (/^[ \t]*check[ \t]*:(?!=)/m.test(mk)) return { cmd: 'make check', source: `auto-detected from ${makeFile} target: check`, real: true };
+    if (/^[ \t]*test[ \t]*:(?!=)/m.test(mk)) return { cmd: 'make test', source: `auto-detected from ${makeFile} target: test`, real: true };
+  }
+
+  return { cmd: config.defaultVerifyCmd, source: placeholderSeen ? 'default — NO real check (a placeholder test script that cannot fail was ignored)' : 'default — NO real check (always passes)', real: false };
 }
 
 // ───────────────────────────── project file listing ─────────────────────────────
 
-const SKIP_DIRS = new Set(['.git', '.harness', 'node_modules', 'dist', 'build', '.next', 'coverage', '.venv', 'venv', '__pycache__', 'target']);
+const SKIP_DIRS = new Set(['.git', '.harness', 'node_modules', 'dist', 'build', '.next', '.nuxt', '.svelte-kit', '.astro', 'coverage', '.venv', 'venv', '__pycache__', 'target', 'vendor']);
 
 export function listProjectFiles(root, max = 400) {
   try {
@@ -589,6 +755,89 @@ export function listProjectFiles(root, max = 400) {
   };
   walk(root, '');
   return { files: files.slice(0, max), total: files.length };
+}
+
+/**
+ * Zero-token repository intelligence summary for planners, orchestrators, and briefs:
+ * stack & test tools, top directory counts, key entrypoints/configs, and recent git hotspots.
+ */
+export function buildRepoMap(root, { maxChars = 1200, maxFiles = 2000 } = {}) {
+  const pkg = readJsonSafe(path.join(root, 'package.json'), null);
+  const { files, total } = listProjectFiles(root, maxFiles);
+  if (!files.length && !pkg) return '';
+
+  const exists = (f) => fs.existsSync(path.join(root, f));
+  const stack = [];
+  if (pkg) {
+    const deps = { ...(pkg.dependencies || {}), ...(pkg.devDependencies || {}) };
+    const hasTs = Boolean(deps.typescript || exists('tsconfig.json') || files.some((f) => /\.tsx?$/i.test(f)));
+    stack.push(hasTs ? 'Node.js/TypeScript' : 'Node.js');
+    const fw = [
+      ['next', 'Next.js'], ['nuxt', 'Nuxt'], ['@sveltejs/kit', 'SvelteKit'], ['svelte', 'Svelte'],
+      ['astro', 'Astro'], ['react', 'React'], ['vue', 'Vue'],
+      ['@nestjs/core', 'NestJS'], ['fastify', 'Fastify'], ['express', 'Express'], ['hono', 'Hono'],
+      ['tailwindcss', 'Tailwind'], ['electron', 'Electron']
+    ];
+    for (const [dep, label] of fw) if (deps[dep]) stack.push(label);
+    const testers = [['vitest', 'Vitest'], ['jest', 'Jest'], ['@playwright/test', 'Playwright'], ['playwright', 'Playwright'], ['cypress', 'Cypress'], ['mocha', 'Mocha']];
+    for (const [dep, label] of testers) if (deps[dep] && !stack.includes(label)) stack.push(label);
+    if (pkg.workspaces || exists('pnpm-workspace.yaml')) stack.push('Workspaces');
+  }
+  if (exists('pyproject.toml') || exists('requirements.txt') || exists('setup.py') || files.some((f) => /\.py$/i.test(f))) {
+    const pyTxt = [
+      exists('pyproject.toml') ? readHeadText(path.join(root, 'pyproject.toml'), 8192) : '',
+      exists('requirements.txt') ? readHeadText(path.join(root, 'requirements.txt'), 8192) : ''
+    ].join('\n');
+    const extras = [];
+    if (/\bfastapi\b/i.test(pyTxt)) extras.push('FastAPI');
+    else if (/\bdjango\b/i.test(pyTxt)) extras.push('Django');
+    else if (/\bflask\b/i.test(pyTxt)) extras.push('Flask');
+    if (exists('pytest.ini') || /\bpytest\b/i.test(pyTxt)) extras.push('pytest');
+    stack.push(extras.length ? `Python (${extras.join(', ')})` : 'Python');
+  }
+  if (exists('go.mod')) stack.push('Go');
+  if (exists('Cargo.toml')) stack.push('Rust');
+  if (exists('composer.json') || exists('artisan')) stack.push(exists('artisan') ? 'PHP/Laravel' : 'PHP');
+
+  const dirCounts = new Map();
+  for (const f of files) {
+    const n = f.replace(/\\/g, '/');
+    const seg = n.includes('/') ? `${n.split('/')[0]}/` : '(root)';
+    dirCounts.set(seg, (dirCounts.get(seg) || 0) + 1);
+  }
+  const topDirs = [...dirCounts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, 8)
+    .map(([d, c]) => `${d}(${c})`);
+
+  const ENTRY_RE = /^(?:package\.json|tsconfig\.json|pnpm-workspace\.yaml|Makefile|makefile|pyproject\.toml|go\.mod|Cargo\.toml|composer\.json|artisan|index\.html|(?:next|vite|vitest|astro|svelte|playwright|tailwind)\.config\.[a-z]+|(?:src|app|pages)\/(?:index|main|app|server|layout|page|_app)\.[a-z]+|cmd\/[^/]+\/main\.go)$/i;
+  const entrypoints = files.filter((f) => ENTRY_RE.test(f.replace(/\\/g, '/'))).slice(0, 8);
+
+  let hotspots = [];
+  try {
+    const raw = execFileSync('git', ['log', '-n', '15', '--name-only', '--pretty=format:'], {
+      cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 3000
+    });
+    const freq = new Map();
+    for (const line of raw.split(/\r?\n/)) {
+      const p = line.trim().replace(/\\/g, '/');
+      if (!p || p.startsWith('.harness/') || p.startsWith('.git/')) continue;
+      if (fs.existsSync(path.join(root, p))) freq.set(p, (freq.get(p) || 0) + 1);
+    }
+    hotspots = [...freq.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .slice(0, 6)
+      .map(([p, c]) => `${p} (${c}x)`);
+  } catch { /* non-git or empty history */ }
+
+  const lines = [];
+  if (stack.length) lines.push(`Stack: ${stack.join(', ')}`);
+  if (topDirs.length) lines.push(`Layout (${total} files): ${topDirs.join(', ')}`);
+  if (entrypoints.length) lines.push(`Entrypoints: ${entrypoints.join(', ')}`);
+  if (hotspots.length) lines.push(`Hotspots (recent git edits): ${hotspots.join(', ')}`);
+  let text = lines.join('\n');
+  if (text.length > maxChars) text = `${text.slice(0, Math.max(0, maxChars - 1)).trimEnd()}…`;
+  return text;
 }
 
 /** Normalise a target path; returns null if it is unsafe (absolute, "..", root, .git, .harness). */
@@ -677,15 +926,65 @@ export function listLessons(file = FILES.lessons) {
     .map(([, id, date, text]) => ({ id, date, text }));
 }
 
-const norm = (t) => String(t).toLowerCase().replace(/[^\p{L}\p{N} ]/gu, '').replace(/\s+/g, ' ').trim();
+const norm = (t) => String(t).toLowerCase().replace(/[-_/\\]+/g, ' ').replace(/[^\p{L}\p{N} ]/gu, '').replace(/\s+/g, ' ').trim();
+
+const SEEN_SUFFIX_RE = /\s+\(seen (\d+)x(?:;\s*latest:\s*"[^"]*")?\)\s*$/;
+const stripSeen = (t) => String(t || '').replace(SEEN_SUFFIX_RE, '').trim();
+
+function extractTaskTitle(t) {
+  const m = String(t || '').match(/^(?:Scope violation in |Quality\/root-cause signal in |Patch safety block in )?"([^"\n]+)"/);
+  return m ? m[1].trim() : '';
+}
+
+function autoLessonSignature(text) {
+  const s = stripSeen(text);
+  let kind = '';
+  let rest = '';
+  let m;
+  if ((m = s.match(/^Scope violation in "[^"\n]+":\s*(.+)$/))) { kind = 'scope'; rest = m[1]; }
+  else if ((m = s.match(/^Quality\/root-cause signal in "[^"\n]+":\s*(.+)$/))) { kind = 'anticheat'; rest = m[1]; }
+  else if ((m = s.match(/^Patch safety block in "[^"\n]+":\s*(.+)$/))) { kind = 'safety'; rest = m[1]; }
+  else if ((m = s.match(/^"[^"\n]+":\s*first attempt failed(?:\s+with|\s*\()\s*(.+?)(?:\s+—\s+passed|\s*\)\s*—\s+passed)/))) { kind = 'recover'; rest = m[1]; }
+  else if ((m = s.match(/^"[^"\n]+":\s*(?:HALTED_HITL_REQUIRED|REJECTED|editor run [A-Z_]+)\s+—\s+(?:last error\s+)?(.+?)(?:\.\s+Needs a human|$)/))) { kind = 'halt'; rest = m[1]; }
+  if (!kind || !rest) return '';
+  const core = rest
+    .replace(/[A-Za-z]:\\[^\s"']+|\/(?:tmp|var|home|Users)\/[^\s"']+/g, '<path>')
+    .replace(/\b(?:V-\d{8,14}-[a-z0-9]+|job-\d+|BL-\d+|FEAT-\d+)\b/g, '<id>')
+    .replace(/:\d+:\d+/g, ':<pos>')
+    .replace(/\d+/g, '#');
+  const k = norm(core);
+  return k.length >= 20 ? `${kind}:${k}` : '';
+}
 
 export function remember(text, file = FILES.lessons) {
-  const clean = String(text || '').replace(/\s+/g, ' ').trim();
+  const clean = stripSeen(String(text || '').replace(/\s+/g, ' ').trim());
   if (!clean) throw new Error('Nothing to remember (empty text).');
   ensureDirs();
   const existing = listLessons(file);
-  const dup = existing.find((l) => norm(l.text) === norm(clean));
+  const dup = existing.find((l) => norm(stripSeen(l.text)) === norm(clean));
   if (dup) return { ...dup, duplicate: true };
+
+  if (file === FILES.autoLessons) {
+    const sig = autoLessonSignature(clean);
+    if (sig) {
+      const match = existing.find((l) => autoLessonSignature(l.text) === sig);
+      if (match) {
+        const seenMatch = match.text.match(SEEN_SUFFIX_RE);
+        const count = (seenMatch ? Number(seenMatch[1]) : 1) + 1;
+        const base = stripSeen(match.text);
+        const latest = extractTaskTitle(clean);
+        const today = new Date().toISOString().slice(0, 10);
+        const updatedText = `${base} (seen ${count}x${latest && latest !== extractTaskTitle(base) ? `; latest: "${latest.slice(0, 60)}"` : ''})`;
+        const lines = readText(file).split('\n').map((line) => {
+          const lm = line.match(LESSON_RE);
+          return lm && lm[1].toUpperCase() === match.id.toUpperCase() ? `- [${match.id}] (${today}) ${updatedText}` : line;
+        });
+        fs.writeFileSync(file, lines.join('\n'));
+        return { id: match.id, date: today, text: updatedText, duplicate: true, updated: true, seen: count };
+      }
+    }
+  }
+
   const next = existing.reduce((max, l) => Math.max(max, Number(l.id.slice(1))), 0) + 1;
   const lesson = { id: `L${next}`, date: new Date().toISOString().slice(0, 10), text: clean };
   let body = readText(file);
@@ -703,13 +1002,303 @@ export function forget(id, file = FILES.lessons) {
   return true;
 }
 
+/** Promote a learned entry from auto-lessons.md into shared lessons.md and remove it from auto-lessons.md. */
+export function promoteLesson(id) {
+  const target = String(id || '').trim().toUpperCase();
+  if (!target) return null;
+  const entry = listLessons(FILES.autoLessons).find((l) => l.id.toUpperCase() === target);
+  if (!entry) return null;
+  const lesson = remember(stripSeen(entry.text), FILES.lessons);
+  forget(entry.id, FILES.autoLessons);
+  return { fromId: entry.id, lesson };
+}
+
+/** Clip a long verifier error while keeping BOTH the command/exit header and the failing tail stack trace. */
+export function clipErrorTrace(trace, limit = 6000) {
+  const s = String(trace || '');
+  if (s.length <= limit) return s;
+  const head = Math.max(400, Math.floor(limit * 0.25));
+  const tail = Math.max(400, limit - head - 32);
+  return `${s.slice(0, head)}\n…[truncated middle of log]…\n${s.slice(-tail)}`;
+}
+
+const ANSI_RE = /\x1b\[[0-9;]*m/g;
+const MEMORY_STOPWORDS = new Set([
+  'the', 'and', 'for', 'with', 'from', 'that', 'this', 'have', 'not', 'are', 'was', 'were', 'been',
+  'will', 'can', 'into', 'out', 'all', 'any', 'but', 'use', 'add', 'fix', 'set', 'get', 'put', 'run',
+  'file', 'files', 'task', 'tasks', 'work', 'make', 'made', 'when', 'only', 'also', 'must', 'should',
+  'could', 'would', 'more', 'most', 'very', 'just', 'than', 'then', 'them', 'they', 'there', 'here',
+  'each', 'some', 'such', 'your', 'our', 'their', 'about', 'after', 'before', 'check', 'tests', 'test',
+  'code', 'edit', 'edits', 'change', 'changes', 'update', 'updated', 'error', 'errors', 'fail', 'failed',
+  'failure', 'pass', 'passed', 'src', 'dist', 'build'
+]);
+const SHORT_TECH_TOKENS = new Set(['go', 'py', 'ts', 'js', 'ui', 'db', 'ci', 'cd', 'id', 'pr', 'os', 'io', 'kv', 'ip', 'v2', 's3', 'sh']);
+
+function buildMemoryQuery(query) {
+  if (!query) return { hasQuery: false, tokens: [], paths: [] };
+  const texts = [];
+  const rawPaths = [];
+  const pushVal = (v) => {
+    if (!v) return;
+    if (Array.isArray(v)) { for (const x of v) pushVal(x); return; }
+    if (typeof v === 'object') {
+      pushVal(v.title); pushVal(v.goal); pushVal(v.prompt); pushVal(v.query); pushVal(v.error);
+      if (Array.isArray(v.files)) rawPaths.push(...v.files);
+      if (Array.isArray(v.targetFiles)) rawPaths.push(...v.targetFiles);
+      if (Array.isArray(v.targets)) rawPaths.push(...v.targets);
+      return;
+    }
+    texts.push(String(v));
+  };
+  pushVal(query);
+  const combined = texts.filter(Boolean).join(' ');
+  const normRoot = ROOT.replace(/\\/g, '/').toLowerCase();
+  for (const p of combined.matchAll(/[A-Za-z0-9_.\-\\/:]+\.[A-Za-z0-9]{1,8}/g)) rawPaths.push(p[0]);
+  const paths = new Set();
+  for (const rp of rawPaths) {
+    let p = String(rp || '').trim().replace(/\\/g, '/').replace(/^\.\//, '').replace(/\/+$/, '').toLowerCase();
+    if (!p) continue;
+    if (p.startsWith(`${normRoot}/`)) p = p.slice(normRoot.length + 1);
+    paths.add(p);
+  }
+  const tokenSet = new Set();
+  for (const w of norm(combined).split(' ')) {
+    if (!w) continue;
+    if ((w.length >= 3 && !MEMORY_STOPWORDS.has(w)) || SHORT_TECH_TOKENS.has(w)) tokenSet.add(w);
+  }
+  for (const p of paths) {
+    for (const seg of norm(p).split(' ')) {
+      if ((seg.length >= 3 && !MEMORY_STOPWORDS.has(seg)) || SHORT_TECH_TOKENS.has(seg)) tokenSet.add(seg);
+    }
+  }
+  return { hasQuery: tokenSet.size > 0 || paths.size > 0, tokens: [...tokenSet], paths: [...paths] };
+}
+
+function rankAutoLessons(allAuto, query, autoRoom) {
+  if (autoRoom <= 0 || !allAuto.length) return [];
+  const q = buildMemoryQuery(query);
+  if (!q.hasQuery) return allAuto.slice(-autoRoom);
+
+  const n = allAuto.length;
+  const scored = allAuto.map((entry, idx) => {
+    const clean = stripSeen(entry.text);
+    const rawLower = clean.toLowerCase().replace(/\\/g, '/');
+    const entryTokens = new Set(norm(clean).split(' ').filter(Boolean));
+    let matchedTokens = 0;
+    for (const t of q.tokens) if (entryTokens.has(t)) matchedTokens++;
+    let pathScore = 0;
+    for (const p of q.paths) {
+      const base = path.posix.basename(p);
+      if (p.includes('/') && rawLower.includes(p)) pathScore += 6;
+      else if (base.length >= 3 && rawLower.includes(base)) pathScore += 3;
+    }
+    const relevance = matchedTokens * 3 + pathScore;
+    const seenMatch = entry.text.match(SEEN_SUFFIX_RE);
+    const seenCount = seenMatch ? Number(seenMatch[1]) : 1;
+    const seenBonus = seenCount > 1 ? Math.min(Math.log2(seenCount) * 0.6, 2.0) : 0;
+    const recencyWeight = n > 1 ? (idx / (n - 1)) * 0.5 : 0.5;
+    return { entry, idx, relevance, totalScore: relevance + seenBonus + recencyWeight };
+  });
+
+  const top = [...scored]
+    .sort((a, b) => (b.totalScore - a.totalScore) || (b.idx - a.idx))
+    .slice(0, autoRoom);
+  const relevant = top.filter((x) => x.relevance > 0).sort((a, b) => (b.totalScore - a.totalScore) || (b.idx - a.idx));
+  const fallback = top.filter((x) => x.relevance === 0).sort((a, b) => a.idx - b.idx);
+  return [...relevant, ...fallback].map((x) => x.entry);
+}
+
+const DIAG_CATEGORIES = [
+  ['PATCH_SAFETY', /PATCH_SAFETY|Safety gate BLOCKED|leaked .* in .*\(redacted\)|unresolved merge conflict marker|merge conflict marker/i],
+  ['COMMAND_NOT_FOUND', /\bcommand not found\b|is not recognized as an internal or external command|not recognized as the name of a cmdlet|\bspawn\s+\S+\s+ENOENT\b|\bENOENT\b.*(?:spawn|exec)|exit code 127\b/i],
+  ['MISSING_DEPENDENCY', /Cannot find module\s+['"]|ERR_MODULE_NOT_FOUND|ModuleNotFoundError:\s*No module named|\bImportError:|Cannot resolve\s+['"]|Module not found:|could not find package|no required module provides package|failed to resolve import/i],
+  ['TIMEOUT', /\btimed?\s*out\b|ETIMEDOUT|\bSIGTERM\b|exit code timeout|Command failed after \d+ms/i],
+  ['PERMISSION_OR_ENV', /\b(?:EACCES|EPERM)\b|Permission denied|missing environment variable|env(?:ironment)? variable\s+\S+\s+not set|Must set [A-Z0-9_]+|\b(?:401|403)\s+(?:Unauthorized|Forbidden)\b|ECONNREFUSED|\bENOTFOUND\b|\bEAI_AGAIN\b/i],
+  ['SYNTAX_OR_PARSE', /\b(?:SyntaxError|IndentationError|TabError)\b|Unexpected token|Unterminated string literal|Unexpected end of JSON input|JSON\.parse\b|\bParse error:|syntax error(?:\s+near|\s+at line|:)/i],
+  ['TYPECHECK', /error TS\d{3,5}:|Type ['"][^'"]+['"] is not assignable to|Property ['"][^'"]+['"] does not exist on type|Argument of type ['"][^'"]+['"] is not assignable|\bmypy\b.*\berror:|\bpyright\b.*\berror:|\bcannot use .* as type\b/i],
+  ['TEST_ASSERTION', /\bAssertionError\b|\bERR_ASSERTION\b|\bAssertion failed\b|\bnot ok \d+\b|---\s*FAIL:|^\s*✖\s+\S|assert\.(?:equal|strictEqual|deepStrictEqual|ok|throws|rejects)\b|\bFAILED\s+[^\s]+::|\bFAIL\s+\S+\.(?:test|spec)\.|Expected[\s\S]{0,120}(?:Received|Actual|!==|to equal|to be)/m],
+  ['RUNTIME_ERROR', /\b(?:ReferenceError|TypeError|RangeError|URIError|RuntimeError|ValueError|KeyError|AttributeError|ZeroDivisionError)\b|\bpanic:|UnhandledPromiseRejection|Uncaught\s+\w*Error/i]
+];
+
+const DIAG_HINTS = {
+  PATCH_SAFETY: 'Remove leaked credentials/tokens or resolve git conflict markers before re-verifying.',
+  COMMAND_NOT_FOUND: 'Check CLI/tool installation, PATH, or the script/check command.',
+  MISSING_DEPENDENCY: 'Check module import paths, relative extensions, and installed packages.',
+  TIMEOUT: 'Investigate hangs, infinite loops, unclosed handles, or slow setup.',
+  PERMISSION_OR_ENV: 'Check file permissions, local env prerequisites, or network mocks without hardcoding secrets.',
+  SYNTAX_OR_PARSE: 'Fix the syntax, delimiter, or JSON/config parse error at the referenced location.',
+  TYPECHECK: 'Fix the type mismatch or interface signature across callers and definitions.',
+  TEST_ASSERTION: 'Inspect the failing assertion and fix the root cause (never skip or weaken assertions).',
+  RUNTIME_ERROR: 'Inspect the stack trace, boundary checks, and null/undefined handling at the referenced line.',
+  UNKNOWN: 'Read the failing command output carefully before making further changes.'
+};
+
+function cleanProjectPath(rawPath) {
+  let p = String(rawPath || '').trim().replace(/^["'`]+|["'`,;.)]+$/g, '').replace(/\\/g, '/').replace(/^\.\//, '');
+  if (!p || p.includes('/node_modules/') || p.startsWith('node_modules/') || p.startsWith('node:')) return '';
+  const rootNorm = ROOT.replace(/\\/g, '/').replace(/\/+$/, '');
+  if (p.toLowerCase().startsWith(`${rootNorm.toLowerCase()}/`)) p = p.slice(rootNorm.length + 1);
+  if (/^(?:[A-Za-z]:)?\//.test(p)) {
+    const sub = p.match(/(?:^|\/)((?:src|app|components|lib|tests?|__tests__|spec|docs?|backend|server|cmd|internal|pkg|website|scripts|modules|services|routes|utils)\/.+)$/);
+    if (!sub) return '';
+    p = sub[1];
+  }
+  if (p.startsWith('..') || !/\.[A-Za-z0-9]{1,8}$/.test(p)) return '';
+  return p;
+}
+
+function scopeOverlap(filePath, target) {
+  const f = String(filePath || '').replace(/\\/g, '/').replace(/^\.\//, '').replace(/\/+$/, '');
+  const t = String(target || '').replace(/\\/g, '/').replace(/^\.\//, '').replace(/\/\*\*$/, '').replace(/\/\*$/, '').replace(/\/+$/, '');
+  if (!f || !t) return false;
+  if (f === t || f.startsWith(`${t}/`) || t.startsWith(`${f}/`)) return true;
+  if (/[*?]/.test(t)) {
+    const re = new RegExp(`^${t.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*\*/g, '.*').replace(/\*/g, '[^/]*').replace(/\?/g, '[^/]')}$`);
+    return re.test(f);
+  }
+  return false;
+}
+
+/**
+ * Deterministic failure triage for verifier & patch-safety output (zero tokens).
+ * Classifies error category, extracts referenced project files & failing tests, computes a stable
+ * failure signature, detects repeat failures across cycles, and maps likely owning subtasks.
+ */
+export function diagnoseVerifyFailure(trace, { previousTrace = '', targetFiles = [], subtasks = [], verifyCmd = '' } = {}, _depth = 0) {
+  const clean = String(trace || '').replace(ANSI_RE, '').trim();
+  const emptyResult = {
+    category: 'UNKNOWN',
+    headline: 'No failure output captured',
+    signature: 'unknown',
+    repeat: false,
+    files: [],
+    tests: [],
+    likelyTargets: [],
+    likelyOwners: [],
+    hint: DIAG_HINTS.UNKNOWN
+  };
+  if (!clean) return emptyResult;
+
+  let category = 'UNKNOWN';
+  for (const [cat, re] of DIAG_CATEGORIES) {
+    if (re.test(clean)) { category = cat; break; }
+  }
+
+  const lines = clean.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const files = [];
+  const filePaths = [];
+  const seenFileEntry = new Set();
+  const addFile = (raw, lineNo = '') => {
+    const rel = cleanProjectPath(raw);
+    if (!rel) return;
+    const entry = lineNo ? `${rel}:${lineNo}` : rel;
+    if (!seenFileEntry.has(entry) && files.length < 8) {
+      seenFileEntry.add(entry);
+      files.push(entry);
+    }
+    if (!filePaths.includes(rel) && filePaths.length < 8) filePaths.push(rel);
+  };
+
+  for (const l of lines) {
+    let m;
+    if ((m = l.match(/^File "([^"]+\.py)", line (\d+)/))) addFile(m[1], m[2]);
+    for (const tm of l.matchAll(/([^\s(:*?"'<>]+\.(?:tsx?|jsx?|mjs|cjs))\((\d+),\d+\)/g)) addFile(tm[1], tm[2]);
+    for (const fm of l.matchAll(/(?:[A-Za-z]:)?(?:\/[^\s:()"'<>]+|[A-Za-z0-9_.\-\\]+\/(?:[A-Za-z0-9_.\-\\]+\/)*[A-Za-z0-9_.-]+)\.(?:js|mjs|cjs|jsx|ts|tsx|py|go|rs|php|rb|java|kt|cs|c|cpp|h|vue|svelte|astro|css|scss|less|html|json|yml|yaml|toml|md)(?::(\d+)(?::\d+)?)?/g)) {
+      const full = fm[0];
+      const lineMatch = full.match(/^(.+?):(\d+)(?::\d+)?$/);
+      if (lineMatch) addFile(lineMatch[1], lineMatch[2]);
+      else addFile(full);
+    }
+  }
+
+  const tests = [];
+  const addTest = (name) => {
+    const t = String(name || '').replace(/\s+/g, ' ').trim().slice(0, 120);
+    if (t && !tests.includes(t) && tests.length < 6) tests.push(t);
+  };
+  for (const l of lines) {
+    let m;
+    if ((m = l.match(/^not ok \d+\s*-\s*(.+)$/))) addTest(m[1]);
+    else if ((m = l.match(/^✖\s+(.+?)(?:\s+\(\d+(?:\.\d+)?ms\))?$/))) addTest(m[1]);
+    else if ((m = l.match(/^---\s*FAIL:\s*(\S+)/))) addTest(m[1]);
+    else if ((m = l.match(/^FAILED\s+([^\s]+::[^\s]+|[^\s]+)/))) addTest(m[1]);
+    else if ((m = l.match(/^test\s+([A-Za-z0-9_:.-]+)\s+\.\.\.\s+FAILED/))) addTest(m[1]);
+    else if ((m = l.match(/^●\s+(.+)$/))) addTest(m[1]);
+  }
+
+  const NOISE_LINE = /^(?:exit code\b|FAIL\s*\(exit\b|Command failed:|npm error\b|npm ERR!\b|Node\.js v\d)/i;
+  const PRIORITY_LINE = /(?:PATCH_SAFETY|leaked .* in .*\(redacted\)|merge conflict marker|error TS\d+:|(?:Assertion|Syntax|Reference|Type|Range|URI|Runtime|Value|Key|Attribute|ModuleNotFound|Import)Error\b|ERR_ASSERTION|ERR_MODULE_NOT_FOUND|Cannot find module|command not found|not recognized|timed?\s*out|ETIMEDOUT|EACCES|EPERM|ECONNREFUSED)/i;
+  const pickLine = lines.find((l) => !NOISE_LINE.test(l) && PRIORITY_LINE.test(l))
+    || lines.find((l) => !NOISE_LINE.test(l) && /^(?:Error|FAIL|FAILED|not ok \d+|✖|--- FAIL:|panic:)\b/i.test(l))
+    || lines.find((l) => !NOISE_LINE.test(l))
+    || lines[0];
+  const headline = String(pickLine || verifyCmd || 'Verification failed').replace(/\s+/g, ' ').slice(0, 160);
+
+  const coreHeadline = headline
+    .replace(/[A-Za-z]:\\[^\s"']+|\/(?:tmp|var|home|Users)\/[^\s"']+/g, '<path>')
+    .replace(/\b\d+\s*ms\b/gi, '#ms')
+    .replace(/:\d+(?::\d+)?/g, '')
+    .replace(/\(\d+,\s*\d+\)/g, '')
+    .replace(/\d+/g, '#')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+  const signature = [category, filePaths[0] || '', coreHeadline || (tests[0] ? norm(tests[0]) : '')].filter(Boolean).join('|').slice(0, 160);
+
+  let repeat = false;
+  if (_depth === 0 && String(previousTrace || '').trim()) {
+    const prev = diagnoseVerifyFailure(previousTrace, { targetFiles, subtasks, verifyCmd }, 1);
+    repeat = Boolean(prev && prev.signature && prev.signature === signature && (category !== 'UNKNOWN' || coreHeadline.length >= 12));
+  }
+
+  const allTargets = [
+    ...(Array.isArray(targetFiles) ? targetFiles : []),
+    ...(Array.isArray(subtasks) ? subtasks.flatMap((s) => s?.targetFiles || []) : [])
+  ];
+  const likelyTargets = filePaths.filter((fp) => allTargets.some((t) => scopeOverlap(fp, t)));
+  const finalTargets = likelyTargets.length ? likelyTargets : filePaths.slice(0, 4);
+  const likelyOwners = [];
+  if (Array.isArray(subtasks)) {
+    for (const sub of subtasks) {
+      if (!sub?.id || !Array.isArray(sub.targetFiles)) continue;
+      if (filePaths.some((fp) => sub.targetFiles.some((t) => scopeOverlap(fp, t)))) likelyOwners.push(sub.id);
+    }
+  }
+
+  return {
+    category,
+    headline,
+    signature,
+    repeat,
+    files,
+    tests,
+    likelyTargets: finalTargets,
+    likelyOwners,
+    hint: DIAG_HINTS[category] || DIAG_HINTS.UNKNOWN
+  };
+}
+
+export function formatDiagnosis(diag) {
+  if (!diag || !diag.headline) return '';
+  const lines = [
+    `Category: ${diag.category}${diag.repeat ? ' [REPEAT FAILURE — same error signature as previous cycle; do NOT repeat the same edit, inspect files and change approach]' : ''}`,
+    `Summary: ${diag.headline}`,
+    ...(diag.files?.length ? [`Files referenced: ${diag.files.join(', ')}`] : []),
+    ...(diag.likelyOwners?.length ? [`Likely owner(s): ${diag.likelyOwners.join(', ')}`] : []),
+    ...(diag.tests?.length ? [`Failing test(s): ${diag.tests.join('; ')}`] : []),
+    ...(diag.hint ? [`Action hint: ${diag.hint}`] : [])
+  ];
+  return lines.join('\n');
+}
+
 /**
  * Build the memory block injected into worker prompts.
  *  - skip: ['profile','lessons'] when the engine already auto-loads them (e.g. CLAUDE.md @imports)
+ *  - query: optional task/goal/files/error hint to prioritize relevant auto-lessons
  *  - lesson lines are de-duplicated and capped at memory.maxLessonLines (default 50):
- *    taught rules first (newest kept if over the cap), then the most recent auto lessons.
+ *    taught rules first (newest kept if over the cap), then relevant or most recent auto lessons.
  */
-export function memoryContext(config, { skip = [] } = {}) {
+export function memoryContext(config, { skip = [], query = '' } = {}) {
   const mem = config.memory || {};
   if (mem.enabled === false) return '';
   const maxLines = mem.maxLessonLines ?? 50;
@@ -721,10 +1310,11 @@ export function memoryContext(config, { skip = [] } = {}) {
   }
 
   const seen = new Set();
-  const fresh = (l) => { const k = norm(l.text); if (seen.has(k)) return false; seen.add(k); return true; };
+  const fresh = (l) => { const k = norm(stripSeen(l.text)); if (seen.has(k)) return false; seen.add(k); return true; };
   const taught = listLessons(FILES.lessons).filter(fresh).slice(-maxLines); // dedupe even if skipped,
   const autoRoom = Math.max(0, Math.min(mem.maxAutoLessons ?? 10, maxLines - (skip.includes('lessons') ? 0 : taught.length)));
-  const auto = listLessons(FILES.autoLessons).reverse().filter(fresh).slice(0, autoRoom).reverse(); // so auto never repeats a rule
+  const allAuto = listLessons(FILES.autoLessons).reverse().filter(fresh).reverse(); // newest kept if duplicate exists
+  const auto = rankAutoLessons(allAuto, query, autoRoom);
 
   if (taught.length && !skip.includes('lessons')) parts.push(`## Rules the user taught (always follow)\n${taught.map((l) => `- ${l.text}`).join('\n')}`);
   if (auto.length) parts.push(`## Lessons from earlier harness runs\n${auto.map((l) => `- ${l.text}`).join('\n')}`);
@@ -776,17 +1366,19 @@ export function recordSession(record) {
 
 export const LESSONS_HEADER = `# Lessons the user taught
 
-Rules here are injected into every harness worker prompt and should be read by any
-editor AI before it starts work. Add with:  node .harness/memory.mjs remember "..."
-Remove with:  node .harness/memory.mjs forget L3
+Rules here are read by every AI (editor chats, terminal CLIs, cloud sessions) and
+injected into every harness worker prompt.
+Add permanent rule (git-tracked):         node .harness/memory.mjs remember "..."
+Save local/technical lesson (git-ignored): node .harness/memory.mjs learn "..."
+Remove rule:                               node .harness/memory.mjs forget L3
 
 `;
 
-export const AUTO_LESSONS_HEADER = `# Lessons learned automatically
+export const AUTO_LESSONS_HEADER = `# Lessons learned automatically (git-ignored)
 
-Written by the harness when a task failed verification and then recovered, or halted.
-Only the most recent entries are injected into prompts. Promote a good one to
-lessons.md with  node .harness/memory.mjs remember "..."  and delete noise freely.
-This file is git-ignored (it is about your machine's history, not the template).
+Written by the harness controller (headless daemon and editor runs) on task failures,
+retry recoveries, scope violations, or anti-cheat signals — or via  node .harness/memory.mjs learn "..." .
+Most recent entries are injected into worker prompts and skimmed before starting work.
+Promote a proven rule to shared lessons.md:  node .harness/memory.mjs promote L2
 
 `;

@@ -9,10 +9,11 @@
  * that every changed file belongs to an assigned lead, reverts anything outside, runs the real check, and writes
  * the report for the human. The orchestrator and the agents only do the thinking and the work.
  *
- *   node .harness/visible.mjs brief  --goal "<what to build>" [--files "src/,docs/"] [--check "<cmd>"] [--editor <name>]
+ *   node .harness/visible.mjs brief  --goal "<what to build>" [--files "src/,docs/"] [--check "<cmd>"] [--bugfix] [--editor <name>]
  *   node .harness/visible.mjs brief  --next [--auto-session <id>] [--editor <name>]   take the highest-priority READY backlog item
  *   node .harness/visible.mjs assign <run> '<delegation json>' [--editor <name>]       validate delegation, print each agent's prompt
  *   node .harness/visible.mjs verify <run> [--reports '<json {lead: "one-line report"}>']
+ *   node .harness/visible.mjs judge  <run> --agent reviewer|security (--verdict '<json or report>' | --file <path>)   LLM judge gate after PASSED
  *   node .harness/visible.mjs handoff [run] [--prompt] [--json]      inspect an unfinished run & print a continuation prompt/command
  *   node .harness/visible.mjs rollback <run>                          restore every file to how it was before the run
  *   node .harness/visible.mjs propose <auto-session> '<tasks json>'   (autonomous mode) add READY tasks to the backlog
@@ -25,9 +26,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { ROOT, FILES, ensureDirs, loadConfig, readJsonSafe, atomicWriteJson, listProjectFiles, detectVerifyCmd, memoryContext, recordSession, remember, normalizeTarget, helpIfAsked, pendingCostReasons, aiUsageSince, usageTodayLine } from './lib/common.mjs';
+import { ROOT, FILES, ensureDirs, loadConfig, readJsonSafe, atomicWriteJson, listProjectFiles, detectVerifyCmd, buildRepoMap, memoryContext, recordSession, remember, normalizeTarget, clipErrorTrace, diagnoseVerifyFailure, formatDiagnosis, helpIfAsked, pendingCostReasons, aiUsageSince, usageTodayLine } from './lib/common.mjs';
 helpIfAsked(import.meta.url);
-import { readCharter, loadRoles, loadSkills, matchSkills, loadTeam, validateTeam, validateDelegation, matchesAny, withinAll, readBacklog, writeBacklog, updateBacklogItem, nextReady, leadOwns, editorModelFor, runsNode, ENGINE_SCRIPTS } from './lib/governance.mjs';
+import { readCharter, loadRoles, loadSkills, matchSkills, loadTeam, validateTeam, validateDelegation, matchesAny, withinAll, readBacklog, writeBacklog, updateBacklogItem, nextReady, leadOwns, editorModelFor, runsNode, ENGINE_SCRIPTS, isTestFilePath, auditPatchSignals, scanPatchSafety } from './lib/governance.mjs';
+import { JUDGE_AGENTS, JUDGE_DEFAULT_MIN_SCORE, JUDGE_FORMAT, parseJudgeVerdict, decideJudge, formatJudge, UNTRUSTED_CONTENT_RULE, scanInjection, taskText, injectionHoldReason, isReviewableFile, reviewPolicy, judgeApproved, scanAddedInjection } from './lib/guard.mjs';
 import { VISIBLE_TERMINAL, MAX_VISIBLE_FILES, normalizeEditor, editorDisplayName, editorUsageKey, visibleRunDir, listVisibleRuns, stripSlash, insideTargets, captureSnapshot, diffSnapshots, restoreVisibleFiles, findDefaultHandoffRun, inspectVisibleRun, buildHandoffPrompt, formatHandoffText } from './lib/handoff.mjs';
 
 if (process.env.HARNESS_WORKER === '1') { console.error('Harness workers must not use the editor workflow.'); process.exit(2); }
@@ -41,7 +43,7 @@ const PLACEHOLDER = /\(describe your product goals here/;
 const config = loadConfig();
 const argv = process.argv.slice(2);
 const [cmd = 'status', ...rest] = argv;
-const BOOLEAN_FLAGS = new Set(['--next', '--force', '--prompt', '--json']);
+const BOOLEAN_FLAGS = new Set(['--next', '--force', '--prompt', '--json', '--bugfix']);
 const flag = (n) => {
   const eq = rest.find((a) => a.startsWith(`${n}=`));
   if (eq !== undefined) return eq.slice(n.length + 1);
@@ -88,12 +90,20 @@ function teamOrDie() {
 function leadPrompt(run, lead, a, roles, skills) {
   const role = roles[String(lead.role).toUpperCase()] || {};
   const sk = matchSkills({ skills: lead.skills || [], prompt: a.goal }, String(lead.role).toUpperCase(), skills).chosen; // same rule as headless workers: explicit + autoApply + keywords in this assignment
-  const memory = memoryContext(config);
+  const memory = memoryContext(config, {
+    query: {
+      title: run.title,
+      goal: `${a.goal || ''}\n${run.goal || ''}`,
+      files: a.files || [],
+      error: run.lastVerify && !run.lastVerify.passed ? (run.lastVerify.trace || run.lastVerify.check || '') : ''
+    }
+  });
   return [
     `You are ${lead.id} (role ${lead.role}), a lead on the agent team. The orchestrator delegated this to you in run ${run.id}. Work ONLY inside the project folder ${ROOT}.`,
     `\nYour assignment: ${a.goal}`,
     `\nYou may create or change ONLY these files/folders: ${a.files.join(', ')}.`,
     'Do not touch anything else: the controller compares every changed file against the assignments after all agents finish, reverts anything outside your files, and the run fails.',
+    `\n${UNTRUSTED_CONTENT_RULE}`,
     run.interfaceContract ? `\nShared interface contract (the other leads are building against exactly this, in parallel):\n${run.interfaceContract}` : '',
     run.acceptanceCriteria?.length ? `\nAcceptance criteria:\n${run.acceptanceCriteria.map((c) => `- ${c}`).join('\n')}` : '',
     `\nTask overall: ${run.goal}`,
@@ -108,8 +118,9 @@ function reportText(run, v) {
   const L = [];
   const head = { PASSED: 'PASSED ✔', FAILED: 'NOT PASSED YET ✖ (can be fixed and re-verified)', HALTED_HITL_REQUIRED: 'STOPPED ✖ — a human decision is needed', ROLLED_BACK: 'ROLLED BACK', ESCALATED: 'ESCALATED — a human decision is needed' }[v.status] || v.status;
   const visual = v.status === 'PASSED' && v.uiFiles?.length;
+  const noSignal = v.status === 'PASSED' && run.check?.real === false;
   const sessionLabel = run.editor && run.editor !== 'claude-code' ? `${editorDisplayName(run.editor)} editor session` : 'editor session';
-  L.push(`HARNESS REPORT — run ${run.id} — ${head}${visual ? ' — NEEDS A VISUAL REVIEW' : ''}`, '', `Task:    ${run.title}`, `Source:  ${run.source === 'backlog' ? `backlog item ${run.backlogId}` : 'goal given by the human'}${run.autonomous ? ' (autonomous mode)' : ''}`,
+  L.push(`HARNESS REPORT — run ${run.id} — ${head}${noSignal ? ' (NO REAL TEST SIGNAL: the check cannot fail)' : ''}${visual ? ' — NEEDS A VISUAL REVIEW' : ''}`, '', `Task:    ${run.title}`, `Source:  ${run.source === 'backlog' ? `backlog item ${run.backlogId}` : 'goal given by the human'}${run.autonomous ? ' (autonomous mode)' : ''}`,
     `Flow:    controller → orchestrator (${sessionLabel}) → ${run.assignments.map((a) => a.lead).join(', ')} → controller verify → this report`, '');
   L.push('What each agent did:');
   const leads = run.leads || [];
@@ -123,6 +134,10 @@ function reportText(run, v) {
     '    Look at that diff: the tests must have been FIXED, not weakened until they passed.');
   if (v.testsDeleted?.length) L.push(`  ⚠ ${v.testsDeleted.length} test file(s) that existed before this run were DELETED (${v.testsDeleted.slice(0, 4).join(', ')}${v.testsDeleted.slice(0, 4).length < v.testsDeleted.length ? ', …' : ''}). Make sure that was intended.`);
   if (v.skipped) L.push(`  ⚠ ${v.skipped} test(s) were SKIPPED. A skipped test proves nothing: find out why (for example a missing browser) before trusting this result.`);
+  if (v.patchSafety?.blocking?.length) L.push('', 'Safety gate BLOCKED (remove secrets/conflict markers before passing verify):', ...v.patchSafety.blocking.map((s) => `  ✖ ${s}`));
+  if (v.patchSafety?.warnings?.length) L.push('', 'Safety warnings (non-blocking):', ...v.patchSafety.warnings.map((w) => `  ⚠ ${w}`));
+  if (v.antiCheatSignals?.length) L.push('', 'Anti-cheat & root-cause signals:', ...v.antiCheatSignals.map((s) => `  ⚠ ${s}`));
+  if (v.status !== 'PASSED' && v.diagnosis?.headline) L.push('', 'Failure diagnosis:', ...formatDiagnosis(v.diagnosis).split('\n').map((l) => `  ${l}`));
   if (visual) L.push('', `Visual review needed: ${v.uiFiles.length} UI file(s) changed (${v.uiFiles.slice(0, 6).join(', ')}${v.uiFiles.length > 6 ? ', …' : ''}).`,
     `  Passing tests do not prove a page looks right${v.browserCheck ? '' : ', and this check never opened a browser (a broken page script would still pass)'}.`,
     '  Open it at desktop and phone width, in light and dark, and compare it with the spec before you commit.');
@@ -131,10 +146,14 @@ function reportText(run, v) {
   if (v.violations.length) L.push('', 'Violations (changes outside the assigned files):', ...v.violations.map((x) => `  ✖ ${x}`));
   if (v.reverted.length) L.push(`         The controller reverted ${v.reverted.length} out-of-scope change(s): ${v.reverted.join(', ')}`);
   if (v.revertFailed?.length) L.push(`  ⚠ COULD NOT be reverted automatically (secrets are never copied): ${v.revertFailed.join(', ')} — check and restore them by hand before anything else.`);
+  if (v.status === 'PASSED' && run.reviewRequired) L.push('', 'JUDGE REQUIRED: this code change is not DONE until the reviewer judge approves it.',
+    `  Start the read-only reviewer (and security when input, auth, files, network or secrets are touched), then: node .harness/visible.mjs judge ${run.id} --agent reviewer --file <report>`);
   if (v.status === 'PASSED' && run.acceptanceCriteria?.length) L.push('', 'Acceptance criteria — confirm each one yourself (a passing check does not prove them by itself):', ...run.acceptanceCriteria.map((c) => `  ☐ ${c}`));
   L.push('', `Cycle ${run.cycles}/${config.maxCycles ?? 3}.`);
   if (v.status === 'PASSED') L.push('', 'Next for you: review the changes (git diff) and commit them when you are happy. Cost: not measured in the editor workflow (see the agent panel for tokens).');
-  else if (v.status === 'FAILED') L.push('', `Next: send the failure to the responsible lead(s), then run: node .harness/visible.mjs verify ${run.id}`);
+  else if (v.status === 'FAILED') L.push('',
+    'Root-cause retry rule: before patching, run Phase 1 Root-Cause Analysis (Symptom, Root Cause, Blast Radius) from the failure trace. Never hardcode returns, disable validation, weaken tests, or swallow errors.',
+    `Next: send the failure to the responsible lead(s), then run: node .harness/visible.mjs verify ${run.id}`);
   else if (v.autoRolledBack) L.push('', 'Files were restored to how they were before the run. Decide: fix the task, then run it again.');
   else L.push('', `Files were left as they are (${run.baseline?.rollbackAvailable ? 'some files could not be restored automatically' : 'no baseline copy'}). Decide: fix the task, then run it again.${run.baseline?.rollbackAvailable ? ` To undo by hand: node .harness/visible.mjs rollback ${run.id}` : ''}`);
   return L.join('\n');
@@ -180,6 +199,8 @@ function brief() {
   let item = null; const auto = wantNext || !!sid;
   if (auto) {
     if (!charter.autonomous) die('Autonomous mode is off in .harness/charter.md ("- autonomous: off"). Use --goal, or ask the owner to turn it on.', 1);
+    const awaiting = allRuns().find((r) => r.status === 'PASSED' && r.reviewRequired && !judgeApproved(r));
+    if (awaiting) die(`Autonomy is paused: run ${awaiting.id} passed its check but the judge has not approved it yet. Run the reviewer and: node .harness/visible.mjs judge ${awaiting.id} --agent reviewer --file <report>`, 4);
     if (sid) {
       const runs = sessionRuns(sid);
       if (runs.length >= charter.maxAutoTasksPerRun) die(`Auto budget used: ${runs.length}/${charter.maxAutoTasksPerRun} task(s) in this session (charter maxAutoTasksPerRun). Report to the human.`, 3);
@@ -191,6 +212,8 @@ function brief() {
     // Same rule as the headless autopilot: a READY item that may use a lot of quota is held ("Needs your OK"), not started.
     const held = [];
     for (item = nextReady(); item; item = nextReady()) {
+      const injection = injectionHoldReason(item);
+      if (injection) { updateBacklogItem(item.id, { status: 'BLOCKED', needsApproval: true, blockedReason: injection }); held.push(`${item.id} ("${item.title || item.goal}", possible prompt injection)`); continue; }
       const pending = pendingCostReasons(config, item);
       if (!pending.length) break;
       updateBacklogItem(item.id, { status: 'BLOCKED', needsApproval: true, blockedReason: `Needs your OK (may use a lot of quota): ${pending.map((p) => p.text).join('; ')}. Approve: node .harness/backlog.mjs approve ${item.id}` });
@@ -203,7 +226,7 @@ function brief() {
 
   const goal = item ? (item.goal || item.title) : goalArg;
   let check = flag('--check') ? { cmd: flag('--check'), source: 'given by the human', real: true } : item?.verifyCmd ? { cmd: item.verifyCmd, source: `backlog item ${item.id}`, real: true } : (() => { const d = detectVerifyCmd(ROOT, config); return { cmd: d.cmd, source: d.source, real: d.real }; })();
-  if (auto && charter.requireRealCheck && !check.real) die('This project has no real check (add a "test" script to package.json or a "verifyCmd" to the task). Autonomous work needs one (charter requireRealCheck).', 1);
+  if (auto && charter.requireRealCheck && !check.real) die('This project has no real check (add a project test/check script or a "verifyCmd" to the task). Autonomous work needs one (charter requireRealCheck).', 1);
 
   const id = `V-${new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14)}-${Math.random().toString(36).slice(2, 5)}`;
   const scopeGlobs = userAllowed.length ? userAllowed : charter.allowedPaths;
@@ -212,8 +235,10 @@ function brief() {
   const baseDirRel = path.posix.join('.harness', 'visible', id, 'baseline');
   // secrets (.env*) are compared by hash only: they are never copied into the baseline
   if (rollbackAvailable) for (const f of Object.keys(snap.map).filter((k) => !/^\.env/.test(k))) { const dest = path.join(ROOT, baseDirRel, f); fs.mkdirSync(path.dirname(dest), { recursive: true }); fs.copyFileSync(path.join(ROOT, f), dest); }
+  const bugfix = Boolean(has('--bugfix') || item?.bugfix);
   const run = {
     id, status: 'BRIEFED', editor, createdAt: new Date().toISOString(), source: item ? 'backlog' : 'goal', backlogId: item?.id || null, autonomous: auto, autoSession: sid || null,
+    ...(bugfix ? { bugfix: true } : {}),
     title: item?.title || String(goal).slice(0, 80), goal, userAllowed, acceptanceCriteria: item?.acceptanceCriteria || [], interfaceContract: item?.interfaceContract || '',
     check, cycles: 0, assignAttempts: 0, assignments: [],
     charter: { allowedPaths: charter.allowedPaths, forbiddenPaths: charter.forbiddenPaths },
@@ -224,9 +249,10 @@ function brief() {
   saveRun(run);
   if (item) updateBacklogItem(item.id, { status: 'IN_PROGRESS', startedAt: new Date().toISOString(), visibleRun: id });
   const { files } = listProjectFiles(ROOT, 60);
-  const memory = memoryContext(config);
+  const memory = memoryContext(config, { query: { title: run.title, goal, files: userAllowed } });
+  const repoMap = buildRepoMap(ROOT, { maxChars: 1200 });
   console.log(`RUN_ID=${id}`);
-  console.log(`\nORCHESTRATOR BRIEF — run ${id}${auto ? ' (autonomous mode)' : ''}`);
+  console.log(`\nORCHESTRATOR BRIEF — run ${id}${auto ? ' (autonomous mode)' : ''}${run.bugfix ? ' (bugfix)' : ''}`);
   if (editor !== 'claude-code') console.log(`Editor: ${editorDisplayName(editor)}`);
   console.log(`\nTask: ${run.title}\nGoal: ${goal}`);
   if (run.acceptanceCriteria.length) console.log(`Acceptance criteria:\n${run.acceptanceCriteria.map((c) => `  - ${c}`).join('\n')}`);
@@ -237,8 +263,12 @@ function brief() {
   for (const l of run.leads) console.log(`  - ${l.id} (${l.role}) may own: ${l.scope.join(', ')}`);
   if (userAllowed.length) console.log(`The human only allows files inside: ${userAllowed.join(', ')}`);
   console.log(`Never allowed: ${charter.forbiddenPaths.join(', ')}${auto && charter.allowedPaths.length ? `\nAutonomous work stays inside: ${charter.allowedPaths.join(', ')}` : ''}`);
+  if (run.bugfix) {
+    console.log("\nBugfix workflow (Red-Green option): assign lead-qa and lead-dev in ONE assign call (run lead-qa first [Red] to confirm the bug test fails, then run lead-dev [Green] before verify) — or run two separate brief runs — and require Symptom / Root Cause / Blast Radius in lead-dev's report.");
+  }
   console.log(`\nHow to proceed, as the orchestrator (you only plan; the agents do the work):\n  1. Decide which lead gets which files. Write the delegation as JSON:\n     {"interfaceContract":"exact names/signatures/formats the agents share","assignments":[{"lead":"lead-dev","goal":"…","files":["src/x.js"]}]}\n  2. Validate it: node .harness/visible.mjs assign ${id} '<json>'   (it prints each agent's ready-made prompt)\n  3. Start ALL assigned agents in ONE message with the Agent tool (subagent_type = the lead's id) so they run in parallel and are visible.\n  4. When they have reported: node .harness/visible.mjs verify ${id} --reports '{"lead-dev":"<their one-line report>"}'\n  5. Report to the human in plain words, from the controller's report.`);
   if (memory) console.log(`\nRules the user taught:\n${memory}`);
+  if (repoMap) console.log(`\nRepo summary:\n${repoMap}`);
   console.log(`\nProject files (first ${files.length}):\n${files.join('\n') || '(empty project)'}`);
 }
 
@@ -325,8 +355,6 @@ function countSkipped(out) {
 }
 
 /** Changed files that render as UI: tests passing does not mean they look right. */
-/** Test files, by the usual conventions (a tests/ or __tests__/ folder, or a .test. / .spec. name). */
-const TEST_FILE = /(^|\/)(tests?|__tests__|specs?)\/|\.(test|spec)\.[a-z0-9]+$/i;
 const UI_FILE = /\.(html?|css|scss|sass|less|svg|jsx|tsx|vue|svelte|astro)$/i;
 /** A check that opens a real browser (so a broken page script or layout can fail it). */
 const BROWSER_CHECK = /playwright|puppeteer|cypress|webdriver|selenium|e2e|visual|screenshot|lighthouse/i;
@@ -340,7 +368,9 @@ function runCheck(run) {
 
 function verify() {
   const run = loadRun(positional[0]);
-  if (!['DELEGATED', 'FAILED'].includes(run.status)) die(`Run ${run.id} is ${run.status}; it can only be verified after assign (DELEGATED) or after a failed verify.`);
+  if (!['DELEGATED', 'FAILED', 'REVIEW_BLOCKED'].includes(run.status)) die(`Run ${run.id} is ${run.status}; it can only be verified after assign (DELEGATED), after a failed verify, or after the judge blocked it (REVIEW_BLOCKED).`);
+  if (run.status === 'REVIEW_BLOCKED') { delete run.reviews; fs.rmSync(path.join(runDir(run.id), 'judge.md'), { force: true }); } // the code changed: it needs a fresh judge verdict
+  const prevTrace = run.lastVerify && !run.lastVerify.passed ? (run.lastVerify.trace || run.lastVerify.check || '') : '';
   let reports = {}; try { reports = flag('--reports') ? JSON.parse(flag('--reports')) : {}; } catch { /* ignore a malformed summary */ }
   run.cycles += 1;
   const scopeGlobs = run.userAllowed?.length ? run.userAllowed : (run.charter?.allowedPaths || []);
@@ -349,6 +379,7 @@ function verify() {
   const d = diffSnapshots(run.baseline.files, cur);
   const violations = []; const violating = [];
   const leads = run.leads || [];
+  const hasQaLead = leads.some((l) => String(l.role).toUpperCase() === 'QA_AUDITOR');
   for (const f of d.all) {
     const owner = run.assignments.find((a) => {
       if (!inside(f, a.files)) return false;
@@ -356,6 +387,12 @@ function verify() {
       return !lead || !leads.length || leadOwns(lead, f, leads);
     });
     if (!owner) { violations.push(`${f}: not inside any lead's assigned files`); violating.push(f); continue; }
+    const ownerLead = leads.find((l) => l.id === owner.lead);
+    if (ownerLead && hasQaLead && String(ownerLead.role).toUpperCase() !== 'QA_AUDITOR' && isTestFilePath(f)) {
+      violations.push(`${f}: test file may only be owned by lead-qa`);
+      violating.push(f);
+      continue;
+    }
     if (matchesAny(f, run.charter.forbiddenPaths)) { violations.push(`${f}: forbidden by the charter`); violating.push(f); continue; }
     if (run.autonomous && run.charter.allowedPaths.length && !matchesAny(f, run.charter.allowedPaths)) { violations.push(`${f}: outside the charter's allowed paths`); violating.push(f); }
   }
@@ -375,43 +412,159 @@ function verify() {
   // Quality signals a passing check cannot give by itself:
   // - test files changed AFTER the previous failed check (were the tests fixed, or weakened until they passed?)
   // - test files that existed before the run and were deleted during it
-  const testsChangedAfterFail = run.cycleSnapshot ? diffSnapshots(run.cycleSnapshot, cur).all.filter((f) => TEST_FILE.test(f) && !violating.includes(f)) : [];
-  const testsDeleted = d.deleted.filter((f) => TEST_FILE.test(f) && !violating.includes(f));
-  const passed = !violations.length && check.ok;
+  const testsChangedAfterFail = run.cycleSnapshot ? diffSnapshots(run.cycleSnapshot, cur).all.filter((f) => isTestFilePath(f) && !violating.includes(f)) : [];
+  const testsDeleted = d.deleted.filter((f) => isTestFilePath(f) && !violating.includes(f));
+  const isBugFix = Boolean(run.bugfix || /\b(fix|bug|broken|regress|error|crash|fail)\b/i.test(run.goal || ''));
+  const cleanChanged = d.all.filter((f) => !violating.includes(f) && !d.deleted.includes(f));
+  const auditBase = Object.fromEntries(cleanChanged.filter((f) => f in run.baseline.files).map((f) => [f, run.baseline.files[f]]));
+  const auditCur = Object.fromEntries(cleanChanged.filter((f) => f in cur).map((f) => [f, cur[f]]));
+  const baselineDir = run.baseline?.rollbackAvailable && run.baseline?.dir ? path.join(ROOT, run.baseline.dir) : null;
+  const devIds = run.assignments.map((a) => a.lead).filter((id) => {
+    const l = leads.find((x) => x.id === id);
+    const r = String(l?.role || '').toUpperCase();
+    return r === 'DEV_ENGINEER' || (!r && id === 'lead-dev');
+  });
+  const audit = auditPatchSignals({ baseFiles: auditBase, curFiles: auditCur, root: ROOT, baselineDir, testsChangedAfterFail, reports, cycle: run.cycles, isBugFix, devIds });
+  const safety = scanPatchSafety({ baseFiles: auditBase, curFiles: auditCur, root: ROOT, baselineDir });
+  const passed = !violations.length && check.ok && !safety.blocked;
+  // Instructions an agent planted in a file (non-blocking: shown to the judge and the human)
+  const planted = scanAddedInjection(cleanChanged.filter((f) => f in cur).map((f) => {
+    const read = (p) => { try { const st = fs.statSync(p); return st.size <= 512 * 1024 ? fs.readFileSync(p, 'utf8') : ''; } catch { return ''; } };
+    return { file: f, before: baselineDir ? read(path.join(baselineDir, f)) : '', after: read(path.join(ROOT, f)) };
+  }));
+  // LLM judge gate: a passing code change is not DONE until the reviewer judge approves it (config.review)
+  const policy = reviewPolicy(config);
+  const needJudge = passed && policy.required && d.all.some((f) => !violating.includes(f) && isReviewableFile(f));
+  delete run.reviews; fs.rmSync(path.join(runDir(run.id), 'judge.md'), { force: true });
+  run.reviewRequired = needJudge;
   const maxCycles = config.maxCycles ?? 3;
   const halted = !passed && run.cycles >= maxCycles;
   let autoRolledBack = false;
   if (halted) { const r = restoreFiles(run, diffSnapshots(run.baseline.files, snap()).all); autoRolledBack = r.failed.length === 0 && run.baseline.rollbackAvailable; }
   run.status = passed ? 'PASSED' : halted ? 'HALTED_HITL_REQUIRED' : 'FAILED';
   delete run.pendingJobId;
-  run.lastVerify = { at: new Date().toISOString(), passed, violations, reverted, check: check.text };
+  const rawTrace = !passed ? [
+    ...violations,
+    ...safety.blocking.map((b) => `PATCH_SAFETY: ${b}`),
+    ...(check.ok ? [] : [check.text])
+  ].filter(Boolean).join('\n') : '';
+  const diagnosis = !passed ? diagnoseVerifyFailure(rawTrace, {
+    previousTrace: prevTrace,
+    targetFiles: run.assignments.flatMap((a) => a.files || []),
+    subtasks: run.assignments.map((a) => ({ id: a.lead, targetFiles: a.files || [] })),
+    verifyCmd: run.check?.cmd || ''
+  }) : null;
+  const failSummary = !passed ? String(violations[0] || safety.blocking[0] || check.text.split('\n')[0]).replace(/\s+/g, ' ').slice(0, 180) : '';
+  if (!passed && !run.firstFailureSummary) run.firstFailureSummary = failSummary;
+  if (!passed) run.lastFailureSummary = failSummary;
+  run.lastVerify = {
+    at: new Date().toISOString(),
+    passed,
+    violations,
+    reverted,
+    check: check.text,
+    antiCheatSignals: audit.signals,
+    patchSafety: { blocking: safety.blocking, warnings: safety.warnings },
+    plantedInstructions: planted,
+    ...(diagnosis ? { diagnosis } : {}),
+    ...(rawTrace ? { trace: clipErrorTrace(rawTrace, 4000) } : {})
+  };
   if (passed || halted) delete run.cycleSnapshot; else run.cycleSnapshot = snap(); // what the project looked like when this check failed
   run.lastVerify.skipped = check.skipped || 0; run.lastVerify.needsVisualReview = passed && uiFiles.length > 0;
-  const v = { status: run.status, changes, violations, reverted, revertFailed, checkResult: check.text, reports, autoRolledBack, skipped: check.skipped || 0, uiFiles, checkCreated, browserCheck: BROWSER_CHECK.test(run.check.cmd), testsChangedAfterFail, testsDeleted };
+  const v = {
+    status: run.status,
+    changes,
+    violations,
+    reverted,
+    revertFailed,
+    checkResult: check.text,
+    reports,
+    autoRolledBack,
+    skipped: check.skipped || 0,
+    uiFiles,
+    checkCreated,
+    browserCheck: BROWSER_CHECK.test(run.check.cmd),
+    testsChangedAfterFail,
+    testsDeleted,
+    antiCheatSignals: audit.signals,
+    patchSafety: { blocking: safety.blocking, warnings: [...safety.warnings, ...planted] },
+    diagnosis
+  };
   const text = reportText(run, v);
   fs.writeFileSync(path.join(runDir(run.id), 'report.md'), `${text}\n`);
   saveRun(run);
 
-  if (passed && run.backlogId) updateBacklogItem(run.backlogId, { status: 'DONE', completedAt: new Date().toISOString(), result: 'VERIFIED', cyclesUsed: run.cycles, visibleRun: run.id });
-  if (halted && run.backlogId) updateBacklogItem(run.backlogId, { status: 'BLOCKED', blockedReason: `HALTED_HITL_REQUIRED after ${run.cycles} cycles: ${violations[0] || check.text.split('\n')[0]}` });
+  if (passed && run.backlogId) {
+    updateBacklogItem(run.backlogId, needJudge
+      ? { status: 'IN_PROGRESS', awaitingJudge: true, cyclesUsed: run.cycles, visibleRun: run.id }
+      : { status: 'DONE', completedAt: new Date().toISOString(), result: 'VERIFIED', cyclesUsed: run.cycles, visibleRun: run.id });
+  }
+  if (halted && run.backlogId) updateBacklogItem(run.backlogId, { status: 'BLOCKED', blockedReason: `HALTED_HITL_REQUIRED after ${run.cycles} cycles: ${violations[0] || safety.blocking[0] || check.text.split('\n')[0]}` });
+  const recordAuto = (config.memory || {}).autoLessons !== false && !String(run.id).startsWith('V-test');
+  if (recordAuto) {
+    try {
+      if (violations.length) remember(`Scope violation in "${run.title}": ${violations.slice(0, 2).join('; ').replace(/\s+/g, ' ').slice(0, 180)} — keep edits inside assigned files (tests belong to lead-qa).`, FILES.autoLessons);
+      if (safety.blocking.length) remember(`Patch safety block in "${run.title}": ${safety.blocking[0].replace(/\s+/g, ' ').slice(0, 180)} — remove secrets or conflict markers before verifying.`, FILES.autoLessons);
+      if (audit.signals.length) remember(`Quality/root-cause signal in "${run.title}": ${audit.signals[0].replace(/\s+/g, ' ').slice(0, 180)} — fix root cause cleanly without skipped tests or empty catches.`, FILES.autoLessons);
+    } catch { /* memory is best effort */ }
+  }
   if (passed || halted) {
     try {
       recordSession({
         taskId: run.id, title: run.title, result: passed ? 'VERIFIED' : 'HALTED_HITL_REQUIRED', cycles: run.cycles, maxCycles, goal: run.goal,
         engine: `${editorDisplayName(run.editor || 'claude-code')} editor agents`, verifyCmd: run.check.cmd, verifySource: run.check.source, planner: `editor workflow: ${run.orchestrator} → ${run.assignments.map((a) => a.lead).join(', ')}`,
         team: { orchestrator: run.orchestrator, assignments: run.assignments.map((a) => ({ lead: a.lead, goal: a.goal, files: a.files, workers: [{ id: a.lead, files: a.files }] })) },
-        subtasks: run.assignments.map((a) => ({ id: a.lead, targetFiles: a.files, prompt: a.goal })), errors: passed ? [] : [violations.join('\n') || check.text],
+        subtasks: run.assignments.map((a) => ({ id: a.lead, targetFiles: a.files, prompt: a.goal })), errors: passed ? [] : [rawTrace || violations.join('\n') || check.text],
         outputs: Object.entries(reports).map(([id, output]) => ({ id, output })), finishedAt: new Date().toISOString()
       });
-      if (!passed && (config.memory || {}).autoLessons !== false && !String(run.id).startsWith('V-test')) remember(`"${run.title}": editor run ${run.status} — ${(violations[0] || check.text.split('\n')[0]).replace(/\s+/g, ' ').slice(0, 200)}. Needs a human decision before retrying.`, FILES.autoLessons);
+      if (recordAuto && passed && run.cycles > 1) remember(`"${run.title}": first attempt failed (${run.firstFailureSummary || run.lastFailureSummary || 'earlier check failure'}) — passed after ${run.cycles} cycles. Check for this earlier next time.`, FILES.autoLessons);
+      if (recordAuto && !passed) remember(`"${run.title}": editor run ${run.status} — ${(violations[0] || safety.blocking[0] || check.text.split('\n')[0]).replace(/\s+/g, ' ').slice(0, 200)}. Needs a human decision before retrying.`, FILES.autoLessons);
     } catch { /* memory is best effort */ }
   }
-  if (run.baseline.dir && (passed || (halted && autoRolledBack)) && fs.existsSync(path.join(ROOT, run.baseline.dir))) {
+  if (run.baseline.dir && ((passed && !needJudge) || (halted && autoRolledBack)) && fs.existsSync(path.join(ROOT, run.baseline.dir))) {
     fs.rmSync(path.join(ROOT, run.baseline.dir), { recursive: true, force: true });
     if (halted && autoRolledBack) { run.baseline.rollbackAvailable = false; saveRun(run); }
   }
   console.log(text);
   process.exit(passed ? 0 : 1);
+}
+
+/**
+ * LLM judge gate: record a reviewer/security verdict for a PASSED run. The controller validates the JSON against the
+ * rubric and decides (lib/guard.mjs decideJudge); a block turns the run into REVIEW_BLOCKED and the backlog item BLOCKED.
+ */
+function judge() {
+  const run = loadRun(positional[0]);
+  if (!['PASSED', 'REVIEW_BLOCKED'].includes(run.status)) die(`Run ${run.id} is ${run.status}; the judge only reviews a run the controller verified (PASSED).`);
+  const agent = flag('--agent') || 'reviewer';
+  if (!JUDGE_AGENTS.includes(agent)) die(`--agent must be one of: ${JUDGE_AGENTS.join(', ')}`);
+  let raw = flag('--verdict');
+  if (flag('--file')) { try { raw = fs.readFileSync(path.resolve(flag('--file')), 'utf8'); } catch (e) { die(`Cannot read --file: ${e.message}`); } }
+  if (raw === '-') raw = fs.readFileSync(0, 'utf8');
+  if (!raw) die(`Give the judge's verdict with --verdict '<json or full report>' or --file <path>.\n${JUDGE_FORMAT}`);
+  const { verdict, errors } = parseJudgeVerdict(raw);
+  if (!verdict) die(`INVALID VERDICT from ${agent} (nothing recorded; ask the agent to answer in the required format):\n  - ${errors.join('\n  - ')}\n${JUDGE_FORMAT}`);
+  const minScore = Number.isInteger(config.review?.minScore) ? config.review.minScore : JUDGE_DEFAULT_MIN_SCORE;
+  const decision = decideJudge(verdict, { minScore });
+  run.reviews = { ...(run.reviews || {}), [agent]: { at: new Date().toISOString(), ...verdict, approved: decision.approved, reasons: decision.reasons } };
+  const blockedBy = Object.entries(run.reviews).filter(([, r]) => !r.approved).map(([a]) => a);
+  run.status = blockedBy.length ? 'REVIEW_BLOCKED' : 'PASSED';
+  saveRun(run);
+  const text = Object.entries(run.reviews).map(([a, r]) => formatJudge(a, r, { approved: r.approved, reasons: r.reasons })).join('\n\n');
+  fs.writeFileSync(path.join(runDir(run.id), 'judge.md'), `${text}\n`);
+  if (run.backlogId) {
+    if (blockedBy.length) updateBacklogItem(run.backlogId, { status: 'BLOCKED', blockedReason: `REVIEW_BLOCKED by ${blockedBy.join(', ')}: ${run.reviews[blockedBy[0]].reasons[0]}. Fix, then verify run ${run.id} again.` });
+    else if (judgeApproved(run)) updateBacklogItem(run.backlogId, { status: 'DONE', completedAt: new Date().toISOString(), result: 'VERIFIED+JUDGED', awaitingJudge: undefined, blockedReason: undefined });
+  }
+  if (!blockedBy.length && judgeApproved(run) && run.baseline?.dir && fs.existsSync(path.join(ROOT, run.baseline.dir))) fs.rmSync(path.join(ROOT, run.baseline.dir), { recursive: true, force: true });
+  if (!decision.approved && (config.memory || {}).autoLessons !== false && !String(run.id).startsWith('V-test')) {
+    try { remember(`Judge (${agent}) blocked "${run.title}": ${decision.reasons[0]}${verdict.findings[0] ? ` — ${verdict.findings[0].issue.slice(0, 120)}` : ''}.`, FILES.autoLessons); } catch { /* memory is best effort */ }
+  }
+  console.log(text);
+  console.log(blockedBy.length
+    ? `\nREVIEW_BLOCKED: send the findings to the responsible lead, then run: node .harness/visible.mjs verify ${run.id} (and judge it again).`
+    : judgeApproved(run) ? '\nJUDGE APPROVED: the human reviews the diff and decides whether to commit.' : '\nRecorded. The reviewer verdict is still needed: node .harness/visible.mjs judge ' + run.id + ' --agent reviewer --file <report>');
+  process.exit(blockedBy.length ? 1 : 0);
 }
 
 function rollback() {
@@ -446,6 +599,8 @@ function propose() {
       if (!t.title || !String(t.title).trim()) throw new Error('no title');
       if (have.has(norm(t.title))) throw new Error('duplicate of an existing backlog item');
       if (!Array.isArray(t.files) || !t.files.length) throw new Error('no files');
+      const inj = scanInjection(taskText(t));
+      if (inj.length) throw new Error(`possible prompt injection (${inj.map((h) => h.reason).join('; ')})`);
       const files = t.files.map((f) => { const s = normalizeTarget(f); if (!s) throw new Error(`unsafe path "${f}"`); return s; });
       for (const f of files) {
         if (!leads.some((l) => leadOwns(l, f, leads))) throw new Error(`"${f}" is not inside any lead's scope`);
@@ -509,8 +664,14 @@ function status() {
   if (!runs.length) { console.log('No editor-workflow runs yet. Start one with /harness:run in Claude Code (or: node .harness/visible.mjs brief --goal "…").'); return; }
   for (const r of runs.slice(-15)) {
     const ed = r.editor && r.editor !== 'claude-code' ? `  [${editorDisplayName(r.editor)}]` : '';
+    const diag = r.lastVerify && !r.lastVerify.passed
+      ? (r.lastVerify.diagnosis?.category
+        ? `  [${r.lastVerify.diagnosis.category}${r.lastVerify.diagnosis.repeat ? ' REPEAT' : ''}]`
+        : r.lastVerify.patchSafety?.blocking?.length ? '  [PATCH_SAFETY]' : '')
+      : '';
     const job = r.pendingJobId ? `  [headless: ${r.pendingJobId}]` : '';
-    console.log(`${r.id}  ${r.status.padEnd(22)} ${r.title}${r.backlogId ? `  [${r.backlogId}]` : ''}${ed}${job}`);
+    const awaiting = r.status === 'PASSED' && r.reviewRequired && !judgeApproved(r) ? '  [AWAITING JUDGE]' : '';
+    console.log(`${r.id}  ${r.status.padEnd(22)} ${r.title}${r.backlogId ? `  [${r.backlogId}]` : ''}${ed}${diag}${job}${awaiting}`);
   }
 }
 
@@ -518,10 +679,11 @@ switch (cmd) {
   case 'brief': brief(); break;
   case 'assign': assign(); break;
   case 'verify': verify(); break;
+  case 'judge': judge(); break;
   case 'handoff': handoff(); break;
   case 'rollback': rollback(); break;
   case 'propose': propose(); break;
-  case 'report': { const f = path.join(runDir(positional[0] || ''), 'report.md'); if (!fs.existsSync(f)) die(`No report for run ${positional[0] || '(none)'} yet (verify it first).`); console.log(fs.readFileSync(f, 'utf8')); break; }
+  case 'report': { const f = path.join(runDir(positional[0] || ''), 'report.md'); if (!fs.existsSync(f)) die(`No report for run ${positional[0] || '(none)'} yet (verify it first).`); console.log(fs.readFileSync(f, 'utf8')); const j = path.join(runDir(positional[0]), 'judge.md'); if (fs.existsSync(j)) console.log(fs.readFileSync(j, 'utf8')); break; }
   case 'status': status(); break;
-  default: die(`Unknown command "${cmd}". Use: brief | assign | verify | handoff | rollback | propose | status | report`);
+  default: die(`Unknown command "${cmd}". Use: brief | assign | verify | judge | handoff | rollback | propose | status | report`);
 }

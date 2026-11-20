@@ -35,7 +35,8 @@
       "Bash(node .harness/sessions.mjs start:*)",
       "Bash(node .harness/sessions.mjs checkpoint:*)",
       "Bash(node .harness/sessions.mjs handoff:*)",
-      "Bash(node .harness/sessions.mjs report:*)"
+      "Bash(node .harness/sessions.mjs report:*)",
+      "Bash(node .harness/memory.mjs learn:*)"
     ],
     "ask": [
       "Bash(node .harness/visible.mjs rollback:*)",
@@ -51,7 +52,10 @@
       "Bash(git push:*)",
       "Bash(node .harness/sessions.mjs merge:*)",
       "Bash(node .harness/sessions.mjs cleanup:*)",
-      "Bash(node .harness/backlog.mjs approve:*)"
+      "Bash(node .harness/backlog.mjs approve:*)",
+      "Bash(node .harness/team.mjs adapt-scopes --apply:*)",
+      "Bash(node .harness/memory.mjs forget-auto:*)",
+      "Bash(node .harness/memory.mjs promote:*)"
     ],
     "deny": [
       "Edit(.harness/releases/**)",
@@ -63,7 +67,8 @@
       "Edit(.claude/skills/**)",
       "Edit(.harness/skills/**)",
       "Bash(npx github:sumtaimo/Skill-Foundry update*)",
-      "Bash(npx github:sumtaimo/Skill-Foundry add*)"
+      "Bash(npx github:sumtaimo/Skill-Foundry add*)",
+      "Bash(git reset --hard:*)"
     ]
   },
   "hooks": {
@@ -74,6 +79,17 @@
           {
             "type": "command",
             "command": "node .harness/hook-session.mjs"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .harness/hook-guard.mjs"
           }
         ]
       }
