@@ -39,6 +39,9 @@ const INPUTS = {
   'dense-tool': ['--primary', '#4f46e5', '--archetype', 'dense-data-tool'],
   'midtone-teal': ['--primary', '#0d9488', '--archetype', 'calm-workspace', '--name', 'Plant-care app'],
   'engine-one-command': ['--primary', '#2563eb', '--archetype', 'precise-fintech', '--name', 'Project-planning tool'],
+  'modern-glass': ['--primary', '#4f46e5', '--archetype', 'bold-consumer', '--font', 'Inter', '--modern'],
+  'modern-midtone': ['--primary', '#0d9488', '--archetype', 'calm-workspace', '--modern'],
+  'modern-not-asked': ['--primary', '#2563eb', '--archetype', 'precise-fintech'],
 };
 
 test('design-system lint is clean', async () => {
@@ -292,9 +295,33 @@ test('S1: SKILL.md and layer 04 tell the agent to run the engine as one plain co
   assert.match(flow, /The engine could not run \(<say plainly why>\)/);
 });
 
+test('2026 group: --modern adds the exact ui-craft names with dark values, keeps every 1.0.0 token, and is absent without the flag', () => {
+  const plain = engineText(INPUTS['midtone-teal']);
+  const modern = engineText(INPUTS['modern-midtone']);
+  const css = readFileSync(path.join(modern.dir, 'tokens.css'), 'utf8');
+  for (const s of ['--glass-bg: #ffffffb8', '--glass-blur: 12px', '--r-xs: 4px', '--r-sm: 6px', '--r-md: 10px', '--r-lg: 14px', '--r-xl: 16px', '--z-sticky: 20', '--z-dropdown: 40', '--z-command: 60', '--z-modal: 80', '--z-toast: 100', '--glow: radial-gradient(', '--btn-gloss: linear-gradient(', '--font-weight-medium: 500']) assert.ok(css.includes(s), s);
+  const darkBlock = /:root\[data-theme="dark"\] \{[\s\S]*?\n\}/.exec(css)[0];
+  for (const s of ['--glass-bg: #', '--glow:', '--btn-gloss:']) assert.ok(darkBlock.includes(s), 'dark ' + s);
+  const plainCss = readFileSync(path.join(plain.dir, 'tokens.css'), 'utf8');
+  for (const line of plainCss.split('\n').filter((l) => /^\s+--/.test(l))) assert.ok(css.includes(line), 'kept ' + line);
+  for (const s of ['--glass', '--z-', '--r-', '--glow', '--btn-gloss', '--font-weight-medium']) assert.ok(!plainCss.includes(s), 'absent ' + s);
+  const json = JSON.parse(readFileSync(path.join(modern.dir, 'design-tokens.json'), 'utf8'));
+  assert.equal(json.modern['z-toast'].$value, 100);
+  assert.equal(json.font.weight.medium.$value, 500);
+  assert.equal(json.modern['btn-gloss'].$type, 'gradient');
+  for (const bad of ['@import', 'url(', '<link', '@font-face']) assert.ok(!css.includes(bad), bad);
+});
+
+test('2026 group on path c: never written over a user token with the same name', () => {
+  const r = engineText(['--existing', 'brand.css', '--modern'], (d) => writeFileSync(path.join(d, 'brand.css'), EXISTING.replace(/\n\}$/, '\n  --z-modal: 999;\n}')));
+  const gaps = readFileSync(path.join(r.dir, 'tokens.gaps.css'), 'utf8');
+  assert.ok(!gaps.includes('--z-modal'));
+  assert.ok(gaps.includes('--z-toast: 100'));
+});
+
 test('design-system version matches CHANGELOG and registry', () => {
   const v = /^version:\s*(\S+)/m.exec(readFileSync(path.join(DIR, 'SKILL.md'), 'utf8'))[1];
-  assert.equal(v, '1.0.0');
+  assert.equal(v, '1.1.0');
   assert.match(readFileSync(path.join(DIR, 'CHANGELOG.md'), 'utf8'), new RegExp(`## ${v} - \\d{4}-\\d{2}-\\d{2}`));
   const reg = JSON.parse(readFileSync(path.join(ROOT, 'src', 'factory', 'registry.json'), 'utf8'));
   assert.equal(reg.find((x) => x.name === 'design-system').version, v);

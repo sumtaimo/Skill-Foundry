@@ -7,6 +7,7 @@ current version.
 ## 1.1.0 - 2026-11-19
 
 - `ui-craft` 1.0.0 is ready: modern 2026 product UI, command palette, adaptive navigation, lifecycle states and inline AI bars for `DEV_ENGINEER` and `UX_DESIGNER`, proven by real-agent live, portable and routing evals.
+- `design-system` 1.1.0 (UI-2026-02): an optional 2026 token group (`--glass-bg`, `--glass-blur`, `--r-xs`..`--r-xl`, `--z-sticky`/`-dropdown`/`-command`/`-modal`/`-toast`, `--glow`, `--btn-gloss`, `--font-weight-medium: 500`), with the same names as `ui-craft`, added by the engine flag `--modern` only when the user asks for those effects; every 1.0.0 token is unchanged. Proven by fresh real agents (live, portable).
 - `live-evals.mjs` and `portable-check.mjs` wait up to 1200s per run (were 600s and 900s) so long UI builds can finish.
 
 ## 1.0.1 - 2026-11-18

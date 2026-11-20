@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.0 - 2026-11-20
+
+- Optional 2026 token group (R-design-system-22), added only when the user asks for glass or frosted panels, a glow, glossy buttons, z-index layers, 2026 or modern effects, or the ui-craft tokens: the engine flag `--modern` writes `--glass-bg` (surface-default at 72% alpha, light and dark), `--glass-blur` 12px, `--r-xs` to `--r-xl` (4, 6, 10, 14, 16 px), `--z-sticky`, `--z-dropdown`, `--z-command`, `--z-modal`, `--z-toast` (20 to 100), `--glow` (brand at 10% light, 16% dark), `--btn-gloss` and `--font-weight-medium: 500`. The names match ui-craft exactly. In design-tokens.json they sit under `modern`; the medium weight under `font.weight.medium`.
+- Every 1.0.0 token, the mid-tone rule and the 14 earlier cases are unchanged; without the ask the group is never added (R-design-system-7 now allows the third weight only in this group).
+- Path c: the group is a gap family like the others; a user token with the same name (for example `--z-modal`) is never written again.
+- A web font is still used only when the user names one: its name goes first in the stack and the user loads the files; no imports or links are added.
+- The report of the 2026 group is one short line; layers 07, 08 and 09 and SKILL.md say again that the reply starts with the "## Design system:" heading.
+- New live eval cases `modern-glass`, `modern-midtone` and `modern-not-asked` (17 cases).
+
 ## 1.0.0 - 2026-11-15
 
 - First version: one design-token set from a hex colour (path a), a style description (path b) or an existing design system (path c, gaps only, never overwriting), with rules R-design-system-1 to R-design-system-18.

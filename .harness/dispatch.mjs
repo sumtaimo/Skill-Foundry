@@ -10,8 +10,8 @@
  *   node .harness/dispatch.mjs --goal "Add a /health API endpoint with tests" --auto-plan --wait
  *   (--files then limits which files the planner may hand out; --auto-plan no turns it off)
  *
- * No --check?  The planner picks the strongest check from package.json scripts
- *   (check > typecheck + test > build > lint). With none, nothing really checks the work.
+ * No --check?  The planner picks the strongest check from package.json scripts, workspaces,
+ *   or project test runners (pytest, go test, cargo test, composer/artisan, Makefile). With none, nothing really checks the work.
  *
  * Swarm (original spec form — several workers in parallel, each owning its files):
  *   node .harness/dispatch.mjs "Build API & Tests" --engine claude --verify "npm test" \
@@ -52,7 +52,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import readline from 'node:readline/promises';
-import { ROOT, DIRS, ensureDirs, loadConfig, readJsonSafe, detectVerifyCmd, costlyRunReasons, engineUsable, detectEngines, compatibleModelFor, aiUsageSince, usageLine, usageTodayLine, quotaWarnings, formatQuotaWarning, MODEL_TIERS, isSameDir, validateExternalWorkRoot } from './lib/common.mjs';
+import { ROOT, DIRS, ensureDirs, loadConfig, readJsonSafe, detectVerifyCmd, clipErrorTrace, costlyRunReasons, engineUsable, detectEngines, compatibleModelFor, aiUsageSince, usageLine, usageTodayLine, quotaWarnings, formatQuotaWarning, MODEL_TIERS, isSameDir, validateExternalWorkRoot } from './lib/common.mjs';
 import { askEngineConsent } from './lib/consent.mjs';
 import { loadTeam } from './lib/governance.mjs';
 import { RESUMABLE_STATUSES, VISIBLE_TERMINAL, editorDisplayName, listVisibleRuns, readVisibleRun, writeVisibleRun, inspectVisibleRun } from './lib/handoff.mjs';
@@ -213,10 +213,19 @@ if (resumeVisible) {
   if (resumedRun.acceptanceCriteria?.length) acceptanceCriteria = [...resumedRun.acceptanceCriteria];
   if (resumedRun.interfaceContract) interfaceContract = resumedRun.interfaceContract;
   if (resumedRun.lastVerify && !resumedRun.lastVerify.passed) {
-    const errBits = [];
-    if (resumedRun.lastVerify.violations?.length) errBits.push(...resumedRun.lastVerify.violations);
-    if (resumedRun.lastVerify.check) errBits.push(resumedRun.lastVerify.check);
-    if (errBits.length) initialError = errBits.join('\n').slice(0, 6000);
+    const trace = String(resumedRun.lastVerify.trace || '').trim();
+    if (trace) {
+      initialError = clipErrorTrace(trace, 6000);
+    } else {
+      const errBits = [];
+      if (resumedRun.lastVerify.violations?.length) errBits.push(...resumedRun.lastVerify.violations);
+      if (resumedRun.lastVerify.patchSafety?.blocking?.length) {
+        errBits.push(...resumedRun.lastVerify.patchSafety.blocking.map((b) => (/^PATCH_SAFETY:/i.test(String(b)) ? String(b) : `PATCH_SAFETY: ${b}`)));
+      }
+      const checkText = String(resumedRun.lastVerify.check || '').trim();
+      if (checkText && !(errBits.length && /^PASS\b/i.test(checkText))) errBits.push(checkText);
+      if (errBits.length) initialError = clipErrorTrace(errBits.join('\n'), 6000);
+    }
   }
   const teamDef = loadTeam();
   if (resumedRun.assignments?.length > 0 && subtasks.length === 0 && !hierarchy && !explicitMode) {
@@ -262,7 +271,7 @@ if (resumeVisible) {
 if (!title) title = goal ? goal.slice(0, 80) : 'Dispatched Swarm Task';
 if (!goal && subtasks.length === 0) goal = title;
 
-// No --check: the planner (Node 1) picks one from package.json when the job runs. Preview it here.
+// No --check: the planner (Node 1) picks one from package.json, workspaces, or project test runners. Preview it here.
 let checkLine;
 if (verifyCmd) checkLine = verifyCmd;
 else {
@@ -336,6 +345,7 @@ const job = {
   createdAt: new Date().toISOString(),
   ...(maxCost !== undefined ? { maxCostUsd: maxCost } : {}),
   ...(resumedRun ? { visibleRunId: resumedRun.id } : {}),
+  ...(resumedRun?.bugfix ? { bugfix: true } : {}),
   ...(backlogId ? { backlogId } : {}),
   ...(acceptanceCriteria ? { acceptanceCriteria } : {}),
   ...(interfaceContract ? { interfaceContract } : {}),

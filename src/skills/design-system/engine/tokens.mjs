@@ -449,6 +449,32 @@ export function tokenList(b) {
   if (A.emphasized) t('motion', 'ease-emphasized', 'cubic-bezier(0.34, 1.56, 0.64, 1)', 'cubicBezier', [0.34, 1.56, 0.64, 1]);
   for (const [n, v] of Object.entries(BREAKPOINTS)) t('breakpoint', `breakpoint-${n}`, px(v), 'dimension', px(v), 'CSS variables do not work inside media queries; copy this number there.');
   for (const [n, v] of Object.entries(DENSITY[A.density])) t('density', `density-${n}`, px(v), 'dimension');
+  if (b.input.modern) for (const m of modernTokens(b, 'light')) t('modern', m.name, m.css, m.type, m.json, m.desc);
+  return out;
+}
+
+/**
+ * The optional 2026 group (--modern): frosted glass, a short radius scale, a z-index layer scale, a soft brand glow,
+ * a button gloss and one medium weight. Names match the ui-craft skill exactly. Dark values come from the dark roles.
+ */
+export const MODERN_RADIUS = { xs: 4, sm: 6, md: 10, lg: 14, xl: 16 };
+export const MODERN_Z = { sticky: 20, dropdown: 40, command: 60, modal: 80, toast: 100 };
+export function modernTokens(b, mode) {
+  const surf = b.roles[mode]['surface-default'].hex;
+  const [r, g, bl] = hexToRgb(b.scales.primary.given);
+  const glowA = mode === 'dark' ? 0.16 : 0.1, glossA = mode === 'dark' ? 0.14 : 0.16;
+  const glow = `radial-gradient(640px 320px at 50% 0%, rgba(${r}, ${g}, ${bl}, ${glowA}), transparent 70%)`;
+  const gloss = `linear-gradient(180deg, rgba(255, 255, 255, ${glossA}), rgba(255, 255, 255, 0) 60%)`;
+  const out = [
+    { name: 'glass-bg', css: `${surf}b8`, type: 'color', json: `${surf}b8`, desc: 'Frosted panel fill: surface-default at 72% opacity. Use with backdrop-filter: blur(var(--glass-blur)) and keep text on it at 4.5:1.' },
+    { name: 'glow', css: glow, type: 'gradient', json: [{ color: `rgba(${r}, ${g}, ${bl}, ${glowA})`, position: 0 }, { color: 'transparent', position: 0.7 }], desc: `Soft brand glow behind a hero or card, as a CSS background-image: ${glow}.` },
+    { name: 'btn-gloss', css: gloss, type: 'gradient', json: [{ color: `rgba(255, 255, 255, ${glossA})`, position: 0 }, { color: 'rgba(255, 255, 255, 0)', position: 0.6 }], desc: 'Top highlight layered over the filled button colour (background-image over background-color); text contrast stays the ratio of the fill.' },
+  ];
+  if (mode === 'dark') return out;
+  out.push({ name: 'glass-blur', css: '12px', type: 'dimension', json: '12px', desc: 'backdrop-filter blur for glass-bg panels.' });
+  for (const [n, v] of Object.entries(MODERN_RADIUS)) out.push({ name: `r-${n}`, css: px(v), type: 'dimension', json: px(v) });
+  for (const [n, v] of Object.entries(MODERN_Z)) out.push({ name: `z-${n}`, css: v, type: 'number', json: v, desc: n === 'sticky' ? 'Layer order, low to high: sticky, dropdown, command, modal, toast.' : undefined });
+  out.push({ name: 'font-weight-medium', css: 500, type: 'fontWeight', json: 500, desc: 'Optional third weight for buttons and labels in the 2026 group; body and headings keep the two weights.' });
   return out;
 }
 
@@ -456,6 +482,7 @@ export function tokenList(b) {
 export function jsonPath(tk) {
   const p = tk.name.split('-');
   if (tk.name === 'color-brand') return ['color', 'brand'];
+  if (tk.group === 'modern' && p[0] !== 'font') return ['modern', tk.name];
   if (p[0] === 'color') return ['color', p[1], p.slice(2).join('-')];
   if (p[0] === 'font') return ['font', p[1], p.slice(2).join('-')];
   if (tk.name.startsWith('line-height-')) return ['font', 'line-height', p.slice(2).join('-')];
@@ -506,8 +533,9 @@ export function toCss(b, { only, extraDark = [], skipNames = new Set() } = {}) {
   if (withRoles) L.push('', ':root[data-theme="light"] {', '  color-scheme: light;', ...role('light'), '}');
   const rgb = hexToRgb('#000000');
   const darkShadows = (!only || only.has('shadow')) ? b.A.shadow.flatMap((sh, i) => (skipNames.has(`--shadow-${i + 1}`) ? [] : [`  --shadow-${i + 1}: ${shadowCss(sh, rgb, 3)};`])) : [];
-  const dark = [...(withRoles ? role('dark') : []), ...extraDark.map(([n, v]) => `  ${n}: ${v};`), ...darkShadows];
-  if (withDark && dark.length) {
+  const darkModern = b.input.modern && (!only || only.has('modern')) ? modernTokens(b, 'dark').filter((m) => !skipNames.has(`--${m.name}`)).map((m) => `  --${m.name}: ${m.css};`) : [];
+  const dark = withDark ? [...(withRoles ? role('dark') : []), ...extraDark.map(([n, v]) => `  ${n}: ${v};`), ...darkShadows, ...darkModern] : darkModern;
+  if (dark.length) {
     L.push('', '@media (prefers-color-scheme: dark) {', '  :root:not([data-theme="light"]) {', '    color-scheme: dark;', ...dark.map((l) => `  ${l}`), '  }', '}');
     L.push('', ':root[data-theme="dark"] {', '  color-scheme: dark;', ...dark, '}');
   }
@@ -540,6 +568,7 @@ export const GROUP_PATTERNS = [
   ['motion', /duration|ease|easing|motion|transition/],
   ['breakpoint', /breakpoint|screen|(^|-)bp(-|$)/],
   ['density', /density/],
+  ['modern', /glass|glow|gloss|(^|-)z-(sticky|dropdown|command|modal|toast)$|^r-(xs|sm|md|lg|xl)$/],
 ];
 const isColour = (v) => /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(String(v).trim());
 /** A value that is a colour or points at one: hex, rgb(), hsl(), oklch(), a var(--x) or a {path} alias. Used only to find which family a token belongs to. */
@@ -677,6 +706,7 @@ export function report(b, { name = 'Product', why = '', path = 'a', existing = n
   L.push(`- Spacing: ${SPACING.join(', ')} px. Type sizes: ${b.A.sizes.join(', ')} px, body ${b.A.sizes[2]} px, line-height 1.5. Weights: ${b.A.weights.join(' and ')}.`);
   L.push(`- Controls: ${b.A.controls.join(', ')} px high; every click or tap area at least ${TARGET_MIN} px. Breakpoints: ${Object.values(BREAKPOINTS).join(', ')} px (copy the numbers into media queries).`);
   L.push(`- Brand colour on at most ${b.A.accentShare}% of a screen: ${b.A.accentUse}.`);
+  if (b.input.modern) L.push(`- 2026 group: --glass-bg with --glass-blur, --r-xs to --r-xl, --z-sticky to --z-toast, --glow, --btn-gloss, --font-weight-medium (buttons and labels only).`);
   if (b.input.font) L.push(`- Font: ${b.input.font}, then the system stack. Load the font files yourself; these tokens add no font files, imports or links.`);
   else L.push('- Font: the system font stack. No font files, imports or links.');
   const auto = autoQuestions(b, existing);
@@ -693,7 +723,7 @@ export function parseArgs(argv) {
     const a = argv[i];
     if (!a.startsWith('--')) continue;
     const k = a.slice(2), v = argv[i + 1];
-    if (k === 'existing' || k === 'open') { o[k].push(v); i++; } else if (k === 'force') o.force = true; else { o[k] = v; i++; }
+    if (k === 'existing' || k === 'open') { o[k].push(v); i++; } else if (k === 'force' || k === 'modern') o[k] = true; else { o[k] = v; i++; }
   }
   return o;
 }
@@ -712,10 +742,10 @@ export function run(argv, cwd = process.cwd()) {
       if (brand) o.primary = brand.value;
     }
     skipNames = new Set(existing.tokens.map((t) => `--${t.name}`));
-    existing.added = ALL_GROUPS.filter((g) => !existing.groups.has(g));
+    existing.added = [...ALL_GROUPS, ...(o.modern ? ['modern'] : [])].filter((g) => !existing.groups.has(g));
     only = new Set(existing.added);
   }
-  const b = build({ greys: existing?.greys, primary: o.primary, accent: o.accent, neutral: o.neutral, success: o.success, warning: o.warning, danger: o.danger, info: o.info, archetype: o.archetype, font: o.font });
+  const b = build({ greys: existing?.greys, primary: o.primary, accent: o.accent, neutral: o.neutral, success: o.success, warning: o.warning, danger: o.danger, info: o.info, archetype: o.archetype, font: o.font, modern: !!o.modern });
   if (existing) {
     const listed = tokenList(b);
     for (const p of existing.partial) {

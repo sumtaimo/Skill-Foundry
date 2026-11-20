@@ -8,7 +8,8 @@ Collected when present:
 
 2. **Colour roles.** A hex the user names ("accent #f59e0b", "our red for errors #b91c1c") gets that role: primary, accent, neutral, success, warning, danger or info. An unnamed hex: the first is primary, the second is accent. A third unnamed hex is not used; ask about it under Open questions.
 3. **Archetype.** Pick one of the five in references/archetypes.md by the user's words: style words first, then the kind of product, then "like <brand>" mapped by what that product is. With none of these, use calm-workspace and say so in the why line.
-4. **Font.** Only when the user names one. It goes first in the stack; no files, imports or links are added.
+4. **Font.** Only when the user names one (a web font such as Inter counts). It goes first in the stack; no files, imports or links are added, and the report says the user loads the font files.
+4a. **2026 group.** Only when the user asks for glass or frosted panels, a glow, glossy buttons, z-index layers, "2026" or "modern" effects, or the ui-craft tokens: note it, so layer 04 adds `--modern` (R-design-system-22). Style words alone ("modern", "clean") do not count without one of those effects.
 5. **Product name**, for the report heading: the name the user gives for their own product; else a short description ("Invoicing app"). Never the name of a product they compare to.
 6. **Output folder**: the one the user names; else the current folder.
 

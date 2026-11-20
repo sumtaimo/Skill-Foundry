@@ -8,7 +8,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { ROOT, HARNESS_DIR, atomicWriteJson, readJsonSafe, listProjectFiles, engineUsable, ROUTABLE_ENGINES } from './common.mjs';
+import { ROOT, HARNESS_DIR, atomicWriteJson, readJsonSafe, listProjectFiles, engineUsable, ROUTABLE_ENGINES, clipErrorTrace, diagnoseVerifyFailure, formatDiagnosis } from './common.mjs';
 import { matchesAny, leadOwns } from './governance.mjs';
 
 export const VISIBLE_DIR = path.join(HARNESS_DIR, 'visible');
@@ -333,6 +333,8 @@ export function buildHandoffPrompt(run, info, config) {
   if (run.lastVerify && !run.lastVerify.passed) {
     lines.push('', `Last verification error (${run.lastVerify.at || 'recent'}):`);
     if (run.lastVerify.violations?.length) lines.push(...run.lastVerify.violations.map((v) => `- ${v}`));
+    if (run.lastVerify.patchSafety?.blocking?.length) lines.push(...run.lastVerify.patchSafety.blocking.map((b) => `- PATCH_SAFETY: ${b}`));
+    if (run.lastVerify.diagnosis?.headline) lines.push('Diagnosis:', ...formatDiagnosis(run.lastVerify.diagnosis).split('\n').map((l) => `  ${l}`));
     if (run.lastVerify.check) lines.push(String(run.lastVerify.check).slice(0, 2500));
   }
 
@@ -387,6 +389,8 @@ export function formatHandoffText(run, info, config) {
   if (run.lastVerify && !run.lastVerify.passed) {
     lines.push('', 'Last verify failure:');
     if (run.lastVerify.violations?.length) for (const v of run.lastVerify.violations) lines.push(`  ✖ ${v}`);
+    if (run.lastVerify.patchSafety?.blocking?.length) for (const b of run.lastVerify.patchSafety.blocking) lines.push(`  ✖ PATCH_SAFETY: ${b}`);
+    if (run.lastVerify.diagnosis?.headline) for (const l of formatDiagnosis(run.lastVerify.diagnosis).split('\n')) lines.push(`  ${l}`);
     if (run.lastVerify.check) for (const l of String(run.lastVerify.check).split('\n').slice(0, 12)) lines.push(`  ${l}`);
   }
 
@@ -465,6 +469,24 @@ export function syncVisibleRunAfterDaemon(task, plan, result) {
   }
 
   // Failed or rejected headless resume: preserve partial edits & pre-run baseline so human can retry OR rollback completely.
+  const lastErr = String(result.lastErrorTrace || (Array.isArray(result.errors) && result.errors.length ? result.errors[result.errors.length - 1] : '') || result.reason || '').trim();
+  const prevErr = String(result.previousErrorTrace || (Array.isArray(result.errors) && result.errors.length > 1 ? result.errors[result.errors.length - 2] : '') || '').trim();
+  const patchBlocking = lastErr
+    ? lastErr.split(/\r?\n/).map((l) => l.trim()).filter((l) => /^PATCH_SAFETY:\s*/i.test(l)).map((l) => l.replace(/^PATCH_SAFETY:\s*/i, '').trim()).filter(Boolean)
+    : [];
+  const targetFiles = plan?.subtasks?.length
+    ? [...new Set(plan.subtasks.flatMap((s) => s.targetFiles || []))]
+    : (run.assignments || []).flatMap((a) => a.files || []);
+  const subtasks = plan?.subtasks?.length
+    ? plan.subtasks
+    : (run.assignments || []).map((a) => ({ id: a.lead, targetFiles: a.files || [] }));
+  const diagnosis = result.diagnosis || (lastErr ? diagnoseVerifyFailure(lastErr, {
+    previousTrace: prevErr,
+    targetFiles,
+    subtasks,
+    verifyCmd: plan?.verifyCmd || task.verifyCmd || run.check?.cmd || ''
+  }) : null);
+
   run.status = (run.assignments && run.assignments.length > 0) ? 'FAILED' : 'BRIEFED';
   run.lastVerify = {
     at: now,
@@ -472,6 +494,9 @@ export function syncVisibleRunAfterDaemon(task, plan, result) {
     violations: [],
     reverted: [],
     resumedJobId: task.id,
+    ...(patchBlocking.length ? { patchSafety: { blocking: patchBlocking, warnings: [] } } : {}),
+    ...(diagnosis ? { diagnosis } : {}),
+    ...(lastErr ? { trace: clipErrorTrace(lastErr, 4000) } : {}),
     check: `HEADLESS RESUME ${result.phase || 'FAILED'}: ${String(result.reason || result.errors?.[result.errors.length - 1] || 'unknown error').slice(0, 2000)}`
   };
   const failLines = [
@@ -480,6 +505,8 @@ export function syncVisibleRunAfterDaemon(task, plan, result) {
     `Task:    ${run.title}`,
     `Origin:  ${originEditor} editor session → resume job ${task.id} stopped (${result.phase || 'FAILED'})`,
     `Reason:  ${String(result.reason || 'see .harness/failed/').slice(0, 800)}`,
+    ...(patchBlocking.length ? [`Safety:  ${patchBlocking.join(' | ')}`] : []),
+    ...(diagnosis?.headline ? ['', 'Diagnosis:', ...formatDiagnosis(diagnosis).split('\n').map((l) => `  ${l}`)] : []),
     ...(result.rollback ? [`Restore: headless edits rolled back to pre-resume state (${result.rollback})`] : []),
     '',
     `Next: inspect .harness/failed/, fix the blocker, then retry: node .harness/dispatch.mjs --resume-visible ${run.id} --wait`,

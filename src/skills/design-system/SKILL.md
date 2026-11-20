@@ -1,10 +1,12 @@
 ---
 name: design-system
 description: Builds one complete, consistent design-token set from a brand hex colour, a description of the style, or the project's existing tokens (filling only the gaps, never overwriting), and writes design-tokens.json (W3C format), tokens.css with light and dark mode, and a report with every contrast ratio. Use when asked for a "design system", "design tokens", a "colour palette from this hex", a "theme" or "dark mode tokens". Do not use to design or build a screen or page, or to polish finished UI code (use ui-polish).
-version: 1.0.0
+version: 1.1.0
 ---
 
 # design-system
+
+Your whole reply is the engine report: its first line is "## Design system: <name>". Write no sentence, tick list or "---" before it and nothing after "### Open questions", even when asked for a short report of files, checks and open items (the report is that report).
 
 Turns the goal a user states into one token set any agent or developer can read: colour scales that keep
 the user's hue, semantic roles for light and dark mode with every text pair checked for contrast, type,
@@ -47,8 +49,8 @@ The engine is `engine/tokens.mjs` in this folder (Node.js, no dependencies). Run
 - R-design-system-4: The output MUST be design-tokens.json in the W3C design tokens format ($type, $value, aliases in braces) and tokens.css with custom properties.
 - R-design-system-5: tokens.css MUST give dark values both under prefers-color-scheme: dark and under a data-theme="dark" attribute, and MUST let data-theme="light" force light.
 - R-design-system-6: The set MUST cover colour, typography, spacing, control heights with a 44 px minimum target, radius, shadow, border widths, motion with reduced motion, breakpoints and density.
-- R-design-system-7: Spacing MUST use the scale 0, 4, 8, 12, 16, 24, 32, 48, 64 px; font sizes MUST come from 12, 14, 16, 18, 20, 24, 30, 36, 48 px; body text MUST be 16 px or more with line-height 1.5; a set MUST use exactly two font weights.
-- R-design-system-8: NEVER add external fonts, imports, links or scripts; use the system font stack unless the user names a font, and then put that name first in the stack.
+- R-design-system-7: Spacing MUST use the scale 0, 4, 8, 12, 16, 24, 32, 48, 64 px; font sizes MUST come from 12, 14, 16, 18, 20, 24, 30, 36, 48 px; body text MUST be 16 px or more with line-height 1.5; a set MUST use exactly two font weights, plus `--font-weight-medium: 500` only in the optional 2026 group.
+- R-design-system-8: NEVER add external fonts, imports, links or scripts; use the system font stack unless the user names a font (also a web font), and then put that name first in the stack; the user loads its files.
 - R-design-system-9: With an existing design system, NEVER change, rename or delete an existing token or file; write only the missing groups to design-tokens.gaps.json and tokens.gaps.css, and report existing pairs below 4.5:1 as kept.
 - R-design-system-10: A style MUST map to exactly one of the five archetypes in references/archetypes.md, and the report MUST name it and say why in one line.
 - R-design-system-11: NEVER write the name of a brand or product the user compares to ("like <brand>") in any file or in the reply; map it to an archetype and call it "the product you named".
@@ -62,6 +64,8 @@ The engine is `engine/tokens.mjs` in this folder (Node.js, no dependencies). Run
 - R-design-system-19: The engine MUST be run as ONE plain command with the path of the script (`node <skill folder>/engine/tokens.mjs ...`): no `cd`, no shell variable, no pipe, no `;` or `&&`; when it cannot run, the reply MUST say so plainly, on the first line after the heading and in an open question, and the tokens are built by hand.
 - R-design-system-20: On path c a family (colour scale, roles, type, spacing, control, radius, shadow, border width, motion, breakpoint, density) counts as present only when at least 3 of the user's tokens match it; with 1 or 2 matches it is partly present, and its missing tokens MUST be written to the gap files by name, NEVER over a user token, also not in the dark, reduced-motion or density blocks.
 - R-design-system-21: On path c the neutral scale MUST keep the project's own greys (colour tokens of low chroma, found by value) at their value, fill the other steps by interpolation and be checked like any scale; when roles on them cannot reach the minimums, the default tinted scale is used and the report says why.
+
+- R-design-system-22: Only when the user asks for 2026 or modern effects (glass or frosted panels, glow, glossy buttons, z-index layers, the ui-craft tokens), the engine MUST be run with `--modern`, which adds the optional 2026 group with these exact names: `--glass-bg`, `--glass-blur`, `--r-xs` to `--r-xl` (4, 6, 10, 14, 16 px), `--z-sticky`, `--z-dropdown`, `--z-command`, `--z-modal`, `--z-toast`, `--glow`, `--btn-gloss` and `--font-weight-medium: 500`; every 1.0.0 token stays as it was, and without that ask NEVER add the group.
 
 Each rule's check or reviewer item is in `RULES.json`.
 
@@ -82,6 +86,6 @@ user used, and every contrast ratio passes; a developer loads tokens.css in a pa
 
 Three files in the folder the user names (else the current folder): `design-tokens.json`, `tokens.css`,
 `design-system-report.md` (with an existing system: `design-tokens.gaps.json`, `tokens.gaps.css` and the report).
-The reply is the report, word for word, with nothing before or after it. When a request asks for a short report of
+The reply is the report, word for word, with nothing before or after it. Its first line is the "## Design system:" heading: never a line before it such as "All checks pass", "Engine exited 0" or "Here is the report". When a request asks for a short report of
 the files, checks and open items, this report is that report: it lists them in that order.
 The exact shape is in [layers/08-output.md](layers/08-output.md).
