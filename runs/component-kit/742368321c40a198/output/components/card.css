@@ -1,0 +1,95 @@
+/* Card: built from design/components/card.md. Link design/tokens.css before this file. */
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  box-sizing: border-box;
+  padding: var(--card-padding);
+  background: var(--card-bg);
+  border: var(--border-width-hairline) solid var(--card-border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  overflow: visible; /* never clip the focus ring or tall Khmer marks */
+}
+.card--lg { padding: var(--space-24); }
+
+.card__title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-strong);
+  line-height: var(--line-height-heading);
+}
+.card__meta { margin: 0; color: var(--color-text-muted); }
+.card__body { margin: 0; }
+.card__footer { display: flex; flex-wrap: wrap; gap: var(--space-12); }
+
+/* Khmer: taller line, no letter spacing, the card grows */
+:lang(km) .card__title,
+:lang(km) .card__body,
+:lang(km) .card__meta,
+:lang(km) .card__error,
+.card:lang(km) .card__title,
+.card:lang(km) .card__body,
+.card:lang(km) .card__meta,
+.card:lang(km) .card__error {
+  line-height: var(--line-height-khmer);
+  letter-spacing: 0;
+}
+
+/* hover: interactive variant only */
+.card--interactive { transition: box-shadow var(--duration-base) var(--ease-standard); }
+.card--interactive:hover { box-shadow: var(--shadow-2); }
+
+/* the one link or button inside is stretched over the whole card */
+.card--interactive .card__action::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--card-radius);
+}
+.card--interactive .card__action:focus-visible { outline: none; }
+.card--interactive .card__action:focus-visible::after {
+  outline: var(--border-width-focus) solid var(--color-border-focus);
+  outline-offset: var(--border-width-focus);
+}
+
+/* active: selected or pressed */
+.card--selected,
+.card--interactive:active {
+  border-color: var(--color-border-focus);
+  background: var(--color-selected-bg);
+  color: var(--color-selected-text);
+}
+
+/* disabled */
+.card[aria-disabled="true"] {
+  background: var(--color-surface-sunken);
+  color: var(--color-text-disabled);
+  box-shadow: none;
+  pointer-events: none;
+}
+
+/* loading: same size, skeleton blocks in place of text */
+.card[aria-busy="true"] .card__title,
+.card[aria-busy="true"] .card__meta,
+.card[aria-busy="true"] .card__body {
+  background: var(--color-surface-sunken);
+  color: transparent;
+  border-radius: var(--card-radius);
+  user-select: none;
+}
+
+/* empty */
+.card--empty .card__body { color: var(--color-text-muted); }
+
+/* error */
+.card--error {
+  border-color: var(--color-danger-border);
+  background: var(--color-danger-bg-subtle);
+}
+.card__error { margin: 0; color: var(--color-danger-text); }
+
+@media (prefers-reduced-motion: reduce) {
+  .card--interactive { transition: none; }
+}

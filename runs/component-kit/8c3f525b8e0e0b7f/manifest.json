@@ -1,0 +1,85 @@
+{
+  "skill": "component-kit",
+  "version": "1.0.0",
+  "caseId": "spec-three",
+  "inputSha256": "723d4f773a27cea8612843285f1fd6a80e8a22cbc1901b3c6e9c7c65a42fa9b7",
+  "skillSha256": "fb758310be1f07af9a09a15e735e3e6e4055c8c2a6d4139387e2ee766f1b56ad",
+  "key": "8c3f525b8e0e0b7f705de89281e92522585882cff7ca12dc68598eb5f5f13d56",
+  "startedAt": "2026-11-20T15:07:13.194Z",
+  "finishedAt": "2026-11-20T15:08:17.268Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.3260279,
+  "usage": {
+    "input_tokens": 22,
+    "cache_creation_input_tokens": 42501,
+    "cache_read_input_tokens": 641399,
+    "output_tokens": 9184,
+    "output_tokens_details": {
+      "thinking_tokens": 253
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 42501,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 484,
+        "cache_read_input_tokens": 71304,
+        "cache_creation_input_tokens": 631,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 631
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [
+    {
+      "path": "design/BRIEF.md",
+      "bytes": 198,
+      "sha256": "15630611abfa12f6c87c11a25d96778d28759589eea8c19d84a9890777832cbf"
+    },
+    {
+      "path": "design/STATUS.md",
+      "bytes": 594,
+      "sha256": "1b750490ed822a72a45430bda05ab3892a790ea2fd5fbc8780be4f4ccd894946"
+    },
+    {
+      "path": "design/components/button.md",
+      "bytes": 4668,
+      "sha256": "e1898bec3e03b11d38fb1b85b3f732f8dde5d5f56ea4ce0ba6ca68be22b0216f"
+    },
+    {
+      "path": "design/components/card.md",
+      "bytes": 4633,
+      "sha256": "47a05c648ac11a22b762c0be870834b8f00734ee887c2855cec89631d1a19296"
+    },
+    {
+      "path": "design/components/input.md",
+      "bytes": 5021,
+      "sha256": "7b6b1dcfb5a231f2018f4bc3ddf4998920c1e6cb4b107587fc3f129a68a8b8c3"
+    },
+    {
+      "path": "design/tokens.css",
+      "bytes": 14682,
+      "sha256": "b59bf55254314cd20d91e1b93862851c04b27240f7959de9f5d569a38444e4c1"
+    }
+  ],
+  "checks": {
+    "expectations": 9,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "## Component specs: button, input, card\n\n### Files\n- design/components/button.md\n- design/components/input.md\n- design/components/card.md\n- design/STATUS.md (updated)\n\nThe sample design folder was installed with `--no-specs` first, so `BRIEF.md`, `tokens.css` and `STATUS.md` came from the sample. All paths are under `/home/user/Skill-Foundry/runs/component-kit/8c3f525b8e0e0b7f/output`.\n\n### Check\nThe first run of `node /home/user/Skill-Foundry/src/skills/component-kit/engine/spec-check.mjs spec button input card` failed. The \"Error\" state of each spec had to say how the user retries. I fixed the wording and ran it again:\n```\nPASS design/components/button.md (31 variables)\nPASS design/components/input.md (29 variables)\nPASS design/components/card.md (25 variables)\nSPEC CHECK PASSED (3 specs, 0 problems)\n```\n\n### Variables to add\nNone. Design-system adds component variables, and the specs use the nearest variable until then.\n\n### Next\nStep done: component specs (button, input, card). Next: this skill writes the next specs, or builds the code for these.\nSay \"Write the specs for select, checkbox, dialog and table\" or \"Build button, input and card in plain HTML and CSS\". I used plain HTML and CSS as the stack because the output folder has no project files to detect one from.\nReply yes, change, or stop."
+}

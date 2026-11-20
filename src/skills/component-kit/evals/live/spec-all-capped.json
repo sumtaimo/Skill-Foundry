@@ -1,0 +1,17 @@
+{
+  "case": "spec-all-capped",
+  "prompt": "Project setup: the design folder that design-system wrote for this project is the sample in the skill's examples folder; run the skill's examples/install-sample.mjs with node in the project folder first (add --no-specs when this request has no specs yet). (--no-specs) Write the specs for every component in the set.",
+  "agent": "claudeRunner via run-skill (fresh agent, skill folder and the case prompt only)",
+  "recordedAt": "2026-11-20",
+  "output": "## Component specs: button, input, select, checkbox\n\n### Files\n- design/components/button.md\n- design/components/input.md\n- design/components/select.md\n- design/components/checkbox.md\n- design/STATUS.md (updated)\n- design/BRIEF.md, design/STATUS.md and design/tokens.css came from `install-sample.mjs --no-specs`.\n\nAll files are in `/home/user/Skill-Foundry/runs/component-kit/4ca1feda1b3cdb42/output`.\n\n### Check\nThe first run failed: button's Error state didn't say how the user retries. I fixed that and re-ran the checker.\n```\nPASS design/components/button.md (33 variables, 2 to add)\nPASS design/components/input.md (30 variables, 2 to add)\nPASS design/components/select.md (31 variables, 2 to add)\nPASS design/components/checkbox.md (25 variables, 2 to add)\nSPEC CHECK PASSED (4 specs, 0 problems)\n```\nI ran the checker as `node /home/user/Skill-Foundry/src/skills/component-kit/engine/spec-check.mjs spec button input select checkbox`. I did not run the reviewer checklist.\n\n### Variables to add\n- --button-danger-bg: nearest --color-danger-bg\n- --button-ghost-bg-hover: nearest --color-surface-subtle\n- --input-border-error: nearest --color-danger-border\n- --input-placeholder: nearest --color-text-muted\n- --select-list-bg: nearest --color-surface-raised\n- --select-option-bg-hover: nearest --color-surface-subtle\n- --checkbox-bg-checked: nearest --color-action-primary-bg\n- --checkbox-border: nearest --input-border\n\ndesign-system adds component variables (`set` and a later command). Until then the specs use the nearest variable.\n\n### Next\nYou asked for every component in the set, but a spec turn covers at most four. I wrote the first four in set order and put the rest in STATUS.md under `components_pending`: card, dialog, table, nav, tabs, toast, menu, badge. No code was written.\n\nStep done: component specs (button, input, select, checkbox). Next: this skill writes the next specs, or builds the code for these.\nSay \"Write the specs for card, dialog, table and nav\" or \"Build button, input, select and checkbox in <stack>\".\nReply yes, change, or stop.\n\n### Open items\n- `components_pending` still has 8 specs, which need two more turns.",
+  "files": [
+    "design/BRIEF.md",
+    "design/STATUS.md",
+    "design/components/button.md",
+    "design/components/checkbox.md",
+    "design/components/input.md",
+    "design/components/select.md",
+    "design/tokens.css"
+  ],
+  "run": "runs/component-kit/4ca1feda1b3cdb42"
+}

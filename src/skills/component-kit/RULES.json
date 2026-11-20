@@ -1,0 +1,87 @@
+[
+  {
+    "id": "R-component-kit-1",
+    "text": "Without design/tokens.css the reply MUST be the one fixed sentence and NEVER any file.",
+    "checklist": "With no design folder the reply is exactly the fixed sentence of layer 06 and no file is written"
+  },
+  {
+    "id": "R-component-kit-2",
+    "text": "Each turn MUST do one step only, spec or code, and end with design/STATUS.md updated and the exact words to continue.",
+    "checklist": "One step per turn; STATUS.md updated; the continue words are in the reply"
+  },
+  {
+    "id": "R-component-kit-3",
+    "text": "A spec turn MUST cover 3 to 4 components of the set; more asked go to STATUS.md.",
+    "checklist": "At most four specs written; the rest are in components_pending"
+  },
+  {
+    "id": "R-component-kit-4",
+    "text": "Every spec MUST have the ten sections and the eight states.",
+    "checklist": "spec-check prints SPEC CHECK PASSED for every spec"
+  },
+  {
+    "id": "R-component-kit-5",
+    "text": "Specs and code MUST name variables by exact CSS names from design/tokens.css, component variables first, never a raw value or palette step.",
+    "checklist": "Every variable exists in tokens.css; component variables are used where they exist; no palette step"
+  },
+  {
+    "id": "R-component-kit-6",
+    "text": "A missing variable MUST be replaced by the nearest semantic one and listed under Variables to add; variables.json and tokens.css are never edited.",
+    "checklist": "Variables to add is in the spec and STATUS.md; tokens.css and variables.json unchanged"
+  },
+  {
+    "id": "R-component-kit-7",
+    "text": "The code step MUST start from an existing spec; with none the reply is the fixed sentence and no code.",
+    "checklist": "No code was written for a component without a spec"
+  },
+  {
+    "id": "R-component-kit-8",
+    "text": "Code MUST use the project's own stack and never a raw hex, colour function or px size where a variable holds it.",
+    "checklist": "CODE CHECK PASSED and the stack matches the project"
+  },
+  {
+    "id": "R-component-kit-9",
+    "text": "The checker MUST be run as one plain command and its result line quoted; never report passed without PASSED.",
+    "checklist": "The reply quotes the checker's output and its result line"
+  },
+  {
+    "id": "R-component-kit-10",
+    "text": "Code MUST follow the keyboard and ARIA contract of its spec with native elements first.",
+    "checklist": "Code uses the native element and the attributes of the contract"
+  },
+  {
+    "id": "R-component-kit-11",
+    "text": "Text-bearing components MUST handle Khmer with --line-height-khmer under :lang(km), letter-spacing 0 and no clipping fixed heights.",
+    "checklist": "The Khmer note names --line-height-khmer; code has a :lang(km) rule where it sets a line height"
+  },
+  {
+    "id": "R-component-kit-12",
+    "text": "Code MUST implement every state of its spec including focus-visible, locked loading size, error with retry and reduced motion.",
+    "checklist": "Each state of the spec is in the code; CODE CHECK has no focus-visible or reduced-motion problem"
+  },
+  {
+    "id": "R-component-kit-13",
+    "text": "The skill MUST NOT build a screen or page and never writes outside the files of its step.",
+    "checklist": "Only design/components, the component files and design/STATUS.md were written"
+  },
+  {
+    "id": "R-component-kit-14",
+    "text": "The skill MUST have the ten core layers, each linked from SKILL.md.",
+    "check": "chk-layers"
+  },
+  {
+    "id": "R-component-kit-15",
+    "text": "The skill MUST be self-contained and name no repository path.",
+    "check": "chk-portable"
+  },
+  {
+    "id": "R-component-kit-16",
+    "text": "SKILL.md MUST stay within 150 lines with name, description and semver version.",
+    "check": "chk-size"
+  },
+  {
+    "id": "R-component-kit-17",
+    "text": "Every relative link MUST point to a file inside the skill folder.",
+    "check": "chk-links"
+  }
+]

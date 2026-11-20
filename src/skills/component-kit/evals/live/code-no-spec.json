@@ -1,0 +1,13 @@
+{
+  "case": "code-no-spec",
+  "prompt": "Project setup: the design folder that design-system wrote for this project is the sample in the skill's examples folder; run the skill's examples/install-sample.mjs with node in the project folder first (add --no-specs when this request has no specs yet). Build the dialog component in React.",
+  "agent": "claudeRunner via run-skill (fresh agent, skill folder and the case prompt only)",
+  "recordedAt": "2026-11-20",
+  "output": "No dialog spec exists, so layer 06 step 2 applies: the whole reply is the fixed sentence, and no code is written.\n\nThere is no spec for dialog yet, so I write the spec first: ask me to \"write the spec for dialog\", and then to build it.",
+  "files": [
+    "design/BRIEF.md",
+    "design/STATUS.md",
+    "design/tokens.css"
+  ],
+  "run": "runs/component-kit/dc04e055bc984a71"
+}

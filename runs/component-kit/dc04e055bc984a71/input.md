@@ -1,0 +1,1 @@
+Project setup: the design folder that design-system wrote for this project is the sample in the skill's examples folder; run the skill's examples/install-sample.mjs with node in the project folder first (add --no-specs when this request has no specs yet). Build the dialog component in React.

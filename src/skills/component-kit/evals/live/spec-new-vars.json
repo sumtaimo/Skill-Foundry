@@ -1,0 +1,16 @@
+{
+  "case": "spec-new-vars",
+  "prompt": "Project setup: the design folder that design-system wrote for this project is the sample in the skill's examples folder; run the skill's examples/install-sample.mjs with node in the project folder first (add --no-specs when this request has no specs yet). (--no-specs) Write the component specs for tabs, toast and menu.",
+  "agent": "claudeRunner via run-skill (fresh agent, skill folder and the case prompt only)",
+  "recordedAt": "2026-11-20",
+  "output": "## Component specs: tabs, toast, menu\n\n### Files\n- design/components/tabs.md\n- design/components/toast.md\n- design/components/menu.md\n- design/STATUS.md (updated)\n\nThe sample design folder was installed with `--no-specs` first, so `design/BRIEF.md`, `design/tokens.css` and `design/STATUS.md` come from the sample.\n\n### Check\n```\nPASS components/tabs.md (32 variables, 1 to add)\nPASS components/toast.md (37 variables, 2 to add)\nPASS components/menu.md (29 variables, 2 to add)\nSPEC CHECK PASSED (3 specs, 0 problems)\n```\nThe first run failed on three problems: two Error sections lacked the word \"retry\", and tabs.md named a variable that doesn't exist outside \"Variables to add\". I fixed them and re-ran, and the second run passed.\n\nThe check command needed `--dir <path of design folder>` because the shell was not in the project root.\n\n### Variables to add\n- --tabs-indicator-bg: nearest --color-border-focus (underline of the current tab)\n- --toast-bg: nearest --color-info-bg-subtle (toast background)\n- --z-toast: nearest --shadow-3 (`tokens.css` has no z-index layers)\n- --menu-bg: nearest --color-surface-raised (menu popup background)\n- --z-dropdown: nearest --shadow-2 (same reason)\n\ndesign-system adds component variables (`set` and a later command). The specs keep using the nearest variable until then.\n\n### Next\nStep done: component specs (tabs, toast, menu). Next: this skill builds the code for these, or writes more specs.\nSay \"Build tabs, toast and menu in plain HTML and CSS\" (no stack was found, so that is the default) or name another stack.\nReply yes, change, or stop.",
+  "files": [
+    "design/BRIEF.md",
+    "design/STATUS.md",
+    "design/components/menu.md",
+    "design/components/tabs.md",
+    "design/components/toast.md",
+    "design/tokens.css"
+  ],
+  "run": "runs/component-kit/3631117e595c5c67"
+}

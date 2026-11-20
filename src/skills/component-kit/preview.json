@@ -1,0 +1,7 @@
+{
+  "title": "Component kit",
+  "tagline": "Turns your design variables into component specs, then into code in your own stack.",
+  "prompt": "Write the specs for button, input and card from our design folder.",
+  "outputs": ["design/components/<name>.md specs with eight states and ARIA", "Component code that uses only your variables", "Checker result for every variable named"],
+  "tags": ["components", "design variables", "specs", "accessibility", "khmer"]
+}

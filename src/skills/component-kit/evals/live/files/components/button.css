@@ -1,0 +1,150 @@
+/* Button: built from design/components/button.md. Link design/tokens.css before this file.
+   .is-hover / .is-active / .is-focus mirror the real pseudo-classes so a demo can show them side by side. */
+
+.button {
+  position: relative;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-12);
+  min-height: var(--button-height);
+  padding-block: 0;
+  padding-inline: var(--button-padding-x);
+  border: var(--border-width-hairline) solid transparent;
+  border-radius: var(--button-radius);
+  font-family: inherit;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-strong);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.button__label { min-width: 0; overflow-wrap: anywhere; }
+
+.button__icon {
+  flex: none;
+  width: var(--space-16);
+  height: var(--space-16);
+}
+
+/* Variants: default */
+.button--primary {
+  background-color: var(--button-primary-bg);
+  color: var(--button-primary-text);
+}
+.button--secondary {
+  background-color: transparent;
+  color: var(--button-secondary-text);
+  border-color: var(--button-secondary-border);
+}
+.button--danger {
+  background-color: var(--color-danger-bg);
+  color: var(--color-danger-text-on);
+}
+
+/* Hover (only when the button can act) */
+.button--primary:not(:disabled):not([aria-disabled="true"]):not([aria-busy="true"]):is(:hover, .is-hover) {
+  background-color: var(--button-primary-bg-hover);
+}
+.button--secondary:not(:disabled):not([aria-disabled="true"]):not([aria-busy="true"]):is(:hover, .is-hover) {
+  background-color: var(--color-selected-bg);
+}
+.button--danger:not(:disabled):not([aria-disabled="true"]):not([aria-busy="true"]):is(:hover, .is-hover) {
+  background-color: var(--color-danger-text);
+}
+
+/* Active (pressed) */
+.button--primary:not(:disabled):not([aria-disabled="true"]):not([aria-busy="true"]):is(:active, .is-active) {
+  background-color: var(--button-primary-bg-pressed);
+}
+.button--secondary:not(:disabled):not([aria-disabled="true"]):not([aria-busy="true"]):is(:active, .is-active) {
+  background-color: var(--color-selected-bg);
+  color: var(--color-selected-text);
+}
+.button--danger:not(:disabled):not([aria-disabled="true"]):not([aria-busy="true"]):is(:active, .is-active) {
+  background-color: var(--color-danger-text);
+}
+
+/* Focus-visible: a ring outside the container, never removed */
+.button:focus-visible,
+.button.is-focus {
+  outline: var(--border-width-focus) solid var(--color-border-focus);
+  outline-offset: var(--border-width-focus);
+}
+
+/* Sizes */
+.button--sm {
+  min-height: var(--control-height-sm);
+  padding-inline: var(--space-12);
+}
+.button--lg {
+  min-height: var(--control-height-lg);
+  padding-inline: var(--space-24);
+}
+.button--icon {
+  min-width: var(--size-target-min);
+  min-height: var(--size-target-min);
+  padding-inline: 0;
+}
+
+/* Disabled: native `disabled`, or `aria-disabled="true"` when it stays focusable with a reason */
+.button:disabled,
+.button[aria-disabled="true"] {
+  background-color: var(--color-surface-sunken);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+.button--secondary:disabled,
+.button--secondary[aria-disabled="true"] {
+  border-color: var(--color-surface-sunken);
+}
+
+/* Loading: size locked. The label keeps its space (hidden), the spinner sits on top. */
+.button[aria-busy="true"] { cursor: progress; }
+.button[aria-busy="true"] .button__label,
+.button[aria-busy="true"] .button__icon { visibility: hidden; }
+.button__spinner { display: none; }
+.button[aria-busy="true"] .button__spinner {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  display: block;
+  width: var(--space-16);
+  height: var(--space-16);
+  box-sizing: border-box;
+  border: var(--border-width-focus) solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: button-spin calc(var(--duration-slow) * 3) linear infinite;
+}
+@keyframes button-spin { to { transform: rotate(360deg); } }
+
+/* Error: the message sits under the button; the label becomes "Try again" so one press retries */
+.button-field {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-12);
+}
+.button-error {
+  margin: 0;
+  color: var(--color-danger-text);
+  font-size: var(--font-size-md);
+}
+
+/* Khmer: taller line, no letter spacing, and the control may grow */
+.button:lang(km),
+.button-error:lang(km) {
+  line-height: var(--line-height-khmer);
+  letter-spacing: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button { transition: none; }
+  .button[aria-busy="true"] .button__spinner { animation: none; }
+}

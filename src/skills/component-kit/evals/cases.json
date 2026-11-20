@@ -1,0 +1,272 @@
+[
+  {
+    "id": "no-design",
+    "prompt": "Write the component specs for button, input and card.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "There is no design folder with tokens.css in this project, so run design-system first to build the variables, then ask me for the component specs again."
+      },
+      {
+        "type": "maxLines",
+        "value": 3
+      },
+      {
+        "type": "notContains",
+        "value": "## Component specs"
+      }
+    ]
+  },
+  {
+    "id": "spec-three",
+    "prompt": "Project setup: the design folder that design-system wrote for this project is the sample in the skill's examples folder; run the skill's examples/install-sample.mjs with node in the project folder first (add --no-specs when this request has no specs yet). (--no-specs) Write the component specs for button, input and card.",
+    "expect": [
+      {
+        "type": "fileExists",
+        "value": "design/components/button.md"
+      },
+      {
+        "type": "fileExists",
+        "value": "design/components/input.md"
+      },
+      {
+        "type": "fileExists",
+        "value": "design/components/card.md"
+      },
+      {
+        "type": "contains",
+        "value": "## Component specs"
+      },
+      {
+        "type": "contains",
+        "value": "### Check"
+      },
+      {
+        "type": "contains",
+        "value": "SPEC CHECK PASSED (3 specs, 0 problems)"
+      },
+      {
+        "type": "contains",
+        "value": "### Variables to add"
+      },
+      {
+        "type": "contains",
+        "value": "select, checkbox, dialog and table"
+      },
+      {
+        "type": "notContains",
+        "value": "## Component code"
+      }
+    ]
+  },
+  {
+    "id": "spec-all-capped",
+    "prompt": "Project setup: the design folder that design-system wrote for this project is the sample in the skill's examples folder; run the skill's examples/install-sample.mjs with node in the project folder first (add --no-specs when this request has no specs yet). (--no-specs) Write the specs for every component in the set.",
+    "expect": [
+      {
+        "type": "fileExists",
+        "value": "design/components/button.md"
+      },
+      {
+        "type": "fileExists",
+        "value": "design/components/input.md"
+      },
+      {
+        "type": "fileExists",
+        "value": "design/components/select.md"
+      },
+      {
+        "type": "fileExists",
+        "value": "design/components/checkbox.md"
+      },
+      {
+        "type": "contains",
+        "value": "SPEC CHECK PASSED (4 specs, 0 problems)"
+      },
+      {
+        "type": "contains",
+        "value": "card, dialog, table and nav"
+      },
+      {
+        "type": "notContains",
+        "value": "## Component code"
+      }
+    ]
+  },
+  {
+    "id": "spec-new-vars",
+    "prompt": "Project setup: the design folder that design-system wrote for this project is the sample in the skill's examples folder; run the skill's examples/install-sample.mjs with node in the project folder first (add --no-specs when this request has no specs yet). (--no-specs) Write the component specs for tabs, toast and menu.",
+    "expect": [
+      {
+        "type": "fileExists",
+        "value": "design/components/tabs.md"
+      },
+      {
+        "type": "fileExists",
+        "value": "design/components/toast.md"
+      },
+      {
+        "type": "fileExists",
+        "value": "design/components/menu.md"
+      },
+      {
+        "type": "contains",
+        "value": "SPEC CHECK PASSED (3 specs, 0 problems)"
+      },
+      {
+        "type": "contains",
+        "value": "### Variables to add"
+      },
+      {
+        "type": "contains",
+        "value": "--z-toast"
+      },
+      {
+        "type": "contains",
+        "value": "nearest"
+      }
+    ]
+  },
+  {
+    "id": "code-html",
+    "prompt": "Project setup: the design folder that design-system wrote for this project is the sample in the skill's examples folder; run the skill's examples/install-sample.mjs with node in the project folder first (add --no-specs when this request has no specs yet). Build the button and card from their specs in plain HTML and CSS.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Component code"
+      },
+      {
+        "type": "contains",
+        "value": "CODE CHECK PASSED"
+      },
+      {
+        "type": "contains",
+        "value": "var(--button-primary-bg)"
+      },
+      {
+        "type": "contains",
+        "value": "var(--card-radius)"
+      },
+      {
+        "type": "contains",
+        "value": ":focus-visible"
+      },
+      {
+        "type": "contains",
+        "value": ":lang(km)"
+      },
+      {
+        "type": "notContains",
+        "value": "## Component specs"
+      }
+    ]
+  },
+  {
+    "id": "code-tailwind",
+    "prompt": "Project setup: the design folder that design-system wrote for this project is the sample in the skill's examples folder; run the skill's examples/install-sample.mjs with node in the project folder first (add --no-specs when this request has no specs yet). Our project uses React with Tailwind CSS v3. Build the button from its spec.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Component code"
+      },
+      {
+        "type": "contains",
+        "value": "CODE CHECK PASSED"
+      },
+      {
+        "type": "contains",
+        "value": "var(--button-primary-bg)"
+      },
+      {
+        "type": "contains",
+        "value": "Tailwind"
+      },
+      {
+        "type": "contains",
+        "value": "focus-visible"
+      },
+      {
+        "type": "notContains",
+        "value": "## Component specs"
+      }
+    ]
+  },
+  {
+    "id": "code-no-spec",
+    "prompt": "Project setup: the design folder that design-system wrote for this project is the sample in the skill's examples folder; run the skill's examples/install-sample.mjs with node in the project folder first (add --no-specs when this request has no specs yet). Build the dialog component in React.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "There is no spec for dialog yet, so I write the spec first: ask me to \"write the spec for dialog\", and then to build it."
+      },
+      {
+        "type": "maxLines",
+        "value": 3
+      },
+      {
+        "type": "notContains",
+        "value": "## Component code"
+      }
+    ]
+  },
+  {
+    "id": "both-in-one",
+    "prompt": "Project setup: the design folder that design-system wrote for this project is the sample in the skill's examples folder; run the skill's examples/install-sample.mjs with node in the project folder first (add --no-specs when this request has no specs yet). (--no-specs) Write the spec for the button and then build it in React, all in one go.",
+    "expect": [
+      {
+        "type": "fileExists",
+        "value": "design/components/button.md"
+      },
+      {
+        "type": "contains",
+        "value": "SPEC CHECK PASSED (1 spec, 0 problems)"
+      },
+      {
+        "type": "contains",
+        "value": "Build button"
+      },
+      {
+        "type": "notContains",
+        "value": "## Component code"
+      },
+      {
+        "type": "notContains",
+        "value": "CODE CHECK"
+      }
+    ]
+  },
+  {
+    "id": "code-demo",
+    "prompt": "Project setup: the design folder that design-system wrote for this project is the sample in the skill's examples folder; run the skill's examples/install-sample.mjs with node in the project folder first (add --no-specs when this request has no specs yet). Build the button and card from their specs in plain HTML and CSS, and a demo page demo.html in the project folder that shows each component in every state (the loading, disabled and error states too), linking design/tokens.css and your component CSS.",
+    "expect": [
+      {
+        "type": "fileExists",
+        "value": "demo.html"
+      },
+      {
+        "type": "contains",
+        "value": "## Component code"
+      },
+      {
+        "type": "contains",
+        "value": "CODE CHECK PASSED"
+      },
+      {
+        "type": "contains",
+        "value": "var(--card-radius)"
+      },
+      {
+        "type": "contains",
+        "value": "aria-busy"
+      },
+      {
+        "type": "contains",
+        "value": "focus-visible"
+      },
+      {
+        "type": "notContains",
+        "value": "## Component specs"
+      }
+    ]
+  }
+]

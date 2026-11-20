@@ -1,0 +1,18 @@
+{
+  "case": "code-demo",
+  "prompt": "Project setup: the design folder that design-system wrote for this project is the sample in the skill's examples folder; run the skill's examples/install-sample.mjs with node in the project folder first (add --no-specs when this request has no specs yet). Build the button and card from their specs in plain HTML and CSS, and a demo page demo.html in the project folder that shows each component in every state (the loading, disabled and error states too), linking design/tokens.css and your component CSS.",
+  "agent": "claudeRunner via run-skill (fresh agent, skill folder and the case prompt only)",
+  "recordedAt": "2026-11-20",
+  "output": "## Component code: button, card\n\n### Files\n- components/button.css\n- components/card.css\n- demo.html (links `design/tokens.css`, `components/button.css` and `components/card.css`)\n- design/STATUS.md (updated)\n- The sample design folder (`design/BRIEF.md`, `tokens.css`, `components/button.md`, `components/card.md`) was installed by the sample installer. I did not edit those files.\n\n### Check\n```\nPASS components/button.css (31 variables)\nPASS components/card.css (26 variables)\nPASS demo.html (11 variables)\nCODE CHECK PASSED (3 files, 48 variables, 0 problems)\n```\nThe first run of `demo.html` failed on a missing Khmer line-height rule. I added the rule and ran the check again, and the run above is that second one. The checker checks CSS only. I did not open the demo in a browser, so how it looks is untested.\n\n### Stack\nNo stack found, so these are plain HTML and CSS. Link `design/tokens.css` first, then `components/button.css` and `components/card.css`.\n- **Classes:**\n  - Button: `.button` with `--primary`, `--secondary`, `--danger`, `--sm`, `--lg` and `--icon`.\n  - Card: `.card` with `--interactive`, `--selected`, `--lg`, `--empty` and `--error`.\n- **State classes:** `.is-hover`, `.is-active` and `.is-focus` copy the real `:hover`, `:active` and `:focus-visible` styles. This lets the demo show every state side by side.\n- **Demo:** `demo.html` shows every state for primary, secondary and danger buttons and for the card, including loading, disabled and error with a \"Try again\" button. It also has a live button that goes to loading, then error, then works on retry, plus a Khmer button and a Khmer card.\n\n### Variables to add\nNone.\n\n### Next\nStep done: component code (button, card) in plain HTML and CSS.\n- I built the code from the two sample specs. I did not write specs.\n- I read the specs' \"Variables used\" lists as a contract and used only variables from them.\n- Say \"Write the specs for input, select, checkbox and dialog\", or ask for a screen from the design folder with ui-craft.\n- Reply yes, change, or stop.",
+  "files": [
+    "components/button.css",
+    "components/card.css",
+    "demo.html",
+    "design/BRIEF.md",
+    "design/STATUS.md",
+    "design/components/button.md",
+    "design/components/card.md",
+    "design/tokens.css"
+  ],
+  "run": "runs/component-kit/42785d88bded303f"
+}

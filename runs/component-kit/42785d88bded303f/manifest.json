@@ -1,0 +1,95 @@
+{
+  "skill": "component-kit",
+  "version": "1.0.0",
+  "caseId": "code-demo",
+  "inputSha256": "17e49b35652cc25e805f54b53bfc58e4cb589b727fa74356bf33d6a2c5946f07",
+  "skillSha256": "e7eba25396594615e09978881b084cd3b7c6fc998f729277ac9797503b4c1ac9",
+  "key": "42785d88bded303fcb08c250fc8d17fb746a614ff224512c34fc20047f1190d5",
+  "startedAt": "2026-11-20T15:12:05.931Z",
+  "finishedAt": "2026-11-20T15:14:23.317Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.5763223,
+  "usage": {
+    "input_tokens": 34,
+    "cache_creation_input_tokens": 60587,
+    "cache_read_input_tokens": 1176163,
+    "output_tokens": 21629,
+    "output_tokens_details": {
+      "thinking_tokens": 4746
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 60587,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 795,
+        "cache_read_input_tokens": 89359,
+        "cache_creation_input_tokens": 662,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 662
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [
+    {
+      "path": "components/button.css",
+      "bytes": 4709,
+      "sha256": "cc776ed905193c0baf14213c486f6bb0544e41bc67eb15136841d1a632196811"
+    },
+    {
+      "path": "components/card.css",
+      "bytes": 3983,
+      "sha256": "daa07a8e1a5d968faa2c80e903b86e3c37747d4e9ff272c8acbb3f7e7ce4afc4"
+    },
+    {
+      "path": "demo.html",
+      "bytes": 13179,
+      "sha256": "0e9b5cbf7d6665c0dc67b68d5bddffc4319f0fc44548141937022084d414b261"
+    },
+    {
+      "path": "design/BRIEF.md",
+      "bytes": 198,
+      "sha256": "15630611abfa12f6c87c11a25d96778d28759589eea8c19d84a9890777832cbf"
+    },
+    {
+      "path": "design/STATUS.md",
+      "bytes": 685,
+      "sha256": "568cb145c6e3e7ced7da7cd25187e645efdbb488e8df64b07de5a4b37c60f193"
+    },
+    {
+      "path": "design/components/button.md",
+      "bytes": 4168,
+      "sha256": "e1d8c67b78e25fcbdcc3479f7fa45899835d912dbdd88f58fc0761a9d0c32137"
+    },
+    {
+      "path": "design/components/card.md",
+      "bytes": 3467,
+      "sha256": "1f62d68add700922e643273a3f537ff0720ff6751093317a0d1b74aafe53d07f"
+    },
+    {
+      "path": "design/tokens.css",
+      "bytes": 14682,
+      "sha256": "b59bf55254314cd20d91e1b93862851c04b27240f7959de9f5d569a38444e4c1"
+    }
+  ],
+  "checks": {
+    "expectations": 7,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "## Component code: button, card\n\n### Files\n- components/button.css\n- components/card.css\n- demo.html (links `design/tokens.css`, `components/button.css` and `components/card.css`)\n- design/STATUS.md (updated)\n- The sample design folder (`design/BRIEF.md`, `tokens.css`, `components/button.md`, `components/card.md`) was installed by the sample installer. I did not edit those files.\n\n### Check\n```\nPASS components/button.css (31 variables)\nPASS components/card.css (26 variables)\nPASS demo.html (11 variables)\nCODE CHECK PASSED (3 files, 48 variables, 0 problems)\n```\nThe first run of `demo.html` failed on a missing Khmer line-height rule. I added the rule and ran the check again, and the run above is that second one. The checker checks CSS only. I did not open the demo in a browser, so how it looks is untested.\n\n### Stack\nNo stack found, so these are plain HTML and CSS. Link `design/tokens.css` first, then `components/button.css` and `components/card.css`.\n- **Classes:**\n  - Button: `.button` with `--primary`, `--secondary`, `--danger`, `--sm`, `--lg` and `--icon`.\n  - Card: `.card` with `--interactive`, `--selected`, `--lg`, `--empty` and `--error`.\n- **State classes:** `.is-hover`, `.is-active` and `.is-focus` copy the real `:hover`, `:active` and `:focus-visible` styles. This lets the demo show every state side by side.\n- **Demo:** `demo.html` shows every state for primary, secondary and danger buttons and for the card, including loading, disabled and error with a \"Try again\" button. It also has a live button that goes to loading, then error, then works on retry, plus a Khmer button and a Khmer card.\n\n### Variables to add\nNone.\n\n### Next\nStep done: component code (button, card) in plain HTML and CSS.\n- I built the code from the two sample specs. I did not write specs.\n- I read the specs' \"Variables used\" lists as a contract and used only variables from them.\n- Say \"Write the specs for input, select, checkbox and dialog\", or ask for a screen from the design folder with ui-craft.\n- Reply yes, change, or stop."
+}

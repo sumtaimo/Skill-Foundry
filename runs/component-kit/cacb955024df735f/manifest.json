@@ -1,0 +1,85 @@
+{
+  "skill": "component-kit",
+  "version": "1.0.0",
+  "caseId": "code-tailwind",
+  "inputSha256": "39f6867afdc695b3e9545e5524e5541cd6169d324a734d9df435b79b39018a4c",
+  "skillSha256": "fb758310be1f07af9a09a15e735e3e6e4055c8c2a6d4139387e2ee766f1b56ad",
+  "key": "cacb955024df735fef3f6e854021a898474c4d960083a199ba1c16cab9d1c5b1",
+  "startedAt": "2026-11-20T15:04:45.114Z",
+  "finishedAt": "2026-11-20T15:06:03.524Z",
+  "runner": "claudeRunner",
+  "exitCode": 0,
+  "costUsd": 0.39869419999999994,
+  "usage": {
+    "input_tokens": 32,
+    "cache_creation_input_tokens": 45660,
+    "cache_read_input_tokens": 983702,
+    "output_tokens": 11762,
+    "output_tokens_details": {
+      "thinking_tokens": 2429
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 45660,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 726,
+        "cache_read_input_tokens": 74447,
+        "cache_creation_input_tokens": 647,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 647
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "files": [
+    {
+      "path": "components/Button.tsx",
+      "bytes": 6647,
+      "sha256": "56e830557ea2169a0e3c7ea0704a8cc84509b26307f3568f4a27e66b92f265df"
+    },
+    {
+      "path": "design/BRIEF.md",
+      "bytes": 198,
+      "sha256": "15630611abfa12f6c87c11a25d96778d28759589eea8c19d84a9890777832cbf"
+    },
+    {
+      "path": "design/STATUS.md",
+      "bytes": 664,
+      "sha256": "67c891e24d924f9a85a413f98d97162b4e8e0fda9bcdbb65737149f99e192b94"
+    },
+    {
+      "path": "design/components/button.md",
+      "bytes": 4218,
+      "sha256": "4e62144e944a9522fcae5f91e8adff0452ad7ea98d81235f32576d015ffcbf49"
+    },
+    {
+      "path": "design/components/card.md",
+      "bytes": 3467,
+      "sha256": "1f62d68add700922e643273a3f537ff0720ff6751093317a0d1b74aafe53d07f"
+    },
+    {
+      "path": "design/tokens.css",
+      "bytes": 14682,
+      "sha256": "b59bf55254314cd20d91e1b93862851c04b27240f7959de9f5d569a38444e4c1"
+    }
+  ],
+  "checks": {
+    "expectations": 6,
+    "failures": []
+  },
+  "status": "pass",
+  "report": "## Component code: button\n\n### Files\n- components/Button.tsx\n- design/components/button.md (three variables added to \"Variables used\")\n- design/STATUS.md (updated)\n- design/ (sample design folder installed with `install-sample.mjs`, with specs)\n\n### Check\n```\nPASS ../../../../runs/component-kit/cacb955024df735f/output/components/Button.tsx (31 variables)\nCODE CHECK PASSED (1 file, 31 variables, 0 problems)\n```\nI re-ran the spec check after editing the spec:\n```\nPASS ../../../../runs/component-kit/cacb955024df735f/output/design/components/button.md (32 variables)\nSPEC CHECK PASSED (1 spec, 0 problems)\n```\nThe checks have not been viewed in a browser, so tabbing, focus ring, loading and `lang=\"km\"` are untested in a real page.\n\n### Stack\nReact with Tailwind CSS v3. The project had no `package.json`, so the stack comes from your input.\n- Link `design/tokens.css` before the app's CSS.\n- Import `Button` from `components/Button` and use `<Button variant=\"primary|secondary|danger\" size=\"sm|md|lg\" loading error disabledReason>`.\n- Tailwind classes read the variables as arbitrary values such as `bg-[color:var(--button-primary-bg)]`, so no config change is needed.\n- The `components/` folder is the default, since the project had none.\n\n### Variables to add\nNone. Danger hover and pressed have no variable in the spec, so the code darkens the fill with `hover:brightness-90` and `active:brightness-75`. A `--button-danger-bg-hover` and `--button-danger-bg-pressed` pair is something design-system could add later.\n\n### Next\nStep done: component code (button). Next: build the card, which already has a spec.\nSay \"Build card in React with Tailwind v3\".\nReply yes, change, or stop.\n\n**Open items**\n- The code uses `--space-8`, `--space-16` and `--line-height-khmer`, which the spec did not list. I added them to the spec's \"Variables used\" before re-checking, as layer 04 requires. All three exist in `tokens.css`."
+}

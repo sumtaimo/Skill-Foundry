@@ -1,0 +1,16 @@
+{
+  "case": "code-tailwind",
+  "prompt": "Project setup: the design folder that design-system wrote for this project is the sample in the skill's examples folder; run the skill's examples/install-sample.mjs with node in the project folder first (add --no-specs when this request has no specs yet). Our project uses React with Tailwind CSS v3. Build the button from its spec.",
+  "agent": "claudeRunner via run-skill (fresh agent, skill folder and the case prompt only)",
+  "recordedAt": "2026-11-20",
+  "output": "## Component code: button\n\n### Files\n- components/Button.tsx\n- design/components/button.md (three variables added to \"Variables used\")\n- design/STATUS.md (updated)\n- design/ (sample design folder installed with `install-sample.mjs`, with specs)\n\n### Check\n```\nPASS ../../../../runs/component-kit/cacb955024df735f/output/components/Button.tsx (31 variables)\nCODE CHECK PASSED (1 file, 31 variables, 0 problems)\n```\nI re-ran the spec check after editing the spec:\n```\nPASS ../../../../runs/component-kit/cacb955024df735f/output/design/components/button.md (32 variables)\nSPEC CHECK PASSED (1 spec, 0 problems)\n```\nThe checks have not been viewed in a browser, so tabbing, focus ring, loading and `lang=\"km\"` are untested in a real page.\n\n### Stack\nReact with Tailwind CSS v3. The project had no `package.json`, so the stack comes from your input.\n- Link `design/tokens.css` before the app's CSS.\n- Import `Button` from `components/Button` and use `<Button variant=\"primary|secondary|danger\" size=\"sm|md|lg\" loading error disabledReason>`.\n- Tailwind classes read the variables as arbitrary values such as `bg-[color:var(--button-primary-bg)]`, so no config change is needed.\n- The `components/` folder is the default, since the project had none.\n\n### Variables to add\nNone. Danger hover and pressed have no variable in the spec, so the code darkens the fill with `hover:brightness-90` and `active:brightness-75`. A `--button-danger-bg-hover` and `--button-danger-bg-pressed` pair is something design-system could add later.\n\n### Next\nStep done: component code (button). Next: build the card, which already has a spec.\nSay \"Build card in React with Tailwind v3\".\nReply yes, change, or stop.\n\n**Open items**\n- The code uses `--space-8`, `--space-16` and `--line-height-khmer`, which the spec did not list. I added them to the spec's \"Variables used\" before re-checking, as layer 04 requires. All three exist in `tokens.css`.",
+  "files": [
+    "components/Button.tsx",
+    "design/BRIEF.md",
+    "design/STATUS.md",
+    "design/components/button.md",
+    "design/components/card.md",
+    "design/tokens.css"
+  ],
+  "run": "runs/component-kit/cacb955024df735f"
+}
