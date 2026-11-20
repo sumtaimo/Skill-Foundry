@@ -1,6 +1,7 @@
 # Design Foundation Plan: Figma-style variables from brief to product
 
-> Status: **[planned]**, approved direction from the owner in chat (2026-11-20). Nothing here is built yet.
+> Status: **[planned] draft**. The owner approved the direction in chat (2026-11-20), and the audit fixes of
+> 2026-11-20 are applied (section 9). Nothing here is built yet. Work does not start until the owner says so.
 > Read with `docs/PROJECT.md`, `AGENTS.md` (SKILL QUALITY LAW) and `docs/factory/notes/2026-ui-upgrade-handoff.md`.
 > Before Session S0 starts, check `git log origin/lab`: another session was still working on the UI skills
 > when this plan was written. Merge with its work. Do not overwrite it.
@@ -16,6 +17,13 @@ Skill Foundry design skills work like a real product design team with **Figma-st
 - Changing one variable updates the whole product. The engine also recomputes the dependent contrast colours (for example `on-accent`) and checks every pair in every mode.
 - The work runs in small steps with a saved status, so a user low on quota never loses work.
 - It works by default for every project that installs the agentic harness, including an empty project.
+
+## 1a. Two working rules
+
+1. **Small first, proven first.** Build MVP-1 (section 5) end to end and prove it with a real agent in an
+   empty project before any later scope (more brands, density, platform, other stacks, Figma round trip).
+2. **No step starts without proof of the step before.** Each session ends with a real-agent recording in an
+   empty project, not a plan or a self-assessment.
 
 ## 2. Owner decisions (2026-11-20)
 
@@ -82,6 +90,10 @@ Real-world Figma features the model MUST support:
 | Elevation | shadow levels 0–4, `--z-sticky/-dropdown/-command/-modal/-toast` | Light, Dark |
 | Motion | durations (120–240 ms), easings, springs | Normal, Reduced |
 
+Khmer typography variables (audit item 4): one body line-height for Khmer (a single number, replacing the
+three different values in `ui-craft`: 1.55, 1.6 and 1.65), and `letter-spacing: 0` for `:lang(km)`, so the
+negative heading tracking never applies to Khmer.
+
 Every variable has Figma-style **scopes** (for example `border` → stroke only), so an agent cannot use a
 border colour as a text colour.
 
@@ -91,7 +103,7 @@ border colour as a text colour.
 --gray-200: #E5E7EB  →  --color-border: var(--gray-200)  →  --card-border, --input-border, --table-line
 ```
 
-- Components MUST use component or semantic variables only. A raw hex or px value is a lint error (drift check, 3.5).
+- Components MUST use component or semantic variables only. A raw hex or px value in web code is reported by `check --code` (3.4).
 - Every value is resolved by the engine. AI never computes colours or ratios.
 
 ### 3.4 Engine commands (zero dependencies, inside the skill folder)
@@ -101,7 +113,7 @@ border colour as a text colour.
 | `init --brief design/BRIEF.md` | build all collections from the brief (cold start) |
 | `set color.border "#D1D5DB" [--mode dark]` | change one variable, recompute dependent `on-*` colours, re-check every pair in every mode, regenerate files, append to `CHANGES.md`, print the impact ("1 variable → 37 uses, 42 pairs PASS") |
 | `brand add B --accent "#0F766E"` | add a brand mode (D3) |
-| `check [--code src/]` | contrast in all modes, broken aliases, scope misuse, **raw values in project code** |
+| `check [--code src/]` | contrast in all modes, broken aliases, scope misuse; raw values in **web code only** (CSS, SCSS, Tailwind, TS). It **reports** them and never replaces them (matches `R-ui-polish-28`). Generated files for other stacks are checked by regenerating and comparing a hash, not by parsing Swift, Kotlin or Dart |
 | `export figma` / `import figma <file>` | Figma Variables JSON (collections, modes, `VARIABLE_ALIAS`, colours as 0–1 RGBA) |
 | `explain color.border` | the alias chain and every use. Cheap answer to "what changes if…" |
 
@@ -129,6 +141,12 @@ When a colour changes, the engine re-derives its scale, picks `on-*` text colour
 borders and focus), and checks every declared pair in every mode and brand. If no colour can pass, it
 refuses the change and proposes the nearest passing value. It never ships a failing pair silently.
 
+Guards (audit item 1):
+- **Locked values**: values the user set (brand hex, any value passed to `set`) are never recomputed. The engine recomputes only what it derived itself.
+- **All or nothing**: `set` checks every pair in every mode and brand before writing anything. One failing pair means nothing is written.
+- **Rule R-design-system-9 is split**: tokens the user already had in the project are never changed. `design/variables.json`, which the skill owns, changes only through `set`.
+- The current engine only handles light and dark for one brand (`engine/tokens.mjs` line 342) and has no `set` command, so all of this is new work in S1.
+
 ## 4. Human design process (cold start included)
 
 1. **Read context**: the user's first prompt, plus `README`, `package.json` and existing code or tokens if any. Infer product, users, platform, language and density.
@@ -155,15 +173,15 @@ updates the skills that already exist:
 
 | # | Session | Scope | Done when |
 |---|---|---|---|
-| S0 | Review | Read the other session's finished work on `lab`; list conflicts with this plan in `docs/factory/notes/` | Conflict list approved by owner |
-| S1 | `design-system` (variables core) | `variables.json` model, three tiers, collections, modes, scopes, engine `init/set/check/explain`, D5 vocabulary (1.0.0 names kept as aliases), weights 400–700 (replaces "two weights"), web fonts (D4, replaces R-8) | live, routing, portable pass; existing 14 cases still pass |
-| S2 | `design-system` (process) | cold-start brief, three directions with real HTML, `STATUS.md`, brands (D3), Figma export/import | real agent in an empty project produces `design/` end to end |
-| S3 | new skill `component-kit` | component specs + component-tier variables for core components (button, input, select, checkbox, card, dialog, table, nav, tabs, toast, menu, badge) | `checkPage` on every component in every state and mode |
-| S4 | `ui-craft` | reads `design/` first; refuses raw values; gate: no `design/` → start S1 flow; remove year wording; D5 names | recipe proof below |
+| S0 | Review (no skill change) | (a) read the other session's finished work and list conflicts with this plan; (b) install the agentic harness in an **empty folder** and record the real role files (`writablePaths`, `allowedTools`), because user projects may differ from this repo's roles | Conflict list + real role table approved by owner |
+| S1 | `design-system`: **MVP-1** | `variables.json` with three tiers, light/dark, **one brand**; engine `init`, `set` (locked values, all-or-nothing), `check` (web only), `explain`; D5 vocabulary (1.0.0 names kept as aliases); weights 400–700; web fonts (D4); Khmer typography variables; one brief message on cold start; `STATUS.md` | a real agent in an empty project: brief → variables → `set color.border` changes everything, all pairs PASS; old 14 cases still pass |
+| S2 | `design-system`: scale-up | more brands (D3) and extended collections, then density, then other stacks, then Figma export/import; three directions as previews | each addition proven in an empty project before the next |
+| S3 | new skill `component-kit` | two separate steps that hand off through files: **spec** (component specs + component-tier variables) and **code** (built in the project's stack) | `checkPage` on every web component in every state and mode |
+| S4 | `ui-craft` | reads `design/` first; with no tokens and no `design/BRIEF.md` it asks "use defaults or build the foundation first?" instead of silently using its default palette (`layers/03-inputs.md` lines 9–10); one Khmer line-height; remove year wording; D5 names | recipe proof below |
 | S5 | `ui-polish` | token mode uses the variables vocabulary; reports raw values as drift | re-recorded evals + `tokens-then-polish` |
 | S6 | `ux-review`, `a11y-audit` | small alignment only (overlaps from the handoff note) | re-recorded evals |
 | S7 | Recipe `product-from-zero` | empty project → brief → variables → components → one screen → `set color.border` → whole product updated | `recipe-run.mjs --record` passes |
-| S8 | Harness defaults | registry `roles` (BA asks the brief, UX owns `design/**`, DEV builds, QA runs `check`); default install for harness projects | `tests/factory-foundry-cli.test.mjs` passes |
+| S8 | Harness defaults | registry `roles` set from the real role table of S0 (see 5a); default install for harness projects | `tests/factory-foundry-cli.test.mjs` passes |
 
 Version bumps (`design-system` likely 2.0.0 or 1.1.0 with aliases; project version) need the owner's OK in chat.
 
@@ -176,19 +194,27 @@ large and causes errors. So the chain is gated:
 2. When its step is done, the skill writes `design/STATUS.md` with `step_completed`, the files produced and
    `next_skill` (for example `component-kit`), then **stops**.
 3. It asks the user one line: "Step done: <what>. Next: <skill> to <action>. Continue? (yes / change / stop)".
-   The next skill loads only after "yes". In autopilot, the harness reads `next_skill` and starts it only if
-   that skill is allowed for the role that owns the next step.
+   The next skill loads only after "yes". The gate lives **inside the skill**: the harness has no `next_skill`
+   mechanism and `.harness/*.mjs` must not be edited here. In autopilot, each step is one backlog item, run
+   one at a time (the existing READY flow). If a real harness `next_skill` hook is wanted, it is proposed to
+   the harness template owner, not patched in this repo.
 4. The next skill starts from `STATUS.md` and the file paths, never from the previous chat text
    (AGENTS.md "Hand off through files"). This keeps each context small.
 5. If quota runs out mid-step, nothing is lost: `STATUS.md` says exactly where to continue.
 
-| Step | Skill | Role (harness) |
+Role facts in this repo (`.harness/roles/*.json`, audit item 3): only DEV_ENGINEER can write `design/**`
+(`writablePaths: **`) and run `node` (`Bash(node:*)`). BA_ANALYST writes `docs/**` only. UX_DESIGNER writes
+`src/**/*.css|scss|less` only. QA_AUDITOR runs `npm test` only. None of the last three can run the engine.
+So, until S0 confirms the roles in a real user project:
+
+| Step | Skill | Who |
 |---|---|---|
-| Brief + directions | `design-system` | BA_ANALYST asks, UX_DESIGNER proposes |
-| Variables | `design-system` | UX_DESIGNER |
-| Components | `component-kit` | UX_DESIGNER (spec) → DEV_ENGINEER (code) |
-| Screens | `ui-craft` | DEV_ENGINEER |
-| Check | `ui-polish`, `a11y-audit`, engine `check` | QA_AUDITOR |
+| Brief | `design-system` | in chat: the skill asks the user. In the harness: the orchestrator asks the user, and DEV_ENGINEER writes `design/BRIEF.md` |
+| Variables (engine) | `design-system` | DEV_ENGINEER |
+| Component specs | `component-kit` (spec step) | DEV_ENGINEER (writes `design/components/*.md`) |
+| Component code | `component-kit` (code step) | DEV_ENGINEER; UX_DESIGNER may own the CSS files only |
+| Screens | `ui-craft` | DEV_ENGINEER (UX_DESIGNER for CSS-only work, with a markup handoff) |
+| Check | engine `check` | DEV_ENGINEER runs it. QA_AUDITOR runs `npm test` and writes tests that call it |
 
 ## 6. Token budget rules (for every session and for the skills themselves)
 
@@ -213,3 +239,16 @@ large and causes errors. So the chain is gated:
 - Risk: a large engine change in S1. It is mitigated by keeping the 1.0.0 cases as regression tests.
 - Risk: Figma JSON format changes. It is mitigated by keeping the export in one module with a fixture test.
 - Web fonts need network access. Every font stack ends in the system stack, so offline still renders.
+- `design/STATUS.md` has **one writer** per step (the orchestrator, or the single agent of that step).
+  Parallel workers never write it, so it cannot conflict on the `uat` branch.
+- `design/build/` is generated. The skill tells the user to git-ignore it and regenerate it from
+  `variables.json`. When a stack needs the files committed, each one starts with a "generated, do not edit" header.
+
+## 9. Audit of 2026-11-20 (applied above)
+
+| # | Risk | Verdict | Where fixed |
+|---|---|---|---|
+| 1 | Multi-axis modes and auto-contrast: engine has light/dark only, no `set`, R-9 forbids changing tokens | REAL | 3.6 guards, S1/S2 split |
+| 2 | Cross-stack drift: no drift check exists; parsing Swift/Kotlin/Dart gives false positives; conflicts with `R-ui-polish-28` | REAL | 3.4 `check` web only, report only, hash for generated files |
+| 3 | Roles: only DEV can write `design/**` or run `node`; `component-kit` crossed two roles; `ui-craft` silently uses defaults; harness has no `next_skill` | REAL | 5a role table, S0 (b), S3 split, S4 gate |
+| 4 | Khmer: three different line-heights, negative tracking applies to Khmer; `STATUS.md` and `build/` churn | PARTIAL | 3.2 Khmer variables, section 8 |
