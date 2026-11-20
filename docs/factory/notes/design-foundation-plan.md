@@ -41,7 +41,7 @@ design/
   STATUS.md           done / next step / exact words to continue (quota safety)
   variables.json      ALL variables: collections, modes, aliases (the single source)
   tokens.css          generated from variables.json, never edited by hand
-  build/               generated per stack (see 3.6). Only the targets the project uses
+  build/               generated per stack (see 3.5). Only the targets the project uses
   design-tokens.json  generated, W3C format (backward compatible with 1.0.0)
   figma-variables.json generated, Figma import format
   components/<name>.md component specs (variants, 8 states, tokens used, a11y, do/don't)
@@ -105,7 +105,7 @@ border colour as a text colour.
 | `export figma` / `import figma <file>` | Figma Variables JSON (collections, modes, `VARIABLE_ALIAS`, colours as 0–1 RGBA) |
 | `explain color.border` | the alias chain and every use. Cheap answer to "what changes if…" |
 
-### 3.6 Any stack, not only HTML
+### 3.5 Any stack, not only HTML
 
 `variables.json` is the only source. HTML is not the product, just one output.
 The engine generates the targets the project uses, detected from its files or named in the brief:
@@ -123,7 +123,7 @@ Previews (the three directions, the variable map) are rendered as a page only so
 They are viewing aids, never the deliverable. Component specs (`components/*.md`) are stack-neutral, and
 `ui-craft` writes the code in the project's own stack.
 
-### 3.5 Contrast follows the change
+### 3.6 Contrast follows the change
 
 When a colour changes, the engine re-derives its scale, picks `on-*` text colours that reach 4.5:1 (3:1 for
 borders and focus), and checks every declared pair in every mode and brand. If no colour can pass, it
