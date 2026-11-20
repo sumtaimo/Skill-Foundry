@@ -5,7 +5,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, mkdtempSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, mkdtempSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -16,7 +16,28 @@ import { lintSkill } from '../src/factory/lint-skills.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIR = path.join(ROOT, 'src', 'skills', 'design-system');
 const E = await import(pathToFileURL(path.join(DIR, 'engine', 'tokens.mjs')).href);
-const ASK = 'Give me a brand colour as a hex code (for example #2563eb), a few words about the style you want, or the path to your existing design tokens.';
+const BRIEF = [
+  'Before I build your design foundation, confirm or change each line. Reply "OK" to accept all of them.',
+  '1. Product: tell me in a few words what you are building and who uses it.',
+  '2. Brand colour: a hex code such as #2563eb, or leave it and I choose one from the style.',
+  '3. Style: A calm and focused (default), B precise and trustworthy, C bold and playful, D editorial, E dense and data-heavy.',
+  '4. Font: the system font (default), or name a font and I put it first in the stack.',
+  '5. Modes: light and dark (default).',
+  '6. Effects: standard (default), or modern with glass, glow and layered depth.',
+].join('\n');
+const V = await import(pathToFileURL(path.join(DIR, 'engine', 'variables.mjs')).href);
+
+/** What a path d run leaves: the files under design/ (BRIEF.md written by the agent) and the reply text. */
+function foundationText(initArgs, sets = []) {
+  const dir = mkdtempSync(path.join(tmpdir(), 'dsf-'));
+  mkdirSync(path.join(dir, 'design'));
+  writeFileSync(path.join(dir, 'design', 'BRIEF.md'), '# Design brief\n- Assumed: everything the user did not answer\n');
+  const init = V.main(['init', ...initArgs], dir);
+  const replies = [init.out.split('\n---\n')[0], ...sets.map((a) => V.main(['set', ...a], dir).out)];
+  const names = readdirSync(path.join(dir, 'design')).sort();
+  const files = names.map((f) => `design/${f}`);
+  return { text: [replies.join('\n\n'), ...names.filter((f) => !f.endsWith('.md')).map((f) => readFileSync(path.join(dir, 'design', f), 'utf8'))].join('\n'), files, reply: replies.join('\n\n') };
+}
 const SCREEN = 'This skill builds design tokens, not screens. For finished screen code, use ui-polish.';
 const EXISTING = /:root \{[\s\S]*?\n\}/.exec(JSON.parse(readFileSync(path.join(DIR, 'evals', 'cases.json'), 'utf8')).find((c) => c.id === 'existing-gaps').prompt)[0];
 
@@ -57,7 +78,11 @@ test('design-system eval cases pass on the engine output and the exact sentences
   const partial = JSON.parse(readFileSync(path.join(DIR, 'evals', 'cases.json'), 'utf8')).find((c) => c.id === 'existing-partial').prompt;
   out['existing-partial'] = engineText(['--existing', 'base.css'], (d) => writeFileSync(path.join(d, 'base.css'), /:root \{[\s\S]*?\n\}/.exec(partial)[0]));
   out['engine-unavailable'] = engineText(['--primary', '#7c3aed', '--archetype', 'calm-workspace', '--open', 'The engine could not run (running commands is not allowed in this session), so the tokens were built by hand; run the engine to confirm the numbers.']);
-  out['no-input'] = { text: ASK };
+  out['no-input'] = { text: BRIEF };
+  out['foundation-ok'] = foundationText(['--primary', '#8b5e3c', '--archetype', 'calm-workspace', '--name', 'Coffee-booking app']);
+  out['foundation-set-border'] = foundationText(['--primary', '#0f766e', '--archetype', 'precise-fintech', '--name', 'Invoicing app'], [['color/border/default', '#c9d3d2']]);
+  out['foundation-set-refused'] = foundationText(['--primary', '#4f46e5', '--archetype', 'calm-workspace', '--name', 'Notes app'], [['color/text/muted', '#cccccc', '--mode', 'light']]);
+  out['foundation-defaults'] = foundationText(['--archetype', 'calm-workspace']);
   out['screen-declined'] = { text: SCREEN };
   assert.equal(cases.length, Object.keys(out).length);
   const byPrompt = Object.fromEntries(cases.map((c) => [c.prompt, out[c.id]]));
@@ -321,7 +346,7 @@ test('2026 group on path c: never written over a user token with the same name',
 
 test('design-system version matches CHANGELOG and registry', () => {
   const v = /^version:\s*(\S+)/m.exec(readFileSync(path.join(DIR, 'SKILL.md'), 'utf8'))[1];
-  assert.equal(v, '1.1.0');
+  assert.equal(v, '1.2.0');
   assert.match(readFileSync(path.join(DIR, 'CHANGELOG.md'), 'utf8'), new RegExp(`## ${v} - \\d{4}-\\d{2}-\\d{2}`));
   const reg = JSON.parse(readFileSync(path.join(ROOT, 'src', 'factory', 'registry.json'), 'utf8'));
   assert.equal(reg.find((x) => x.name === 'design-system').version, v);

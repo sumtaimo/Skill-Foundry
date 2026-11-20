@@ -12,8 +12,11 @@ Checks anyone can run by search, in any project:
 6. Search every output file and the reply for the name of any brand the user compared to. It must not appear.
 7. On path c, compare each existing file with how it was before: it must be byte for byte the same, and no gap file may define a name the existing files define (also not in a dark, reduced-motion or density block).
 7a. On path c, a family with 1 or 2 of the user's tokens is listed in the report as partly present, with the tokens that were added; the neutral scale lists the project's greys and their steps, or says why the default scale was used.
-7c. With the 2026 ask, search tokens.css for `--glass-bg`, `--glass-blur`, `--r-xs`, `--r-xl: 16px`, `--z-sticky`, `--z-toast`, `--glow`, `--btn-gloss` and `--font-weight-medium: 500`; without it, none of them appears.
+7c. With the modern ask, search tokens.css for `--glass-bg`, `--glass-blur`, `--r-xs`, `--r-xl: 16px`, `--z-sticky`, `--z-toast`, `--glow`, `--btn-gloss` and `--font-weight-medium: 500`; without it, none of them appears.
 7b. The engine ran as one plain command; if it could not, the open question says so plainly.
+
+7d. Path d: `check --dir <project>/design` exits 0 (CHECK PASSED), design/BRIEF.md exists, tokens.css has `:lang(km)` with `letter-spacing: 0`, and no variable is written by hand: variables.json, tokens.css and design-tokens.json are the engine's output.
+7e. After a `set`, the printout names the variable, how many values follow and that every contrast pair passes; after a REFUSED, the files are the same as before.
 
 Reviewer checklist, answered yes or no (the same list is in references/README.md):
 

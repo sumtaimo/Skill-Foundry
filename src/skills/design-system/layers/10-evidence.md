@@ -5,4 +5,5 @@
 3. Record the counts: colour scales, roles per mode, text pairs checked, pairs failing (must be 0 for tokens this skill wrote).
 4. Record the result of the searches in layer 07, steps 2 to 7.
 5. Record the reviewer answers of layer 07, steps 8 to 10, and list every "no".
+5a. Path d: keep design/BRIEF.md, the `init` and `set` commands with their exit codes, and the output of `check`.
 6. List assumptions apart from facts, for example "no product type given, so calm-workspace".

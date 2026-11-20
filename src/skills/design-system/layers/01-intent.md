@@ -11,7 +11,12 @@ Defined terms, used by every layer:
 - **Archetype**: one of the five style presets in references/archetypes.md, each a set of numbers.
 - **Existing system**: tokens the user's project already has (CSS custom properties, a tokens JSON file) or that the user pastes.
 - **Gap**: a token group (references/README.md, "Groups") that the existing system does not have.
-- **Engine**: `engine/tokens.mjs` in this skill folder.
+- **Engine**: `engine/tokens.mjs` in this skill folder (paths a to c); `engine/variables.mjs` for path d.
+- **Foundation**: the design folder of one product: BRIEF.md (the user's answers), variables.json (the one source), tokens.css and design-tokens.json (generated), CHANGES.md, STATUS.md.
+- **Variable**: one named value with a type (colour, number, text), a tier, scopes (where it may be used: fill, stroke, text, radius, gap...) and a value per mode. Its key is a slash path such as `color/border/default`; its CSS name is `--color-border-default`.
+- **Tier**: primitive (a value, for example `color/neutral/200`), semantic (a role that points at a primitive and may differ per mode, for example `color/border/default`) or component (a use that points at a role, for example `card/border`).
+- **Mode**: light or dark. A semantic colour has one value per mode; every other variable has one value.
+- **Brief**: the six answers of layer 03, step 7, saved once in design/BRIEF.md.
 
 Steps:
 
@@ -20,6 +25,7 @@ Steps:
    - **Path a**: the request gives one or more hex colours.
    - **Path b**: the request gives no hex but describes a mood, a style, a kind of product or "like <brand>".
    - **Path c**: the project has an existing system (layer 02) or the user pastes one. Path c wins over a and b; a given hex or style then only shapes the gaps.
+   - **Path d**: the user wants the design foundation of a product (words such as "design foundation", "variables", "the design folder", "set up the design for my product"), or asks to change, check or explain a variable ("change the border colour everywhere", "what uses the brand colour"), or the project already has design/variables.json. Path d wins over a, b and c for a project that has design/variables.json.
 3. If the request asks for a screen, page, mockup or flow, go to layer 06, step 2.
 4. If no path applies, go to layer 03, step 5.
 5. State the intent in one sentence: one consistent token set that keeps the given colours, passes every contrast minimum and covers every group.

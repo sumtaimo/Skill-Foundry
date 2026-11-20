@@ -93,7 +93,7 @@ Write ratios rounded to two decimals with ":1"; a ratio below its minimum is nev
 | breakpoint | `--breakpoint-sm` 640px, `-md` 768px, `-lg` 1024px, `-xl` 1280px | fixed; custom properties do not work in media queries, so copy the numbers there |
 | density | `--density-control-x`, `-control-y`, `-row`, `-stack`, `-section`; `[data-density="compact" / "comfortable" / "spacious"]` | compact 8, 4, 32, 8, 24; comfortable 12, 8, 40, 12, 32; spacious 16, 12, 48, 16, 48 px |
 
-Optional 2026 group (only with the engine flag `--modern`, R-design-system-22; names match ui-craft exactly):
+Optional modern group (only with the engine flag `--modern`, R-design-system-22; names match ui-craft exactly):
 
 | Token | Light | Dark |
 |-------|-------|------|
@@ -137,6 +137,50 @@ otherwise the default tinted scale is used and the report says why.
 Missing groups are written to the gap files. Existing names are never written again. When dark mode is missing,
 existing background, text and border tokens get dark values under the same names, in the dark blocks only.
 
+## Variables (path d)
+
+One source: `design/variables.json`. Its `source` part (inputs and overrides) is changed only by `set`; everything else in it and the other files are generated from it.
+
+| Collection | Variables | Modes |
+|------------|-----------|-------|
+| color | scales `color/<scale>/<step>` (primitive, hidden), `color/brand`, roles `color/<role>` such as `color/text/default`, `color/surface/raised`, `color/border/default`, `color/action/primary-bg` | light, dark |
+| typography | `font/family/*`, `font/size/*`, `font/weight/*`, `font/line-height/*` (also `font/line-height/khmer`, 1.6) | one |
+| size-space | `space/*`, `control/*`, `density/*` | one |
+| shape | `radius/*`, `border-width/*`, `modern/r-*` | one |
+| elevation | `shadow/*`, `modern/z-*`, glass, glow, gloss | light, dark |
+| motion | `motion/duration-*`, `motion/ease-*` | one |
+
+Tiers: primitive (a value), semantic (a role pointing at a primitive: `{color/neutral/200}`, one value per mode), component (a use pointing at a role). The component variables are `button/primary/bg`, `bg-hover`, `bg-pressed`, `text`, `button/secondary/text`, `border`, `button/radius`, `height`, `padding-x`; `input/bg`, `text`, `border`, `border-focus`, `radius`, `height`; `card/bg`, `border`, `radius`, `shadow`, `padding`. Their CSS names are `--button-primary-bg`, `--input-border`, `--card-radius`, and so on, and they follow their role in light and dark.
+
+Scopes say where a variable may be used: a text role is for `text`, a surface or fill for `fill`, a border for `stroke`; scales and the brand colour are for all three.
+
+Commands (one plain command each, `--dir` is the project's design folder):
+
+| Command | What it does |
+|---------|--------------|
+| `init --brief design/BRIEF.md` | builds every variable and file from the brief |
+| `set <variable> <value> [--mode light\|dark\|both] [--dry-run]` | changes one variable; a colour role changes light only unless a mode is given; `color/brand` rebuilds its scale; checks every pair in both modes first and writes nothing when one fails |
+| `check [--code <folder>]` | contrast of every pair, aliases and cycles, generated files edited by hand; with `--code`, raw colours, raw sizes and wrong scopes in web files (report only) |
+| `explain <variable> [--code <folder>]` | the alias chain, what uses the variable, where code uses it |
+| `build` | writes the generated files again from variables.json |
+
+What `set` accepts: a colour role (hex or `{color/neutral/300}`), a scale step (hex), a brand input (`color/brand`, `color/accent`, `color/success`, `color/warning`, `color/danger`, `color/info`), the font (`font/family/sans`, a name), a size (`radius/md 12`), a duration (`150ms`), a number, or a component variable (a value or `{<variable>}`). Shadows, the glass fill, the glow and the gloss are derived from the brand colour and the style, so they are changed through those. The engine keeps a value the user set when the brand colour changes later, and derives the text on a fill again when the fill changes.
+
+## Design brief
+
+`design/BRIEF.md`, written once from the answers of layer 03, step 7 (the engine reads it with `init --brief`):
+
+```
+# Design brief
+- Product: <words>, or not given
+- Brand colour: <hex>, or archetype default (assumed)
+- Archetype: <calm-workspace | precise-fintech | bold-consumer | editorial | dense-data-tool>
+- Font: <name>, or system
+- Modes: light and dark
+- Modern effects: yes, or no
+- Assumed: <the lines the user did not answer>
+```
+
 ## Reviewer checklist
 
 Answer each line yes or no. Any "no" blocks the reply until it is fixed.
@@ -151,3 +195,4 @@ Answer each line yes or no. Any "no" blocks the reply until it is fixed.
 - [ ] The archetype is named with a reason, and no compared brand name appears.
 - [ ] On path c, no existing token or file was changed.
 - [ ] The reply is the report in the layer 08 format.
+- [ ] Path d: `check` passes, BRIEF.md exists, no variable was written by hand, and the turn ended after `init`.

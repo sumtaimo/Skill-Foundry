@@ -450,11 +450,13 @@ export function tokenList(b) {
   for (const [n, v] of Object.entries(BREAKPOINTS)) t('breakpoint', `breakpoint-${n}`, px(v), 'dimension', px(v), 'CSS variables do not work inside media queries; copy this number there.');
   for (const [n, v] of Object.entries(DENSITY[A.density])) t('density', `density-${n}`, px(v), 'dimension');
   if (b.input.modern) for (const m of modernTokens(b, 'light')) t('modern', m.name, m.css, m.type, m.json, m.desc);
+  // Values the user set through the variables engine (`set`); absent on the plain token path.
+  if (b.overrides) for (const tk of out) { const o = b.overrides[tk.name]; if (o) { tk.css = String(o.css); tk.json = o.json ?? o.css; } }
   return out;
 }
 
 /**
- * The optional 2026 group (--modern): frosted glass, a short radius scale, a z-index layer scale, a soft brand glow,
+ * The optional modern group (--modern): frosted glass, a short radius scale, a z-index layer scale, a soft brand glow,
  * a button gloss and one medium weight. Names match the ui-craft skill exactly. Dark values come from the dark roles.
  */
 export const MODERN_RADIUS = { xs: 4, sm: 6, md: 10, lg: 14, xl: 16 };
@@ -474,7 +476,7 @@ export function modernTokens(b, mode) {
   out.push({ name: 'glass-blur', css: '12px', type: 'dimension', json: '12px', desc: 'backdrop-filter blur for glass-bg panels.' });
   for (const [n, v] of Object.entries(MODERN_RADIUS)) out.push({ name: `r-${n}`, css: px(v), type: 'dimension', json: px(v) });
   for (const [n, v] of Object.entries(MODERN_Z)) out.push({ name: `z-${n}`, css: v, type: 'number', json: v, desc: n === 'sticky' ? 'Layer order, low to high: sticky, dropdown, command, modal, toast.' : undefined });
-  out.push({ name: 'font-weight-medium', css: 500, type: 'fontWeight', json: 500, desc: 'Optional third weight for buttons and labels in the 2026 group; body and headings keep the two weights.' });
+  out.push({ name: 'font-weight-medium', css: 500, type: 'fontWeight', json: 500, desc: 'Optional third weight for buttons and labels in the modern group; body and headings keep the two weights.' });
   return out;
 }
 
@@ -637,11 +639,11 @@ export function autoQuestions(b, existing) {
 
 export function report(b, { name = 'Product', why = '', path = 'a', existing = null, files = [], failing = [], open = [] } = {}) {
   const L = [];
-  const pathText = { a: 'a, from your colour', b: 'b, from your description of the style', c: 'c, filling the gaps of your existing design system' }[path];
+  const pathText = { a: 'a, from your colour', b: 'b, from your description of the style', c: 'c, filling the gaps of your existing design system', d: 'd, the design foundation of your product in the design folder' }[path];
   L.push(`## Design system: ${name}`, '');
   L.push(`Path ${pathText}. Archetype: ${b.archetype}.${why ? ` ${why}` : ''}`, '');
   L.push('This report is the whole reply: the files written, the checks run with every result, and the open questions.', '');
-  const WHAT = { 'design-tokens.json': 'W3C design tokens', 'tokens.css': 'CSS custom properties, light and dark', 'design-tokens.gaps.json': 'W3C design tokens, missing groups only', 'tokens.gaps.css': 'CSS custom properties, missing groups only', 'design-system-report.md': 'this report' };
+  const WHAT = { 'design-tokens.json': 'W3C design tokens', 'tokens.css': 'CSS custom properties, light and dark', 'design-tokens.gaps.json': 'W3C design tokens, missing groups only', 'tokens.gaps.css': 'CSS custom properties, missing groups only', 'design-system-report.md': 'this report', 'variables.json': 'every variable with its tier, modes and aliases (the one source, changed only with the engine)', 'STATUS.md': 'what is done and the next step', 'CHANGES.md': 'every variable change' };
   L.push('### Files', ...files.map((f) => `- ${f}${WHAT[f] ? `: ${WHAT[f]}` : ''}`), '');
   L.push('### Colours kept', '| Input | Hex | Hue | Placed at |', '|-------|-----|-----|-----------|');
   const STATUS = ['success', 'warning', 'danger', 'info'];
@@ -706,9 +708,10 @@ export function report(b, { name = 'Product', why = '', path = 'a', existing = n
   L.push(`- Spacing: ${SPACING.join(', ')} px. Type sizes: ${b.A.sizes.join(', ')} px, body ${b.A.sizes[2]} px, line-height 1.5. Weights: ${b.A.weights.join(' and ')}.`);
   L.push(`- Controls: ${b.A.controls.join(', ')} px high; every click or tap area at least ${TARGET_MIN} px. Breakpoints: ${Object.values(BREAKPOINTS).join(', ')} px (copy the numbers into media queries).`);
   L.push(`- Brand colour on at most ${b.A.accentShare}% of a screen: ${b.A.accentUse}.`);
-  if (b.input.modern) L.push(`- 2026 group: --glass-bg with --glass-blur, --r-xs to --r-xl, --z-sticky to --z-toast, --glow, --btn-gloss, --font-weight-medium (buttons and labels only).`);
+  if (b.input.modern) L.push(`- Modern group: --glass-bg with --glass-blur, --r-xs to --r-xl, --z-sticky to --z-toast, --glow, --btn-gloss, --font-weight-medium (buttons and labels only).`);
   if (b.input.font) L.push(`- Font: ${b.input.font}, then the system stack. Load the font files yourself; these tokens add no font files, imports or links.`);
   else L.push('- Font: the system font stack. No font files, imports or links.');
+  if (path === 'd') L.push('- Variables: every value is one variable in variables.json with a tier (primitive, semantic, component); to change one everywhere, ask for it, for example "change the border colour to #c9d3d2", and every contrast pair is checked in light and dark before anything is written.', '- Khmer text: one line height (1.6) and no letter-spacing under :lang(km).', '- Next step: STATUS.md names it and the words to continue with; the first screen is built from tokens.css.');
   const auto = autoQuestions(b, existing);
   const qs = [...auto, ...open];
   L.push('', '### Open questions', ...(qs.length ? qs.map((q) => `- ${q}`) : ['- None.']), '');

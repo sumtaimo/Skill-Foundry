@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.2.0 - 2026-11-20
+
+- New path d, the design foundation of a product: variables with three tiers (primitive, semantic, component), light and dark modes, scopes and a code name for each variable, in one source `design/variables.json`. The new engine `engine/variables.mjs` (Node.js, no dependencies) has `init` (from `design/BRIEF.md`), `set`, `check`, `explain` and `build`. Paths a, b and c and `engine/tokens.mjs` write exactly what they wrote in 1.1.0.
+- `set` changes one variable and everything that follows it: a colour role (hex or an alias), a scale step, a brand colour (`color/brand`, `color/accent`, the status colours: the whole scale and the text on its fill are derived again), a size, a duration, a number or a component variable. It checks every contrast pair in light and dark first and writes nothing when one fails, and names the nearest value that passes. A value the user set is kept when the brand colour changes later. A colour role changes in light mode only unless `--mode dark` or `--mode both` is given.
+- `check` finds broken aliases, alias cycles and generated files edited by hand; with `--code` it reports raw colours, raw sizes and a variable used for the wrong job in web files (it never edits code). `explain` shows the alias chain and what uses a variable.
+- Component tier for button, input and card (`--button-primary-bg`, `--input-border`, `--card-radius` and others), which follows its role in both modes. Khmer: one line height (`--line-height-khmer` 1.6) and `letter-spacing: 0` under `:lang(km)`.
+- Cold start: with nothing to build from the skill now replies with a six-line brief with a recommended answer for each line, once; the answers are saved in `design/BRIEF.md` and never asked again. This replaces the one-sentence ask of 1.0.0 and 1.1.0 (case `no-input`). After `init` the skill stops and `design/STATUS.md` names the next step.
+- Rules R-design-system-23 to R-design-system-27; R-design-system-9 and R-design-system-12 say what changed. The optional group of 1.1.0 is called the modern group in the text (the flag `--modern` and every token name are unchanged); the word "2026" is gone from the skill text.
+- New live eval cases `foundation-ok`, `foundation-set-border`, `foundation-set-refused` and `foundation-defaults` (21 cases); `no-input` expects the brief.
+- Not in this version (planned for the next one): weights beyond the two of the archetype, more brands as modes, density and platform modes, other stacks than web, Figma import and export, and making path d the default for paths a and b.
+
 ## 1.1.0 - 2026-11-20
 
 - Optional 2026 token group (R-design-system-22), added only when the user asks for glass or frosted panels, a glow, glossy buttons, z-index layers, 2026 or modern effects, or the ui-craft tokens: the engine flag `--modern` writes `--glass-bg` (surface-default at 72% alpha, light and dark), `--glass-blur` 12px, `--r-xs` to `--r-xl` (4, 6, 10, 14, 16 px), `--z-sticky`, `--z-dropdown`, `--z-command`, `--z-modal`, `--z-toast` (20 to 100), `--glow` (brand at 10% light, 16% dark), `--btn-gloss` and `--font-weight-medium: 500`. The names match ui-craft exactly. In design-tokens.json they sit under `modern`; the medium weight under `font.weight.medium`.

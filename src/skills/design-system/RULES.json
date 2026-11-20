@@ -31,8 +31,8 @@
   },
   {
     "id": "R-design-system-7",
-    "text": "Spacing MUST use 0, 4, 8, 12, 16, 24, 32, 48, 64 px; font sizes MUST come from 12 to 48 px on the type scale; body MUST be 16 px or more at line-height 1.5; exactly two weights, plus --font-weight-medium: 500 only in the optional 2026 group.",
-    "checklist": "Every spacing and font-size value is on its scale; body 16 px or more; two weights (a third, 500, only with the 2026 group)."
+    "text": "Spacing MUST use 0, 4, 8, 12, 16, 24, 32, 48, 64 px; font sizes MUST come from 12 to 48 px on the type scale; body MUST be 16 px or more at line-height 1.5; exactly two weights, plus --font-weight-medium: 500 only in the optional modern group.",
+    "checklist": "Every spacing and font-size value is on its scale; body 16 px or more; two weights (a third, 500, only with the modern group)."
   },
   {
     "id": "R-design-system-8",
@@ -41,7 +41,7 @@
   },
   {
     "id": "R-design-system-9",
-    "text": "With an existing design system, NEVER change, rename or delete an existing token or file; write only the missing groups to the gap files and report existing failing pairs as kept.",
+    "text": "With an existing design system, NEVER change, rename or delete an existing token or file; write only the missing groups to the gap files and report existing failing pairs as kept. design/variables.json, which this skill owns, changes only through set (R-design-system-24).",
     "checklist": "On path c, the existing files are byte for byte the same and only gap files were written."
   },
   {
@@ -56,8 +56,8 @@
   },
   {
     "id": "R-design-system-12",
-    "text": "With no colour, no style and no existing system, the skill MUST ask with the exact sentence and NEVER write files.",
-    "checklist": "With nothing to build from, the reply is the exact ask sentence and no file was written."
+    "text": "With no colour, no style, no product words and no existing system, the skill MUST reply with the brief of layer 03, step 7, and NEVER write files; when design/BRIEF.md exists it MUST NOT ask the brief again.",
+    "checklist": "The reply is exactly the brief (six numbered lines and the OK line), and no file was written; with design/BRIEF.md present the brief is not asked again."
   },
   {
     "id": "R-design-system-13",
@@ -106,7 +106,32 @@
   },
   {
     "id": "R-design-system-22",
-    "text": "Only when the user asks for 2026 or modern effects (glass, glow, gloss, z-index layers, the ui-craft tokens) the engine MUST run with --modern, adding --glass-bg, --glass-blur, --r-xs to --r-xl (4, 6, 10, 14, 16 px), --z-sticky, --z-dropdown, --z-command, --z-modal, --z-toast, --glow, --btn-gloss and --font-weight-medium: 500, with every 1.0.0 token unchanged; without that ask the group MUST NOT be added.",
-    "checklist": "With the 2026 ask tokens.css has every token of the group with the exact names and values (dark values for --glass-bg, --glow, --btn-gloss); without it none of them appears."
+    "text": "Only when the user asks for modern effects (glass, glow, gloss, z-index layers, the ui-craft tokens) the engine MUST run with --modern, adding --glass-bg, --glass-blur, --r-xs to --r-xl (4, 6, 10, 14, 16 px), --z-sticky, --z-dropdown, --z-command, --z-modal, --z-toast, --glow, --btn-gloss and --font-weight-medium: 500, with every 1.0.0 token unchanged; without that ask the group MUST NOT be added.",
+    "checklist": "With the modern ask tokens.css has every token of the group with the exact names and values (dark values for --glass-bg, --glow, --btn-gloss); without it none of them appears."
+  },
+  {
+    "id": "R-design-system-23",
+    "text": "A product foundation (path d) MUST be written by engine/variables.mjs init to design/variables.json, tokens.css, design-tokens.json, CHANGES.md, STATUS.md and the report, from design/BRIEF.md; every value MUST be one variable of tier primitive, semantic or component, and the agent NEVER writes these files by hand.",
+    "checklist": "design/BRIEF.md, variables.json (with the three tiers), tokens.css, design-tokens.json, CHANGES.md and STATUS.md exist, and `check` prints CHECK PASSED."
+  },
+  {
+    "id": "R-design-system-24",
+    "text": "A change to a foundation MUST go through set; it MUST check every contrast pair in light and dark first and write nothing when one fails, and a value the user set MUST be kept when the brand colour changes later.",
+    "checklist": "The printout names the variable, how many values follow and that every pair passes; after REFUSED the files are unchanged; CHANGES.md has a line for each change."
+  },
+  {
+    "id": "R-design-system-25",
+    "text": "check --code MUST only report raw colours, raw sizes and a variable used for the wrong job in web files; it NEVER edits project code.",
+    "checklist": "Project files are byte for byte the same after check --code; every finding has a file and line."
+  },
+  {
+    "id": "R-design-system-26",
+    "text": "Khmer text MUST get one line-height variable (1.6) and letter-spacing: 0 under :lang(km), written by init.",
+    "checklist": "tokens.css has --line-height-khmer: 1.6 and a :lang(km) block with letter-spacing: 0."
+  },
+  {
+    "id": "R-design-system-27",
+    "text": "After init the skill MUST stop: the reply is the report, and STATUS.md names the next step; it NEVER builds a screen in the same turn.",
+    "checklist": "The reply is the init report only, and STATUS.md has next_skill and continue_with."
   }
 ]

@@ -795,19 +795,27 @@
     "expect": [
       {
         "type": "contains",
-        "value": "Give me a brand colour as a hex code (for example #2563eb), a few words about the style you want, or the path to your existing design tokens."
+        "value": "Before I build your design foundation, confirm or change each line. Reply \"OK\" to accept all of them."
+      },
+      {
+        "type": "contains",
+        "value": "3. Style: A calm and focused (default), B precise and trustworthy, C bold and playful, D editorial, E dense and data-heavy."
+      },
+      {
+        "type": "contains",
+        "value": "6. Effects: standard (default), or modern with glass, glow and layered depth."
       },
       {
         "type": "notContains",
-        "value": "$value"
+        "value": "design-tokens.json"
       },
       {
         "type": "notContains",
-        "value": "### Contrast"
+        "value": "--color-"
       },
       {
         "type": "maxLines",
-        "value": 3
+        "value": 9
       }
     ]
   },
@@ -1402,6 +1410,158 @@
       {
         "type": "notContains",
         "value": "--r-xs"
+      }
+    ]
+  },
+  {
+    "id": "foundation-ok",
+    "prompt": "Set up the design foundation for our coffee-booking app in the design folder. Brand colour #8b5e3c, a calm style, light and dark mode. The app is in Khmer and English.",
+    "expect": [
+      {
+        "type": "fileExists",
+        "value": "design/BRIEF.md"
+      },
+      {
+        "type": "fileExists",
+        "value": "design/variables.json"
+      },
+      {
+        "type": "fileExists",
+        "value": "design/tokens.css"
+      },
+      {
+        "type": "fileExists",
+        "value": "design/design-tokens.json"
+      },
+      {
+        "type": "fileExists",
+        "value": "design/CHANGES.md"
+      },
+      {
+        "type": "fileExists",
+        "value": "design/STATUS.md"
+      },
+      {
+        "type": "contains",
+        "value": "--color-brand: #8b5e3c"
+      },
+      {
+        "type": "contains",
+        "value": "prefers-color-scheme: dark"
+      },
+      {
+        "type": "contains",
+        "value": "--button-primary-bg: var(--color-action-primary-bg)"
+      },
+      {
+        "type": "contains",
+        "value": ":lang(km)"
+      },
+      {
+        "type": "contains",
+        "value": "## Design system: "
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "notContains",
+        "value": "@import"
+      },
+      {
+        "type": "notContains",
+        "value": "<div"
+      }
+    ]
+  },
+  {
+    "id": "foundation-set-border",
+    "prompt": "Set up the design foundation for our invoicing app in the design folder: brand colour #0f766e, a precise and trustworthy style. Then change the default border colour to #c9d3d2 in light mode.",
+    "expect": [
+      {
+        "type": "fileExists",
+        "value": "design/variables.json"
+      },
+      {
+        "type": "fileExists",
+        "value": "design/tokens.css"
+      },
+      {
+        "type": "contains",
+        "value": "--color-border-default: #c9d3d2;"
+      },
+      {
+        "type": "contains",
+        "value": "color/border/default = #c9d3d2: 1 variable set, 1 value follows (card/border)"
+      },
+      {
+        "type": "contains",
+        "value": "contrast pairs checked in light and dark: all pass."
+      },
+      {
+        "type": "contains",
+        "value": "Light mode only"
+      },
+      {
+        "type": "notContains",
+        "value": "@import"
+      }
+    ]
+  },
+  {
+    "id": "foundation-set-refused",
+    "prompt": "Set up the design foundation for our notes app in the design folder: brand colour #4f46e5, a calm style. Then make the muted text colour #cccccc in light mode.",
+    "expect": [
+      {
+        "type": "fileExists",
+        "value": "design/variables.json"
+      },
+      {
+        "type": "contains",
+        "value": "REFUSED: color/text/muted = #cccccc would break 4 checks. Nothing was written."
+      },
+      {
+        "type": "contains",
+        "value": "Nearest value that passes every check: #"
+      },
+      {
+        "type": "notContains",
+        "value": "--color-text-muted: #cccccc"
+      }
+    ]
+  },
+  {
+    "id": "foundation-defaults",
+    "prompt": "We need the design foundation for a new product in the design folder, but I have no answers yet. Use your recommended defaults for everything.",
+    "expect": [
+      {
+        "type": "fileExists",
+        "value": "design/BRIEF.md"
+      },
+      {
+        "type": "fileExists",
+        "value": "design/variables.json"
+      },
+      {
+        "type": "fileExists",
+        "value": "design/tokens.css"
+      },
+      {
+        "type": "fileExists",
+        "value": "design/STATUS.md"
+      },
+      {
+        "type": "contains",
+        "value": "Path d, the design foundation of your product in the design folder. Archetype: calm-workspace."
+      },
+      {
+        "type": "contains",
+        "value": "prefers-color-scheme: dark"
+      },
+      {
+        "type": "contains",
+        "value": ":lang(km)"
       }
     ]
   }
