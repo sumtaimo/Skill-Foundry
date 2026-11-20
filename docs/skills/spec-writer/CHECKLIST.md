@@ -2,7 +2,7 @@
 
 Review against `docs/factory/REVIEW.md`. Status: ready. Version 1.0.0.
 
-Honest record: the author (an AI agent) ticked this list; the owner (TAIMO) is the final reviewer. Live answers, routing answers, the portable check and the recipe run came from fresh real agents (`claude -p`); the worked examples in `examples/README.md` and the reference answers in `tests/spec-writer.test.mjs` are hand-written and are not proof.
+Honest record: the author (an AI agent) ticked this list; the owner is the final reviewer. Live answers, routing answers, the portable check and the recipe run came from fresh real agents (`claude -p`); the worked examples in `examples/README.md` and the reference answers in `tests/spec-writer.test.mjs` are hand-written and are not proof.
 
 ## Clarity
 - [x] Procedure is numbered, imperative, one action per step
@@ -61,4 +61,4 @@ Honest record: the author (an AI agent) ticked this list; the owner (TAIMO) is t
 - [x] Minor questions are at most three lines of two questions each, or dropped when they restate a default (R-spec-writer-15)
 - [x] New eval cases `many-blocking-questions` (six blocking questions kept) and `minor-questions-merged`
 - [x] All 12 live evals, the portable check and the recipe `spec-then-retest` re-recorded with fresh agents; showcase screenshots retaken; routing not re-recorded (description unchanged)
-- [x] Honest note: the author (an AI agent) ticked this list; TAIMO is the final reviewer. `examples/README.md` and the reference answers in the test are hand-written, not proof
+- [x] Honest note: the author (an AI agent) ticked this list; the owner is the final reviewer. `examples/README.md` and the reference answers in the test are hand-written, not proof
