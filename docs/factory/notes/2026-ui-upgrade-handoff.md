@@ -1,7 +1,7 @@
 # 2026 UI & Agentic Skill Upgrade Handoff Playbook
 
 > **Read this before starting work on any remaining UI skill task on branch `lab`.**
-> Last updated: `2026-11-19` · Base commit on `lab`: `f82dd71` · Matching backlog: `.harness/backlog.json` (`UI-2026-01` .. `UI-2026-05`, all kept `BACKLOG` until CLI quota resets).
+> Last updated: `2026-11-20` · Base commit on `lab`: `46d1779` · Matching backlog: `.harness/backlog.json` (`UI-2026-01` .. `UI-2026-05`, all kept `BACKLOG` until CLI quota resets).
 
 ---
 
@@ -82,3 +82,32 @@ Notice `UI-2026-01..05` are pre-loaded in `.harness/backlog.json` with `status: 
 1. Run `node .harness/backlog.mjs list` to inspect tasks.
 2. Promote **one** task at a time: `node .harness/backlog.mjs ready UI-2026-01` (for `UI-2026-02`..`04` keep `DEV_ENGINEER` inside `src/**, docs/**, tests/**`; promote root `package.json`/`CHANGELOG.md` in Editor AI with PO approval).
 3. Run `/harness:run` (or `/harness:auto` / `node .harness/daemon.mjs --tick` after verifying engine quota).
+
+---
+
+## 7. Status for the next agent or account (2026-11-20)
+
+Sections 2 to 6 describe the state on `2026-11-19`. This section is the current status. Each fact was checked against the git log (`.git/logs/HEAD`), `.harness/backlog.json` or the run report named below.
+
+### Done
+- **UI-2026-01 `ui-craft` 1.0.0 is ready.** Commit `bb11a4d`. Live evals 8 of 8, routing 60 of 60, portable check recorded.
+- **UI-2026-02 `design-system` 1.1.0 is on `lab`.** Commit `46d1779`. Live evals 17 of 17, portable check recorded.
+- **Agentic-Harness template updated from 1.0.18 to 1.0.23.** Commit `96ae179`.
+- **Branch state.** `lab` and `origin/lab` are both at `46d1779`. `master` is untouched.
+
+### Open
+- **Test and release gate is red.** `npm test` shows 409 pass and 2 fail. `npm run release:check` prints NOT READY.
+- **Cause.** The recipe `tokens-then-polish` recording is stale. It will be re-recorded in UI-2026-03 (`ui-polish` 1.1.0).
+- **Backlog still open.** `UI-2026-03`, `UI-2026-04` and `UI-2026-05` are `BACKLOG` in `.harness/backlog.json`:
+  - `UI-2026-03`: "Upgrade ui-polish to 1.1.0 for 2026 token compatibility and ui-craft boundary sync"
+  - `UI-2026-04`: "Sync ux-review 1.0.1 negative boundaries with ui-polish and ui-craft"
+  - `UI-2026-05`: "Create svg-mechanism 1.0.0 skill for 2D animated architecture and mechanism SVGs"
+- **Backlog status not updated.** `UI-2026-01` and `UI-2026-02` are still marked `BACKLOG` in `.harness/backlog.json` even though they are done above.
+- **Motion pass run is halted.** Run `V-20261118063740-o16` (Motion pass) is HALTED and needs a human decision. Report: `.harness/visible/V-20261118063740-o16/report.md`. The `npm test` check failed after cycle 3 of 3 on the reduced motion test in `tests/site-own-style.test.mjs`, and one test was skipped.
+- **Harness fixes not released.** Known harness issues were reported to the Agentic-Harness repository. The fixes exist in 1.0.24 but 1.0.24 is not released. TAIMO decides when.
+
+### Rules
+- **Real-agent evals need an editor session.** `live-evals`, `portable-check`, `routing-evals` and `recipe-run` must be run by an editor session. Harness workers cannot run node.
+- **One skill per session.** Change at most one skill per session and commit.
+- **Never hand-write recordings.** Every recording comes from a real agent run.
+- **No merge and no version bump without TAIMO.** No merge to `master` and no version bump without TAIMO's approval in chat.
