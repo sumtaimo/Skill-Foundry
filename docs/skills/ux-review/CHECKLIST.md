@@ -2,7 +2,7 @@
 
 Review against `docs/factory/REVIEW.md`. Status: ready. Version 1.0.0.
 
-Honest record: the author (an AI agent) ticked this list; the owner (TAIMO) is the final reviewer. Live answers (14 cases), the routing answers (35 cases) and the portable check came from fresh real agents (`claude -p`); the worked examples are hand-written and are not proof.
+Honest record: the author (an AI agent) ticked this list; the owner is the final reviewer. Live answers (14 cases), the routing answers (35 cases) and the portable check came from fresh real agents (`claude -p`); the worked examples are hand-written and are not proof.
 
 ## Clarity
 - [x] Layers are numbered clauses with defined terms (layer 01), so each clause can be cited
