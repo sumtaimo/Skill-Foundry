@@ -1,0 +1,39 @@
+{
+  "ok": false,
+  "target": "cart.html",
+  "title": "Cart",
+  "finalUrl": "http://127.0.0.1:40473/cart.html",
+  "widths": [
+    1280,
+    390
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "step": "fill \"label=Quantity\" with \"3\"",
+      "status": "PASS",
+      "note": ""
+    },
+    {
+      "n": 2,
+      "step": "expect-text \"Total: $60\"",
+      "status": "PASS",
+      "note": ""
+    },
+    {
+      "n": 3,
+      "step": "click \"role=button[name=Go to payment]\"",
+      "status": "PASS",
+      "note": ""
+    }
+  ],
+  "pageErrors": [
+    "payment is not configured"
+  ],
+  "console": [],
+  "requests": [],
+  "screenshots": [
+    "browser-check-out/end-1280.png",
+    "browser-check-out/end-390.png"
+  ]
+}

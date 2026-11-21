@@ -1,0 +1,14 @@
+{
+  "skill": "browser-check",
+  "prompt": "Save this page as index.html, then check it in a browser: type the email ana@example.test, press Subscribe and check that \"You are subscribed\" appears. <!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>Subscribe</title></head><body><form id=\"f\"><label>Email <input id=\"e\" type=\"email\"></label><button>Subscribe</button></form><p id=\"m\"></p><script>document.getElementById(\"f\").onsubmit=function(ev){ev.preventDefault();document.getElementById(\"m\").textContent=\"Thanks for subscribing\";};</script></body></html>",
+  "recordedAt": "2026-11-21",
+  "agent": "claude -p in an empty project outside the repository",
+  "skillSha": "21241840cab63a04a3fc736ab84e1e9aae95c368b84cbec765abce21b810a838",
+  "exit": 0,
+  "usedSkill": true,
+  "leakedRepoRules": false,
+  "touchedRepo": [],
+  "produced": 6,
+  "cost": 0.33627720000000005,
+  "answer": "The check failed. After pressing Subscribe, the page shows \"Thanks for subscribing\", not \"You are subscribed\".\n\n## Browser check: subscribe with an email\n\nPage: `index.html` (opened as http://127.0.0.1:38873/index.html) · Browser: Chromium via the script · Widths: 1280 and 390 px\nResult: 2 of 3 steps passed. FAILED\nTyped values: \"ana@example.test\"\n\n### Steps\n1. PASS: type \"ana@example.test\" in Email\n2. PASS: press Subscribe\n3. FAIL: see \"You are subscribed\". The text did not appear within 5 seconds. The page shows \"Thanks for subscribing\" under the form instead. Screenshot: `browser-check-out/fail-step-3.png`\n\n### Console and page errors\n- None.\n\n### Failed requests\n- None.\n\n### Screenshots\n- `browser-check-out/fail-step-3.png`\n- `browser-check-out/end-1280.png`\n- `browser-check-out/end-390.png`\n\n### Not checked\n- Accessibility, visual design, and browsers other than Chromium.\n- Anything beyond the three steps you named.\n\n### Open questions\n- Should the page say \"You are subscribed\", or is \"Thanks for subscribing\" the message you want? Either the page text or what we check for needs to change. I didn't edit the page.\n\nI saved the page to `/tmp/portable-A2gFCx/index.html` exactly as you sent it."
+}

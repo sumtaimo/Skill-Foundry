@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="browser-check cover">
+  <rect x="0" y="0" width="640" height="360" fill="var(--cover-bg)"/>
+  <rect x="100" y="40" width="440" height="280" rx="12" fill="none" stroke="currentColor" stroke-width="6"/>
+  <rect x="100" y="40" width="440" height="44" rx="12" fill="var(--cover-accent)"/>
+  <circle cx="128" cy="62" r="7" fill="currentColor"/>
+  <circle cx="152" cy="62" r="7" fill="currentColor"/>
+  <rect x="180" y="54" width="300" height="16" rx="8" fill="var(--cover-bg)"/>
+  <path d="M150 130 L162 146 L188 116" fill="none" stroke="currentColor" stroke-width="7"/>
+  <rect x="210" y="122" width="200" height="14" rx="4" fill="currentColor"/>
+  <path d="M150 190 L162 206 L188 176" fill="none" stroke="currentColor" stroke-width="7"/>
+  <rect x="210" y="182" width="160" height="14" rx="4" fill="currentColor"/>
+  <path d="M152 238 L182 268 M182 238 L152 268" fill="none" stroke="currentColor" stroke-width="7"/>
+  <rect x="210" y="246" width="180" height="14" rx="4" fill="currentColor"/>
+  <path d="M440 200 L440 290 L462 268 L478 300 L490 294 L474 262 L504 262 Z" fill="var(--cover-accent)" stroke="currentColor" stroke-width="4"/>
+</svg>

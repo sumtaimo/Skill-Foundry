@@ -1,0 +1,7 @@
+[
+  { "do": "click", "target": "role=button[name=Sign in]" },
+  { "do": "expect-text", "value": "Enter your email." },
+  { "do": "fill", "target": "label=Email", "value": "ana@example.test" },
+  { "do": "click", "target": "role=button[name=Sign in]" },
+  { "do": "expect-text", "value": "Signed in as ana@example.test" }
+]

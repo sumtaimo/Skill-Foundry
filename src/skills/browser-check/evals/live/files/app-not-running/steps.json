@@ -1,0 +1,8 @@
+[
+  { "do": "screenshot", "value": "start" },
+  { "do": "click", "target": "role=button[name=Add]" },
+  { "do": "screenshot", "value": "after-add" },
+  { "do": "click", "target": "role=button[name=Pay]" },
+  { "do": "wait", "value": 1500 },
+  { "do": "screenshot", "value": "after-pay" }
+]

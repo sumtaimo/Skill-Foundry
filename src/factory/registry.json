@@ -230,5 +230,26 @@
     ],
     "engine": "optional",
     "showcase": "spec-three"
+  },
+  {
+    "name": "browser-check",
+    "version": "0.1.0",
+    "purpose": "Opens the user's local app or HTML file in a real browser, clicks through one user flow and reports each step PASS, FAIL or NOT RUN with console errors, failed requests and screenshots; local addresses only, never edits the app.",
+    "status": "ready",
+    "roles": [
+      "QA_AUDITOR",
+      "UX_DESIGNER",
+      "DEV_ENGINEER"
+    ],
+    "keywords": [
+      "browser",
+      "screenshot",
+      "end-to-end",
+      "journey test",
+      "console error",
+      "click through",
+      "ui test"
+    ],
+    "engine": "optional"
   }
 ]

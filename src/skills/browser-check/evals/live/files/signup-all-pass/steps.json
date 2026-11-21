@@ -1,0 +1,7 @@
+[
+  { "do": "fill", "target": "label=Name", "value": "Ana" },
+  { "do": "fill", "target": "label=Email", "value": "ana@example.test" },
+  { "do": "check", "target": "label=I agree to the terms" },
+  { "do": "click", "target": "role=button[name=Join]" },
+  { "do": "expect-text", "value": "Thanks, Ana! Check your inbox." }
+]

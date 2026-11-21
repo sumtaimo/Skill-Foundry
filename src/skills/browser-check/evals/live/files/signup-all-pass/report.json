@@ -1,0 +1,49 @@
+{
+  "ok": true,
+  "target": "index.html",
+  "title": "Newsletter",
+  "finalUrl": "http://127.0.0.1:42885/index.html",
+  "widths": [
+    1280,
+    390
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "step": "fill \"label=Name\" with \"Ana\"",
+      "status": "PASS",
+      "note": ""
+    },
+    {
+      "n": 2,
+      "step": "fill \"label=Email\" with \"ana@example.test\"",
+      "status": "PASS",
+      "note": ""
+    },
+    {
+      "n": 3,
+      "step": "check \"label=I agree to the terms\"",
+      "status": "PASS",
+      "note": ""
+    },
+    {
+      "n": 4,
+      "step": "click \"role=button[name=Join]\"",
+      "status": "PASS",
+      "note": ""
+    },
+    {
+      "n": 5,
+      "step": "expect-text \"Thanks, Ana! Check your inbox.\"",
+      "status": "PASS",
+      "note": ""
+    }
+  ],
+  "pageErrors": [],
+  "console": [],
+  "requests": [],
+  "screenshots": [
+    "browser-check-out/end-1280.png",
+    "browser-check-out/end-390.png"
+  ]
+}

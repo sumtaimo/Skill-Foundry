@@ -1,0 +1,67 @@
+[
+  {
+    "id": "R-browser-check-1",
+    "text": "A step MUST be reported PASS only when the browser tools or the script ran it and it passed; NEVER report a step that did not run as passed.",
+    "checklist": "Every PASS in the reply matches a browser-tool result or a script line with PASS."
+  },
+  {
+    "id": "R-browser-check-2",
+    "text": "When no browser could run, the first line of the reply MUST be the fixed sentence of layer 06, step 2, and no step may read PASS.",
+    "checklist": "A reply that could not run starts with the fixed sentence and contains no PASS."
+  },
+  {
+    "id": "R-browser-check-3",
+    "text": "The skill MUST open only a local address or a local file; another address only when the user typed it themselves; NEVER a public or production site.",
+    "checklist": "Only localhost, 127.0.0.1, a local file or a user-typed address was opened."
+  },
+  {
+    "id": "R-browser-check-4",
+    "text": "The script MUST be run as ONE plain command with its path (no cd, no node -e, no variable, no pipe, no ; or &&).",
+    "checklist": "Each script run was one plain node command with the script path."
+  },
+  {
+    "id": "R-browser-check-5",
+    "text": "NEVER install packages, start servers or run the user scripts without the user yes; ask for it instead.",
+    "checklist": "Nothing was installed, started or run without the user yes."
+  },
+  {
+    "id": "R-browser-check-6",
+    "text": "NEVER type a real password, card number or personal data; use test values ending in .test or given by the user, and say which values were typed.",
+    "checklist": "Typed values are test values or user-given, and the reply lists them."
+  },
+  {
+    "id": "R-browser-check-7",
+    "text": "Every FAIL MUST give the step, what the browser saw and the screenshot path; NEVER guess a cause in the code.",
+    "checklist": "Each FAIL has the seen result and a screenshot path; no code cause is guessed."
+  },
+  {
+    "id": "R-browser-check-8",
+    "text": "Console errors, page errors and failed requests MUST be copied as the browser reported them, also when every step passed.",
+    "checklist": "Error and request lines match the browser output."
+  },
+  {
+    "id": "R-browser-check-9",
+    "text": "NEVER edit the user app code; the reply reports, the user or a developer fixes.",
+    "checklist": "No app file changed."
+  },
+  {
+    "id": "R-browser-check-10",
+    "text": "The reply MUST follow the format of layer 08: header, Steps, Console and page errors, Failed requests, Screenshots, Not checked, Open questions.",
+    "checklist": "The reply has every section of layer 08 in order."
+  },
+  {
+    "id": "R-browser-check-11",
+    "text": "A request outside the boundary (test plan, accessibility audit, design review) MUST get its fixed sentence from layer 06.",
+    "checklist": "A boundary request got the exact sentence of layer 06."
+  },
+  {
+    "id": "R-browser-check-12",
+    "text": "The skill MUST have the ten core layers, each linked from SKILL.md, and stay self-contained with no repository paths.",
+    "checklist": "chk-layers and chk-portable pass."
+  },
+  {
+    "id": "R-browser-check-13",
+    "text": "SKILL.md MUST stay within 150 lines, with frontmatter name, description and semver version.",
+    "checklist": "SKILL.md is at most 150 lines with valid frontmatter."
+  }
+]
