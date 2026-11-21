@@ -53,3 +53,7 @@ node_modules
 .harness/update-check.json
 .harness/skill-registry.json
 .harness/skill-fetch.lock
+
+# Working-process docs for the agents stay on the owner's machine (not public; users see only the product)
+docs/factory/PUBLISHING.md
+docs/factory/HARNESS-COORDINATION.md
