@@ -1,0 +1,11 @@
+{
+  "case": "retest-boundary",
+  "prompt": "We moved the Export button from the toolbar to the File menu. What should we retest after this change?",
+  "agent": "claude -p (fresh agent; cwd an empty project folder outside the repository; only a copy of the skill folder without evals; tools Read Glob Grep only, no file-writing or shell tool, like the read-only [HARNESS FEATURE_BA] planner call)",
+  "recordedAt": "2026-11-21",
+  "tools": [
+    "Read"
+  ],
+  "output": "journey-mapper maps a new workflow from a goal; a regression checklist for a change or diff comes from test-planner.",
+  "files": []
+}

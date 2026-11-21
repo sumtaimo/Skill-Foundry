@@ -252,5 +252,23 @@
       "click through"
     ],
     "engine": "optional"
+  },
+  {
+    "name": "journey-mapper",
+    "version": "0.1.0",
+    "purpose": "Grows a short feature goal into the whole user journey: numbered steps with loading, empty, error, success, validation, reload and permission slots, quoted from the goal; every gap becomes an open business question; read-only, never invents a business rule.",
+    "status": "ready",
+    "roles": [
+      "BA_ANALYST"
+    ],
+    "keywords": [
+      "journey",
+      "workflow",
+      "user flow",
+      "feature",
+      "onboarding",
+      "sign up",
+      "checkout"
+    ]
   }
 ]

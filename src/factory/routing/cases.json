@@ -383,5 +383,35 @@
     "id": "bc6",
     "prompt": "Write a Playwright test file for our login page that we can run in CI.",
     "expect": "none"
+  },
+  {
+    "id": "jm1",
+    "prompt": "Map the user journey for our new team invite feature: admins invite people by email and they join the workspace.",
+    "expect": "journey-mapper"
+  },
+  {
+    "id": "jm2",
+    "prompt": "Here is the goal: shoppers save a cart and come back to it later. Walk me through the whole workflow, with the loading, error and reload states and what we still need to decide.",
+    "expect": "journey-mapper"
+  },
+  {
+    "id": "jm3",
+    "prompt": "Which states and edge cases does our onboarding flow need? New users pick a language, connect a bank account and see their first report.",
+    "expect": "journey-mapper"
+  },
+  {
+    "id": "jm4",
+    "prompt": "Turn this user story into Given-When-Then acceptance criteria: as a shopper I can save my cart and restore it later.",
+    "expect": "spec-writer"
+  },
+  {
+    "id": "jm5",
+    "prompt": "We changed the checkout to skip the address step for digital items. Give me a regression checklist for what to retest.",
+    "expect": "test-planner"
+  },
+  {
+    "id": "jm6",
+    "prompt": "Estimate how many sprints the checkout redesign will take and in which order we should build it.",
+    "expect": "none"
   }
 ]

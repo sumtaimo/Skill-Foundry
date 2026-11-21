@@ -4,6 +4,10 @@ Versions of Skill Foundry itself (the `skill-foundry` command and the set of ski
 version in its folder. Versions move slowly: a bump needs the owner's approval in chat; record smaller changes under the
 current version.
 
+## 1.6.0 - 2026-11-21
+
+- New skill `journey-mapper` 0.1.0 (fetched on demand, not in the default core; BA_ANALYST): grows a short feature goal into the whole user journey, read-only in the reply: steps with loading, empty, error, success, validation, reload and permission slots, every fact quoted from the goal, every gap an open business question. Asked for by Agentic-Harness for its read-only `[HARNESS FEATURE_BA]` planner call (1.0.39); proven by fresh real agents (live 7 of 7, routing 83 of 83, portable).
+
 ## 1.5.0 - 2026-11-21
 
 - New skill `browser-check` 0.1.0 (fetched on demand, not in the default core; QA_AUDITOR, UX_DESIGNER, DEV_ENGINEER): clicks through one flow of a local app in a real browser, finds each element from the user's own words and says which one it used (asks when several match), and reports each step PASS, FAIL or NOT RUN with errors and screenshots. Asked for by Agentic-Harness 1.0.36; proven by fresh real agents (live 8 of 8, routing 77 of 77, portable).

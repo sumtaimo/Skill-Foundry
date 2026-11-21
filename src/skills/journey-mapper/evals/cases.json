@@ -1,0 +1,572 @@
+[
+  {
+    "id": "signup-short",
+    "prompt": "Map the user journey for this feature: new users sign up with an email and a password of at least 12 characters, confirm their email with a link, and then land on the dashboard.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Journey map"
+      },
+      {
+        "type": "contains",
+        "value": "### Steps"
+      },
+      {
+        "type": "contains",
+        "value": "### Cross-step checks"
+      },
+      {
+        "type": "contains",
+        "value": "### Open business questions"
+      },
+      {
+        "type": "contains",
+        "value": "### Not in this map"
+      },
+      {
+        "type": "contains",
+        "value": "- Loading:"
+      },
+      {
+        "type": "contains",
+        "value": "- Empty:"
+      },
+      {
+        "type": "contains",
+        "value": "- Error:"
+      },
+      {
+        "type": "contains",
+        "value": "- Success:"
+      },
+      {
+        "type": "contains",
+        "value": "- Validation:"
+      },
+      {
+        "type": "contains",
+        "value": "- Reload and back:"
+      },
+      {
+        "type": "contains",
+        "value": "- Permissions:"
+      },
+      {
+        "type": "contains",
+        "value": "[blocking]"
+      },
+      {
+        "type": "contains",
+        "value": "Q1"
+      },
+      {
+        "type": "contains",
+        "value": "Blocking questions:"
+      },
+      {
+        "type": "notContains",
+        "value": "for example"
+      },
+      {
+        "type": "notContains",
+        "value": "e.g."
+      },
+      {
+        "type": "notContains",
+        "value": "such as"
+      },
+      {
+        "type": "notContains",
+        "value": "AC-1"
+      },
+      {
+        "type": "contains",
+        "value": "at least 12 characters"
+      },
+      {
+        "type": "contains",
+        "value": "confirm their email with a link"
+      },
+      {
+        "type": "contains",
+        "value": "land on the dashboard"
+      },
+      {
+        "type": "contains",
+        "value": "Sources: the goal"
+      },
+      {
+        "type": "maxLines",
+        "value": 110
+      }
+    ]
+  },
+  {
+    "id": "checkout-thin",
+    "prompt": "Map the checkout workflow for our shop: a shopper pays for the items in the cart and gets an order number.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Journey map"
+      },
+      {
+        "type": "contains",
+        "value": "### Steps"
+      },
+      {
+        "type": "contains",
+        "value": "### Cross-step checks"
+      },
+      {
+        "type": "contains",
+        "value": "### Open business questions"
+      },
+      {
+        "type": "contains",
+        "value": "### Not in this map"
+      },
+      {
+        "type": "contains",
+        "value": "- Loading:"
+      },
+      {
+        "type": "contains",
+        "value": "- Empty:"
+      },
+      {
+        "type": "contains",
+        "value": "- Error:"
+      },
+      {
+        "type": "contains",
+        "value": "- Success:"
+      },
+      {
+        "type": "contains",
+        "value": "- Validation:"
+      },
+      {
+        "type": "contains",
+        "value": "- Reload and back:"
+      },
+      {
+        "type": "contains",
+        "value": "- Permissions:"
+      },
+      {
+        "type": "contains",
+        "value": "[blocking]"
+      },
+      {
+        "type": "contains",
+        "value": "Q1"
+      },
+      {
+        "type": "contains",
+        "value": "Blocking questions:"
+      },
+      {
+        "type": "notContains",
+        "value": "for example"
+      },
+      {
+        "type": "notContains",
+        "value": "e.g."
+      },
+      {
+        "type": "notContains",
+        "value": "such as"
+      },
+      {
+        "type": "notContains",
+        "value": "AC-1"
+      },
+      {
+        "type": "contains",
+        "value": "pays for the items in the cart"
+      },
+      {
+        "type": "contains",
+        "value": "order number"
+      },
+      {
+        "type": "notContains",
+        "value": "PayPal"
+      },
+      {
+        "type": "notContains",
+        "value": "Stripe"
+      },
+      {
+        "type": "notContains",
+        "value": "Apple Pay"
+      },
+      {
+        "type": "notContains",
+        "value": "credit card"
+      },
+      {
+        "type": "notContains",
+        "value": "guest checkout"
+      },
+      {
+        "type": "maxLines",
+        "value": 110
+      }
+    ]
+  },
+  {
+    "id": "no-goal",
+    "prompt": "Can you map the user journey for me?",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "Tell me the feature goal in one or two sentences: who does what, and when it is done."
+      },
+      {
+        "type": "notContains",
+        "value": "## Journey map"
+      },
+      {
+        "type": "notContains",
+        "value": "### Steps"
+      },
+      {
+        "type": "maxLines",
+        "value": 2
+      }
+    ]
+  },
+  {
+    "id": "ac-boundary",
+    "prompt": "Write Given-When-Then acceptance criteria for this feature: team admins invite a member by email, and the invite expires after 7 days.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Journey map"
+      },
+      {
+        "type": "contains",
+        "value": "### Steps"
+      },
+      {
+        "type": "contains",
+        "value": "### Cross-step checks"
+      },
+      {
+        "type": "contains",
+        "value": "### Open business questions"
+      },
+      {
+        "type": "contains",
+        "value": "### Not in this map"
+      },
+      {
+        "type": "contains",
+        "value": "- Loading:"
+      },
+      {
+        "type": "contains",
+        "value": "- Empty:"
+      },
+      {
+        "type": "contains",
+        "value": "- Error:"
+      },
+      {
+        "type": "contains",
+        "value": "- Success:"
+      },
+      {
+        "type": "contains",
+        "value": "- Validation:"
+      },
+      {
+        "type": "contains",
+        "value": "- Reload and back:"
+      },
+      {
+        "type": "contains",
+        "value": "- Permissions:"
+      },
+      {
+        "type": "contains",
+        "value": "[blocking]"
+      },
+      {
+        "type": "contains",
+        "value": "Q1"
+      },
+      {
+        "type": "contains",
+        "value": "Blocking questions:"
+      },
+      {
+        "type": "notContains",
+        "value": "for example"
+      },
+      {
+        "type": "notContains",
+        "value": "e.g."
+      },
+      {
+        "type": "notContains",
+        "value": "such as"
+      },
+      {
+        "type": "notContains",
+        "value": "AC-1"
+      },
+      {
+        "type": "contains",
+        "value": "journey-mapper maps the workflow; Given-When-Then acceptance criteria come from spec-writer."
+      },
+      {
+        "type": "contains",
+        "value": "expires after 7 days"
+      },
+      {
+        "type": "contains",
+        "value": "team admins"
+      },
+      {
+        "type": "notContains",
+        "value": "Scenario:"
+      },
+      {
+        "type": "maxLines",
+        "value": 110
+      }
+    ]
+  },
+  {
+    "id": "retest-boundary",
+    "prompt": "We moved the Export button from the toolbar to the File menu. What should we retest after this change?",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "journey-mapper maps a new workflow from a goal; a regression checklist for a change or diff comes from test-planner."
+      },
+      {
+        "type": "notContains",
+        "value": "## Journey map"
+      },
+      {
+        "type": "notContains",
+        "value": "### Steps"
+      },
+      {
+        "type": "notContains",
+        "value": "- [ ]"
+      },
+      {
+        "type": "maxLines",
+        "value": 2
+      }
+    ]
+  },
+  {
+    "id": "onboarding-roles-reload",
+    "prompt": "Map the onboarding workflow for a new workspace: the owner names the workspace, invites teammates and picks a plan. Teammates who join later skip the plan step. If the owner reloads the page during onboarding, they continue where they left off. Up to 5 teammates can be invited during onboarding, and the free plan allows at most 3 members.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Journey map"
+      },
+      {
+        "type": "contains",
+        "value": "### Steps"
+      },
+      {
+        "type": "contains",
+        "value": "### Cross-step checks"
+      },
+      {
+        "type": "contains",
+        "value": "### Open business questions"
+      },
+      {
+        "type": "contains",
+        "value": "### Not in this map"
+      },
+      {
+        "type": "contains",
+        "value": "- Loading:"
+      },
+      {
+        "type": "contains",
+        "value": "- Empty:"
+      },
+      {
+        "type": "contains",
+        "value": "- Error:"
+      },
+      {
+        "type": "contains",
+        "value": "- Success:"
+      },
+      {
+        "type": "contains",
+        "value": "- Validation:"
+      },
+      {
+        "type": "contains",
+        "value": "- Reload and back:"
+      },
+      {
+        "type": "contains",
+        "value": "- Permissions:"
+      },
+      {
+        "type": "contains",
+        "value": "[blocking]"
+      },
+      {
+        "type": "contains",
+        "value": "Q1"
+      },
+      {
+        "type": "contains",
+        "value": "Blocking questions:"
+      },
+      {
+        "type": "notContains",
+        "value": "for example"
+      },
+      {
+        "type": "notContains",
+        "value": "e.g."
+      },
+      {
+        "type": "notContains",
+        "value": "such as"
+      },
+      {
+        "type": "notContains",
+        "value": "AC-1"
+      },
+      {
+        "type": "contains",
+        "value": "Conflict:"
+      },
+      {
+        "type": "contains",
+        "value": "continue where they left off"
+      },
+      {
+        "type": "contains",
+        "value": "skip the plan step"
+      },
+      {
+        "type": "contains",
+        "value": "Up to 5 teammates"
+      },
+      {
+        "type": "contains",
+        "value": "at most 3 members"
+      },
+      {
+        "type": "maxLines",
+        "value": 130
+      }
+    ]
+  },
+  {
+    "id": "save-file-read-only",
+    "prompt": "Map the password reset workflow and save it as docs/journeys/password-reset.md: a user who forgot the password asks for a reset link by email, the link works only once, and then the user sets a new password.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Journey map"
+      },
+      {
+        "type": "contains",
+        "value": "### Steps"
+      },
+      {
+        "type": "contains",
+        "value": "### Cross-step checks"
+      },
+      {
+        "type": "contains",
+        "value": "### Open business questions"
+      },
+      {
+        "type": "contains",
+        "value": "### Not in this map"
+      },
+      {
+        "type": "contains",
+        "value": "- Loading:"
+      },
+      {
+        "type": "contains",
+        "value": "- Empty:"
+      },
+      {
+        "type": "contains",
+        "value": "- Error:"
+      },
+      {
+        "type": "contains",
+        "value": "- Success:"
+      },
+      {
+        "type": "contains",
+        "value": "- Validation:"
+      },
+      {
+        "type": "contains",
+        "value": "- Reload and back:"
+      },
+      {
+        "type": "contains",
+        "value": "- Permissions:"
+      },
+      {
+        "type": "contains",
+        "value": "[blocking]"
+      },
+      {
+        "type": "contains",
+        "value": "Q1"
+      },
+      {
+        "type": "contains",
+        "value": "Blocking questions:"
+      },
+      {
+        "type": "notContains",
+        "value": "for example"
+      },
+      {
+        "type": "notContains",
+        "value": "e.g."
+      },
+      {
+        "type": "notContains",
+        "value": "such as"
+      },
+      {
+        "type": "notContains",
+        "value": "AC-1"
+      },
+      {
+        "type": "contains",
+        "value": "journey-mapper writes no files; copy the map from this reply."
+      },
+      {
+        "type": "contains",
+        "value": "works only once"
+      },
+      {
+        "type": "contains",
+        "value": "sets a new password"
+      },
+      {
+        "type": "maxLines",
+        "value": 110
+      }
+    ]
+  }
+]
