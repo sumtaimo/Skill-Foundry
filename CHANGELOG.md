@@ -4,6 +4,16 @@ Versions of Skill Foundry itself (the `skill-foundry` command and the set of ski
 version in its folder. Versions move slowly: a bump needs the owner's approval in chat; record smaller changes under the
 current version.
 
+## 1.2.0 - 2026-11-21
+
+- `component-kit` 1.0.0 is ready: turns a project's design variables into component specs (button, input, card, dialog and more, with the eight states, ARIA and Khmer notes) and checks specs and code against `design/tokens.css`; proven by real-agent live (9 of 9), portable and routing (71 of 71) evals.
+- `design-system` 1.2.0: a design foundation with variables (`init`, `set`, `check`, `explain`) and a brief, with real-agent proof.
+- `ui-polish` 1.1.0: token mode reads the `design/` variables, keeps the modern group, reports drift and follows the Khmer rules.
+- `ui-craft` reads `design/` first, has a cold-start gate, uses the design-system token names and one Khmer line height, and no longer writes a year.
+- `ux-review` 1.0.1: boundaries synced with `ui-polish`, `ui-craft` and the design foundation.
+- The run recorder keeps up to 12000 characters of the agent reply (was 4000); routing re-recorded on the merged descriptions; Agentic-Harness template updated from 1.0.18 to 1.0.23.
+- `tests/component-kit.test.mjs` normalises CRLF line endings, so the suite also passes on a Windows checkout with `core.autocrlf`.
+
 ## 1.1.0 - 2026-11-19
 
 - `ui-craft` 1.0.0 is ready: modern 2026 product UI, command palette, adaptive navigation, lifecycle states and inline AI bars for `DEV_ENGINEER` and `UX_DESIGNER`, proven by real-agent live, portable and routing evals.

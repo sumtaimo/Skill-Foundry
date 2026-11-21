@@ -23,7 +23,8 @@ const project = (withSpecs = true) => {
   return cwd;
 };
 const tokens = K.loadTokens(SAMPLE);
-const spec = () => readFileSync(path.join(SAMPLE, 'components', 'button.md'), 'utf8');
+// Normalise line endings: a Windows checkout with core.autocrlf gives CRLF, and the replacements below match "\n".
+const spec = () => readFileSync(path.join(SAMPLE, 'components', 'button.md'), 'utf8').replace(/\r\n/g, '\n');
 const check = (text, name = 'button') => K.checkSpec(text, tokens, name);
 const put = (cwd, rel, text) => { const f = path.join(cwd, rel); mkdirSync(path.dirname(f), { recursive: true }); writeFileSync(f, text); return f; };
 
