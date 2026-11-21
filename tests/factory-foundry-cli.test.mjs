@@ -129,6 +129,21 @@ test('by default add lists the skills in AGENTS.md and denies agents edit rights
   assert.equal(readFileSync(join(bad, '.claude', 'settings.json'), 'utf8'), '{ not json');
 });
 
+test('a line-ending-only change (git autocrlf on Windows) is not a local edit: check stays clean and update still updates', () => {
+  const p = mkdtempSync(join(tmpdir(), 'sf-eol-'));
+  addSkill('copy-tight', { project: p });
+  const f = join(p, '.claude', 'skills', 'copy-tight', 'SKILL.md');
+  const text = readFileSync(f, 'utf8');
+  const flipped = text.includes('\r\n') ? text.replace(/\r\n/g, '\n') : text.replace(/\n/g, '\r\n');
+  assert.notEqual(flipped, text);
+  writeFileSync(f, flipped);
+  const st = checkProject({ project: p }).find((x) => x.name === 'copy-tight');
+  assert.deepEqual(st.modified, [], 'CRLF and LF are the same content');
+  assert.equal(st.current, true);
+  writeFileSync(f, flipped + '\nreal edit\n');
+  assert.deepEqual(checkProject({ project: p }).find((x) => x.name === 'copy-tight').modified, ['SKILL.md'], 'a real edit is still reported');
+});
+
 test('add --all, check reports local edits, remove cleans up only what we installed', () => {
   const p = mkdtempSync(join(tmpdir(), 'sf-all-')); mkdirSync(join(p, '.harness', 'skills'), { recursive: true });
   mkdirSync(join(p, '.claude', 'skills', 'mine'), { recursive: true }); writeFileSync(join(p, '.claude', 'skills', 'mine', 'SKILL.md'), 'mine');

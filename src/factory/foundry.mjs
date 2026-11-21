@@ -35,6 +35,27 @@ const MARK = 'installed-by: skill-foundry';
 export const SCHEMA_VERSION = 1;
 
 const sha = (b) => createHash('sha256').update(b).digest('hex');
+// File hashes ignore line endings: git with core.autocrlf turns LF into CRLF on a Windows checkout, and that must not
+// read as a local edit (`check` would report the skill changed and `update` would keep the old files). Binary files
+// (any NUL byte) are hashed as they are.
+const lf = (b) => (b.includes(0) ? b : Buffer.from(b.toString('utf8').replace(/\r\n/g, '\n')));
+const fileSha = (p) => sha(lf(readFileSync(p)));
+/**
+ * Does the file still match its stamp hash? Stamps written before line endings were ignored hold a raw-byte hash, which
+ * on a Windows install was the CRLF form, so the LF, the raw and the CRLF forms all count.
+ */
+const sameAs = (p, h) => {
+  if (!h) return false;
+  const b = readFileSync(p); const n = lf(b);
+  return sha(n) === h || sha(b) === h || (n !== b && sha(Buffer.from(n.toString('utf8').replace(/\n/g, '\r\n'))) === h);
+};
+/**
+ * A stamp matches a source folder when its hash is the source's, or, for a stamp written with raw CRLF hashes, when the
+ * stamp is consistent with its own file list and every source file matches it line endings aside.
+ */
+const stampMatches = (st, dir, src) => st.hash === total(src)
+  || (!!st.files && st.hash === total(st.files) && Object.keys(st.files).sort().join('\n') === Object.keys(src).sort().join('\n')
+    && Object.entries(st.files).every(([f, h]) => sameAs(join(dir, f), h)));
 /** Project/product version of Skill Foundry itself (from package.json), separate from each skill's own version. */
 export function foundryVersion(root = REPO) {
   try { const v = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version; return typeof v === 'string' && v.trim() ? v.trim() : null; } catch { return null; }
@@ -50,7 +71,7 @@ function files(dir, base = dir) {
 }
 // Evals are the lab's tests, not part of the skill a user runs: their prompts and recordings would only lead a user's agent to read test data.
 const SHIPPED = (f) => !/^evals\//.test(f);
-const hashes = (dir) => Object.fromEntries(files(dir).filter(SHIPPED).map((f) => [f, sha(readFileSync(join(dir, f)))]));
+const hashes = (dir) => Object.fromEntries(files(dir).filter(SHIPPED).map((f) => [f, fileSha(join(dir, f))]));
 const total = (h) => sha(Object.entries(h).map(([f, x]) => `${f}:${x}`).join('\n'));
 
 /** @param {{root?:string}} [o] */
@@ -151,14 +172,13 @@ export function addSkill(name, { project = process.cwd(), root = REPO, force = f
   const old = existsSync(stampPath) ? JSON.parse(readFileSync(stampPath, 'utf8')) : null;
   if (existsSync(target) && !old && !force) throw new Error(`${target} exists and was not installed by skill-foundry (use --force)`);
   const ptr = () => { const p = harnessPointer(project, s, { syncHarness }); return { harness: p && p.status !== 'collision' ? p.path : null, harnessStatus: p?.status ?? null, harnessPath: p?.path ?? null }; };
-  const locallyModified = old && Object.entries(old.files ?? {}).some(([f, h]) => !existsSync(join(target, f)) || sha(readFileSync(join(target, f))) !== h);
-  if (old && old.hash === total(src) && !(force && locallyModified)) return { name, action: 'current', kept: [], ...ptr() };
+  const locallyModified = old && Object.entries(old.files ?? {}).some(([f, h]) => !existsSync(join(target, f)) || !sameAs(join(target, f), h));
+  if (old && stampMatches(old, s.dir, src) && !(force && locallyModified)) return { name, action: 'current', kept: [], ...ptr() };
   const kept = [];
   for (const f of Object.keys(src)) {
     const to = join(target, f);
     if (old && existsSync(to) && !force) {
-      const now = sha(readFileSync(to));
-      if (now !== old.files?.[f] && now !== src[f]) { kept.push(f); continue; }
+      if (!sameAs(to, old.files?.[f]) && !sameAs(to, src[f])) { kept.push(f); continue; }
     }
     mkdirSync(dirname(to), { recursive: true });
     copyFileSync(join(s.dir, f), to);
@@ -246,8 +266,8 @@ export function checkProject({ project = process.cwd(), root = REPO } = {}) {
     const st = JSON.parse(readFileSync(join(dir, n, STAMP), 'utf8'));
     const s = cat.get(n);
     // Files whose content differs from what was installed: someone (or an agent) edited the skill.
-    const modified = Object.entries(st.files ?? {}).filter(([f, h]) => { const p = join(dir, n, f); return !existsSync(p) || sha(readFileSync(p)) !== h; }).map(([f]) => f);
-    return { name: n, installed: st.version, latest: s?.version ?? null, foundryVersion: st.foundryVersion ?? null, latestFoundry, current: !!s && st.hash === total(hashes(s.dir)), modified };
+    const modified = Object.entries(st.files ?? {}).filter(([f, h]) => { const p = join(dir, n, f); return !existsSync(p) || !sameAs(p, h); }).map(([f]) => f);
+    return { name: n, installed: st.version, latest: s?.version ?? null, foundryVersion: st.foundryVersion ?? null, latestFoundry, current: !!s && stampMatches(st, s.dir, hashes(s.dir)), modified };
   });
 }
 

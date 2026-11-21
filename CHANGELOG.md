@@ -13,6 +13,7 @@ current version.
 - `ux-review` 1.0.1: boundaries synced with `ui-polish`, `ui-craft` and the design foundation.
 - The run recorder keeps up to 12000 characters of the agent reply (was 4000); routing re-recorded on the merged descriptions; Agentic-Harness template updated from 1.0.18 to 1.0.23.
 - `tests/component-kit.test.mjs` normalises CRLF line endings, so the suite also passes on a Windows checkout with `core.autocrlf`.
+- `check` and `update` ignore line endings when they compare installed skill files: a Windows clone with `core.autocrlf` no longer reports every skill as "CHANGED LOCALLY", and `update` no longer keeps the old files because of it. Stamps written by older versions still match.
 
 ## 1.1.0 - 2026-11-19
 
