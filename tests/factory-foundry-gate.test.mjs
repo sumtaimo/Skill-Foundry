@@ -256,13 +256,17 @@ test('doctor: a pointer and its harness that disagree are reported with the exac
   assert.ok(items.some((i) => i.level === 'warn' && /needs a harness with SKILL_MATCH/.test(i.message)), 'harness downgraded: warn');
 });
 
-test('add --default installs the five default skills, and registry keywords are whole phrases of at least 4 characters', () => {
+test('add --default installs every ready portable skill (the harness installer calls it), and registry keywords are whole phrases of at least 4 characters', () => {
   const p = newProject('dflt2'); const r = run(p, ['add', '--default', '--quiet']); assert.equal(r.code, 0, r.out.join('\n'));
-  const DEFAULT = ['changelog-writer', 'copy-tight', 'spec-writer', 'test-planner', 'ux-review'];
-  assert.deepEqual(existsSync(join(p, '.claude', 'skills')) ? readdirSync(join(p, '.claude', 'skills')).sort() : [], DEFAULT, 'the default set TAIMO chose');
+  // TAIMO, 2026-11-21: the harness installs Skill Foundry by default, so every ready skill comes with it; a worker still gets
+  // only the skills that fit its role and task (keywords), each as a short pointer. Node is always there (npx runs on it).
+  const DEFAULT = catalog().filter((x) => x.scope !== 'factory').map((x) => x.name).sort();
+  assert.ok(DEFAULT.length >= 11);
+  assert.deepEqual(existsSync(join(p, '.claude', 'skills')) ? readdirSync(join(p, '.claude', 'skills')).sort() : [], DEFAULT, 'every ready portable skill');
+  assert.deepEqual(catalog().filter((x) => x.isDefault).map((x) => x.name).sort(), DEFAULT, 'registry default flag on every ready portable skill');
   const before = tree(p); const again = run(p, ['add', '--default', '--quiet']); assert.equal(again.code, 0); assert.deepEqual(tree(p), before, 'a second add --default changes nothing');
   const cat = catalog().filter((x) => DEFAULT.includes(x.name));
-  for (const x of cat) assert.ok(!existsSync(join(x.dir, 'engine')), `${x.name}: a default skill has no engine/ script (no node needed)`);
+  for (const x of cat) if (existsSync(join(x.dir, 'engine'))) assert.ok(x.engine, `${x.name}: a default skill with an engine/ script declares engine required or optional`);
   for (const role of ['BA_ANALYST', 'DEV_ENGINEER', 'QA_AUDITOR', 'UX_DESIGNER']) assert.ok(cat.some((x) => x.roles.includes(role)), `${role} has at least one usable default skill`);
   for (const s of catalog().filter((x) => x.scope !== 'factory')) {
     assert.ok(s.keywords.length >= 3, `${s.name} has its own injection keywords`);

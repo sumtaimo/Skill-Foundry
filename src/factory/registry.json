@@ -25,7 +25,8 @@
       "illustration",
       "cutaway"
     ],
-    "engine": "required"
+    "engine": "required",
+    "default": true
   },
   {
     "name": "changelog-writer",
@@ -101,7 +102,8 @@
       "contrast",
       "css cleanup"
     ],
-    "engine": "optional"
+    "engine": "optional",
+    "default": true
   },
   {
     "name": "design-system",
@@ -125,7 +127,8 @@
       "hex colour",
       "type scale"
     ],
-    "engine": "optional"
+    "engine": "optional",
+    "default": true
   },
   {
     "name": "spec-writer",
@@ -185,7 +188,8 @@
       "keyboard focus",
       "alt text"
     ],
-    "engine": "optional"
+    "engine": "optional",
+    "default": true
   },
   {
     "name": "ui-craft",
@@ -210,7 +214,8 @@
       "ui component",
       "sidebar",
       "micro-interaction"
-    ]
+    ],
+    "default": true
   },
   {
     "name": "component-kit",
@@ -230,6 +235,7 @@
       "lifecycle states"
     ],
     "engine": "optional",
-    "showcase": "spec-three"
+    "showcase": "spec-three",
+    "default": true
   }
 ]
