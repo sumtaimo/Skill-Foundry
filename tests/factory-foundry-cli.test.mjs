@@ -389,3 +389,11 @@ test('Agentic-Harness ui-craft starter copy is replaced cleanly without --sync-h
   removeSkill('ui-craft', { project: p, root });
   assert.equal(readFileSync(f, 'utf8'), starter);
 });
+
+test('doctor: an engine skill pointer keeps the role mcp__ tools (harness 1.0.34 narrowing)', () => {
+  const p = mkdtempSync(join(tmpdir(), 'sf-mcp-')); mkdirSync(join(p, '.harness', 'roles'), { recursive: true }); mkdirSync(join(p, '.harness', 'skills'), { recursive: true });
+  writeFileSync(join(p, '.harness', 'roles', 'ux-designer.json'), JSON.stringify({ name: 'UX_DESIGNER', allowedTools: ['Read', 'Edit(src/**)', 'Write(src/**)', 'Bash(node:*)', 'mcp__playwright'] }));
+  addSkill('design-system', { project: p });
+  const r = doctorProject(p);
+  assert.ok(!r.items.some((i) => i.level === 'problem' && /strips/.test(i.message)), JSON.stringify(r.items.filter((i) => i.level === 'problem')));
+});

@@ -282,13 +282,13 @@ function covers(roleRule, skillRule) {
   const prefix = ri.slice(0, -2);
   return si === prefix || si.startsWith(`${prefix} `) || si.startsWith(`${prefix}:`);
 }
-/** What the harness leaves of a role's rules after a skill with this `allowedTools` list (a copy of computeAllowedTools' narrowing step). */
+/** What the harness leaves of a role's rules after a skill with this `allowedTools` list (a copy of computeAllowedTools' narrowing step; harness 1.0.34+ also keeps the role's mcp__ rules). */
 function narrow(roleRules, list) {
   if (!list.length) return roleRules;
   const bare = new Set(list.filter((r) => !r.includes('(')).map(baseTool));
   const exact = new Map();
   for (const r of list.filter((x) => x.includes('('))) exact.set(baseTool(r), [...(exact.get(baseTool(r)) || []), r]);
-  const out = roleRules.filter((r) => READ_ONLY.has(baseTool(r)) || bare.has(baseTool(r)));
+  const out = roleRules.filter((r) => READ_ONLY.has(baseTool(r)) || baseTool(r).startsWith('mcp__') || bare.has(baseTool(r)));
   for (const [t, rules] of exact) if (!bare.has(t)) for (const sr of rules) if (roleRules.some((r) => covers(r, sr))) out.push(sr);
   return [...new Set(out)];
 }
