@@ -50,7 +50,7 @@
       },
       {
         "type": "contains",
-        "value": "browser-check-out/"
+        "value": "end-1280.png"
       },
       {
         "type": "contains",
@@ -290,6 +290,42 @@
       {
         "type": "maxLines",
         "value": 60
+      }
+    ]
+  },
+  {
+    "id": "node-denied",
+    "fixture": "signin-flow",
+    "tools": [
+      "Read",
+      "Glob",
+      "Grep"
+    ],
+    "prompt": "Open index.html in a browser and check that signing in with ana@example.test shows \"Welcome back\".",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "I could not open the page in a browser, so nothing below was checked in a browser."
+      },
+      {
+        "type": "contains",
+        "value": "Bash(node:*)"
+      },
+      {
+        "type": "contains",
+        "value": "playwright MCP"
+      },
+      {
+        "type": "contains",
+        "value": "NOT RUN"
+      },
+      {
+        "type": "notContains",
+        "value": "PASS:"
+      },
+      {
+        "type": "maxLines",
+        "value": 45
       }
     ]
   }

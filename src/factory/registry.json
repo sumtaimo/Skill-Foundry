@@ -242,13 +242,14 @@
       "DEV_ENGINEER"
     ],
     "keywords": [
-      "browser",
+      "in the browser",
+      "in a browser",
+      "browser check",
       "screenshot",
       "end-to-end",
       "journey test",
       "console error",
-      "click through",
-      "ui test"
+      "click through"
     ],
     "engine": "optional"
   }

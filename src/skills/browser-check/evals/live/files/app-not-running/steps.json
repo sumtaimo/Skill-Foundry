@@ -1,5 +1,0 @@
-[
-  { "do": "find", "value": "Add to cart" },
-  { "do": "find", "value": "Pay" },
-  { "do": "screenshot", "value": "start" }
-]

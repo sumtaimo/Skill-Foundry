@@ -18,7 +18,7 @@ Typed values: "ana@example.test"
 2. PASS: see "Enter your email."
 3. PASS: type "ana@example.test" in Email
 4. PASS: click Sign in
-5. FAIL: see "Welcome back". The text did not appear within 5 seconds; screenshot browser-check-out/fail-step-5.png
+5. FAIL: see "Welcome back". The text did not appear within 5 seconds; screenshot /tmp/browser-check-<time>/fail-step-5.png
 
 ### Console and page errors
 - None.
@@ -27,9 +27,9 @@ Typed values: "ana@example.test"
 - GET http://127.0.0.1:41234/api/login answered HTTP 404
 
 ### Screenshots
-- browser-check-out/fail-step-5.png
-- browser-check-out/end-1280.png
-- browser-check-out/end-390.png
+- /tmp/browser-check-<time>/fail-step-5.png
+- /tmp/browser-check-<time>/end-1280.png
+- /tmp/browser-check-<time>/end-390.png
 
 ### Not checked
 - Accessibility, visual design and other browsers than Chromium.

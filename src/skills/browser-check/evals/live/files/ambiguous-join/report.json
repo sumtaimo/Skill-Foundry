@@ -1,8 +1,8 @@
 {
   "ok": false,
-  "target": "/tmp/bc-live-pzxaHr/project/index.html",
+  "target": "/tmp/bc-live-oRqF3Z/project/index.html",
   "title": "Team",
-  "finalUrl": "http://127.0.0.1:40609/index.html",
+  "finalUrl": "http://127.0.0.1:40779/index.html",
   "widths": [
     1280,
     390
@@ -31,8 +31,8 @@
   "console": [],
   "requests": [],
   "screenshots": [
-    "browser-check-out/fail-step-2.png",
-    "browser-check-out/end-1280.png",
-    "browser-check-out/end-390.png"
+    "/tmp/browser-check-2026-11-21T16-53-31-247Z/fail-step-2.png",
+    "/tmp/browser-check-2026-11-21T16-53-31-247Z/end-1280.png",
+    "/tmp/browser-check-2026-11-21T16-53-31-247Z/end-390.png"
   ]
 }

@@ -1,0 +1,8 @@
+{
+  "case": "node-denied",
+  "prompt": "Open index.html in a browser and check that signing in with ana@example.test shows \"Welcome back\".",
+  "agent": "claude -p (fresh agent; cwd an empty project folder outside the repository with the case fixture; only a copy of the skill folder without evals; tools Read Glob Grep only, no file-writing tool (like a harness worker without assigned files); no Playwright MCP)",
+  "recordedAt": "2026-11-21",
+  "output": "I could not open the page in a browser, so nothing below was checked in a browser.\n\n## Browser check: sign in with ana@example.test\n\nPage: /tmp/bc-live-Kcwc2w/project/index.html · Browser: none (the `node` command for the check script was not approved) · Widths: 1280 and 390 px (planned)\nResult: 0 of 4 steps passed. NOT RUN\nTyped values: none (planned: \"ana@example.test\")\n\n### Steps\n1. NOT RUN: open /tmp/bc-live-Kcwc2w/project/index.html\n2. NOT RUN: type \"ana@example.test\" in Email\n3. NOT RUN: press Sign in\n4. NOT RUN: see \"Welcome back\"\n\n### Console and page errors\n- None (nothing ran).\n\n### Failed requests\n- None (nothing ran).\n\n### Screenshots\n- None.\n\n### Not checked\n- Accessibility, visual design and browsers other than Chromium.\n- Steps you did not name.\n\n### Open questions\n- Enable the playwright MCP browser tools, or allow `Bash(node:*)` for this agent, then ask again. This is the command that will run:\n  `node /tmp/bc-live-Kcwc2w/skills/browser-check/engine/check.mjs --file /tmp/bc-live-Kcwc2w/project/index.html --steps '[{\"do\":\"fill\",\"target\":\"label=Email\",\"value\":\"ana@example.test\"},{\"do\":\"click\",\"target\":\"role=button[name=Sign in]\"},{\"do\":\"expect-text\",\"value\":\"Welcome back\"}]'`",
+  "files": []
+}

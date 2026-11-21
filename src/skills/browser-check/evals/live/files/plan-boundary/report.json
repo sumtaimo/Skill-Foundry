@@ -1,8 +1,8 @@
 {
   "ok": false,
-  "target": "/tmp/bc-live-scKLfg/project/cart.html",
+  "target": "/tmp/bc-live-javHc3/project/cart.html",
   "title": "Cart",
-  "finalUrl": "http://127.0.0.1:35455/cart.html",
+  "finalUrl": "http://127.0.0.1:39015/cart.html",
   "widths": [
     1280,
     390
@@ -33,7 +33,7 @@
   "console": [],
   "requests": [],
   "screenshots": [
-    "browser-check-out/end-1280.png",
-    "browser-check-out/end-390.png"
+    "/tmp/browser-check-2026-11-21T16-53-27-399Z/end-1280.png",
+    "/tmp/browser-check-2026-11-21T16-53-27-399Z/end-390.png"
   ]
 }

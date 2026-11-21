@@ -1,8 +1,8 @@
 {
   "ok": false,
-  "target": "/tmp/bc-live-gALKZr/project/index.html",
+  "target": "/tmp/bc-live-gSnDFA/project/index.html",
   "title": "Acme sign in",
-  "finalUrl": "http://127.0.0.1:36159/index.html",
+  "finalUrl": "http://127.0.0.1:42575/index.html",
   "widths": [
     1280,
     390
@@ -10,42 +10,30 @@
   "steps": [
     {
       "n": 1,
-      "step": "find \"Sign in\"",
-      "status": "PASS",
-      "note": "found button \"Sign in\""
-    },
-    {
-      "n": 2,
-      "step": "find \"Email\"",
-      "status": "PASS",
-      "note": "found field \"Email\""
-    },
-    {
-      "n": 3,
       "step": "click \"role=button[name=Sign in]\"",
       "status": "PASS",
       "note": "used button \"Sign in\""
     },
     {
-      "n": 4,
+      "n": 2,
       "step": "expect-text \"Enter your email.\"",
       "status": "PASS",
       "note": ""
     },
     {
-      "n": 5,
+      "n": 3,
       "step": "fill \"label=Email\" with \"ana@example.test\"",
       "status": "PASS",
       "note": "used input \"Email\""
     },
     {
-      "n": 6,
+      "n": 4,
       "step": "click \"role=button[name=Sign in]\"",
       "status": "PASS",
       "note": "used button \"Sign in\""
     },
     {
-      "n": 7,
+      "n": 5,
       "step": "expect-text \"Signed in as ana@example.test\"",
       "status": "FAIL",
       "note": "locator.waitFor: Timeout 5000ms exceeded."
@@ -56,11 +44,11 @@
     "error: Failed to load resource: the server responded with a status of 404 (Not Found)"
   ],
   "requests": [
-    "POST http://127.0.0.1:36159/api/login answered HTTP 404"
+    "POST http://127.0.0.1:42575/api/login answered HTTP 404"
   ],
   "screenshots": [
-    "browser-check-out/fail-step-7.png",
-    "browser-check-out/end-1280.png",
-    "browser-check-out/end-390.png"
+    "/tmp/browser-check-2026-11-21T16-53-24-977Z/fail-step-5.png",
+    "/tmp/browser-check-2026-11-21T16-53-24-977Z/end-1280.png",
+    "/tmp/browser-check-2026-11-21T16-53-24-977Z/end-390.png"
   ]
 }

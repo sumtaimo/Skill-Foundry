@@ -25,7 +25,7 @@ Prefer `label=` for fields and `role=button[name=...]` for buttons: they match w
 An exact name wins first (`Join` is the button Join, not "Join the team"); a partial match is used only when nothing is exact.
 Each action step reports the element it used. With no match, or several, the step fails and lists the closest controls on the page.
 
-Example `browser-check-out/steps.json`:
+Example steps (passed inline as `--steps '<this array on one line>'`):
 
 ```json
 [
@@ -54,7 +54,7 @@ Example `browser-check-out/steps.json`:
 - Command: `node <path of this skill>/engine/check.mjs (--file <page.html> | --url <address>) [--steps <file>] [--out <dir>] [--widths 1280,390] [--allow-host <host>]`.
 - `--file` serves the file's folder on 127.0.0.1 with a free port, so no server needs to be started.
 - `--allow-host` lets the script open one more host; use it only for an address the user typed.
-- Output folder: `browser-check-out/` by default, with `end-<width>.png`, `fail-step-<n>.png`, named screenshots and `report.json`.
+- Output folder: a new `browser-check-<time>` folder in the system temp folder by default (never the project; `--out <dir>` to choose), with `end-<width>.png`, `fail-step-<n>.png`, named screenshots and `report.json`.
 - Exit codes: 0 every step passed and the page threw no error; 1 a step failed or the page threw; 2 it could not run.
 - After a failed step the later steps are NOT RUN; the screenshots at the end are still taken.
 - It needs Node.js 18 or later and the `playwright` package (project or global) with its Chromium. When either is missing it prints what to install and exits 2.

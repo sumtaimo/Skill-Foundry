@@ -1,5 +1,0 @@
-[
-  { "do": "fill", "target": "label=Quantity", "value": "3" },
-  { "do": "expect-text", "value": "Total: $60" },
-  { "do": "click", "target": "role=button[name=Go to payment]" }
-]

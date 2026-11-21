@@ -57,5 +57,8 @@ test('a real run on a local file reports PASS, FAIL, NOT RUN, errors and screens
   assert.match(r.stdout, /3\. FAIL: expect-text "Nope"/);
   assert.match(r.stdout, /4\. NOT RUN/);
   assert.match(r.stdout, /console error: boom/);
-  for (const f of ['fail-step-3.png', 'end-1280.png', 'end-390.png', 'report.json']) assert.ok(existsSync(join(dir, 'browser-check-out', f)), f);
+  assert.ok(!existsSync(join(dir, 'browser-check-out')), 'nothing is written in the project');
+  const shots = [...r.stdout.matchAll(/^- (\/.+\.png)$/gm)].map((m) => m[1]);
+  assert.deepEqual(shots.map((f) => f.split('/').pop()), ['fail-step-3.png', 'end-1280.png', 'end-390.png']);
+  for (const f of shots) assert.ok(existsSync(f) && f.startsWith(tmpdir()), f);
 });

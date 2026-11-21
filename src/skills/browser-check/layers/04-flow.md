@@ -12,8 +12,8 @@ Part A, browser tools:
 
 Part B, the script:
 
-7. Write the steps as a JSON array to `browser-check-out/steps.json` with the file-writing tool (references, table 1).
-8. Run ONE plain command: `node <path of this skill>/engine/check.mjs --file <page.html> --steps browser-check-out/steps.json` or the same with `--url <address>`.
+7. Write the steps as one JSON array (references, table 1) and pass it inline with `--steps '<json>'`; write no steps file.
+8. Run ONE plain command: `node <path of this skill>/engine/check.mjs --file <page.html> --steps '<json>'` or the same with `--url <address>`.
 9. Read the script output. Exit 0 means every step passed and the page threw no error; 1 means a step failed or the page threw; 2 means it could not run (layer 06, step 2).
 10. When a step fails because the target was not found, you may correct the kind of target once (for example `text=` to `label=`, with the same words) and run again; say so in the reply. Never change the user's words or what the step checks.
 

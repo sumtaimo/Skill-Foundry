@@ -1,8 +1,8 @@
 {
   "ok": true,
-  "target": "/tmp/bc-live-QDMh0D/project/index.html",
+  "target": "/tmp/bc-live-PseR66/project/index.html",
   "title": "Newsletter",
-  "finalUrl": "http://127.0.0.1:41133/index.html",
+  "finalUrl": "http://127.0.0.1:41427/index.html",
   "widths": [
     1280,
     390
@@ -43,7 +43,7 @@
   "console": [],
   "requests": [],
   "screenshots": [
-    "browser-check-out/end-1280.png",
-    "browser-check-out/end-390.png"
+    "/tmp/browser-check-2026-11-21T16-53-23-745Z/end-1280.png",
+    "/tmp/browser-check-2026-11-21T16-53-23-745Z/end-390.png"
   ]
 }

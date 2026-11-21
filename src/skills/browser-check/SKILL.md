@@ -15,12 +15,14 @@ Every PASS comes from a real browser: the Playwright browser tools when the agen
 Only these shell commands are needed. Each is one plain command with the full path of the script:
 no `cd`, no `node -e`, no shell variables, no pipes, no `;` or `&&`, no temporary scripts.
 
-- `node <path of this skill>/engine/check.mjs --file <page.html> --steps <steps.json>`
-- `node <path of this skill>/engine/check.mjs --url http://localhost:<port>/<path> --steps <steps.json>`
+- `node <path of this skill>/engine/check.mjs --file <page.html> --steps '<steps as one JSON array>'`
+- `node <path of this skill>/engine/check.mjs --url http://localhost:<port>/<path> --steps '<steps as one JSON array>'`
 - add `--allow-host <host>` only for a preview address the user typed themselves; add `--widths 1280,390` to change widths.
 
-Write the steps file with the file-writing tool, inside `browser-check-out/`. Never install anything, start a server
-or run the user's own scripts without asking; when the app is not running, ask the user to start it (layer 06).
+Give the steps inline with `--steps`; write no file. The script saves screenshots in the system temp folder, never in
+the project. When neither the browser tools nor this `node` command is allowed (an agent harness role without
+`Bash(node:*)` and without the playwright MCP preset), do not try other commands: reply with layer 06, step 2.
+Never install anything, start a server or run the user's own scripts without asking.
 
 ## When to use
 

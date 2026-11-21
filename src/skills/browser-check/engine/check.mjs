@@ -5,7 +5,7 @@
  * report to copy into the reply. It is the fallback when the agent has no Playwright MCP browser tools.
  *
  * Run as ONE plain command with the path of this file:
- *   node <skill>/engine/check.mjs --file <page.html> [--steps <steps.json>] [--out <dir>] [--widths 1280,390]
+ *   node <skill>/engine/check.mjs --file <page.html> [--steps '<json array>' | --steps <file>] [--out <dir>] [--widths 1280,390]
  *   node <skill>/engine/check.mjs --url http://localhost:3000/ [--steps <steps.json>] [--allow-host <host>]
  *
  * The steps name elements in the user's words; each action reports the element it used, and when no element or several
@@ -13,13 +13,15 @@
  * Steps file: a JSON array, e.g. [{"do":"fill","target":"label=Email","value":"a@example.test"},{"do":"click","target":"text=Sign in"},
  *   {"do":"expect-text","value":"Welcome"}]. Actions: goto, find, click, fill, press, select, check, expect-text, expect-no-text,
  *   expect-url, wait, screenshot. Targets: "text=...", "label=...", "role=button[name=...]", "placeholder=..." or a CSS selector.
+ * Screenshots and report.json go to a new folder in the system temp folder unless --out is given; nothing is written in the project.
  * Exit codes: 0 every step passed and no page error, 1 a step failed or the page threw, 2 the check could not run.
  * Node.js 18+; needs the playwright package in the project or installed globally. No other dependency.
  */
 import { createServer } from 'node:http';
 import { createRequire } from 'node:module';
 import { readFileSync, existsSync, mkdirSync, writeFileSync, statSync } from 'node:fs';
-import { resolve, dirname, join, extname, basename, relative, sep } from 'node:path';
+import { resolve, dirname, join, extname, basename, relative, sep, isAbsolute } from 'node:path';
+import { tmpdir } from 'node:os';
 
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '[::1]', '0.0.0.0']);
 const ACTIONS = ['goto', 'find', 'click', 'fill', 'press', 'select', 'check', 'expect-text', 'expect-no-text', 'expect-url', 'wait', 'screenshot'];
@@ -231,7 +233,8 @@ async function main() {
   try { browser = await found.pw.chromium.launch(); }
   catch (e) { server?.close(); cannotRun(`the Chromium browser did not start (${short(e)})`, 'install the browser once with "npx playwright install chromium", then ask again'); }
 
-  const outDir = resolve(o.out || 'browser-check-out');
+  // Default output is the system temp folder, never the project: an agent harness may move or refuse new project files.
+  const outDir = resolve(o.out || join(tmpdir(), `browser-check-${new Date().toISOString().replace(/[:.]/g, '-')}`));
   mkdirSync(outDir, { recursive: true });
   const consoleMsgs = []; const pageErrors = []; const badRequests = [];
   const context = await browser.newContext({ viewport: { width: o.widths[0], height: 900 } });
@@ -273,7 +276,7 @@ async function main() {
   const finalUrl = page.url();
   await browser.close(); server?.close();
 
-  const rel = (f) => relative(process.cwd(), join(outDir, f)).split(sep).join('/');
+  const rel = (f) => { const p = join(outDir, f); const r = relative(process.cwd(), p); return (r.startsWith('..') || isAbsolute(r) ? p : r).split(sep).join('/'); };
   const ok = opened && !failed && pageErrors.length === 0;
   const passed = results.filter((r) => r.status === 'PASS').length;
   const lines = [
