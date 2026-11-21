@@ -4,6 +4,10 @@ Versions of Skill Foundry itself (the `skill-foundry` command and the set of ski
 version in its folder. Versions move slowly: a bump needs the owner's approval in chat; record smaller changes under the
 current version.
 
+## 1.3.1 - 2026-11-21
+
+- New `list --json`: every ready portable skill, installed or not, with name, version, description, roles, keywords, default, engine, installed version and current. JSON only on stdout, exit 0, read from the registry in the package (works offline). The Agentic-Harness reads it to add a skill the first time a task needs it (planned for harness 1.0.32). Nothing else changes; the default set stays as in 1.3.0 until that harness is released.
+
 ## 1.3.0 - 2026-11-21
 
 - Every ready portable skill is now a default skill (11: the old five plus design-system, ui-craft, ui-polish, component-kit, a11y-audit, figure-craft). The Agentic-Harness installer runs `add --default` once, so a new harness project gets every skill wired to its roles with no second command. A worker still gets only the skills that fit its role and the words of its task, each as a short pointer. The old rule that a default skill has no `engine/` script is dropped: Node.js is always there, because `npx` and the harness run on it; every engine skill declares `engine: required | optional`. Projects that already have the old defaults see the new ones in `check` and `doctor` and add them with `add --default`.

@@ -461,6 +461,16 @@ export function main(argv, log = console.log) {
   };
   if (cmd === '--version' || cmd === '-v') {
     log(foundryVersion() ?? 'unknown');
+  } else if (cmd === 'list' && rest.includes('--json')) {
+    // Machine contract for the Agentic-Harness on-demand fetch: every READY portable skill, installed or not, from the
+    // registry shipped in this package (works offline). stdout is only the JSON array; exit 0.
+    let have = new Map();
+    try { have = new Map(checkProject({ project }).map((x) => [x.name, x])); } catch { /* no project skills: none installed */ }
+    const out = catalog().filter((s) => s.scope !== 'factory').map((s) => {
+      const h = have.get(s.name);
+      return { name: s.name, version: s.version, description: s.description, roles: s.roles, keywords: s.keywords, default: s.isDefault, engine: s.engine, installed: h ? h.installed : null, current: h ? h.current : null };
+    });
+    process.stdout.write(`${JSON.stringify(out, null, 2)}\n`);
   } else if (cmd === 'list') {
     const pv = foundryVersion();
     if (pv) log(`Skill Foundry ${pv}`);
@@ -517,7 +527,7 @@ export function main(argv, log = console.log) {
     if (r.length && !rest.includes('--no-protect')) protectSkills();
     if (r.length && !rest.includes('--quiet')) summary(log, project);
   } else {
-    log(`skill-foundry${foundryVersion() ? ` ${foundryVersion()}` : ''} list | add <skill…> | add --all | add --role <ROLE> | check [--json] | update [skill…] [--force] | remove <skill…> | doctor [--fix] [--json] | --version\n  Roles: ${ROLES.join(', ')} (and any role in the project's .harness/roles/).\n  By default add also (1) lists the skills in AGENTS.md so any agent uses them, and (2) denies agents edit rights on the installed skills in .claude/settings.json.\n  --no-rules  skip (1)   --no-protect  skip (2)   --sync-harness  replace a project's own .harness/skills/<name> (original kept)   --quiet  no doctor summary\n  Existing text and settings are kept. Running add or update again changes nothing that is already in place.\n  doctor exit codes: 0 healthy, 2 warnings or problems, 1 usage error.`);
+    log(`skill-foundry${foundryVersion() ? ` ${foundryVersion()}` : ''} list [--json] | add <skill…> | add --all | add --role <ROLE> | check [--json] | update [skill…] [--force] | remove <skill…> | doctor [--fix] [--json] | --version\n  Roles: ${ROLES.join(', ')} (and any role in the project's .harness/roles/).\n  By default add also (1) lists the skills in AGENTS.md so any agent uses them, and (2) denies agents edit rights on the installed skills in .claude/settings.json.\n  --no-rules  skip (1)   --no-protect  skip (2)   --sync-harness  replace a project's own .harness/skills/<name> (original kept)   --quiet  no doctor summary\n  Existing text and settings are kept. Running add or update again changes nothing that is already in place.\n  doctor exit codes: 0 healthy, 2 warnings or problems, 1 usage error.`);
     return cmd ? 1 : 0;
   }
   return 0;

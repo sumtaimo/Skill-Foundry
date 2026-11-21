@@ -274,6 +274,24 @@ test('add --default installs every ready portable skill (the harness installer c
   }
 });
 
+test('list --json contract (the harness on-demand fetch depends on it): every ready portable skill, installed or not, only JSON on stdout, exit 0', () => {
+  const FOUNDRY = join(FIXTURES, '..', '..', '..', 'src', 'factory', 'foundry.mjs');
+  const p = newProject('lst'); run(p, ['add', 'copy-tight', '--quiet']);
+  const r = spawnSync(process.execPath, [FOUNDRY, 'list', '--json'], { cwd: p, encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr); assert.equal(r.stdout.trim()[0], '[', 'stdout is only the JSON array');
+  const list = JSON.parse(r.stdout);
+  assert.deepEqual(list.map((x) => x.name).sort(), catalog().filter((x) => x.scope !== 'factory').map((x) => x.name).sort(), 'every ready portable skill, no factory skill');
+  for (const x of list) {
+    assert.deepEqual(Object.keys(x).sort(), ['current', 'default', 'description', 'engine', 'installed', 'keywords', 'name', 'roles', 'version'].sort(), x.name);
+    assert.ok(Array.isArray(x.roles) && x.roles.length && Array.isArray(x.keywords) && x.keywords.length, `${x.name}: roles and keywords for matching`);
+    assert.equal(typeof x.default, 'boolean');
+  }
+  const ct = list.find((x) => x.name === 'copy-tight'); assert.equal(ct.installed, ct.version); assert.equal(ct.current, true);
+  const other = list.find((x) => x.name !== 'copy-tight'); assert.equal(other.installed, null); assert.equal(other.current, null);
+  const empty = spawnSync(process.execPath, [FOUNDRY, 'list', '--json'], { cwd: newProject('lst0'), encoding: 'utf8' });
+  assert.equal(empty.status, 0); assert.ok(JSON.parse(empty.stdout).every((x) => x.installed === null), 'no skills installed: all null');
+});
+
 test('check --json contract (the harness session-start check depends on it): exit 0 when current, exit 2 when outdated or edited, always only JSON on stdout', () => {
   const FOUNDRY = join(FIXTURES, '..', '..', '..', 'src', 'factory', 'foundry.mjs');
   const p = newProject('chk'); run(p, ['add', 'copy-tight', '--quiet']);
