@@ -161,5 +161,6 @@
       ],
       "binaryCandidatesNote": "Used only when 'codex' is not on PATH: the Windows Codex desktop app (Store package OpenAI.Codex) ships the CLI in its install folder without adding it to PATH, and Node may not list C:\\Program Files\\WindowsApps, so it is found through Get-AppxPackage (seen 2026-11-20, codex-cli 0.167.0-alpha.4.1)."
     }
-  }
+  },
+  "skillFetch": false
 }

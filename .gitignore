@@ -51,3 +51,5 @@ node_modules
 # Each person's own profile (name, language, answer style, hats); profile.md is the shared project profile
 .harness/memory/me.md
 .harness/update-check.json
+.harness/skill-registry.json
+.harness/skill-fetch.lock

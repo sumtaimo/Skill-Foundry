@@ -8,6 +8,7 @@ current version.
 
 - The default set is a small core again, one starter skill per role (TAIMO: "Small core, fetch rest"): spec-writer (PO, BA), design-system (UX), copy-tight (DEV), test-planner (QA). The Agentic-Harness installer adds this core once; harness 1.0.32 or later adds any other skill the first time a task needs it (from `list --json`), at most two skills per task, and says which skill it added and why. Projects that already have more skills keep them.
 - README and landing describe the core set and the fetch on demand.
+- The lab's own harness is updated to Agentic-Harness 1.0.32, with `"skillFetch": false`: this repository is the skill source, so its harness never fetches skills into `.claude/skills/`.
 
 ## 1.3.1 - 2026-11-21
 

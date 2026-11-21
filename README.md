@@ -57,7 +57,7 @@ npm run dev                      # build and preview the showcase site locally
 
 ## Work in this repository (the lab)
 
-Run `npm run setup` once per clone to enable the `.githooks` pre-commit `skill-guard` hook (`AGENTS.md`, one skill per session). The local harness controller runs Agentic-Harness `1.0.31` inside `.harness/`.
+Run `npm run setup` once per clone to enable the `.githooks` pre-commit `skill-guard` hook (`AGENTS.md`, one skill per session). The local harness controller runs Agentic-Harness `1.0.32` inside `.harness/`, with `"skillFetch": false` in its config: this repository is the skill source, so its harness never fetches skills into `.claude/skills/`.
 
 Release flow:
 1. Build or update at most one skill per session on `lab`, following `docs/factory/STANDARD.md` and `docs/factory/QUALITY-LAYERS.md`.
