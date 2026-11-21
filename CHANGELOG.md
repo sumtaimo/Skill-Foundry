@@ -6,6 +6,7 @@ current version.
 
 ## 1.4.0 - 2026-11-21
 
+- CI: the Pages workflow builds and deploys in two jobs, so deploy no longer misses the artifact.
 - CI: GitHub Actions moved to the Node.js 24 versions (checkout v7, setup-node v7, upload-pages-artifact v5, deploy-pages v5).
 - `doctor` mirrors Agentic-Harness 1.0.34: when a skill pointer narrows a worker's tools, the role's own `mcp__` tools are kept (like Read/Grep), so engine skills no longer report "strips mcp__playwright".
 - Memory rule L1: talk with the owner in Khmer.
