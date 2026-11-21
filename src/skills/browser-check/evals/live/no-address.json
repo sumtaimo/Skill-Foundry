@@ -1,0 +1,8 @@
+{
+  "case": "no-address",
+  "prompt": "Can you click through our sign-up flow in the browser and tell me if it works?",
+  "agent": "claude -p (fresh agent; cwd an empty project folder outside the repository with the case fixture; only a copy of the skill folder without evals; tools Read Glob Grep Bash(node:*) only, no file-writing tool (like a harness worker without assigned files); no Playwright MCP)",
+  "recordedAt": "2026-11-21",
+  "output": "Which local address or HTML file should I open? For example http://localhost:3000/ or index.html.",
+  "files": []
+}

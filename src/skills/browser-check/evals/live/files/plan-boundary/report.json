@@ -1,0 +1,39 @@
+{
+  "ok": false,
+  "target": "/tmp/bc-live-javHc3/project/cart.html",
+  "title": "Cart",
+  "finalUrl": "http://127.0.0.1:39015/cart.html",
+  "widths": [
+    1280,
+    390
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "step": "fill \"label=Quantity\" with \"3\"",
+      "status": "PASS",
+      "note": "used input \"Quantity\""
+    },
+    {
+      "n": 2,
+      "step": "expect-text \"Total: $60\"",
+      "status": "PASS",
+      "note": ""
+    },
+    {
+      "n": 3,
+      "step": "click \"role=button[name=Go to payment]\"",
+      "status": "PASS",
+      "note": "used button \"Go to payment\""
+    }
+  ],
+  "pageErrors": [
+    "payment is not configured"
+  ],
+  "console": [],
+  "requests": [],
+  "screenshots": [
+    "/tmp/browser-check-2026-11-21T16-53-27-399Z/end-1280.png",
+    "/tmp/browser-check-2026-11-21T16-53-27-399Z/end-390.png"
+  ]
+}

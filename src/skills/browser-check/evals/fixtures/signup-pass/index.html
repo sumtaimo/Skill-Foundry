@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Newsletter</title></head>
+<body>
+  <h1>Join the newsletter</h1>
+  <form id="f">
+    <label>Name <input id="name"></label>
+    <label>Email <input id="email" type="email"></label>
+    <label><input id="terms" type="checkbox"> I agree to the terms</label>
+    <button type="submit">Join</button>
+  </form>
+  <p id="msg" role="status"></p>
+  <script>
+    document.getElementById('f').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const msg = document.getElementById('msg');
+      if (!document.getElementById('terms').checked) { msg.textContent = 'Please accept the terms.'; return; }
+      msg.textContent = 'Thanks, ' + document.getElementById('name').value + '! Check your inbox.';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+{
+  "ok": false,
+  "target": "/tmp/bc-live-oRqF3Z/project/index.html",
+  "title": "Team",
+  "finalUrl": "http://127.0.0.1:40779/index.html",
+  "widths": [
+    1280,
+    390
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "step": "fill \"label=email\" with \"ana@example.test\"",
+      "status": "PASS",
+      "note": "used input \"Work email\""
+    },
+    {
+      "n": 2,
+      "step": "click \"role=button[name=Join]\"",
+      "status": "FAIL",
+      "note": "2 visible elements match \"role=button[name=Join]\"; ask the user which one: button \"Join the team\", button \"Join the waitlist\""
+    },
+    {
+      "n": 3,
+      "step": "expect-text \"Request sent\"",
+      "status": "NOT RUN",
+      "note": "an earlier step failed"
+    }
+  ],
+  "pageErrors": [],
+  "console": [],
+  "requests": [],
+  "screenshots": [
+    "/tmp/browser-check-2026-11-21T16-53-31-247Z/fail-step-2.png",
+    "/tmp/browser-check-2026-11-21T16-53-31-247Z/end-1280.png",
+    "/tmp/browser-check-2026-11-21T16-53-31-247Z/end-390.png"
+  ]
+}

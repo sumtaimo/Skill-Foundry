@@ -1,69 +1,329 @@
 [
-  { "id": "r1", "prompt": "Our signup button says \"Click here to begin the registration process\". Can you make it shorter?", "expect": "copy-tight" },
-  { "id": "r2", "prompt": "We bumped the skill to 2.1.0 after adding a new step, write the changelog entry.", "expect": "changelog-writer" },
-  { "id": "r3", "prompt": "Show me how a message queue works, with a picture I can put in the docs.", "expect": "figure-craft" },
-  { "id": "r4", "prompt": "Turn our code review checklist into a reusable skill.", "expect": "skill-smith" },
-  { "id": "r5", "prompt": "Make a pie chart of our revenue by region.", "expect": "none" },
-  { "id": "r6", "prompt": "Write a commit message for my last change.", "expect": "none" },
-  { "id": "r7", "prompt": "Translate this button label into Korean.", "expect": "none" },
-  { "id": "r8", "prompt": "Draw an illustration explaining how DNS resolution works step by step.", "expect": "figure-craft" },
-  { "id": "r9", "prompt": "This error toast is too wordy: \"An unexpected error has occurred while attempting to save your changes.\"", "expect": "copy-tight" },
-  { "id": "r10", "prompt": "Write a 2000-word blog post about our new release.", "expect": "none" },
-  { "id": "r11", "prompt": "Design a login screen mockup for our app.", "expect": "ui-craft" },
-  { "id": "r12", "prompt": "I keep doing the same release checklist by hand every week, can we package that up for agents?", "expect": "skill-smith" },
-  { "id": "r13", "prompt": "What should we retest after this change? We moved the invoice export button from the toolbar to the File menu.", "expect": "test-planner" },
-  { "id": "r14", "prompt": "Here is the diff for our new login throttle. Give me a regression checklist for it.", "expect": "test-planner" },
-  { "id": "r15", "prompt": "Write Jest unit tests for our promo code validator.", "expect": "none" },
-  { "id": "r16", "prompt": "Review this pull request for bugs and security problems.", "expect": "none" },
-  { "id": "r17", "prompt": "Here is the HTML and CSS of our finished settings card. Spacing and contrast look off; do a final pixel pass before we ship.", "expect": "ui-polish" },
-  { "id": "r18", "prompt": "This React button bar looks cluttered, both buttons are the same blue. Make it look cleaner. (code pasted)", "expect": "ui-polish" },
-  { "id": "r19", "prompt": "Design a brand new pricing page for our app from scratch.", "expect": "ui-craft" },
-  { "id": "r20", "prompt": "The label on this button is too wordy: \"Click here to save all of your changes\". Shorten it.", "expect": "copy-tight" },
-  { "id": "r21", "prompt": "Our brand colour is #0d9488. Generate a full set of design tokens for us, with light and dark mode.", "expect": "design-system" },
-  { "id": "r22", "prompt": "We already have a tokens.css with colours and spacing. Add the missing dark mode and motion tokens without touching what is there.", "expect": "design-system" },
-  { "id": "r23", "prompt": "Give our meditation app a calm, soft colour palette and type scale that developers can use as tokens.", "expect": "design-system" },
-  { "id": "r24", "prompt": "Build me a complete landing page in our brand colour #0d9488.", "expect": "ui-craft" },
-  { "id": "r25", "prompt": "Our theme switch says \"Click here to switch between the light and the dark colour theme\". Make it shorter.", "expect": "copy-tight" },
-  { "id": "r26", "prompt": "Here is the CSS of our finished checkout card; the grey text is hard to read and the spacing is uneven. Do a final pixel pass.", "expect": "ui-polish" },
-  { "id": "r-uip-1", "prompt": "Here is our tokens.css and the CSS of our finished billing card. Do a final polish pass and use our tokens instead of raw values.", "expect": "ui-polish" },
-  { "id": "r-uip-2", "prompt": "We use Tailwind with CSS variables from our design tokens. This React toolbar looks off, do a pixel pass with our variables. (code pasted)", "expect": "ui-polish" },
-  { "id": "r-uip-3", "prompt": "Our design/tokens.css has component variables like --button-primary-bg and --card-radius. Here is the CSS of our finished card; do a final polish pass using those variables.", "expect": "ui-polish" },
-  { "id": "sw1", "prompt": "Write acceptance criteria for this user story: As a shopper, I want to save my cart so that I can finish the order later.", "expect": "spec-writer" },
-  { "id": "sw2", "prompt": "Here is the feature request our client sent (pasted below). Turn it into Given-When-Then scenarios the team can build and test against.", "expect": "spec-writer" },
-  { "id": "sw3", "prompt": "Spec this requirement so QA knows when it is done: only admins can delete a project, and deleted projects stay in Trash for 30 days.", "expect": "spec-writer" },
-  { "id": "sw4", "prompt": "We merged the promo code change yesterday; here is its description. What do we need to retest before the release?", "expect": "test-planner" },
-  { "id": "sw5", "prompt": "Give me a regression checklist for the pull request that changed the password reset flow (diff pasted).", "expect": "test-planner" },
-  { "id": "sw6", "prompt": "Write Playwright tests for the acceptance criteria below.", "expect": "none" },
-  { "id": "sw7", "prompt": "Estimate the story points for these five tickets and tell me which to build first.", "expect": "none" },
-  { "id": "sw8", "prompt": "We added password reset by email in 3.1.0. Write the changelog entry for that release.", "expect": "changelog-writer" },
-  { "id": "sw9", "prompt": "Our password reset error says \"We were unfortunately unable to reset your password at this point in time\". Tighten it.", "expect": "copy-tight" },
-  { "id": "ux1", "prompt": "Here is our 5-step signup flow, described step by step. Do a usability review and tell me where users will get stuck.", "expect": "ux-review" },
-  { "id": "ux2", "prompt": "Review the UX of this settings screen (code pasted) and rate each problem by severity. Do not change the code.", "expect": "ux-review" },
-  { "id": "ux3", "prompt": "Users abandon our checkout at the payment step. Below is what each step shows and does; what is wrong with the flow?", "expect": "ux-review" },
-  { "id": "ux4", "prompt": "Here is the code of our finished profile screen. Fix the uneven spacing and add the missing hover states before we ship.", "expect": "ui-polish" },
-  { "id": "ux5", "prompt": "The error message on our payment form is long and confusing: \"We were unable to process the payment request at this time due to an error.\" Rewrite it shorter.", "expect": "copy-tight" },
-  { "id": "ux6", "prompt": "We added a review step to the checkout flow. What should we retest after this change?", "expect": "test-planner" },
-  { "id": "ux7", "prompt": "Design a new onboarding flow for our fitness app.", "expect": "ui-craft" },
-  { "id": "ux8", "prompt": "Run a full accessibility audit of this page: ARIA roles, form labels and screen reader output.", "expect": "a11y-audit" },
-  { "id": "ux9", "prompt": "Write an interview guide for user research sessions about our checkout.", "expect": "none" },
-  { "id": "ay1", "prompt": "Audit this sign-in form for accessibility: <input type=\"email\" placeholder=\"Email\"> <div onclick=\"submitForm()\">Sign in</div>", "expect": "a11y-audit" },
-  { "id": "ay2", "prompt": "Can a screen reader and the keyboard use this React component? Here is the JSX, please check it.", "expect": "a11y-audit" },
-  { "id": "ay3", "prompt": "I think we overused ARIA roles in this modal markup (pasted). Review it.", "expect": "a11y-audit" },
-  { "id": "ay4", "prompt": "Here is the CSS of our finished card. The grey text contrast is too low and the focus ring looks weak; do a final polish pass.", "expect": "ui-polish" },
-  { "id": "ay5", "prompt": "This button label is too wordy for screen reader users: \"Click here to open the page where you can change your notification settings\". Shorten it.", "expect": "copy-tight" },
-  { "id": "ay6", "prompt": "Our page jumps from h1 to h4 and some images have no alt text. Check the markup I pasted and list the fixes.", "expect": "a11y-audit" },
-  { "id": "ay7", "prompt": "Write the accessibility statement for our public website.", "expect": "none" },
-  { "id": "ay8", "prompt": "Is our checkout flow confusing for first-time users? Tell me which steps are hard to understand.", "expect": "ux-review" },
-  { "id": "ay9", "prompt": "Set up automated accessibility tests that run in our CI pipeline.", "expect": "none" },
-  { "id": "ay10", "prompt": "Design an accessible login screen from scratch for our app.", "expect": "ui-craft" },
-  { "id": "uc1", "prompt": "Build a floating glass navbar with a Ctrl+K command palette for our SaaS app.", "expect": "ui-craft" },
-  { "id": "uc2", "prompt": "Make a bento dashboard grid with loading skeletons, an empty filter state and inline error retry.", "expect": "ui-craft" },
-  { "id": "uc3", "prompt": "Add an inline AI assistant bar with a streaming state, Stop button and Accept/Undo controls.", "expect": "ui-craft" },
-  { "id": "uc4", "prompt": "Create a collapsible sidebar icon rail and a mobile drawer for our workspace app in React.", "expect": "ui-craft" },
-  { "id": "ds1", "prompt": "We are starting a new product. Set up its design foundation: colours, type, spacing and radius as variables that light and dark mode both use.", "expect": "design-system" },
-  { "id": "ds2", "prompt": "In our design system, change the default border colour to a lighter grey everywhere, and check that every text colour still has enough contrast.", "expect": "design-system" },
-  { "id": "uc5", "prompt": "Build the settings screen for our app from the design folder, using the variables in design/tokens.css.", "expect": "ui-craft" },
-  { "id": "uc6", "prompt": "Design the home dashboard screen for our new app; we have no brand colours or tokens yet.", "expect": "ui-craft" },
+  {
+    "id": "r1",
+    "prompt": "Our signup button says \"Click here to begin the registration process\". Can you make it shorter?",
+    "expect": "copy-tight"
+  },
+  {
+    "id": "r2",
+    "prompt": "We bumped the skill to 2.1.0 after adding a new step, write the changelog entry.",
+    "expect": "changelog-writer"
+  },
+  {
+    "id": "r3",
+    "prompt": "Show me how a message queue works, with a picture I can put in the docs.",
+    "expect": "figure-craft"
+  },
+  {
+    "id": "r4",
+    "prompt": "Turn our code review checklist into a reusable skill.",
+    "expect": "skill-smith"
+  },
+  {
+    "id": "r5",
+    "prompt": "Make a pie chart of our revenue by region.",
+    "expect": "none"
+  },
+  {
+    "id": "r6",
+    "prompt": "Write a commit message for my last change.",
+    "expect": "none"
+  },
+  {
+    "id": "r7",
+    "prompt": "Translate this button label into Korean.",
+    "expect": "none"
+  },
+  {
+    "id": "r8",
+    "prompt": "Draw an illustration explaining how DNS resolution works step by step.",
+    "expect": "figure-craft"
+  },
+  {
+    "id": "r9",
+    "prompt": "This error toast is too wordy: \"An unexpected error has occurred while attempting to save your changes.\"",
+    "expect": "copy-tight"
+  },
+  {
+    "id": "r10",
+    "prompt": "Write a 2000-word blog post about our new release.",
+    "expect": "none"
+  },
+  {
+    "id": "r11",
+    "prompt": "Design a login screen mockup for our app.",
+    "expect": "ui-craft"
+  },
+  {
+    "id": "r12",
+    "prompt": "I keep doing the same release checklist by hand every week, can we package that up for agents?",
+    "expect": "skill-smith"
+  },
+  {
+    "id": "r13",
+    "prompt": "What should we retest after this change? We moved the invoice export button from the toolbar to the File menu.",
+    "expect": "test-planner"
+  },
+  {
+    "id": "r14",
+    "prompt": "Here is the diff for our new login throttle. Give me a regression checklist for it.",
+    "expect": "test-planner"
+  },
+  {
+    "id": "r15",
+    "prompt": "Write Jest unit tests for our promo code validator.",
+    "expect": "none"
+  },
+  {
+    "id": "r16",
+    "prompt": "Review this pull request for bugs and security problems.",
+    "expect": "none"
+  },
+  {
+    "id": "r17",
+    "prompt": "Here is the HTML and CSS of our finished settings card. Spacing and contrast look off; do a final pixel pass before we ship.",
+    "expect": "ui-polish"
+  },
+  {
+    "id": "r18",
+    "prompt": "This React button bar looks cluttered, both buttons are the same blue. Make it look cleaner. (code pasted)",
+    "expect": "ui-polish"
+  },
+  {
+    "id": "r19",
+    "prompt": "Design a brand new pricing page for our app from scratch.",
+    "expect": "ui-craft"
+  },
+  {
+    "id": "r20",
+    "prompt": "The label on this button is too wordy: \"Click here to save all of your changes\". Shorten it.",
+    "expect": "copy-tight"
+  },
+  {
+    "id": "r21",
+    "prompt": "Our brand colour is #0d9488. Generate a full set of design tokens for us, with light and dark mode.",
+    "expect": "design-system"
+  },
+  {
+    "id": "r22",
+    "prompt": "We already have a tokens.css with colours and spacing. Add the missing dark mode and motion tokens without touching what is there.",
+    "expect": "design-system"
+  },
+  {
+    "id": "r23",
+    "prompt": "Give our meditation app a calm, soft colour palette and type scale that developers can use as tokens.",
+    "expect": "design-system"
+  },
+  {
+    "id": "r24",
+    "prompt": "Build me a complete landing page in our brand colour #0d9488.",
+    "expect": "ui-craft"
+  },
+  {
+    "id": "r25",
+    "prompt": "Our theme switch says \"Click here to switch between the light and the dark colour theme\". Make it shorter.",
+    "expect": "copy-tight"
+  },
+  {
+    "id": "r26",
+    "prompt": "Here is the CSS of our finished checkout card; the grey text is hard to read and the spacing is uneven. Do a final pixel pass.",
+    "expect": "ui-polish"
+  },
+  {
+    "id": "r-uip-1",
+    "prompt": "Here is our tokens.css and the CSS of our finished billing card. Do a final polish pass and use our tokens instead of raw values.",
+    "expect": "ui-polish"
+  },
+  {
+    "id": "r-uip-2",
+    "prompt": "We use Tailwind with CSS variables from our design tokens. This React toolbar looks off, do a pixel pass with our variables. (code pasted)",
+    "expect": "ui-polish"
+  },
+  {
+    "id": "r-uip-3",
+    "prompt": "Our design/tokens.css has component variables like --button-primary-bg and --card-radius. Here is the CSS of our finished card; do a final polish pass using those variables.",
+    "expect": "ui-polish"
+  },
+  {
+    "id": "sw1",
+    "prompt": "Write acceptance criteria for this user story: As a shopper, I want to save my cart so that I can finish the order later.",
+    "expect": "spec-writer"
+  },
+  {
+    "id": "sw2",
+    "prompt": "Here is the feature request our client sent (pasted below). Turn it into Given-When-Then scenarios the team can build and test against.",
+    "expect": "spec-writer"
+  },
+  {
+    "id": "sw3",
+    "prompt": "Spec this requirement so QA knows when it is done: only admins can delete a project, and deleted projects stay in Trash for 30 days.",
+    "expect": "spec-writer"
+  },
+  {
+    "id": "sw4",
+    "prompt": "We merged the promo code change yesterday; here is its description. What do we need to retest before the release?",
+    "expect": "test-planner"
+  },
+  {
+    "id": "sw5",
+    "prompt": "Give me a regression checklist for the pull request that changed the password reset flow (diff pasted).",
+    "expect": "test-planner"
+  },
+  {
+    "id": "sw6",
+    "prompt": "Write Playwright tests for the acceptance criteria below.",
+    "expect": "none"
+  },
+  {
+    "id": "sw7",
+    "prompt": "Estimate the story points for these five tickets and tell me which to build first.",
+    "expect": "none"
+  },
+  {
+    "id": "sw8",
+    "prompt": "We added password reset by email in 3.1.0. Write the changelog entry for that release.",
+    "expect": "changelog-writer"
+  },
+  {
+    "id": "sw9",
+    "prompt": "Our password reset error says \"We were unfortunately unable to reset your password at this point in time\". Tighten it.",
+    "expect": "copy-tight"
+  },
+  {
+    "id": "ux1",
+    "prompt": "Here is our 5-step signup flow, described step by step. Do a usability review and tell me where users will get stuck.",
+    "expect": "ux-review"
+  },
+  {
+    "id": "ux2",
+    "prompt": "Review the UX of this settings screen (code pasted) and rate each problem by severity. Do not change the code.",
+    "expect": "ux-review"
+  },
+  {
+    "id": "ux3",
+    "prompt": "Users abandon our checkout at the payment step. Below is what each step shows and does; what is wrong with the flow?",
+    "expect": "ux-review"
+  },
+  {
+    "id": "ux4",
+    "prompt": "Here is the code of our finished profile screen. Fix the uneven spacing and add the missing hover states before we ship.",
+    "expect": "ui-polish"
+  },
+  {
+    "id": "ux5",
+    "prompt": "The error message on our payment form is long and confusing: \"We were unable to process the payment request at this time due to an error.\" Rewrite it shorter.",
+    "expect": "copy-tight"
+  },
+  {
+    "id": "ux6",
+    "prompt": "We added a review step to the checkout flow. What should we retest after this change?",
+    "expect": "test-planner"
+  },
+  {
+    "id": "ux7",
+    "prompt": "Design a new onboarding flow for our fitness app.",
+    "expect": "ui-craft"
+  },
+  {
+    "id": "ux8",
+    "prompt": "Run a full accessibility audit of this page: ARIA roles, form labels and screen reader output.",
+    "expect": "a11y-audit"
+  },
+  {
+    "id": "ux9",
+    "prompt": "Write an interview guide for user research sessions about our checkout.",
+    "expect": "none"
+  },
+  {
+    "id": "ay1",
+    "prompt": "Audit this sign-in form for accessibility: <input type=\"email\" placeholder=\"Email\"> <div onclick=\"submitForm()\">Sign in</div>",
+    "expect": "a11y-audit"
+  },
+  {
+    "id": "ay2",
+    "prompt": "Can a screen reader and the keyboard use this React component? Here is the JSX, please check it.",
+    "expect": "a11y-audit"
+  },
+  {
+    "id": "ay3",
+    "prompt": "I think we overused ARIA roles in this modal markup (pasted). Review it.",
+    "expect": "a11y-audit"
+  },
+  {
+    "id": "ay4",
+    "prompt": "Here is the CSS of our finished card. The grey text contrast is too low and the focus ring looks weak; do a final polish pass.",
+    "expect": "ui-polish"
+  },
+  {
+    "id": "ay5",
+    "prompt": "This button label is too wordy for screen reader users: \"Click here to open the page where you can change your notification settings\". Shorten it.",
+    "expect": "copy-tight"
+  },
+  {
+    "id": "ay6",
+    "prompt": "Our page jumps from h1 to h4 and some images have no alt text. Check the markup I pasted and list the fixes.",
+    "expect": "a11y-audit"
+  },
+  {
+    "id": "ay7",
+    "prompt": "Write the accessibility statement for our public website.",
+    "expect": "none"
+  },
+  {
+    "id": "ay8",
+    "prompt": "Is our checkout flow confusing for first-time users? Tell me which steps are hard to understand.",
+    "expect": "ux-review"
+  },
+  {
+    "id": "ay9",
+    "prompt": "Set up automated accessibility tests that run in our CI pipeline.",
+    "expect": "none"
+  },
+  {
+    "id": "ay10",
+    "prompt": "Design an accessible login screen from scratch for our app.",
+    "expect": "ui-craft"
+  },
+  {
+    "id": "uc1",
+    "prompt": "Build a floating glass navbar with a Ctrl+K command palette for our SaaS app.",
+    "expect": "ui-craft"
+  },
+  {
+    "id": "uc2",
+    "prompt": "Make a bento dashboard grid with loading skeletons, an empty filter state and inline error retry.",
+    "expect": "ui-craft"
+  },
+  {
+    "id": "uc3",
+    "prompt": "Add an inline AI assistant bar with a streaming state, Stop button and Accept/Undo controls.",
+    "expect": "ui-craft"
+  },
+  {
+    "id": "uc4",
+    "prompt": "Create a collapsible sidebar icon rail and a mobile drawer for our workspace app in React.",
+    "expect": "ui-craft"
+  },
+  {
+    "id": "ds1",
+    "prompt": "We are starting a new product. Set up its design foundation: colours, type, spacing and radius as variables that light and dark mode both use.",
+    "expect": "design-system"
+  },
+  {
+    "id": "ds2",
+    "prompt": "In our design system, change the default border colour to a lighter grey everywhere, and check that every text colour still has enough contrast.",
+    "expect": "design-system"
+  },
+  {
+    "id": "uc5",
+    "prompt": "Build the settings screen for our app from the design folder, using the variables in design/tokens.css.",
+    "expect": "ui-craft"
+  },
+  {
+    "id": "uc6",
+    "prompt": "Design the home dashboard screen for our new app; we have no brand colours or tokens yet.",
+    "expect": "ui-craft"
+  },
   {
     "id": "ck1",
     "prompt": "Our design folder is ready. Write the component specs for button, input and card from our variables.",
@@ -93,5 +353,35 @@
     "id": "ck6",
     "prompt": "Check the button and dialog HTML I pasted for screen reader and ARIA problems.",
     "expect": "a11y-audit"
+  },
+  {
+    "id": "bc1",
+    "prompt": "Open localhost:3000 in a browser and click through the sign-up flow, then tell me which step breaks.",
+    "expect": "browser-check"
+  },
+  {
+    "id": "bc2",
+    "prompt": "Take screenshots of index.html at desktop and phone width and list any console errors.",
+    "expect": "browser-check"
+  },
+  {
+    "id": "bc3",
+    "prompt": "Run a journey test of our checkout on the local dev server: add an item, go to the cart, press Pay.",
+    "expect": "browser-check"
+  },
+  {
+    "id": "bc4",
+    "prompt": "We changed the checkout flow. Write a regression checklist of what to retest.",
+    "expect": "test-planner"
+  },
+  {
+    "id": "bc5",
+    "prompt": "Here is the HTML of my form. Check it for missing labels and ARIA problems.",
+    "expect": "a11y-audit"
+  },
+  {
+    "id": "bc6",
+    "prompt": "Write a Playwright test file for our login page that we can run in CI.",
+    "expect": "none"
   }
 ]

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Acme sign in</title></head>
+<body>
+  <h1>Sign in</h1>
+  <form id="f">
+    <label>Email <input id="email" type="email"></label>
+    <button type="submit">Sign in</button>
+  </form>
+  <p id="msg" role="status"></p>
+  <script>
+    document.getElementById('f').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const v = document.getElementById('email').value;
+      const msg = document.getElementById('msg');
+      if (!v) { msg.textContent = 'Enter your email.'; return; }
+      fetch('/api/login', { method: 'POST' }).catch(() => {});
+      msg.textContent = 'Welcome back';
+    });
+  </script>
+</body>
+</html>

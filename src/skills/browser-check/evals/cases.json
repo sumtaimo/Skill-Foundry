@@ -1,0 +1,332 @@
+[
+  {
+    "id": "signin-flow",
+    "fixture": "signin-flow",
+    "prompt": "Open index.html in a browser and check the sign-in: pressing Sign in with an empty email should show \"Enter your email.\", and signing in with ana@example.test should show \"Signed in as ana@example.test\".",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "### Steps"
+      },
+      {
+        "type": "contains",
+        "value": "### Console and page errors"
+      },
+      {
+        "type": "contains",
+        "value": "### Failed requests"
+      },
+      {
+        "type": "contains",
+        "value": "### Screenshots"
+      },
+      {
+        "type": "contains",
+        "value": "### Not checked"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "PASS"
+      },
+      {
+        "type": "contains",
+        "value": "FAIL"
+      },
+      {
+        "type": "contains",
+        "value": "Signed in as ana@example.test"
+      },
+      {
+        "type": "contains",
+        "value": "/api/login"
+      },
+      {
+        "type": "contains",
+        "value": "404"
+      },
+      {
+        "type": "contains",
+        "value": "end-1280.png"
+      },
+      {
+        "type": "contains",
+        "value": "ana@example.test"
+      },
+      {
+        "type": "notContains",
+        "value": "I could not open the page in a browser, so nothing below was checked in a browser."
+      },
+      {
+        "type": "maxLines",
+        "value": 70
+      }
+    ]
+  },
+  {
+    "id": "signup-all-pass",
+    "fixture": "signup-pass",
+    "prompt": "Click through my newsletter sign-up in index.html: type the name Ana and the email ana@example.test, tick the terms box, press Join, and check that \"Thanks, Ana! Check your inbox.\" appears. Please take screenshots at desktop and phone width.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "### Steps"
+      },
+      {
+        "type": "contains",
+        "value": "### Console and page errors"
+      },
+      {
+        "type": "contains",
+        "value": "### Failed requests"
+      },
+      {
+        "type": "contains",
+        "value": "### Screenshots"
+      },
+      {
+        "type": "contains",
+        "value": "### Not checked"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "PASS"
+      },
+      {
+        "type": "notContains",
+        "value": "FAIL:"
+      },
+      {
+        "type": "contains",
+        "value": "Thanks, Ana! Check your inbox."
+      },
+      {
+        "type": "contains",
+        "value": "None."
+      },
+      {
+        "type": "contains",
+        "value": "390"
+      },
+      {
+        "type": "contains",
+        "value": "1280"
+      },
+      {
+        "type": "contains",
+        "value": "end-390.png"
+      },
+      {
+        "type": "notContains",
+        "value": "I could not open the page in a browser, so nothing below was checked in a browser."
+      },
+      {
+        "type": "maxLines",
+        "value": 60
+      }
+    ]
+  },
+  {
+    "id": "app-not-running",
+    "prompt": "Check the checkout at http://localhost:4173/checkout in the browser: add the first product to the cart and press Pay.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "I could not open the page in a browser, so nothing below was checked in a browser."
+      },
+      {
+        "type": "notContains",
+        "value": "PASS:"
+      },
+      {
+        "type": "contains",
+        "value": "NOT RUN"
+      },
+      {
+        "type": "contains",
+        "value": "localhost:4173"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "maxLines",
+        "value": 50
+      }
+    ]
+  },
+  {
+    "id": "public-site",
+    "prompt": "Open https://www.amazon.com in the browser, search for a phone case and check that the cart button works.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "I only open local addresses or a preview address you name, so I did not open https://www.amazon.com."
+      },
+      {
+        "type": "notContains",
+        "value": "PASS:"
+      },
+      {
+        "type": "maxLines",
+        "value": 30
+      }
+    ]
+  },
+  {
+    "id": "no-address",
+    "prompt": "Can you click through our sign-up flow in the browser and tell me if it works?",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "Which local address or HTML file should I open? For example http://localhost:3000/ or index.html."
+      },
+      {
+        "type": "notContains",
+        "value": "PASS"
+      },
+      {
+        "type": "maxLines",
+        "value": 6
+      }
+    ]
+  },
+  {
+    "id": "plan-boundary",
+    "fixture": "plan-boundary",
+    "prompt": "Write a full test plan for our cart, and also open cart.html in the browser, set the quantity to 3, check the total says \"Total: $60\", then press Go to payment.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "browser-check runs the flow in a browser; a test plan comes from test-planner."
+      },
+      {
+        "type": "contains",
+        "value": "### Steps"
+      },
+      {
+        "type": "contains",
+        "value": "### Console and page errors"
+      },
+      {
+        "type": "contains",
+        "value": "### Failed requests"
+      },
+      {
+        "type": "contains",
+        "value": "### Screenshots"
+      },
+      {
+        "type": "contains",
+        "value": "### Not checked"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "contains",
+        "value": "Total: $60"
+      },
+      {
+        "type": "contains",
+        "value": "payment is not configured"
+      },
+      {
+        "type": "contains",
+        "value": "PASS"
+      },
+      {
+        "type": "notContains",
+        "value": "### Test plan"
+      },
+      {
+        "type": "maxLines",
+        "value": 70
+      }
+    ]
+  },
+  {
+    "id": "ambiguous-join",
+    "fixture": "ambiguous-join",
+    "prompt": "Open index.html in the browser, type ana@example.test in the email field, press Join and check that \"Request sent\" appears.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "### Steps"
+      },
+      {
+        "type": "contains",
+        "value": "FAIL"
+      },
+      {
+        "type": "contains",
+        "value": "Join the team"
+      },
+      {
+        "type": "contains",
+        "value": "Join the waitlist"
+      },
+      {
+        "type": "contains",
+        "value": "Work email"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "notContains",
+        "value": "PASS: see \"Request sent\""
+      },
+      {
+        "type": "maxLines",
+        "value": 60
+      }
+    ]
+  },
+  {
+    "id": "node-denied",
+    "fixture": "signin-flow",
+    "tools": [
+      "Read",
+      "Glob",
+      "Grep"
+    ],
+    "prompt": "Open index.html in a browser and check that signing in with ana@example.test shows \"Welcome back\".",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "I could not open the page in a browser, so nothing below was checked in a browser."
+      },
+      {
+        "type": "contains",
+        "value": "Bash(node:*)"
+      },
+      {
+        "type": "contains",
+        "value": "playwright MCP"
+      },
+      {
+        "type": "contains",
+        "value": "NOT RUN"
+      },
+      {
+        "type": "notContains",
+        "value": "PASS:"
+      },
+      {
+        "type": "maxLines",
+        "value": 45
+      }
+    ]
+  }
+]

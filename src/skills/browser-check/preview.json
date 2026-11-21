@@ -1,0 +1,7 @@
+{
+  "title": "browser-check",
+  "tagline": "Clicks through a flow of your local app in a real browser: PASS or FAIL, with proof.",
+  "prompt": "Open index.html and check that signing in with an empty email shows an error, then with ana@example.test says Welcome back.",
+  "outputs": ["Numbered steps, each PASS, FAIL or NOT RUN, from a real browser", "Console errors, failed requests and screenshots at 1280 and 390 px"],
+  "tags": ["browser", "qa", "e2e", "playwright", "screenshot"]
+}

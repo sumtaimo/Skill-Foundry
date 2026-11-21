@@ -1,6 +1,6 @@
 {
   "agent": "claude -p (fresh context, saw only skill names and descriptions)",
-  "recordedAt": "2026-11-20",
+  "recordedAt": "2026-11-21",
   "descriptions": {
     "skill-smith": "Build a new Skill Foundry skill from the template, as ten layers, portable for other people, so it passes the factory linter, evals and review and has a recorded real run. Use when asked for a new skill or to turn a repeated workflow into a skill. Do not use for a typo fix in an existing skill.",
     "figure-craft": "Draws a detailed isometric figure that explains how a thing works, from the goal the user states, with a token palette, a shared iso engine and a geometry, layout and detail lint. Use for any request for an explanatory diagram, technical illustration or interactive explainer of an object or system. Do not use for data charts, photos, logos, UI mockups or decorative art.",
@@ -13,7 +13,8 @@
     "ux-review": "Reviews the usability of an existing screen or flow from its code, a step-by-step description of the flow, or both, and returns a numbered list of findings, each with the place, what the user experiences, the rule it breaks, a severity from S1 to S4 and one recommendation in words. Use when asked for a \"UX review\", a \"usability review\", \"where will users get stuck in this flow\" or to \"rate the usability problems by severity\". Do not use to fix or polish the code (use ui-polish), to rewrite text (use copy-tight), to check contrast, ARIA or screen readers, to design a new screen, or to plan what to retest (use test-planner).",
     "a11y-audit": "Audits the HTML or JSX a user gives for what users cannot see (semantic elements and landmarks, heading order, page language and title, names for controls and form fields, errors and required state, keyboard access, ARIA, status messages, link purpose, tables, media, zoom) and returns numbered findings, each with the element, a rule id, the WCAG 2.2 success criterion (level A or AA), who is affected and the exact fix as a small code change. Use when asked for an \"accessibility audit\", \"a11y check\", \"screen reader check\" or \"ARIA review\" of code the user pastes. Do not use to fix contrast, focus style, spacing or target size (use ui-polish), to judge usability, to rewrite text (use copy-tight) or to certify conformance.",
     "ui-craft": "Designs and builds modern product UI screens, adaptive navigation, command palettes, bento layouts, micro-interactions, complete lifecycle states and inline AI bars in HTML/CSS, Tailwind or React/JSX, reading the project's design/ foundation variables first when it has one. Use when asked to \"design a screen or onboarding flow\", \"build a UI component\", \"make a navbar or sidebar\", \"build a command palette\", \"create a landing page or dashboard\", or \"add AI prompt bars and loading/empty/error states\". Do not use to build or change tokens, variables or a brand palette (use design-system), polish finished code (use ui-polish), draw isometric technical objects (use figure-craft), audit accessibility only (use a11y-audit) or rewrite copy only (use copy-tight).",
-    "component-kit": "Turns the variables of a project's design folder (design/tokens.css from design-system) into component specs and then into component code. Step one writes design/components/<name>.md for 3 to 4 of button, input, select, checkbox, card, dialog, table, nav, tabs, toast, menu and badge (anatomy, variants, the eight lifecycle states, exact variable names, keyboard and ARIA contract, Khmer text note); step two builds the named components from their specs in the project's own stack (HTML/CSS, React, Tailwind, Vue) using only variables that exist. Use when asked for \"component specs\", \"write the spec for the button\", \"build the button, input and card from our design variables\" or \"a component library from our tokens\". Do not use to design a whole screen or page (use ui-craft), to build the variables or tokens (use design-system), or to polish, review or audit finished UI (use ui-polish, ux-review or a11y-audit)."
+    "component-kit": "Turns the variables of a project's design folder (design/tokens.css from design-system) into component specs and then into component code. Step one writes design/components/<name>.md for 3 to 4 of button, input, select, checkbox, card, dialog, table, nav, tabs, toast, menu and badge (anatomy, variants, the eight lifecycle states, exact variable names, keyboard and ARIA contract, Khmer text note); step two builds the named components from their specs in the project's own stack (HTML/CSS, React, Tailwind, Vue) using only variables that exist. Use when asked for \"component specs\", \"write the spec for the button\", \"build the button, input and card from our design variables\" or \"a component library from our tokens\". Do not use to design a whole screen or page (use ui-craft), to build the variables or tokens (use design-system), or to polish, review or audit finished UI (use ui-polish, ux-review or a11y-audit).",
+    "browser-check": "Opens the user's own app on a local address (localhost, 127.0.0.1, a local HTML file, or a preview address the user names) in a real browser, clicks through one user flow step by step, and reports each step as PASS or FAIL with the console errors, failed requests and screenshots as evidence. Use when asked to \"check it in the browser\", \"click through the sign-up flow\", \"take a screenshot of the page\", \"does the page work\", \"run a journey test\" or \"check for console errors\". Do not use to write a test plan (use test-planner), to audit markup for accessibility (use a11y-audit), to judge visual design (use ui-polish or ux-review), or to open public websites."
   },
   "answers": {
     "r1": "copy-tight",
@@ -86,6 +87,12 @@
     "ck3": "component-kit",
     "ck4": "ui-craft",
     "ck5": "ui-polish",
-    "ck6": "a11y-audit"
+    "ck6": "a11y-audit",
+    "bc1": "browser-check",
+    "bc2": "browser-check",
+    "bc3": "browser-check",
+    "bc4": "test-planner",
+    "bc5": "a11y-audit",
+    "bc6": "none"
   }
 }
