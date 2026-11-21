@@ -1,0 +1,5 @@
+[
+  { "do": "fill", "target": "label=email", "value": "ana@example.test" },
+  { "do": "click", "target": "role=button[name=Join]" },
+  { "do": "expect-text", "value": "Request sent" }
+]

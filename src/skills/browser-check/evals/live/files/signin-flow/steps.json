@@ -1,4 +1,6 @@
 [
+  { "do": "find", "value": "Sign in" },
+  { "do": "find", "value": "Email" },
   { "do": "click", "target": "role=button[name=Sign in]" },
   { "do": "expect-text", "value": "Enter your email." },
   { "do": "fill", "target": "label=Email", "value": "ana@example.test" },

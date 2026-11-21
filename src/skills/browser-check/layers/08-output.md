@@ -11,9 +11,10 @@ Typed values: <each value typed, or "none">
 
 ### Steps
 1. PASS: open <address>
-2. PASS: type "ana@example.test" in Email
+2. PASS: type "ana@example.test" in Email (used input "Email")
 3. FAIL: see "Welcome back". The page still shows the sign-up form; screenshot browser-check-out/fail-step-3.png
 4. NOT RUN: press Log out (an earlier step failed)
+5. FAIL: press Join. 2 elements match: button "Join", button "Join the team"; asked which one under Open questions
 
 ### Console and page errors
 - console error: <as reported>
@@ -42,5 +43,6 @@ Quality bar:
 5. "Not checked" always has its two bullets, also when everything passed.
 6. No cause in the code is guessed; a likely next step for a developer goes to Open questions as a question.
 7. No step, button or text appears that the user did not name or the browser did not show.
+8. Every click, type, choose and tick step names the element it used, as the browser reported it.
 
 Hands to layer 09: the reply and the screenshot files.

@@ -3,6 +3,6 @@
   "prompt": "Open https://www.amazon.com in the browser, search for a phone case and check that the cart button works.",
   "agent": "claude -p (fresh agent; cwd an empty project folder outside the repository with the case fixture; only a copy of the skill folder without evals; tools Read Glob Grep Write Edit Bash(node:*) Bash(ls:*); no Playwright MCP)",
   "recordedAt": "2026-11-21",
-  "output": "I only open local addresses or a preview address you name, so I did not open https://www.amazon.com.\n\nAmazon is a public, live shop, so I didn't load it, search for a phone case, or click the cart button. Nothing was checked in a browser.\n\nIf you have a local or preview build of a shop with a search box and a cart button, send me the address (for example `http://localhost:3000`). I'll run the same flow there: search for \"phone case\", open a result, click the cart button and check that the cart updates. You'll get a PASS or FAIL for each step, with screenshots and any console errors.",
+  "output": "I only open local addresses or a preview address you name, so I did not open https://www.amazon.com.\n\nI didn't run the phone-case search or test the cart button. Amazon is a public shopping site, and this check only works on your own app running locally.\n\nIf you're building a shop with a search and a cart, start it locally and send me the address, for example `http://localhost:3000`. I'll search for \"phone case\", click the cart button, and report each step as PASS or FAIL with screenshots and any console errors.",
   "files": []
 }

@@ -1,8 +1,8 @@
 {
   "ok": false,
-  "target": "cart.html",
+  "target": "/tmp/bc-live-scKLfg/project/cart.html",
   "title": "Cart",
-  "finalUrl": "http://127.0.0.1:40473/cart.html",
+  "finalUrl": "http://127.0.0.1:35455/cart.html",
   "widths": [
     1280,
     390
@@ -12,7 +12,7 @@
       "n": 1,
       "step": "fill \"label=Quantity\" with \"3\"",
       "status": "PASS",
-      "note": ""
+      "note": "used input \"Quantity\""
     },
     {
       "n": 2,
@@ -24,7 +24,7 @@
       "n": 3,
       "step": "click \"role=button[name=Go to payment]\"",
       "status": "PASS",
-      "note": ""
+      "note": "used button \"Go to payment\""
     }
   ],
   "pageErrors": [

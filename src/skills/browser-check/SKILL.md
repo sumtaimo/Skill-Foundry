@@ -6,7 +6,7 @@ version: 0.1.0
 
 # browser-check
 
-Opens a page the user runs locally, does what a user would do, and says plainly what happened.
+Opens a page the user runs locally, finds each button, link and field from the user's own words, does what a user would do, and says plainly what happened and which element it used.
 Every PASS comes from a real browser: the Playwright browser tools when the agent has them, or the script
 `engine/check.mjs` in this folder, run as ONE plain command. Nothing is reported as checked that did not run.
 
@@ -62,6 +62,7 @@ Step actions, targets, the browser-tool mapping and the script's exit codes are 
 - R-browser-check-11: A request outside the boundary (test plan, accessibility audit, design review) MUST get its fixed sentence from layer 06.
 - R-browser-check-12: The skill MUST have the ten core layers, each linked from SKILL.md, and stay self-contained with no repository paths.
 - R-browser-check-13: SKILL.md MUST stay within 150 lines, with frontmatter name, description and semver version.
+- R-browser-check-14: Every element MUST be found from the user's own words, and the reply MUST say which element was used; when none or several match, NEVER pick one by guess: list the closest elements the page has and ask the user.
 
 Each rule's check or reviewer item is in `RULES.json`.
 

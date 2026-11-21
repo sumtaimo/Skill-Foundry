@@ -253,5 +253,44 @@
         "value": 70
       }
     ]
+  },
+  {
+    "id": "ambiguous-join",
+    "fixture": "ambiguous-join",
+    "prompt": "Open index.html in the browser, type ana@example.test in the email field, press Join and check that \"Request sent\" appears.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "### Steps"
+      },
+      {
+        "type": "contains",
+        "value": "FAIL"
+      },
+      {
+        "type": "contains",
+        "value": "Join the team"
+      },
+      {
+        "type": "contains",
+        "value": "Join the waitlist"
+      },
+      {
+        "type": "contains",
+        "value": "Work email"
+      },
+      {
+        "type": "contains",
+        "value": "### Open questions"
+      },
+      {
+        "type": "notContains",
+        "value": "PASS: see \"Request sent\""
+      },
+      {
+        "type": "maxLines",
+        "value": 60
+      }
+    ]
   }
 ]

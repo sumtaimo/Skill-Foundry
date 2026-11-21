@@ -8,8 +8,10 @@
  *   node <skill>/engine/check.mjs --file <page.html> [--steps <steps.json>] [--out <dir>] [--widths 1280,390]
  *   node <skill>/engine/check.mjs --url http://localhost:3000/ [--steps <steps.json>] [--allow-host <host>]
  *
+ * The steps name elements in the user's words; each action reports the element it used, and when no element or several
+ *   elements match, the step fails with the closest controls on the page, so the agent can tell the user or ask which one.
  * Steps file: a JSON array, e.g. [{"do":"fill","target":"label=Email","value":"a@example.test"},{"do":"click","target":"text=Sign in"},
- *   {"do":"expect-text","value":"Welcome"}]. Actions: goto, click, fill, press, select, check, expect-text, expect-no-text,
+ *   {"do":"expect-text","value":"Welcome"}]. Actions: goto, find, click, fill, press, select, check, expect-text, expect-no-text,
  *   expect-url, wait, screenshot. Targets: "text=...", "label=...", "role=button[name=...]", "placeholder=..." or a CSS selector.
  * Exit codes: 0 every step passed and no page error, 1 a step failed or the page threw, 2 the check could not run.
  * Node.js 18+; needs the playwright package in the project or installed globally. No other dependency.
@@ -20,7 +22,7 @@ import { readFileSync, existsSync, mkdirSync, writeFileSync, statSync } from 'no
 import { resolve, dirname, join, extname, basename, relative, sep } from 'node:path';
 
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '[::1]', '0.0.0.0']);
-const ACTIONS = ['goto', 'click', 'fill', 'press', 'select', 'check', 'expect-text', 'expect-no-text', 'expect-url', 'wait', 'screenshot'];
+const ACTIONS = ['goto', 'find', 'click', 'fill', 'press', 'select', 'check', 'expect-text', 'expect-no-text', 'expect-url', 'wait', 'screenshot'];
 const MIME = { '.html': 'text/html; charset=utf-8', '.htm': 'text/html; charset=utf-8', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.gif': 'image/gif', '.webp': 'image/webp', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.txt': 'text/plain; charset=utf-8' };
 const STEP_TIMEOUT = 5000;
 
@@ -73,7 +75,7 @@ export function loadSteps(arg) {
   steps.forEach((s, i) => {
     if (!s || !ACTIONS.includes(s.do)) throw new Error(`step ${i + 1}: "do" must be one of ${ACTIONS.join(', ')}`);
     if (['click', 'fill', 'select', 'check'].includes(s.do) && !s.target) throw new Error(`step ${i + 1} (${s.do}) needs "target"`);
-    if (['fill', 'select', 'expect-text', 'expect-no-text', 'expect-url', 'press'].includes(s.do) && (s.value === undefined || s.value === '')) throw new Error(`step ${i + 1} (${s.do}) needs "value"`);
+    if (['find', 'fill', 'select', 'expect-text', 'expect-no-text', 'expect-url', 'press'].includes(s.do) && (s.value === undefined || s.value === '')) throw new Error(`step ${i + 1} (${s.do}) needs "value"`);
   });
   return steps;
 }
@@ -106,17 +108,59 @@ function serveFolder(root, entry) {
 }
 
 /** Turn a target string into a Playwright locator. */
-function locate(page, target) {
+function locate(page, target, exact = false) {
   const t = String(target);
   const m = /^(text|label|placeholder|role)=(.*)$/s.exec(t);
-  if (!m) return page.locator(t).first();
+  if (!m) return page.locator(t);
   const [, kind, rest] = m;
-  if (kind === 'text') return page.getByText(rest, { exact: false }).first();
-  if (kind === 'label') return page.getByLabel(rest).first();
-  if (kind === 'placeholder') return page.getByPlaceholder(rest).first();
+  if (kind === 'text') return page.getByText(rest, { exact });
+  if (kind === 'label') return page.getByLabel(rest, { exact });
+  if (kind === 'placeholder') return page.getByPlaceholder(rest);
   const r = /^([a-z]+)(?:\[name=(.*)\])?$/.exec(rest);
   if (!r) throw new Error(`role target must look like role=button[name=Save], got "${t}"`);
-  return page.getByRole(r[1], r[2] ? { name: r[2].replace(/^["']|["']$/g, '') } : {}).first();
+  return page.getByRole(r[1], r[2] ? { name: r[2].replace(/^["']|["']$/g, ''), exact } : {});
+}
+
+const CONTROLS = 'a[href], button, input:not([type=hidden]), select, textarea, [role=button], [role=link], [role=checkbox], [role=tab], [role=menuitem], summary';
+
+/** Every visible control on the page with the name a user sees: [{ kind, name }]. */
+async function listControls(page) {
+  return page.$$eval(CONTROLS, (els) => els.filter((el) => { const r = el.getBoundingClientRect(); const st = getComputedStyle(el); return r.width > 0 && r.height > 0 && st.visibility !== 'hidden'; }).map((el) => {
+    const tag = el.tagName.toLowerCase(); const type = (el.getAttribute('type') || '').toLowerCase();
+    const kind = el.getAttribute('role') || (tag === 'a' ? 'link' : tag === 'input' ? (['submit', 'button', 'reset'].includes(type) ? 'button' : type === 'checkbox' || type === 'radio' ? type : 'field') : tag === 'select' ? 'select' : tag === 'textarea' ? 'field' : tag === 'summary' ? 'button' : tag);
+    const label = el.labels && el.labels[0] ? el.labels[0].innerText : '';
+    const name = (el.getAttribute('aria-label') || label || el.innerText || el.getAttribute('placeholder') || el.value || el.getAttribute('title') || el.getAttribute('name') || '').replace(/\s+/g, ' ').trim().slice(0, 80);
+    return { kind, name };
+  }));
+}
+
+/** Controls whose name shares a word with the user's words, best first. */
+export function rankMatches(controls, words) {
+  const want = String(words).toLowerCase().split(/[^\p{L}\p{N}]+/u).filter((w) => w.length > 1);
+  return controls.map((c) => { const have = c.name.toLowerCase(); const score = want.filter((w) => have.includes(w)).length + (have === String(words).toLowerCase().trim() ? 5 : 0); return { ...c, score }; })
+    .filter((c) => c.score > 0).sort((a, b) => b.score - a.score);
+}
+const show = (c) => `${c.kind} "${c.name}"`;
+const wordsOf = (target) => String(target).replace(/^(text|label|placeholder|role)=/, '').replace(/^[a-z]+\[name=(.*)\]$/, '$1');
+
+/** Resolve the user's target to exactly one visible element, or throw with what the page has. Returns [locator, matched]. */
+async function visibleOf(loc) {
+  const n = await loc.count(); const out = [];
+  for (let i = 0; i < n && out.length < 6; i++) if (await loc.nth(i).isVisible()) out.push(loc.nth(i));
+  return out;
+}
+async function one(page, target) {
+  // The exact name first ("Join" is the button Join, not "Join the team"); a partial match only when nothing is exact.
+  let visible = /^(text|label|role)=/.test(String(target)) ? await visibleOf(locate(page, target, true)) : [];
+  if (!visible.length) visible = await visibleOf(locate(page, target));
+  if (visible.length === 1) {
+    const d = await visible[0].evaluate((el) => ({ tag: el.tagName.toLowerCase(), name: (el.getAttribute('aria-label') || (el.labels && el.labels[0] ? el.labels[0].innerText : '') || el.innerText || el.getAttribute('placeholder') || el.value || '').replace(/\s+/g, ' ').trim().slice(0, 80) }));
+    return [visible[0], `${d.tag} "${d.name}"`];
+  }
+  const all = await listControls(page);
+  const near = rankMatches(all, wordsOf(target)).slice(0, 5).map(show);
+  if (visible.length === 0) throw new Error(`no visible element matches "${target}"; ${near.length ? `closest on the page: ${near.join(', ')}` : `the page has ${all.slice(0, 8).map(show).join(', ') || 'no controls'}`}`);
+  throw new Error(`${visible.length} visible elements match "${target}"; ask the user which one: ${near.join(', ') || 'see the screenshot'}`);
 }
 
 const describe = (s) => [s.do, s.target ? `"${s.target}"` : '', s.value !== undefined && s.do !== 'fill' ? `"${s.value}"` : s.do === 'fill' ? `with "${s.value}"` : ''].filter(Boolean).join(' ');
@@ -132,11 +176,15 @@ async function runStep(page, s, base, shots, outDir) {
       if (r && r.status() >= 400) throw new Error(`the page answered HTTP ${r.status()}`);
       return;
     }
-    case 'click': return locate(page, s.target).click({ timeout: STEP_TIMEOUT });
-    case 'fill': return locate(page, s.target).fill(String(s.value), { timeout: STEP_TIMEOUT });
-    case 'select': return locate(page, s.target).selectOption(String(s.value), { timeout: STEP_TIMEOUT });
-    case 'check': return locate(page, s.target).check({ timeout: STEP_TIMEOUT });
-    case 'press': return (s.target ? locate(page, s.target) : page.locator('body')).press(String(s.value), { timeout: STEP_TIMEOUT });
+    case 'click': { const [el, m] = await one(page, s.target); await el.click({ timeout: STEP_TIMEOUT }); return `used ${m}`; }
+    case 'fill': { const [el, m] = await one(page, s.target); await el.fill(String(s.value), { timeout: STEP_TIMEOUT }); return `used ${m}`; }
+    case 'select': { const [el, m] = await one(page, s.target); await el.selectOption(String(s.value), { timeout: STEP_TIMEOUT }); return `used ${m}`; }
+    case 'check': { const [el, m] = await one(page, s.target); await el.check({ timeout: STEP_TIMEOUT }); return `used ${m}`; }
+    case 'find': {
+      const found = rankMatches(await listControls(page), s.value);
+      return found.length ? `found ${found.slice(0, 8).map(show).join(', ')}` : `found nothing that matches "${s.value}"; the page has ${(await listControls(page)).slice(0, 8).map(show).join(', ') || 'no controls'}`;
+    }
+    case 'press': { if (!s.target) return page.locator('body').press(String(s.value), { timeout: STEP_TIMEOUT }); const [el, m] = await one(page, s.target); await el.press(String(s.value), { timeout: STEP_TIMEOUT }); return `used ${m}`; }
     case 'expect-text': return page.getByText(String(s.value), { exact: false }).first().waitFor({ state: 'visible', timeout: STEP_TIMEOUT });
     case 'expect-no-text': {
       await page.waitForTimeout(300);
@@ -206,7 +254,7 @@ async function main() {
   let failed = false;
   for (const [i, s] of steps.entries()) {
     if (failed) { results.push({ n: i + 1, step: describe(s), status: 'NOT RUN', note: 'an earlier step failed' }); continue; }
-    try { await runStep(page, s, page.url(), shots, outDir); results.push({ n: i + 1, step: describe(s), status: 'PASS', note: '' }); }
+    try { const note = await runStep(page, s, page.url(), shots, outDir); results.push({ n: i + 1, step: describe(s), status: 'PASS', note: typeof note === 'string' ? note : '' }); }
     catch (e) {
       failed = true;
       const name = `fail-step-${i + 1}.png`;

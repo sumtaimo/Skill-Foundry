@@ -7,6 +7,7 @@ The steps file is a JSON array. Each step has `do`, and `target` and `value` whe
 | do | target | value | What it does |
 |----|--------|-------|--------------|
 | `goto` | | path or local address | Opens another page on the same host |
+| `find` | | the user's words | Lists the buttons, links and fields whose name has those words, best first; always passes |
 | `click` | yes | | Clicks the target |
 | `fill` | yes | text | Types the text into a field (replaces its content) |
 | `select` | yes | option | Chooses an option in a select list |
@@ -21,6 +22,8 @@ The steps file is a JSON array. Each step has `do`, and `target` and `value` whe
 Targets: `text=Sign in` (visible text), `label=Email` (a field by its label), `placeholder=Search`,
 `role=button[name=Save]` (a role and its accessible name), or a CSS selector such as `#email`.
 Prefer `label=` for fields and `role=button[name=...]` for buttons: they match what a user sees.
+An exact name wins first (`Join` is the button Join, not "Join the team"); a partial match is used only when nothing is exact.
+Each action step reports the element it used. With no match, or several, the step fails and lists the closest controls on the page.
 
 Example `browser-check-out/steps.json`:
 
@@ -64,3 +67,4 @@ Example `browser-check-out/steps.json`:
 - [ ] No real password, card or personal data was typed.
 - [ ] Errors are copied as reported; no code cause is guessed.
 - [ ] No app file was changed.
+- [ ] Every action step names the element it used; no element was picked by guess.

@@ -63,5 +63,10 @@
     "id": "R-browser-check-13",
     "text": "SKILL.md MUST stay within 150 lines, with frontmatter name, description and semver version.",
     "checklist": "SKILL.md is at most 150 lines with valid frontmatter."
+  },
+  {
+    "id": "R-browser-check-14",
+    "text": "Every element MUST be found from the user's own words, and the reply MUST say which element was used; when none or several match, NEVER pick one by guess: list the closest elements the page has and ask the user.",
+    "checklist": "Each action step names the element used; no or several matches gave the closest elements and a question."
   }
 ]

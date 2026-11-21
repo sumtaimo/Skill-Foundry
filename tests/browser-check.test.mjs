@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
-import { parseArgs, hostAllowed, loadSteps } from '../src/skills/browser-check/engine/check.mjs';
+import { parseArgs, hostAllowed, loadSteps, rankMatches } from '../src/skills/browser-check/engine/check.mjs';
 
 const ENGINE = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'skills', 'browser-check', 'engine', 'check.mjs');
 
@@ -30,6 +30,13 @@ test('arguments and steps are validated with a clear message', () => {
   assert.equal(loadSteps('[{"do":"click","target":"text=Go"},{"do":"expect-text","value":"Done"}]').length, 2);
 });
 
+test('elements are ranked from the user words, best first, and unrelated ones are left out', () => {
+  const controls = [{ kind: 'link', name: 'Join now' }, { kind: 'button', name: 'Join' }, { kind: 'field', name: 'Work email' }, { kind: 'button', name: 'Cancel' }];
+  assert.deepEqual(rankMatches(controls, 'Join').map((c) => c.name), ['Join', 'Join now']);
+  assert.deepEqual(rankMatches(controls, 'email field').map((c) => c.name), ['Work email']);
+  assert.deepEqual(rankMatches(controls, 'Pay'), []);
+});
+
 test('a public address is refused with exit 2 and the could-not-run sentence, before any browser starts', () => {
   const r = spawnSync(process.execPath, [ENGINE, '--url', 'https://www.amazon.com/'], { encoding: 'utf8' });
   assert.equal(r.status, 2);
@@ -46,7 +53,7 @@ test('a real run on a local file reports PASS, FAIL, NOT RUN, errors and screens
   const steps = JSON.stringify([{ do: 'click', target: 'role=button[name=Save]' }, { do: 'expect-text', value: 'Saved' }, { do: 'expect-text', value: 'Nope', }, { do: 'click', target: 'text=Save' }]);
   const r = spawnSync(process.execPath, [ENGINE, '--file', 'index.html', '--steps', steps], { cwd: dir, encoding: 'utf8', timeout: 120000 });
   assert.equal(r.status, 1, r.stdout + r.stderr);
-  assert.match(r.stdout, /1\. PASS: click/);
+  assert.match(r.stdout, /1\. PASS: click "role=button\[name=Save\]"\. used button "Save"/);
   assert.match(r.stdout, /3\. FAIL: expect-text "Nope"/);
   assert.match(r.stdout, /4\. NOT RUN/);
   assert.match(r.stdout, /console error: boom/);
