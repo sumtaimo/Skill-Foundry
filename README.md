@@ -27,6 +27,12 @@ What `add` writes in your project:
 - Updates a managed block in `AGENTS.md` so any agent (Claude Code, Codex, Gemini CLI, Cursor) discovers the installed skills (`--no-rules` to skip).
 - Adds deny rules to `.claude/settings.json` so agents cannot edit installed skills (`--no-protect` to skip).
 
+### With an agentic harness: what to expect
+
+- A worker gets a skill only when the skill lists the worker's **role** and one of the skill's keywords is in the task. Each skill arrives as a short pointer (about half a kilobyte); the worker opens the full skill only when it fits, so several installed skills do not fill its context.
+- Give headless tasks a role, for example `node .harness/dispatch.mjs --goal "…" --role DEV_ENGINEER`. A task without a role gets no skills (Agentic-Harness with `--role` support logs `SKILL_NEEDS_ROLE` to say which skills it missed). Team mode, the editor workflow and backlog tasks already carry roles.
+- Real runs take minutes, not seconds, because the agent does the work. Measured in a demo project with Codex: tightening UI copy and writing acceptance criteria took 1 to 2 minutes each; a design-token build took about 4 minutes per round. A release proof (live evals, portable check, recipes) takes much longer and runs only in this lab.
+
 - `npm run release:check` runs all release gates automatically, including [version & changelog tracking](src/factory/version-check.mjs) against `master` so shipped changes always carry updated `CHANGELOG.md` entries and new ready/default skills require a `package.json` version bump.
 - Existing text and settings outside managed blocks are preserved. Downloadable `.zip` archives with SHA-256 checksums, `skills.json`, and `llms.txt` are published on the showcase site: https://sumtaimo.github.io/Skill-Foundry/
 
@@ -34,7 +40,7 @@ What `add` writes in your project:
 
 Skill Foundry tracks two separate version numbers so the CLI/platform and individual skills evolve independently:
 
-- **Skill Foundry project version (`package.json`, currently `1.0.1`)**: versions the `skill-foundry` CLI, showcase site, `llms.txt`, `skills.json`, and harness integration (`npx github:sumtaimo/Skill-Foundry --version`). Shown in the page footer as `Skill Foundry version 1.0.1`.
+- **Skill Foundry project version (`package.json`, currently `1.2.0`)**: versions the `skill-foundry` CLI, showcase site, `llms.txt`, `skills.json`, and harness integration (`npx github:sumtaimo/Skill-Foundry --version`). Shown in the page footer as `Skill Foundry version 1.2.0`.
 - **Individual skill version (`src/skills/<name>/SKILL.md` and `src/factory/registry.json`, e.g. `1.0.0` or `0.2.0`)**: versions each skill's own instructions, rules, and engine inside its folder. Shown on each skill card and skill detail page as `Skill version <x.y.z>` and recorded in `.claude/skills/<name>/.foundry.json` so `check` and `update` only update skills whose content changed.
 
 ## Showcase site and verification
@@ -48,7 +54,7 @@ npm run dev                      # build and preview the showcase site locally
 
 ## Work in this repository (the lab)
 
-Run `npm run setup` once per clone to enable the `.githooks` pre-commit `skill-guard` hook (`AGENTS.md`, one skill per session). The local harness controller runs Agentic-Harness `1.0.18` inside `.harness/`.
+Run `npm run setup` once per clone to enable the `.githooks` pre-commit `skill-guard` hook (`AGENTS.md`, one skill per session). The local harness controller runs Agentic-Harness `1.0.23` inside `.harness/`.
 
 Release flow:
 1. Build or update at most one skill per session on `lab`, following `docs/factory/STANDARD.md` and `docs/factory/QUALITY-LAYERS.md`.

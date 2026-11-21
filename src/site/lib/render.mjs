@@ -416,6 +416,7 @@ ${stepCard(3, 'step.keep', ['check', 'update'])}
 </ol>
 <div class="install-more">
 ${t('install.scope', 'p', 'class="note"')}
+${t('install.time', 'p', 'class="note"')}
 <details class="acc">
 <summary>${t('install.more')}</summary>
 <ol class="cmds">

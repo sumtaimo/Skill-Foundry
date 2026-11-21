@@ -692,6 +692,8 @@ export function report(b, { name = 'Product', why = '', path = 'a', existing = n
       L.push(`| ${r.fg} | ${on} | ${ratioText(r.light)} | ${ratioText(r.dark)} | ${r.need}:1 | ${r.light >= r.need && r.dark >= r.need ? 'pass' : 'FAIL'} |`);
     }
     L.push('', `Light and Dark give the lowest ratio of each role over the surfaces listed; ${b.pairs.length} pairs checked in each mode.`);
+    // An agent or reviewer that sees a pale text-disabled and no row for it will "fix" it; say why it is not checked.
+    if (b.roles.light['text-disabled']) L.push(`text-disabled is not checked on purpose: WCAG 1.4.3 exempts the text of disabled controls, so it stays lighter (${b.roles.light['text-disabled'].hex} light, ${b.roles.dark['text-disabled'].hex} dark) to read as unavailable. Do not raise it to 4.5:1 or report it as a failure.`);
   }
   L.push('');
   if (existing) {

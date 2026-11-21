@@ -1,7 +1,7 @@
 ---
 name: design-system
 description: Builds one complete, consistent design-token set from a brand hex colour, a description of the style, or the project's existing tokens (filling only the gaps, never overwriting), and writes design-tokens.json (W3C format), tokens.css with light and dark mode, and a report with every contrast ratio. Also sets up the design foundation of a product in a design folder as variables with three tiers (primitive, semantic, component), and changes one variable across the whole product with every contrast pair checked. Use when asked for a "design system", "design tokens", a "colour palette from this hex", a "theme", "dark mode tokens", a "design foundation" or "design variables", or to change a colour, radius or size everywhere. Do not use to design or build a screen or page, or to polish finished UI code (use ui-polish).
-version: 1.2.0
+version: 1.2.1
 ---
 
 # design-system

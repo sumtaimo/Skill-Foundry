@@ -14,6 +14,8 @@ current version.
 - The run recorder keeps up to 12000 characters of the agent reply (was 4000); routing re-recorded on the merged descriptions; Agentic-Harness template updated from 1.0.18 to 1.0.23.
 - `tests/component-kit.test.mjs` normalises CRLF line endings, so the suite also passes on a Windows checkout with `core.autocrlf`.
 - `check` and `update` ignore line endings when they compare installed skill files: a Windows clone with `core.autocrlf` no longer reports every skill as "CHANGED LOCALLY", and `update` no longer keeps the old files because of it. Stamps written by older versions still match.
+- `design-system` 1.2.1: the report says `text-disabled` is exempt from contrast (WCAG 1.4.3) and gives its hex, so an agent or reviewer no longer "fixes" it; found in a real Codex harness run that looped three times on it. Fresh real-agent portable check and `tokens-then-polish` recipe.
+- README and landing: what to expect with an agentic harness (a worker needs a role to get a skill; each skill arrives as a short pointer) and how long real runs take (1 to 2 minutes for a small task, about 4 minutes per round for a design-token build, measured with Codex). README versions corrected (1.2.0, harness copy 1.0.23).
 
 ## 1.1.0 - 2026-11-19
 

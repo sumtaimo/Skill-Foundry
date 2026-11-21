@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.1 - 2026-11-21
+
+- The report now says why `text-disabled` has no contrast row: WCAG 1.4.3 exempts the text of disabled controls, so it stays lighter on purpose, with its light and dark hex. In a real harness run (Codex) the worker and the reviewer both read the missing row as a failure, raised the colour by hand and looped three times. The tokens, the files and every checked pair are unchanged.
+
 ## 1.2.0 - 2026-11-20
 
 - New path d, the design foundation of a product: variables with three tiers (primitive, semantic, component), light and dark modes, scopes and a code name for each variable, in one source `design/variables.json`. The new engine `engine/variables.mjs` (Node.js, no dependencies) has `init` (from `design/BRIEF.md`), `set`, `check`, `explain` and `build`. Paths a, b and c and `engine/tokens.mjs` write exactly what they wrote in 1.1.0.

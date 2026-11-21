@@ -344,9 +344,17 @@ test('2026 group on path c: never written over a user token with the same name',
   assert.ok(gaps.includes('--z-toast: 100'));
 });
 
+test('the report says text-disabled is exempt from contrast, with its hex, so no agent or reviewer "fixes" it', () => {
+  const b = E.build({ primary: '#0f766e' });
+  const md = E.report(b, { name: 'Product', path: 'a', files: [], open: [] });
+  assert.match(md, /text-disabled is not checked on purpose: WCAG 1\.4\.3 exempts/);
+  assert.ok(md.includes(b.roles.light['text-disabled'].hex) && md.includes(b.roles.dark['text-disabled'].hex));
+  assert.ok(!b.pairs.some((p) => p.fg === 'text-disabled'), 'still not a checked pair');
+});
+
 test('design-system version matches CHANGELOG and registry', () => {
   const v = /^version:\s*(\S+)/m.exec(readFileSync(path.join(DIR, 'SKILL.md'), 'utf8'))[1];
-  assert.equal(v, '1.2.0');
+  assert.equal(v, '1.2.1');
   assert.match(readFileSync(path.join(DIR, 'CHANGELOG.md'), 'utf8'), new RegExp(`## ${v} - \\d{4}-\\d{2}-\\d{2}`));
   const reg = JSON.parse(readFileSync(path.join(ROOT, 'src', 'factory', 'registry.json'), 'utf8'));
   assert.equal(reg.find((x) => x.name === 'design-system').version, v);

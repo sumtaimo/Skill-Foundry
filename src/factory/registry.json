@@ -105,7 +105,7 @@
   },
   {
     "name": "design-system",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "purpose": "Builds one complete design-token set (W3C JSON and CSS, light and dark, every contrast ratio checked) from a hex, a style or the project's existing tokens; keeps the user's hue and never overwrites existing tokens.",
     "status": "ready",
     "roles": [
