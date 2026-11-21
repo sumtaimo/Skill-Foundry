@@ -6,6 +6,9 @@ current version.
 
 ## 1.4.0 - 2026-11-21
 
+- `doctor` mirrors Agentic-Harness 1.0.34: when a skill pointer narrows a worker's tools, the role's own `mcp__` tools are kept (like Read/Grep), so engine skills no longer report "strips mcp__playwright".
+- Memory rule L1: talk with the owner in Khmer.
+
 - The default set is a small core again, one starter skill per role (TAIMO: "Small core, fetch rest"): spec-writer (PO, BA), design-system (UX), copy-tight (DEV), test-planner (QA). The Agentic-Harness installer adds this core once; harness 1.0.32 or later adds any other skill the first time a task needs it (from `list --json`), at most two skills per task, and says which skill it added and why. Projects that already have more skills keep them.
 - README and landing describe the core set and the fetch on demand.
 - The lab's own harness is updated to Agentic-Harness 1.0.32, with `"skillFetch": false`: this repository is the skill source, so its harness never fetches skills into `.claude/skills/`.
