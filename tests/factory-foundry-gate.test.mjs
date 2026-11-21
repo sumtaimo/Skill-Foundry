@@ -256,14 +256,13 @@ test('doctor: a pointer and its harness that disagree are reported with the exac
   assert.ok(items.some((i) => i.level === 'warn' && /needs a harness with SKILL_MATCH/.test(i.message)), 'harness downgraded: warn');
 });
 
-test('add --default installs every ready portable skill (the harness installer calls it), and registry keywords are whole phrases of at least 4 characters', () => {
+test('add --default installs the small core set (one starter per role; the harness fetches the rest on demand), and registry keywords are whole phrases of at least 4 characters', () => {
   const p = newProject('dflt2'); const r = run(p, ['add', '--default', '--quiet']); assert.equal(r.code, 0, r.out.join('\n'));
-  // TAIMO, 2026-11-21: the harness installs Skill Foundry by default, so every ready skill comes with it; a worker still gets
-  // only the skills that fit its role and task (keywords), each as a short pointer. Node is always there (npx runs on it).
-  const DEFAULT = catalog().filter((x) => x.scope !== 'factory').map((x) => x.name).sort();
-  assert.ok(DEFAULT.length >= 11);
-  assert.deepEqual(existsSync(join(p, '.claude', 'skills')) ? readdirSync(join(p, '.claude', 'skills')).sort() : [], DEFAULT, 'every ready portable skill');
-  assert.deepEqual(catalog().filter((x) => x.isDefault).map((x) => x.name).sort(), DEFAULT, 'registry default flag on every ready portable skill');
+  // TAIMO, 2026-11-21: "Small core, fetch rest". The harness installer adds this core once; Agentic-Harness 1.0.32+ adds any
+  // other skill the first time a task needs it (list --json), at most 2 skills per worker. Node is always there.
+  const DEFAULT = ['copy-tight', 'design-system', 'spec-writer', 'test-planner'];
+  assert.deepEqual(existsSync(join(p, '.claude', 'skills')) ? readdirSync(join(p, '.claude', 'skills')).sort() : [], DEFAULT, 'the core set TAIMO chose');
+  assert.deepEqual(catalog().filter((x) => x.isDefault).map((x) => x.name).sort(), DEFAULT, 'registry default flag only on the core set');
   const before = tree(p); const again = run(p, ['add', '--default', '--quiet']); assert.equal(again.code, 0); assert.deepEqual(tree(p), before, 'a second add --default changes nothing');
   const cat = catalog().filter((x) => DEFAULT.includes(x.name));
   for (const x of cat) if (existsSync(join(x.dir, 'engine'))) assert.ok(x.engine, `${x.name}: a default skill with an engine/ script declares engine required or optional`);

@@ -1,4 +1,4 @@
-# Skill Foundry (`v1.3.1`)
+# Skill Foundry (`v1.4.0`)
 
 A factory for AI agent skills by **TAIMO**. Each skill is a self-contained folder structured into ten core layers (`docs/factory/STANDARD.md`), verified by a machine linter, fresh real-agent evals, portable empty-project checks, and routing tests. The showcase site (`src/site/`, specified in `docs/site/LANDING-SPEC.md`) uses a calm, neutral React Bits–inspired layout with light/dark themes and EN/KH toggles and displays only real recorded agent outputs. Node 24, ES modules, zero runtime dependencies (`playwright` is a dev dependency for browser checks).
 
@@ -8,16 +8,16 @@ Read `docs/PROJECT.md` first for project goals, per-skill status, and quality ru
 
 Requires Node.js and git. Tested on Linux, macOS, and Windows.
 
-**Using [Agentic-Harness](https://github.com/sumtaimo/Agentic-Harness)?** You need no second command: its installer runs `add --default` once, so every ready skill is installed and given to the matching roles. Use the commands below in a project without the harness, or to check, update or remove skills.
+**Using [Agentic-Harness](https://github.com/sumtaimo/Agentic-Harness)?** You need no second command: its installer runs `add --default` once, which installs a small core set (spec-writer, design-system, copy-tight, test-planner: one starter per role), and Agentic-Harness 1.0.32 or later adds any other skill the first time a task needs it (from `list --json`), at most two skills per task, and says which one it added. Use the commands below in a project without the harness, or to check, update or remove skills.
 
 ```sh
-npx github:sumtaimo/Skill-Foundry --version                 # project version (1.3.1)
+npx github:sumtaimo/Skill-Foundry --version                 # project version (1.4.0)
 npx github:sumtaimo/Skill-Foundry list                      # ready skills, versions, roles
 npx github:sumtaimo/Skill-Foundry list --json               # the same as JSON, with installed versions (for the harness)
 npx github:sumtaimo/Skill-Foundry add test-planner          # install one skill
-npx github:sumtaimo/Skill-Foundry add --default             # install the default set (every ready skill)
+npx github:sumtaimo/Skill-Foundry add --default             # install the core set (one starter per role)
 npx github:sumtaimo/Skill-Foundry add --role QA_AUDITOR     # every skill for a role
-npx github:sumtaimo/Skill-Foundry add --all                 # all portable skills (same set today)
+npx github:sumtaimo/Skill-Foundry add --all                 # all portable skills
 npx github:sumtaimo/Skill-Foundry check [--json]            # check installed versions and local edits
 npx github:sumtaimo/Skill-Foundry update                    # update skills while keeping local changes
 npx github:sumtaimo/Skill-Foundry remove test-planner       # remove a skill cleanly
@@ -43,7 +43,7 @@ What `add` writes in your project:
 
 Skill Foundry tracks two separate version numbers so the CLI/platform and individual skills evolve independently:
 
-- **Skill Foundry project version (`package.json`, currently `1.3.1`)**: versions the `skill-foundry` CLI, showcase site, `llms.txt`, `skills.json`, and harness integration (`npx github:sumtaimo/Skill-Foundry --version`). Shown in the page footer as `Skill Foundry version 1.3.1`.
+- **Skill Foundry project version (`package.json`, currently `1.4.0`)**: versions the `skill-foundry` CLI, showcase site, `llms.txt`, `skills.json`, and harness integration (`npx github:sumtaimo/Skill-Foundry --version`). Shown in the page footer as `Skill Foundry version 1.4.0`.
 - **Individual skill version (`src/skills/<name>/SKILL.md` and `src/factory/registry.json`, e.g. `1.0.0` or `0.2.0`)**: versions each skill's own instructions, rules, and engine inside its folder. Shown on each skill card and skill detail page as `Skill version <x.y.z>` and recorded in `.claude/skills/<name>/.foundry.json` so `check` and `update` only update skills whose content changed.
 
 ## Showcase site and verification

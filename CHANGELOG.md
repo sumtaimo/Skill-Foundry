@@ -4,6 +4,11 @@ Versions of Skill Foundry itself (the `skill-foundry` command and the set of ski
 version in its folder. Versions move slowly: a bump needs the owner's approval in chat; record smaller changes under the
 current version.
 
+## 1.4.0 - (released together with Agentic-Harness 1.0.32)
+
+- The default set is a small core again, one starter skill per role (TAIMO: "Small core, fetch rest"): spec-writer (PO, BA), design-system (UX), copy-tight (DEV), test-planner (QA). The Agentic-Harness installer adds this core once; harness 1.0.32 or later adds any other skill the first time a task needs it (from `list --json`), at most two skills per task, and says which skill it added and why. Projects that already have more skills keep them.
+- README and landing describe the core set and the fetch on demand.
+
 ## 1.3.1 - 2026-11-21
 
 - New `list --json`: every ready portable skill, installed or not, with name, version, description, roles, keywords, default, engine, installed version and current. JSON only on stdout, exit 0, read from the registry in the package (works offline). The Agentic-Harness reads it to add a skill the first time a task needs it (planned for harness 1.0.32). Nothing else changes; the default set stays as in 1.3.0 until that harness is released.
