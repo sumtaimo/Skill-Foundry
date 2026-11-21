@@ -9,7 +9,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
-import { ROOT, FILES, DIRS, ensureDirs, loadConfig, resolveProfile, engineUsable, listLessons, probeEngine, profileFlags, engineConsent, usesCliDefault, winCommandLine, needsWinShell, findAllOnPath, checkCore, detectVerifyCmd, listProjectFiles, which, helpIfAsked } from './lib/common.mjs';
+import { ROOT, FILES, DIRS, ensureDirs, loadConfig, resolveProfile, engineUsable, listLessons, probeEngine, profileFlags, engineConsent, usesCliDefault, winCommandLine, needsWinShell, findAllOnPath, checkCore, detectVerifyCmd, listProjectFiles, which, helpIfAsked, REMOVED_ENGINES, personStatus, ME_SETUP_CMD, meFile, readPeople } from './lib/common.mjs';
 helpIfAsked(import.meta.url);
 import { SKILL_MATCH, SKILL_SCHEMA_MAX, unsupportedSkillPointers, readCharter, loadRoles, loadSkills, skillRulesNotGranted, skillToolsFor, readBacklog, backlogCounts, validateBacklog, listReleases, loadTeam, validateTeam, syncAgents, planScopeAdaptation } from './lib/governance.mjs';
 
@@ -37,6 +37,8 @@ try {
 
 console.log('\nAI engines — installed? and does "<engine> --help" list every flag in config.json?');
 for (const [name, p] of Object.entries(config.profiles)) {
+  // An engine the harness dropped (kept only because an older config.json still lists it): never probed, never used.
+  if (REMOVED_ENGINES[name]) { warn(`${name.padEnd(12)} no longer supported (${REMOVED_ENGINES[name]}); the harness never uses it. Remove "${name}" from "profiles" and "autoOrder" in .harness/config.json.`); continue; }
   const probe = probeEngine(p, { force: true });
   const flags = profileFlags(p);
   const preferred = name === config.activeProfile || (config.activeProfile === 'auto' && (config.autoOrder || [])[0] === name);
@@ -117,6 +119,15 @@ const isTemplate = fs.existsSync(path.join(ROOT, 'install.mjs')) && /"name":\s*"
       const list = [...c.changed.map((f) => `${f} (edited)`), ...c.missing.map((f) => `${f} (deleted)`), ...c.added.map((f) => `${f} (new)`)];
       warn(`harness core differs from the template: ${list.join(', ')}. The core belongs to the template: do not fix the harness inside a project. Report the gap to the template (docs/MAINTAINING.md), then re-install to get the fix: npx github:sumtaimo/Agentic-Harness#release .`);
     }
+    // Is there a newer release? (inline here; one HTTPS GET of the release's package.json, nothing about you is sent)
+    try {
+      const { updateCheck } = await import('./lib/update-check.mjs');
+      const u = await updateCheck({ root: ROOT, sync: true });
+      if (u.lines.length) for (const l of u.lines) warn(l);
+      else if (u.source === 'off') note('update check is off (HARNESS_OFFLINE=1, HARNESS_UPDATE_CHECK=0 or "updateCheck": false)');
+      else if (u.latest) ok(`harness ${u.installed} is the latest release`);
+      else note(`could not reach the release to check for a newer harness (offline?). To update by hand: npx github:sumtaimo/Agentic-Harness#release .`);
+    } catch { /* a courtesy: never fail the doctor */ }
   }
 }
 
@@ -231,6 +242,13 @@ console.log('\nAgent team (hierarchy: orchestrator → leads → workers)');
         ok(`engine routing (headless --hierarchy): ${team.members.map((m) => `${m.id}→${m.engine || 'auto'}`).join(', ')}`);
         const down = [...new Set(routed.map((m) => m.engine))].filter((e) => !engineUsable(config, e).ok);
         if (down.length) warn(`routed engine(s) not usable now: ${down.join(', ')} → those members fall back to "auto". Re-run  node .harness/team.mjs auto-assign`);
+        // One engine for the whole team is a single point of failure: a usage limit / HTTP 429 stops every member at once.
+        const engines = [...new Set(team.members.map((m) => m.engine || 'auto'))];
+        if (engines.length === 1 && engines[0] !== 'auto' && team.members.length > 1) {
+          const spare = Object.keys(config.profiles).filter((k) => k !== engines[0] && !REMOVED_ENGINES[k] && engineUsable(config, k).ok);
+          if (spare.length) note(`every team member is routed to ${engines[0]}: if it hits a usage limit (HTTP 429), agents retry on ${spare.join(', ')} (QUOTA_FALLBACK). To spread the load: node .harness/team.mjs auto-assign`);
+          else warn(`every team member is routed to ${engines[0]} and no other engine is usable: one usage limit (HTTP 429) stops the whole team. Install/allow a second engine (node .harness/engines.mjs), then: node .harness/team.mjs auto-assign`);
+        }
       }
       const ag = syncAgents(team, roles, { check: true });
       if (ag.stale.length) warn(`editor agents out of sync with team.json (${ag.stale.join(', ')}): run  node .harness/team.mjs sync-agents  and restart the Claude Code session`);
@@ -283,8 +301,38 @@ console.log('\nGit integration branch (where autonomous work lands)');
 console.log('\nMemory');
 const profile = fs.existsSync(FILES.profile) ? fs.readFileSync(FILES.profile, 'utf8') : '';
 if (!fs.existsSync(FILES.profile) || !profile.trim()) note('memory/profile.md is missing or empty. Run node install.mjs <project> or create .harness/memory/profile.md');
-else if (/^- .*\(fill me/im.test(profile)) note('memory/profile.md still has "(fill me)" placeholders. Optional: tell your AI "Read AGENTS.md and fill in my profile". The shared template keeps it generic on purpose.');
+else if (/^- .*\(fill me/im.test(profile)) note('memory/profile.md still has "(fill me)" placeholders. Optional: tell your AI "Read AGENTS.md and fill in the project profile" (it describes the project; your own preferences go in me.md).');
 else ok('memory/profile.md is filled in');
+{
+  // The person at this machine: me.md is git-ignored, one per person (hats are human focus, never AI roles).
+  const p = personStatus();
+  if (p.kind === 'me') ok(`memory/me.md (yours, git-ignored): ${p.me.fields.find((f) => f.key === 'name')?.value || 'no name'}${p.me.hats.length ? `, hats ${p.me.hats.join(', ')}` : ''}${p.me.skills.length ? `, ${p.me.skills.length} personal skill(s) for your chat AI only` : ''}`);
+  else if (p.kind === 'other-person') note(`memory/profile.md names ${p.name}, but the git user here is ${p.gitName}. A teammate keeps their own preferences in memory/me.md (git-ignored): ${ME_SETUP_CMD}`);
+  else if (p.kind === 'missing') note(`no memory/me.md on this machine (optional, git-ignored: your name, language, answer style and hats). Create it: ${ME_SETUP_CMD}`);
+  if (p.kind === 'me' && path.resolve(meFile()) !== path.resolve(FILES.me)) ok(`memory/me.md comes from the main checkout (${path.dirname(path.dirname(path.dirname(meFile())))}): one me.md for all your worktrees`);
+  // Personal skills: the person's own Claude skills folder (~/.claude/skills/<name>/SKILL.md). A project skill of the same
+  // name is shared, not personal; a name found nowhere is probably a typo.
+  for (const s of p.kind === 'me' ? p.me.skills : []) {
+    const personal = path.join(os.homedir(), '.claude', 'skills', s, 'SKILL.md');
+    const shared = path.join(ROOT, '.claude', 'skills', s, 'SKILL.md');
+    if (fs.existsSync(personal)) continue;
+    if (fs.existsSync(shared)) note(`me.md lists "${s}" as a personal skill, but it is a shared project skill (.claude/skills/${s}); everyone has it already, so it does not need to be in me.md`);
+    else note(`me.md lists personal skill "${s}", but ${personal} does not exist. Check the name, or install it into your own skills folder`);
+  }
+  if (fs.existsSync(FILES.me) && fs.existsSync(path.join(ROOT, '.git')) && spawnSync('git', ['check-ignore', '-q', '.harness/memory/me.md'], { cwd: ROOT, stdio: 'ignore' }).status === 1) warn('memory/me.md is NOT git-ignored, so personal preferences could be committed. Fix: add ".harness/memory/me.md" to .gitignore (re-installing the harness adds it).');
+  // The team page (people.md, committed): only what people chose to share, no contact details, one section each.
+  if (fs.existsSync(FILES.people)) {
+    const people = readPeople();
+    const raw = fs.readFileSync(FILES.people, 'utf8');
+    const names = people.map((x) => x.name.toLowerCase());
+    const dup = [...new Set(names.filter((n, i) => names.indexOf(n) !== i))];
+    if (dup.length) warn(`memory/people.md lists ${dup.join(', ')} more than once. Keep one section per person (each person runs: node .harness/memory.mjs me share).`);
+    if (/[^\s@]+@[^\s@]+\.[a-z]{2,}|\+?\d[\d\s().-]{7,}\d/i.test(raw)) warn('memory/people.md contains what looks like an e-mail address or phone number. It is committed: remove contact details from it.');
+    const mine = p.kind === 'me' ? people.find((x) => x.name.toLowerCase() === String(p.me.fields.find((f) => f.key === 'name')?.value || '').toLowerCase()) : null;
+    if (mine && mine.hats.join(',') !== p.me.hats.join(',')) note(`memory/people.md shows your hats as "${mine.hats.join(', ') || 'none'}", your me.md says "${p.me.hats.join(', ') || 'none'}". Update the team page: node .harness/memory.mjs me share`);
+    ok(`memory/people.md (team page, committed): ${people.length} person(s)${people.length ? `: ${people.map((x) => x.name).join(', ')}` : ''}`);
+  }
+}
 if (!fs.existsSync(FILES.lessons)) note('memory/lessons.md is missing');
 ok(`${listLessons(FILES.lessons).length} taught rule(s), ${listLessons(FILES.autoLessons).length} auto lesson(s)`);
 

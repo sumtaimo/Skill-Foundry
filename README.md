@@ -32,7 +32,7 @@ What `add` writes in your project:
 ### With an agentic harness: what to expect
 
 - A worker gets a skill only when the skill lists the worker's **role** and one of the skill's keywords is in the task. Each skill arrives as a short pointer (about half a kilobyte); the worker opens the full skill only when it fits, so several installed skills do not fill its context.
-- Give headless tasks a role, for example `node .harness/dispatch.mjs --goal "…" --role DEV_ENGINEER`. A task without a role gets no skills (Agentic-Harness with `--role` support logs `SKILL_NEEDS_ROLE` to say which skills it missed). Team mode, the editor workflow and backlog tasks already carry roles.
+- Give headless tasks a role, for example `node .harness/dispatch.mjs --goal "…" --role DEV_ENGINEER`. `--role` and the `SKILL_NEEDS_ROLE` notice (a task without a role gets no skills; the notice names the skills it missed) need Agentic-Harness 1.0.31 or later, which also matches keywords as whole words. Team mode, the editor workflow and backlog tasks already carry roles.
 - Real runs take minutes, not seconds, because the agent does the work. Measured in a demo project with Codex: tightening UI copy and writing acceptance criteria took 1 to 2 minutes each; a design-token build took about 4 minutes per round. A release proof (live evals, portable check, recipes) takes much longer and runs only in this lab.
 
 - `npm run release:check` runs all release gates automatically, including [version & changelog tracking](src/factory/version-check.mjs) against `master` so shipped changes always carry updated `CHANGELOG.md` entries and new ready/default skills require a `package.json` version bump.
@@ -56,7 +56,7 @@ npm run dev                      # build and preview the showcase site locally
 
 ## Work in this repository (the lab)
 
-Run `npm run setup` once per clone to enable the `.githooks` pre-commit `skill-guard` hook (`AGENTS.md`, one skill per session). The local harness controller runs Agentic-Harness `1.0.23` inside `.harness/`.
+Run `npm run setup` once per clone to enable the `.githooks` pre-commit `skill-guard` hook (`AGENTS.md`, one skill per session). The local harness controller runs Agentic-Harness `1.0.31` inside `.harness/`.
 
 Release flow:
 1. Build or update at most one skill per session on `lab`, following `docs/factory/STANDARD.md` and `docs/factory/QUALITY-LAYERS.md`.

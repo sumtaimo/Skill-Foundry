@@ -8,6 +8,7 @@ current version.
 
 - Every ready portable skill is now a default skill (11: the old five plus design-system, ui-craft, ui-polish, component-kit, a11y-audit, figure-craft). The Agentic-Harness installer runs `add --default` once, so a new harness project gets every skill wired to its roles with no second command. A worker still gets only the skills that fit its role and the words of its task, each as a short pointer. The old rule that a default skill has no `engine/` script is dropped: Node.js is always there, because `npx` and the harness run on it; every engine skill declares `engine: required | optional`. Projects that already have the old defaults see the new ones in `check` and `doctor` and add them with `add --default`.
 - README and landing: with Agentic-Harness you need no second command.
+- The lab's own harness is updated from Agentic-Harness 1.0.23 to 1.0.31 (installed with `--no-skills`; config keeps the owner's values, removed engines dropped). README: `--role` needs Agentic-Harness 1.0.31 or later.
 
 ## 1.2.0 - 2026-11-21
 

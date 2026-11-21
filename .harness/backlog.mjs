@@ -8,6 +8,7 @@
  *   node .harness/backlog.mjs ready <id>                 BACKLOG/BLOCKED → READY
  *   node .harness/backlog.mjs approve <id>               OK an item autopilot held ("needs your OK": big run or possible prompt injection) → READY
  *   node .harness/backlog.mjs block <id> "reason"        → BLOCKED
+ *   node .harness/backlog.mjs done <id> "how it was finished"   → DONE (work finished outside the harness; the note is kept)
  *   node .harness/backlog.mjs pop                        move the next READY item into the inbox now
  *   node .harness/backlog.mjs import <file|folder> [--reset-memory]
  *        backlog .json  → replaces backlog.json
@@ -24,7 +25,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { DIRS, FILES, ensureDirs, readJsonSafe, helpIfAsked } from './lib/common.mjs';
+import { DIRS, FILES, ensureDirs, readJsonSafe, helpIfAsked, harnessPidAlive } from './lib/common.mjs';
 helpIfAsked(import.meta.url);
 import {
   GOV, STATUSES, readBacklog, writeBacklog, updateBacklogItem, validateBacklog, nextReady, backlogCounts,
@@ -46,9 +47,30 @@ const positional = rest.filter((a, i) => !a.startsWith('--') && !(i > 0 && rest[
 
 function daemonBusy() {
   let pid = 0;
-  try { pid = Number(fs.readFileSync(FILES.pid, 'utf8')); process.kill(pid, 0); } catch { return null; }
+  try { pid = Number(fs.readFileSync(FILES.pid, 'utf8')); if (!harnessPidAlive(pid)) return null; } catch { return null; }
   const s = readJsonSafe(FILES.state, {});
   return s.currentTaskFile ? { pid, file: s.currentTaskFile, title: s.taskTitle } : null;
+}
+
+/**
+ * The job of this backlog item that is still queued (inbox) or running (live daemon), or null. Job ids start with the
+ * item id ("X1-run…"). A stale IN_PROGRESS item (its daemon died, nothing queued) has none, so it can still be reset.
+ */
+function liveJob(id) {
+  const mine = (f) => path.basename(String(f || '')).startsWith(`${id}-`);
+  try { const q = fs.readdirSync(DIRS.inbox).find((f) => f.endsWith('.json') && mine(f)); if (q) return `queued in .harness/inbox/${q}`; } catch { /* no inbox */ }
+  const busy = daemonBusy();
+  return busy && mine(busy.file) ? `running in the daemon (PID ${busy.pid})` : null;
+}
+
+/** Refuse a status change that would run an item twice, or reopen finished work by accident (--force overrides). */
+function guardChange(id, cmd) {
+  if (has('--force') || cmd === 'block') return; // blocking can never run anything twice
+  const item = readBacklog().tasks.find((t) => t.id === id);
+  if (!item) return; // "No backlog item" is reported by the caller
+  const job = liveJob(id);
+  if (job) { console.error(`${id} has a job ${job}. ${cmd === 'done' ? 'Closing' : 'Queuing'} it now would ${cmd === 'done' ? 'hide work that is still running' : 'run the same task twice'}. Wait for it to finish (or stop it), or add --force.`); process.exit(1); }
+  if (item.status === 'DONE' && cmd !== 'done') { console.error(`${id} is already DONE. To run it again on purpose: node .harness/backlog.mjs ${cmd} ${id} --force`); process.exit(1); }
 }
 
 function show() {
@@ -107,9 +129,21 @@ switch (cmd) {
     break;
   }
 
+  case 'done': { // work finished outside the harness (by hand, another tool): close the item with a note, never silently
+    const id = positional[0];
+    const note = positional.slice(1).join(' ').trim();
+    guardChange(id, 'done');
+    if (!note) { console.error(`Say how it was finished, e.g.: node .harness/backlog.mjs done ${id || '<id>'} "fixed by hand in commit abc123"`); process.exit(1); }
+    const item = updateBacklogItem(id, { status: 'DONE', completedAt: new Date().toISOString(), result: 'DONE_OUTSIDE_HARNESS', doneNote: note.slice(0, 300), blockedReason: undefined, needsApproval: undefined, awaitingJudge: undefined });
+    if (!item) { console.error(`No backlog item "${id}".`); process.exit(1); }
+    console.log(`${id} → DONE (finished outside the harness: ${note.slice(0, 300)})`);
+    break;
+  }
+
   case 'ready': case 'block': case 'reset': {
     const id = positional[0];
     const status = cmd === 'block' ? 'BLOCKED' : 'READY';
+    guardChange(id, cmd);
     const patch = { status, ...(cmd === 'block' ? { blockedReason: positional[1] || 'blocked by a human' } : { blockedReason: undefined }) };
     const item = updateBacklogItem(id, patch);
     if (!item) { console.error(`No backlog item "${id}".`); process.exit(1); }
@@ -119,6 +153,7 @@ switch (cmd) {
 
   case 'approve': { // a big run that autopilot held: the person OKs it (also allows the high model for this item)
     const id = positional[0];
+    guardChange(id, 'approve');
     const item = updateBacklogItem(id, { status: 'READY', costApproved: true, injectionApproved: true, needsApproval: undefined, blockedReason: undefined });
     if (!item) { console.error(`No backlog item "${id}".`); process.exit(1); }
     console.log(`${id} → READY, big run approved (autopilot may use the team / parallel mode and the high model for it)`);

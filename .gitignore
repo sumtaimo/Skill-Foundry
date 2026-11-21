@@ -48,3 +48,6 @@ node_modules
 # Personal working memory stays on the owner's machine
 .harness/memory/profile.md
 .harness/memory/lessons.md
+# Each person's own profile (name, language, answer style, hats); profile.md is the shared project profile
+.harness/memory/me.md
+.harness/update-check.json

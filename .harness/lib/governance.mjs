@@ -113,8 +113,21 @@ export const SKILL_COMPOSITION = 'additive-union';
  * such as Skill Foundry may write pointers with `autoApply: false` and rely on keywords. Read the flag, never a version.
  */
 export const SKILL_MATCH = 'keywords-with-explicit';
-/** Capability flag: a keyword matches when it appears anywhere in the task text (case-insensitive substring, not whole word). */
-export const SKILL_KEYWORD_MATCH = 'substring';
+/**
+ * Capability flag: a keyword matches as a WHOLE word or phrase (case-insensitive), also with a plural "s"/"es" — so
+ * "token" matches "tokens" but not "tokenizer", "api" not "rapid", "auth" not "author", "rest" not "restore".
+ * Multi-word keywords ("access token") and keywords with punctuation ("install.mjs", "--reset") match as written.
+ * Up to v1.0.30 this was 'substring' (anywhere in the text), which injected unrelated skills.
+ */
+export const SKILL_KEYWORD_MATCH = 'word';
+
+/** Does this skill keyword appear in the text as a whole word or phrase (plural allowed)? See SKILL_KEYWORD_MATCH. */
+export function keywordMatches(text, keyword) {
+  const k = String(keyword || '').trim().toLowerCase();
+  if (!k) return false;
+  const esc = k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
+  return new RegExp(`(?<![a-z0-9])${esc}(?:s|es)?(?![a-z0-9])`, 'i').test(String(text || ''));
+}
 /** Highest SKILL.md `schema_version` (format of the skill pointer) this harness understands; a missing value means 1. */
 export const SKILL_SCHEMA_MAX = 1;
 const unsupportedSkills = new Map();
@@ -306,7 +319,7 @@ export function matchSkills(sub, roleName, allSkills) {
   for (const s of Object.values(allSkills)) {
     if (chosen.includes(s) || !fits(s) || s.roles.length === 0) continue;
     // added to the explicit list: autoApply skills, and skills whose keyword appears in the task (with or without a list)
-    if (s.autoApply || s.keywords.some((k) => k && text.includes(String(k).toLowerCase()))) chosen.push(s);
+    if (s.autoApply || s.keywords.some((k) => keywordMatches(text, k))) chosen.push(s);
   }
   return { chosen, mismatched, unknown };
 }
@@ -337,9 +350,30 @@ export const globsOverlap = (a, b) => globProbes(a).some((p) => matchesAny(p, [b
  *  - lead scopes are pairwise disjoint, so teams can never collide on a file
  *  - budgets only shrink downwards (sum of lead cost caps <= orchestrator cap; lead minutes <= orchestrator minutes)
  */
+/**
+ * team.json is the AI agent team only. People (names, e-mails, hats po/ba/ux/dev/qa) live in each person's git-ignored
+ * .harness/memory/me.md, so a human "hat" can never be read as an AI role or widen a scope. Returns warnings.
+ */
+const HUMAN_TEAM_KEYS = ['hats', 'hat', 'human', 'humans', 'people', 'person', 'persons', 'owner', 'owners', 'name', 'email', 'assignee', 'assignees', 'user', 'users', 'members_human'];
+const HUMAN_HATS = ['po', 'ba', 'ux', 'dev', 'qa'];
+export function humanFieldsInTeam(team) {
+  const out = [];
+  const fix = 'team.json is the AI agent team; put people and their hats in their own .harness/memory/me.md (node .harness/memory.mjs me set --hats …)';
+  for (const k of Object.keys(team || {})) if (HUMAN_TEAM_KEYS.includes(k.toLowerCase())) out.push(`team.json has a "${k}" field: ${fix}`);
+  for (const m of Array.isArray(team?.members) ? team.members : []) {
+    if (!m || typeof m !== 'object') continue;
+    const id = m.id || '?';
+    for (const k of Object.keys(m)) if (HUMAN_TEAM_KEYS.includes(k.toLowerCase())) out.push(`member "${id}" has a "${k}" field: ${fix}`);
+    if (typeof m.id === 'string' && m.id.includes('@')) out.push(`member "${id}" looks like an e-mail address: ${fix}`);
+    if (typeof m.role === 'string' && HUMAN_HATS.includes(m.role.toLowerCase()) && m.role === m.role.toLowerCase()) out.push(`member "${id}" has role "${m.role}", which is a human hat, not an AI role (use a role from .harness/roles/, e.g. QA_AUDITOR): ${fix}`);
+  }
+  return out;
+}
+
 export function validateTeam(team, { roles = {}, charter = null, plannerMaxWorkers = 4, engines = null } = {}) {
   const errors = []; const warnings = [];
   if (!team || !Array.isArray(team.members)) return { errors: ['team.json must be an object with a "members" list'], warnings };
+  for (const w of humanFieldsInTeam(team)) warnings.push(w);
   const ids = new Set();
   for (const m of team.members) {
     if (!m || typeof m.id !== 'string' || !m.id) { errors.push('every member needs an "id"'); continue; }
@@ -480,7 +514,9 @@ export function validateDelegation(plan, { leads, delegable, userAllowed = [] })
       for (const [other, by] of claimed) {
         const fDir = f.endsWith('/') || f.endsWith('/**');
         const otherDir = other.endsWith('/') || other.endsWith('/**');
-        const overlaps = strip(f) === strip(other) || strip(f).startsWith(`${strip(other)}/`) || strip(other).startsWith(`${strip(f)}/`) || ((/[*?]/.test(f) || /[*?]/.test(other)) && globsOverlap(f, other));
+        // Without case: src/b.js and src/B.js are one file on Windows and macOS.
+        const lf = strip(f).toLowerCase(); const lo = strip(other).toLowerCase();
+        const overlaps = lf === lo || lf.startsWith(`${lo}/`) || lo.startsWith(`${lf}/`) || ((/[*?]/.test(f) || /[*?]/.test(other)) && globsOverlap(f.toLowerCase(), other.toLowerCase()));
         if (by !== lead.id && overlaps) {
           if (fDir !== otherDir) {
             const file = fDir ? other : f;

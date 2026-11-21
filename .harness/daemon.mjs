@@ -26,13 +26,14 @@
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 import path from 'node:path';
-import { exec, execFile, spawn } from 'node:child_process';
+import { exec, execFile, spawn, spawnSync } from 'node:child_process';
 import { promisify } from 'node:util';
 import {
-  ROOT, DIRS, FILES, ensureDirs, loadConfig, atomicWriteJson, readJsonSafe, which,
+  ROOT, DIRS, FILES, ensureDirs, loadConfig, atomicWriteJson, readJsonSafe, which, engineBinary,
   resolveProfile, memoryContext, recordSession, remember, listLessons, detectVerifyCmd, buildRepoMap, clipErrorTrace, diagnoseVerifyFailure, formatDiagnosis,
   listProjectFiles, safeTarget, normalizeTarget, isSecretFile, isSameDir, validateExternalWorkRoot,
   winQuote, winCommandLine, needsWinShell, MODEL_TIERS, chooseModelTier, resolveModel, compatibleModelFor, pendingCostReasons, loadApprovals, engineUsable, helpIfAsked, aiUsageSince, usageLine, usageTodayLine,
+  harnessPidAlive
 } from './lib/common.mjs';
 helpIfAsked(import.meta.url); // "--help" prints the usage; it must never start the controller
 
@@ -43,7 +44,7 @@ const highAlwaysAllowed = () => (loadApprovals().alwaysAllow || []).includes('hi
 import {
   readCharter, loadRoles, loadSkills, matchSkills, computeAllowedTools, computeDisallowedTools,
   matchesAny, withinAll, skillRulesNotGranted, readBacklog, writeBacklog, updateBacklogItem, nextReady, backlogCounts, itemToJob,
-  loadTeam, validateTeam, leadOwns, validateDelegation, isTestFilePath, auditPatchSignals, scanPatchSafety
+  loadTeam, validateTeam, leadOwns, validateDelegation, isTestFilePath, auditPatchSignals, scanPatchSafety, globsOverlap, keywordMatches
 } from './lib/governance.mjs';
 import {
   isRepoWithCommits, branchSha, ensureBranch, protectedShas, ensureWorkerWorktree, commitScoped,
@@ -136,7 +137,7 @@ function nextStepHint(s) {
 }
 
 const engineList = () => Object.entries(config.profiles)
-  .map(([k, p]) => `${k.toUpperCase()}${which(p.binary) ? '✓' : '·'}`).join(' ');
+  .map(([k, p]) => `${k.toUpperCase()}${engineBinary(p) ? '✓' : '·'}`).join(' ');
 
 function renderHUD(s) {
   if (process.env.HARNESS_SILENT === '1') return;
@@ -354,7 +355,7 @@ function spawnEngineOnce({ id, engine, prompt, cwd, timeoutMs, allowedTools, dis
     }
     const live = liveOn();
     const stream = live && Array.isArray(profile.output?.stream);
-    const binPath = which(profile.binary);
+    const binPath = engineBinary(profile);
     // Engines that take the prompt as a command-line argument (agy) hit the OS limit (Windows: 32,767 chars for the whole
     // command line). Over the budget, the full prompt goes to a file and the engine gets a short instruction to read it.
     const viaArg = (profile.promptVia || ((profile.args || []).includes('{prompt}') ? 'arg' : 'stdin')) !== 'stdin';
@@ -384,13 +385,17 @@ function spawnEngineOnce({ id, engine, prompt, cwd, timeoutMs, allowedTools, dis
     let stdout = ''; let stderr = ''; let settled = false; let pending = '';
     const done = (fn, v) => { if (!settled) { settled = true; clearTimeout(timer); dropPromptFile(); fn(v); } };
     const ms = timeoutMs || config.workerTimeoutMs || 300000;
+    let timedOut = null;
     const timer = setTimeout(() => {
+      // Report the timeout only once the engine has really stopped (or after a short cap): rejecting at once let the
+      // rollback start while a still-running engine could write over the restored files.
+      timedOut = new Error(`${id} (${profile.name}) timed out after ${ms}ms`);
       if (process.platform === 'win32' && child.pid) {
-        try { spawn('taskkill', ['/PID', String(child.pid), '/T', '/F'], { stdio: 'ignore', windowsHide: true }).on('error', () => {}); } catch { /* ignore */ }
+        try { spawnSync('taskkill', ['/PID', String(child.pid), '/T', '/F'], { stdio: 'ignore', windowsHide: true, timeout: 10000 }); } catch { /* ignore */ }
       }
       child.kill('SIGTERM');
       setTimeout(() => child.kill('SIGKILL'), 5000).unref();
-      done(reject, new Error(`${id} (${profile.name}) timed out after ${ms}ms`));
+      setTimeout(() => done(reject, timedOut), 8000).unref(); // the engine never closed: give up waiting
     }, ms);
 
     child.stdout.on('data', (c) => {
@@ -410,6 +415,7 @@ function spawnEngineOnce({ id, engine, prompt, cwd, timeoutMs, allowedTools, dis
 
     child.on('error', (err) => done(reject, Object.assign(new Error(`Failed to start '${profile.binary}': ${err.message}`), { fatal: ['ENOENT', 'E2BIG', 'ENAMETOOLONG'].includes(err.code) })));
     child.on('close', (code) => {
+      if (timedOut) return done(reject, timedOut); // killed for taking too long: the engine is gone now
       let usage = null; try { usage = summarizeOutput(stdout); } catch { /* error output: no usage */ }
       logTelemetry('AGENT_USAGE', `${id}: ${profile.name} ${pick.model || 'default'} [${pick.tier}] ${code === 0 ? 'ok' : `exit ${code}`}`, { worker: id, engine: profile.name, model: pick.model, tier: pick.tier, ok: code === 0, tokens: usage?.tokens ?? null, usd: usage?.cost ?? null, ms: Date.now() - startedAt });
       if (live && pending.trim() && !stream) livePrint(id, oneLine(pending, 200));
@@ -555,6 +561,13 @@ function resolveGovernance(sub, gov) {
   const m = matchSkills(sub, roleName || 'NONE', gov.skills);
   if (m.unknown.length) throw fatal(`Worker '${sub.id}' asks for unknown skill(s): ${m.unknown.join(', ')} (installed: ${Object.keys(gov.skills).join(', ') || 'none'}).`);
   if (m.mismatched.length) logTelemetry('SKILL_ROLE_MISMATCH', `Skill(s) ${m.mismatched.join(', ')} not allowed for role ${roleName || '(none)'}; not injected`, { worker: sub.id });
+  if (!roleName) {
+    // A role is always required for a skill, so a role-less worker gets none. Name what the task text matched, so the
+    // user sees why and which --role would bring them in (was silent up to v1.0.28).
+    const text = String(sub.prompt || '').toLowerCase();
+    const missed = Object.values(gov.skills).filter((s) => s.roles.length && s.keywords.some((k) => keywordMatches(text, k)));
+    if (missed.length) logTelemetry('SKILL_NEEDS_ROLE', `${sub.id}: no role, so no skills; the task matches ${missed.map((s) => `${s.name} (${s.roles.join('/')})`).join(', ')}. Add --role to dispatch.`, { worker: sub.id, skills: missed.map((s) => s.name) });
+  }
   sub.resolvedRole = role ? role.name : null;
   sub.resolvedSkills = m.chosen.map((s) => s.name);
   sub.resolvedTools = role ? computeAllowedTools(role, m.chosen, sub.targetFiles, { explicit: Array.isArray(sub.skills) ? sub.skills : [] }) : (sub.allowedTools || null);
@@ -600,6 +613,20 @@ function runWorker(subtask, cwd, errorContext, { cycle = 1, model = null, diagno
 
 // ───────────────────────────── git helpers ─────────────────────────────
 
+/**
+ * Worktree mode: each worker starts from the last commit, so it cannot see uncommitted edits in your folder, and copying
+ * its result back would overwrite them. Before any worker starts, refuse when a file the workers may change has
+ * uncommitted edits (git status, untracked files included). Nothing is touched; commit or stash first.
+ */
+async function refuseDirtyWorktreeScope(plan, root = ROOT) {
+  const targets = [...new Set(plan.subtasks.filter((s) => s.prompt).flatMap((s) => s.targetFiles || []))];
+  if (!targets.length) return;
+  let out = '';
+  try { out = (await execFileAsync('git', ['status', '--porcelain', '--untracked-files=all', '--', ...targets], { cwd: root })).stdout; } catch { return; } // not a repo: the worktree check reports it
+  const dirty = out.split('\n').map((l) => l.slice(3).trim().replace(/^"|"$/g, '')).filter(Boolean);
+  if (dirty.length) throw fatal(`useGitWorktrees: ${dirty.length} file(s) the workers may change have uncommitted edits (${dirty.slice(0, 5).join(', ')}${dirty.length > 5 ? ', …' : ''}). A worktree starts from the last commit, so its result would overwrite them. Nothing was changed. Commit or stash them first, then run the task again.`);
+}
+
 async function isGitRepo(root = ROOT) {
   try { await execFileAsync('git', ['rev-parse', '--verify', 'HEAD'], { cwd: root }); return true; } catch { return false; }
 }
@@ -641,9 +668,12 @@ async function syncWorktree(wtPath, sub, destRoot = ROOT, scopeFn = inScope, tas
 
 // ───────────────────────────── staging backup + rollback ─────────────────────────────
 
-/** Back up every scoped target before Node 2 runs (only when worktrees are off). */
+/**
+ * Back up every scoped target before Node 2 runs. Also in worktree mode: each worker's result is copied into the folder
+ * as soon as it finishes (before the check), so a failed check or a failed sibling worker must be able to restore it.
+ */
 function backupScope(plan, workRoot = ROOT) {
-  if (config.useGitWorktrees || config.rollbackOnFailure === false) return null;
+  if (config.rollbackOnFailure === false) return null;
   const aiWorkers = plan.subtasks.filter((s) => s.prompt);
   if (!aiWorkers.length) return null;
   if (aiWorkers.some((s) => s.targetFiles.length === 0)) {
@@ -651,10 +681,22 @@ function backupScope(plan, workRoot = ROOT) {
     return { unavailable: true };
   }
   const dir = path.join(DIRS.staging, plan.taskId.replace(/[^\w.-]/g, '_'));
-  fs.rmSync(dir, { recursive: true, force: true });
-  fs.mkdirSync(path.join(dir, 'files'), { recursive: true });
+  // A backup left by an interrupted run of THIS task (daemon killed mid-task, job still in the inbox) holds the only
+  // copy of the files as they were before the first attempt. Keep it: backing up again would save the dead agent's
+  // half-done edits and a later "restore" would bring those back instead of the originals.
+  let previous = null;
+  try { previous = JSON.parse(fs.readFileSync(path.join(dir, 'manifest.json'), 'utf8')); } catch { previous = null; }
   const manifest = [];
+  if (previous && Array.isArray(previous.entries) && isSameDir(previous.workRoot || ROOT, workRoot)) {
+    manifest.push(...previous.entries);
+    logTelemetry('STAGING_REUSED', `Kept the backup from an interrupted run of this task (${previous.createdAt || 'earlier'}): restoring brings back the files from before the first attempt`, { taskId: plan.taskId });
+  } else {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+  fs.mkdirSync(path.join(dir, 'files'), { recursive: true });
+  const covered = new Set(manifest.map((m) => m.path));
   for (const t of [...new Set(aiWorkers.flatMap((s) => s.targetFiles))]) {
+    if (covered.has(t)) continue;
     const abs = path.join(workRoot, t);
     if (fs.existsSync(abs)) {
       fs.cpSync(abs, path.join(dir, 'files', t), { recursive: true });
@@ -790,8 +832,13 @@ function validateSubtasks(subtasks, { source = 'task', allowed = [], requireScop
     }
     for (const f of sub.targetFiles) {
       const key = f.replace(/\/$/, '').replace(/\/\*\*$/, '');
+      // Compared without case: on Windows and macOS src/b.js and src/B.js are the same file (two workers would write it,
+      // and git would keep both names). A pattern (src/*.js) also collides with any file or pattern it can match.
+      const k = key.toLowerCase();
       for (const [other, by] of owner) {
-        if (by !== sub.id && (key === other || key.startsWith(other + '/') || other.startsWith(key + '/'))) {
+        const o = other.toLowerCase();
+        const glob = /[*?]/.test(key) || /[*?]/.test(other);
+        if (by !== sub.id && (k === o || k.startsWith(o + '/') || o.startsWith(k + '/') || (glob && globsOverlap(k, o)))) {
           throw fatal(`Swarm Lock Collision: ${source === 'task' ? '' : `${source} produced overlapping targetFiles — `}'${sub.id}' and '${by}' both claim '${key === other ? key : `${other}' / '${key}`}'. Plan rejected before any worker started.`);
         }
       }
@@ -1320,6 +1367,39 @@ async function runJudgeGate(plan, task, cycle, gitCtx) {
   return { approved: decision.approved, trace: decision.approved ? '' : `JUDGE_BLOCKED — fix these review findings:\n${text}` };
 }
 
+/** Untracked, not ignored files in the folder (git), or null when it is not a git repository. */
+async function untrackedFiles(root) {
+  try { return new Set((await execFileAsync('git', ['ls-files', '--others', '--exclude-standard', '-z'], { cwd: root, maxBuffer: 16 << 20 })).stdout.split('\0').filter(Boolean)); } catch { return null; }
+}
+
+/**
+ * Without worktrees a worker can create files OUTSIDE its targetFiles. They survived a rollback, and the next check and
+ * judge saw them as the worker's work, which it was not allowed to touch (a judge loop). After every worker round, new
+ * untracked files outside every worker's targets are MOVED (never deleted) to .harness/staging/<task>-out-of-scope/,
+ * as worktree mode discards them. Files that existed before the task, git-ignored files and .harness/ are left alone.
+ */
+async function moveStrayFiles(plan, task, root, before, cycle) {
+  const targets = [...new Set((plan.subtasks || []).flatMap((s) => s.targetFiles || []))];
+  if (!targets.length) return [];
+  const now = await untrackedFiles(root);
+  if (!now) return [];
+  const stray = [...now].filter((f) => !before.has(f) && !f.startsWith('.harness/') && !inScope(f, targets));
+  if (!stray.length) return [];
+  const dest = path.join(DIRS.staging, `${String(task.id || 'task').replace(/[^\w.-]/g, '_')}-out-of-scope`);
+  const moved = [];
+  for (const f of stray) {
+    try {
+      const to = path.join(dest, `cycle${cycle}`, f);
+      fs.mkdirSync(path.dirname(to), { recursive: true });
+      fs.renameSync(path.join(root, f), to);
+      moved.push(f);
+    } catch { /* in use: left in place and still reported below */ }
+  }
+  task.outOfScopeMoved = [...new Set([...(task.outOfScopeMoved || []), ...moved])];
+  logTelemetry('2_SCOPE_VIOLATION', `Moved ${moved.length} new file(s) created outside the assigned files to ${path.relative(ROOT, dest)} (not the worker's to keep): ${moved.slice(0, 8).join(', ')}${moved.length > 8 ? ', …' : ''}`, { taskId: task.id, cycle, blocked: moved, movedTo: path.relative(ROOT, dest) });
+  return moved;
+}
+
 function snapshotScopeHashes(plan, workRoot) {
   const allTargets = [...new Set((plan.subtasks || []).flatMap((s) => s.targetFiles || []))];
   let candidates = [];
@@ -1535,7 +1615,7 @@ async function executeSquareCycle(taskFile) {
   const errors = [];
   let plan = null; let outputs = []; let cycle = 1; let lastErrorTrace = task.initialError || null;
   let errorDiagnosis = task.initialError ? diagnoseVerifyFailure(task.initialError, { targetFiles: task.targetFiles || [], subtasks: task.subtasks || [], verifyCmd: task.verifyCmd || '' }) : null;
-  let haltReason = null; let backup = null; let preRunFiles = null;
+  let haltReason = null; let backup = null; let preRunFiles = null; let preUntracked = null;
   const integration = integrationFor(task); let gitCtx = null; let gitResult = null;
   let workRoot = ROOT;
   const title = task.title || path.basename(taskFile);
@@ -1564,10 +1644,13 @@ async function executeSquareCycle(taskFile) {
       plan = await runPlanner(task, lastErrorTrace, plan, workRoot, errorDiagnosis);
       plan.cycle = cycle; plan.model = task.model || null; // model tier: retries escalate; --model on the task overrides
       if (integration && !gitCtx) gitCtx = await startIntegration(task, integration);
+      if (cycle === 1 && !gitCtx && config.useGitWorktrees) await refuseDirtyWorktreeScope(plan, workRoot);
       if (cycle === 1 && !backup && !gitCtx) backup = backupScope(plan, workRoot);
       if (cycle === 1 && !gitCtx && preRunFiles === null) preRunFiles = snapshotScopeHashes(plan, workRoot);
+      if (cycle === 1 && !gitCtx && !config.useGitWorktrees && preUntracked === null) preUntracked = await untrackedFiles(workRoot);
       if (cycle > 1) enforceBudget(task, `cycle ${cycle - 1}`); // never start another cycle once over budget
       outputs = await runExecutorSwarm(plan, gitCtx);
+      if (preUntracked) await moveStrayFiles(plan, task, workRoot, preUntracked, cycle);
       enforceBudget(task, `cycle ${cycle} workers`);
       const verification = await runVerifier(plan);
       const { safety } = await auditDaemonPatch(plan, task, outputs, cycle, backup, gitCtx, preRunFiles);
@@ -1740,7 +1823,7 @@ const scanInbox = () => fs.readdirSync(DIRS.inbox).filter((f) => f.endsWith('.js
 function daemonAlive() {
   const pid = Number(fs.existsSync(FILES.pid) && fs.readFileSync(FILES.pid, 'utf8'));
   if (!pid || pid === process.pid) return 0;
-  try { process.kill(pid, 0); return pid; } catch { return 0; }
+  return harnessPidAlive(pid) ? pid : 0; // a reused pid (another program) is not a running daemon
 }
 
 // ───────────────────────────── autonomous controller ("act as me") ─────────────────────────────
@@ -1956,7 +2039,7 @@ if (process.env.HARNESS_WORKER === '1') { console.error('Harness workers must no
 const args = process.argv.slice(2);
 const selfTestMode = args.includes('--self-test');
 if (args.includes('--status')) { // convenience alias for status.mjs (read-only)
-  const { spawnSync } = await import('node:child_process');
+  // spawnSync is imported at the top
   const r = spawnSync(process.execPath, [path.join(ROOT, '.harness', 'status.mjs'), '--log', '8'], { stdio: 'inherit' });
   process.exit(r.status ?? 0);
 }
@@ -2010,7 +2093,18 @@ if (selfTestMode) {
     console.log(`Another harness daemon is already running for this folder (PID ${other}). Not starting a second one.`);
     process.exit(0);
   }
-  fs.writeFileSync(FILES.pid, String(process.pid));
+  // Claim the pid file atomically ('wx' fails if it exists), so two daemons started at the same instant cannot both
+  // pass the check above. A file left by a dead daemon (checked above) is removed and the claim tried once more.
+  const claim = () => { const fd = fs.openSync(FILES.pid, 'wx'); fs.writeSync(fd, String(process.pid)); fs.closeSync(fd); };
+  try { claim(); } catch (e) {
+    if (e.code !== 'EEXIST') throw e;
+    const winner = daemonAlive();
+    if (winner) { console.log(`Another harness daemon is already running for this folder (PID ${winner}). Not starting a second one.`); process.exit(0); }
+    try { fs.rmSync(FILES.pid, { force: true }); claim(); } catch (e2) {
+      if (e2.code !== 'EEXIST') throw e2;
+      console.log('Another harness daemon started at the same moment. Not starting a second one.'); process.exit(0);
+    }
+  }
   ownsState = true;
   try { fs.writeFileSync(FILES.live, ''); } catch { /* ignore */ }
   const cleanup = () => {

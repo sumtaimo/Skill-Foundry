@@ -35,7 +35,9 @@ export const FILES = {
   probe: path.join(HARNESS_DIR, 'engine-probe.json'),
   approvals: path.join(HARNESS_DIR, 'approvals.json'), // per person, git-ignored: which AI tools may be used, "don't ask again" answers
   live: path.join(HARNESS_DIR, 'live.log'),
-  profile: path.join(HARNESS_DIR, 'memory', 'profile.md'),
+  profile: path.join(HARNESS_DIR, 'memory', 'profile.md'), // shared project profile (committed)
+  me: path.join(HARNESS_DIR, 'memory', 'me.md'), // per person, git-ignored: name, language, style, hats, personal skills
+  people: path.join(HARNESS_DIR, 'memory', 'people.md'), // shared, committed: what each person CHOSE to share with the team
   lessons: path.join(HARNESS_DIR, 'memory', 'lessons.md'),
   autoLessons: path.join(HARNESS_DIR, 'memory', 'auto-lessons.md')
 };
@@ -77,6 +79,66 @@ export function which(binary, envPath = process.env.PATH, pathExt = process.env.
       try { if (fs.statSync(full).isFile()) return full; } catch { /* keep looking */ }
     }
   }
+  return null;
+}
+
+/**
+ * Resolve an engine profile's executable: `binary` on PATH first, then each `binaryCandidates` entry
+ * (for CLIs that ship inside an app and are not put on PATH, e.g. the Codex desktop app on Windows).
+ * A candidate may use %VAR% / $VAR / ${VAR} and `*` inside path segments; with several matches the
+ * highest-sorting (newest version folder) wins. A candidate 'appx:<PackageName>/<relative path>' is
+ * resolved on Windows through Get-AppxPackage, because Node may not list C:\Program Files\WindowsApps (EPERM).
+ * Returns a full path or null.
+ */
+const appxCache = new Map();
+function appxLocation(name) {
+  if (process.platform !== 'win32' || !/^[A-Za-z0-9._-]+$/.test(name)) return null;
+  if (!appxCache.has(name)) {
+    const r = spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', `(Get-AppxPackage -Name '${name}' | Sort-Object Version -Descending | Select-Object -First 1).InstallLocation`], { encoding: 'utf8', timeout: 15000, windowsHide: true });
+    appxCache.set(name, (r.stdout || '').trim() || null);
+  }
+  return appxCache.get(name);
+}
+
+export function engineBinary(profile, env = process.env, locateAppx = appxLocation) {
+  if (!profile) return null;
+  const onPath = which(profile.binary, env.PATH, env.PATHEXT);
+  if (onPath) return onPath;
+  for (const raw of [].concat(profile.binaryCandidates || [])) {
+    const expanded = String(raw)
+      .replace(/%([A-Za-z0-9_]+)%/g, (m, v) => env[v] ?? '\0')
+      .replace(/\$\{?([A-Za-z0-9_]+)\}?/g, (m, v) => env[v] ?? '\0');
+    if (expanded.includes('\0')) continue; // a variable is not set on this machine
+    const appx = /^appx:([^/\\]+)[/\\](.+)$/.exec(expanded);
+    if (appx) {
+      const loc = locateAppx(appx[1]);
+      const f = loc && path.join(loc, appx[2]);
+      try { if (f && fs.statSync(f).isFile()) return f; } catch { /* not there */ }
+      continue;
+    }
+    const hit = globFile(expanded);
+    if (hit) return hit;
+  }
+  return null;
+}
+
+function globFile(pattern) {
+  const parts = pattern.split(/[\\/]+/);
+  let bases = [parts[0] === '' ? path.sep : (/^[A-Za-z]:$/.test(parts[0]) ? parts[0] + path.sep : parts[0])];
+  for (let i = 1; i < parts.length; i++) {
+    const seg = parts[i];
+    if (!seg) continue;
+    const next = [];
+    for (const base of bases) {
+      if (!seg.includes('*')) { next.push(path.join(base, seg)); continue; }
+      const re = new RegExp(`^${seg.split('*').map((s) => s.replace(/[.+?^${}()|[\]\\]/g, '\\$&')).join('.*')}$`, 'i');
+      let names = [];
+      try { names = fs.readdirSync(base); } catch { /* unreadable */ }
+      next.push(...names.filter((n) => re.test(n)).sort().reverse().map((n) => path.join(base, n)));
+    }
+    bases = next;
+  }
+  for (const f of bases) { try { if (fs.statSync(f).isFile()) return f; } catch { /* next */ } }
   return null;
 }
 
@@ -282,7 +344,7 @@ export function profileFlags(profile) {
 const PROBE_VERSION = 2;
 
 export function probeEngine(profile, { force = false } = {}) {
-  const binPath = which(profile.binary);
+  const binPath = engineBinary(profile);
   if (!binPath) return { installed: false, checked: false, compatible: false, missing: [], binPath: null };
   const flags = profileFlags(profile);
   if (flags.length === 0) return { installed: true, checked: false, compatible: true, missing: [], binPath };
@@ -1291,6 +1353,265 @@ export function formatDiagnosis(diag) {
   return lines.join('\n');
 }
 
+// ───────────────────────────── is the daemon in daemon.pid really ours? ─────────────────────────────
+// process.kill(pid, 0) only says SOME process has that id. After a crash, Windows soon gives the id to another program
+// (explorer.exe, a browser), and the harness then waited forever for a daemon that does not exist. The daemon is always
+// a node process, so a pid whose program is not node is treated as dead. If the program name cannot be read, the old
+// answer (alive) is kept. Cached per pid for this process.
+const nodePidCache = new Map();
+export function harnessPidAlive(pid) {
+  pid = Number(pid);
+  if (!Number.isInteger(pid) || pid <= 0) return false;
+  try { process.kill(pid, 0); } catch (e) { if (e.code !== 'EPERM') return false; }
+  if (pid === process.pid) return true;
+  if (nodePidCache.has(pid)) return nodePidCache.get(pid);
+  let name = '';
+  try {
+    if (process.platform === 'win32') {
+      const r = spawnSync('tasklist', ['/FI', `PID eq ${pid}`, '/FO', 'CSV', '/NH'], { encoding: 'utf8', timeout: 4000, windowsHide: true });
+      name = (String(r.stdout || '').match(/^"([^"]+)"/m) || [])[1] || '';
+    } else {
+      const r = spawnSync('ps', ['-p', String(pid), '-o', 'comm='], { encoding: 'utf8', timeout: 4000 });
+      name = String(r.stdout || '').trim();
+    }
+  } catch { name = ''; }
+  const alive = !name || /node|bun|deno/i.test(path.basename(name));
+  nodePidCache.set(pid, alive);
+  return alive;
+}
+
+// ───────────────────────────── the person (me.md) ─────────────────────────────
+// .harness/memory/me.md is git-ignored: one per person and machine. profile.md stays the shared project profile.
+// "Hats" are the HUMAN's focus (po, ba, ux, dev, qa; combinable). They are not AI roles (team.json, roles/*.json):
+// they shape how an AI talks to and checks with this person, and never change any scope, approval or permission.
+export const HATS = ['po', 'ba', 'ux', 'dev', 'qa'];
+export const ME_KEYS = [
+  ['name', 'Name'],
+  ['role', 'Role / what I do'],
+  ['language', 'Language I want answers in'],
+  ['experience', 'Coding experience'],
+  ['style', 'How I like answers'],
+  ['hats', 'Hats'],
+  ['skills', 'Personal skills']
+];
+const HAT_HINTS = {
+  po: 'acceptance criteria, scope and decisions first',
+  ba: 'business rules, data and edge cases first',
+  ux: 'user flows, states and accessibility first',
+  dev: 'file:line references and the technical root cause first',
+  qa: 'test evidence, regressions and Given-When-Then checks first'
+};
+const keyOf = (label) => String(label).toLowerCase().replace(/\(.*?\)/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+
+/** "- Label: value" → { key, label, value }; null for other lines and "(fill me" placeholders. */
+export function parseProfileLine(line) {
+  // A trailing \r (CRLF: Notepad, core.autocrlf on Windows) would make "." fail at the line end: strip it first.
+  const m = String(line).replace(/\r$/, '').match(/^\s*-\s+([^:]+):\s*(.*)$/);
+  if (!m || /\(fill me/i.test(m[2])) return null;
+  return { key: keyOf(m[1]), label: m[1].trim(), value: m[2].trim() };
+}
+
+/** Hats from free text: "PO + QA", "po, qa", "dev/qa" → ['po','qa']; unknown words are dropped. */
+export function parseHats(text) {
+  const out = [];
+  for (const w of String(text || '').toLowerCase().split(/[^a-z]+/)) if (HATS.includes(w) && !out.includes(w)) out.push(w);
+  return out;
+}
+
+/** Read me.md: { exists, fields: [{key,label,value}], hats: [], skills: [] }. Never throws. */
+/**
+ * Where this person's me.md lives. me.md is git-ignored, so a git worktree (a Claude Code worktree session, a
+ * /harness:sessions child, a harness worker worktree) has no copy: use the main checkout's file, so one person has one
+ * me.md for all their worktrees. HARNESS_ME_FILE overrides it (tests). Never throws.
+ */
+let meFileCache;
+export function meFile() {
+  if (process.env.HARNESS_ME_FILE) return path.resolve(process.env.HARNESS_ME_FILE);
+  if (meFileCache !== undefined) return meFileCache;
+  meFileCache = FILES.me;
+  if (fs.existsSync(FILES.me)) return meFileCache;
+  try {
+    const r = spawnSync('git', ['rev-parse', '--git-common-dir'], { cwd: ROOT, encoding: 'utf8', timeout: 3000 });
+    const common = r.status === 0 ? path.resolve(ROOT, r.stdout.trim()) : '';
+    if (common && path.basename(common) === '.git') {
+      const main = path.dirname(common);
+      if (path.resolve(main).toLowerCase() !== path.resolve(ROOT).toLowerCase() && fs.existsSync(path.join(main, '.harness'))) meFileCache = path.join(main, '.harness', 'memory', 'me.md');
+    }
+  } catch { /* not a git repository: this folder's own me.md */ }
+  return meFileCache;
+}
+
+export function readMe(file = meFile()) {
+  const text = readText(file);
+  const fields = text.split('\n').map(parseProfileLine).filter((f) => f && f.value);
+  const get = (k) => fields.find((f) => f.key === keyOf(k))?.value || '';
+  return {
+    exists: fs.existsSync(file),
+    fields,
+    hats: parseHats(get('Hats')),
+    skills: get('Personal skills').split(/[,;]/).map((s) => s.trim()).filter(Boolean)
+  };
+}
+
+/** Write me.md from { name, language, experience, style, hats, skills } (missing keys keep their current value). */
+export function writeMe(values, file = meFile()) {
+  const cur = readMe(file);
+  const now = Object.fromEntries(cur.fields.map((f) => [f.key, f.value]));
+  const lines = ['# Me (personal, git-ignored)', '',
+    'This file is yours only: it is never committed. The shared project profile is profile.md.',
+    'Hats (po, ba, ux, dev, qa; combinable) shape how the AI talks to you; they never change permissions.', ''];
+  for (const [k, label] of ME_KEYS) {
+    let v = values[k] !== undefined ? values[k] : now[keyOf(label)];
+    if (k === 'hats' && v !== undefined) v = parseHats(Array.isArray(v) ? v.join(',') : v).join(', ');
+    if (k === 'skills' && Array.isArray(v)) v = v.join(', ');
+    lines.push(`- ${label}: ${v || ''}`.trimEnd());
+  }
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, `${lines.join('\n')}\n`);
+  return readMe(file);
+}
+
+// ───────────────────────────── the team page (people.md) ─────────────────────────────
+// .harness/memory/people.md is committed: one "## <Name>" section per person, written only by that person with
+// `memory.mjs me share`. It holds what they chose to share (hats, what to ask them about, languages for handoffs, git
+// name to recognise them). Answer style, coding experience and personal skills never go here: they stay in me.md.
+// No e-mail addresses, phone numbers or account details: the share command refuses them.
+export const PEOPLE_FIELDS = [
+  ['hats', 'Hats'],
+  ['ask', 'Ask me about'],
+  ['language', 'Languages for handoffs'],
+  ['git', 'Git name']
+];
+const PEOPLE_HEADER = '# Team (people on this project)\n\nEach person shares what they choose with `node .harness/memory.mjs me share`. Personal preferences stay in each\nperson\'s own git-ignored me.md. Hats (po, ba, ux, dev, qa) say who to ask for which decision; they are not AI roles\nand never change a permission.\n';
+const CONTACT_RE = /[^\s@]+@[^\s@]+\.[a-z]{2,}|\+?\d[\d\s().-]{7,}\d|https?:\/\//i;
+
+/** Read people.md: [{ name, hats: [], ask, language, git }]. Never throws. */
+export function readPeople(file = FILES.people) {
+  const out = [];
+  let cur = null;
+  for (const line of readText(file).split('\n')) {
+    const h = line.match(/^##\s+(.+?)\s*$/);
+    if (h) { cur = { name: h[1], hats: [], ask: '', language: '', git: '' }; out.push(cur); continue; }
+    const f = cur && parseProfileLine(line);
+    if (!f) continue;
+    const k = PEOPLE_FIELDS.find(([, label]) => keyOf(label) === f.key)?.[0];
+    if (k === 'hats') cur.hats = parseHats(f.value);
+    else if (k) cur[k] = f.value;
+  }
+  return out;
+}
+
+function writePeople(list, file = FILES.people) {
+  const body = list.map((p) => [`## ${p.name}`, ...PEOPLE_FIELDS.map(([k, label]) => {
+    const v = k === 'hats' ? p.hats.join(', ') : p[k];
+    return v ? `- ${label}: ${v}` : null;
+  }).filter(Boolean)].join('\n')).join('\n\n');
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, `${PEOPLE_HEADER}${body ? `\n${body}\n` : ''}`);
+}
+
+/**
+ * Add or update this person's section from their me.md (name, hats) plus what they choose to share.
+ * opts: { ask, language (true = take it from me.md, or a string), git (true = git user.name) }. Returns the entry.
+ * Throws on a missing name or on contact details (e-mail, phone, link) in any shared value.
+ */
+export function sharePerson(opts = {}, me = readMe(), file = FILES.people) {
+  const name = me.fields.find((f) => f.key === 'name')?.value;
+  if (!name) throw new Error('Set your name first: node .harness/memory.mjs me set --name "…"');
+  const lang = opts.language === true ? (me.fields.find((f) => f.key === keyOf('Language I want answers in'))?.value || '') : (opts.language || '');
+  let git = '';
+  if (opts.git) { try { git = spawnSync('git', ['config', 'user.name'], { cwd: ROOT, encoding: 'utf8', timeout: 3000 }).stdout?.trim() || ''; } catch { git = ''; } }
+  const list = readPeople(file);
+  const old = list.find((p) => p.name.toLowerCase() === name.toLowerCase());
+  const entry = { name, hats: me.hats, ask: opts.ask !== undefined ? String(opts.ask).trim() : (old?.ask || ''), language: opts.language !== undefined ? lang : (old?.language || ''), git: opts.git ? git : (old?.git || '') };
+  for (const v of [entry.name, entry.ask, entry.language, entry.git]) if (CONTACT_RE.test(v)) throw new Error(`Not shared: "${v}" looks like an e-mail, phone number or link. people.md is committed; keep contact details out of it.`);
+  if (old) Object.assign(old, entry); else list.push(entry);
+  writePeople(list, file);
+  return entry;
+}
+
+/** Remove this person's section. Returns true when something was removed. */
+export function unsharePerson(name, file = FILES.people) {
+  const list = readPeople(file);
+  const rest = list.filter((p) => p.name.toLowerCase() !== String(name).toLowerCase());
+  if (rest.length === list.length) return false;
+  writePeople(rest, file);
+  return true;
+}
+
+/** One line for session start / the chat AI: who wears which hat. '' without people.md. */
+export function teamLine(people = readPeople()) {
+  if (!people.length) return '';
+  const who = people.map((p) => `${p.name}${p.hats.length ? ` (${p.hats.join(', ')})` : ''}${p.ask ? `: ask about ${p.ask}` : ''}`);
+  const byHat = HATS.map((h) => [h, people.filter((p) => p.hats.includes(h)).map((p) => p.name)]).filter(([, n]) => n.length);
+  return `${who.join(' | ')}${byHat.length ? `. Decisions by hat: ${byHat.map(([h, n]) => `${h} → ${n.join(', ')}`).join('; ')}` : ''}`;
+}
+
+export const ME_SETUP_CMD ='node .harness/memory.mjs me set --name "…" --language "…" --experience "…" --style "…" --hats "po,qa"';
+
+/**
+ * Who is at this machine, for session start and doctor. Read-only, never asks anything (safe without a terminal).
+ *  { me, kind: 'me' | 'missing' | 'other-person' | 'ok', name?, gitName? }
+ *  - 'me': this person has me.md;
+ *  - 'missing': no me.md and profile.md is not filled in → onboard this person;
+ *  - 'other-person': no me.md, profile.md names someone else than the git user → probably a teammate on a new machine;
+ *  - 'ok': no me.md but profile.md is filled in and matches (one person working alone: nothing changes).
+ */
+// Since 1.0.26 profile.md is the PROJECT profile only. Older projects still have these personal lines in it; they keep
+// working (a person alone loses nothing) and `memory.mjs me from-profile` moves them into that person's me.md.
+const PERSONAL_PROFILE_KEYS = new Set(['Name', 'Role / what I do', 'Coding experience', 'Language I want answers in', 'How I like answers'].map(keyOf));
+
+/** Filled personal lines still in profile.md: [{key,label,value}]. */
+export function personalProfileLines(text = readText(FILES.profile)) {
+  return text.split(/\r?\n/).map(parseProfileLine).filter((f) => f && f.value && PERSONAL_PROFILE_KEYS.has(f.key));
+}
+
+/**
+ * Move the personal lines out of profile.md into this person's me.md (values already in me.md win), keeping every
+ * other line of profile.md as it was (line endings included). Returns the labels that were moved.
+ */
+export function meFromProfile() {
+  const raw = readText(FILES.profile);
+  const personal = personalProfileLines(raw);
+  if (!personal.length) return [];
+  const me = readMe();
+  const have = new Set(me.fields.map((f) => f.key));
+  const byKey = Object.fromEntries(ME_KEYS.map(([k, label]) => [keyOf(label), k]));
+  const values = {};
+  for (const f of personal) if (!have.has(f.key) && byKey[f.key]) values[byKey[f.key]] = f.value;
+  writeMe(values);
+  const eol = raw.includes('\r\n') ? '\r\n' : '\n';
+  const kept = raw.split(/\r?\n/).filter((l) => { const f = parseProfileLine(l); return !(f && f.value && PERSONAL_PROFILE_KEYS.has(f.key)); });
+  fs.writeFileSync(FILES.profile, kept.join(eol));
+  return personal.map((f) => f.label);
+}
+
+export function personStatus({ gitName } = {}) {
+  const me = readMe();
+  const legacy = personalProfileLines();
+  if (me.exists && me.fields.length) return { me, kind: 'me', legacy: legacy.length > 0 };
+  // Nothing personal anywhere (a new project, or a project profile that only describes the project): onboard into me.md.
+  if (!legacy.length) return { me, kind: 'missing' };
+  const name = legacy.find((f) => f.key === 'name')?.value || '';
+  if (gitName === undefined) { try { gitName = spawnSync('git', ['config', 'user.name'], { cwd: ROOT, encoding: 'utf8', timeout: 3000 }).stdout?.trim() || ''; } catch { gitName = ''; } }
+  const a = name.toLowerCase(); const b = String(gitName).toLowerCase();
+  const same = (x, y) => x && y && (x.includes(y) || y.includes(x));
+  // A teammate listed on the team page with this git name is someone known, just not set up on this machine yet.
+  const known = b ? readPeople().find((p) => same(p.git.toLowerCase(), b) || same(p.name.toLowerCase(), b)) : null;
+  if (a && b && !same(a, b)) return { me, kind: 'other-person', name, gitName, known: known?.name || '', legacy: true };
+  return { me, kind: 'ok', legacy: true };
+}
+
+/** The person block for worker prompts: me.md without personal skills, plus what the hats mean. '' without me.md. */
+export function mePromptBlock(me = readMe()) {
+  const lines = me.fields.filter((f) => f.key !== keyOf('Personal skills') && f.key !== keyOf('Hats')).map((f) => `- ${f.label}: ${f.value}`);
+  if (me.hats.length) {
+    lines.push(`- Hats: ${me.hats.join(', ')} (${me.hats.map((h) => HAT_HINTS[h]).join('; ')})`);
+    lines.push('- Hats only shape how you report and what you check first. They never widen your files, tools or permissions.');
+  }
+  return lines.length ? `## Person who started this run (me.md, overrides the user profile)\n${lines.join('\n')}` : '';
+}
+
 /**
  * Build the memory block injected into worker prompts.
  *  - skip: ['profile','lessons'] when the engine already auto-loads them (e.g. CLAUDE.md @imports)
@@ -1304,10 +1625,18 @@ export function memoryContext(config, { skip = [], query = '' } = {}) {
   const maxLines = mem.maxLessonLines ?? 50;
   const parts = [];
 
+  const me = readMe();
   if (!skip.includes('profile')) {
-    const profile = readText(FILES.profile).split('\n').filter((l) => !/\(fill me/i.test(l)).join('\n').trim();
+    // Shared profile lines that the person's own me.md answers are left out: the person's value wins.
+    const overridden = new Set(me.fields.map((f) => f.key));
+    const profile = readText(FILES.profile).split('\n')
+      .filter((l) => !/\(fill me/i.test(l))
+      .filter((l) => { const f = parseProfileLine(l); return !f || !overridden.has(f.key); })
+      .join('\n').trim();
     if (profile && /^- .+:\s*\S/m.test(profile)) parts.push(`## User profile\n${profile}`);
   }
+  const meBlock = mePromptBlock(me); // personal skills stay out: they are for the chat AI only
+  if (meBlock) parts.push(meBlock);
 
   const seen = new Set();
   const fresh = (l) => { const k = norm(stripSeen(l.text)); if (seen.has(k)) return false; seen.add(k); return true; };
