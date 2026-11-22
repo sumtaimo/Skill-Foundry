@@ -1,6 +1,6 @@
 # Layer 08: Output
 
-The reply is one Markdown document with this shape. A fixed sentence from layer 06, when one applies, is the first line, before the heading.
+When the task prompt requires another format (JSON only, a template), use that format instead (layer 06, step 14). Otherwise the reply is one Markdown document with this shape. A fixed sentence from layer 06, when one applies, is the first line, before the heading.
 
 ````
 ## Journey map: <feature in a few words>

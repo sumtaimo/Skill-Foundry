@@ -1,6 +1,6 @@
 ---
 name: journey-mapper
-description: Grows a short feature goal into the whole user journey, read-only and in the reply: numbered steps from entry to done, and for each step its loading, empty, error and success states, validation, reload and back, and who may do it; every fact is quoted from the goal and everything the goal does not say becomes an open business question. Use when asked to "map the user journey", "map the user flow", "walk through the whole workflow of this feature" or "which states and edge cases does this onboarding, sign-up or checkout need". Do not use for Given-When-Then acceptance criteria (use spec-writer), a regression checklist for a change or diff (use test-planner), a usability review of an existing screen (use ux-review), screen design, or clicking through a running app (use browser-check).
+description: Grows a short feature goal into the whole user journey, without changing any project file: numbered steps from entry to done, and for each step its loading, empty, error and success states, validation, reload and back, and who may do it; every fact is quoted from the goal and everything the goal does not say becomes an open business question. Use when asked to "map the user journey", "map the user flow", "walk through the whole workflow of this feature" or "which states and edge cases does this onboarding, sign-up or checkout need". Do not use for Given-When-Then acceptance criteria (use spec-writer), a regression checklist for a change or diff (use test-planner), a usability review of an existing screen (use ux-review), screen design, or clicking through a running app (use browser-check).
 version: 0.1.0
 ---
 
@@ -8,7 +8,13 @@ version: 0.1.0
 
 Turns a one- or two-sentence feature goal into the full workflow a business analyst needs before specs, design or tests.
 Every step and every state either quotes the goal or points to an open question, so no business rule is ever invented.
-It is read-only: it writes no file and changes nothing; the map is the reply.
+It changes nothing in the project: the map is the reply, or the one file a task assigns.
+
+## The task's own format and file come first (read first)
+
+- When the task prompt requires a specific output format (for example "Reply with ONLY this JSON"), follow that format exactly and print no Markdown map. Do the map's thinking (layer 04) and put it into the format's fields: steps into the steps list, the seven slots into the matching state, validation, reload and permission fields, blocking questions into the field for decisions. Never add a key the format does not have; a fact with no field goes into the closest text field (layer 06, step 14).
+- When the task assigns you a file to write (an agent harness worker with an assigned file) and you have a tool to write it, put the map in that file, not only in your reply; write no other file (layer 06, step 15).
+- Without a write tool, or when no file is assigned by the task, write no file (layer 06, step 6).
 
 ## When to use
 
@@ -42,14 +48,16 @@ The seven slots, how to word a question and worked slot lines are in [references
 - R-journey-mapper-3: Every step MUST list all seven slots in order: Loading, Empty, Error, Success, Validation, Reload and back, Permissions; each slot is a quote, a question id, or "Not applicable" with a reason.
 - R-journey-mapper-4: A question MUST ask, never suggest: no answer options, no examples, no "for example", no named product or provider the goal does not name.
 - R-journey-mapper-5: A question that stops the journey from being finished MUST be marked [blocking]; the others MUST be [minor], merged by topic into one line each.
-- R-journey-mapper-6: The skill MUST be read-only: NEVER write, edit or delete a file and NEVER run a command; the map is the reply.
+- R-journey-mapper-6: NEVER write a file the task did not assign, NEVER edit or delete any other file and NEVER run a command; the map is the reply or the assigned file.
 - R-journey-mapper-7: A request with no feature goal MUST get only the fixed question of layer 03, step 3.
 - R-journey-mapper-8: A request for acceptance criteria MUST start with the fixed sentence of layer 06, step 3, and the reply MUST contain no Given-When-Then clause.
 - R-journey-mapper-9: A request for a regression checklist or what to retest after a change or a diff MUST get only the fixed sentence of layer 06, step 4.
-- R-journey-mapper-10: The reply MUST follow the format of layer 08: header, Steps, Cross-step checks, Open business questions, Not in this map.
+- R-journey-mapper-10: The reply MUST follow the format of layer 08 (header, Steps, Cross-step checks, Open business questions, Not in this map), unless the task prompt requires another format (R-journey-mapper-14).
 - R-journey-mapper-11: Two statements of the goal that disagree MUST become one blocking question starting "Conflict:" that quotes both; NEVER choose one.
 - R-journey-mapper-12: The skill MUST have the ten core layers, each linked from SKILL.md, and stay self-contained with no repository paths.
 - R-journey-mapper-13: SKILL.md MUST stay within 150 lines, with frontmatter name, description and semver version.
+- R-journey-mapper-14: When the task prompt requires an output format (for example JSON only), the reply MUST be exactly that format, valid and complete, with the map's steps, slots and blocking questions in its fields; NEVER print the Markdown map then.
+- R-journey-mapper-15: When the task assigns a file and a write tool is available, the map MUST be written to that file and to no other file.
 
 Each rule's check or reviewer item is in `RULES.json`.
 
@@ -59,7 +67,8 @@ Each rule's check or reviewer item is in `RULES.json`.
 - Every step has the seven slot lines in order, and every question id used in a slot exists under "Open business questions".
 - Search the questions for "for example", "e.g." and "such as": none appears.
 - No Given-When-Then clause and no regression checklist appears.
-- No tool call wrote, edited or deleted a file, and no command ran.
+- No tool call wrote a file the task did not assign, edited or deleted any other file, or ran a command.
+- When the task required a format, the reply is only that format and parses (JSON parses as JSON).
 
 ## Review
 

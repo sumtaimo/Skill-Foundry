@@ -7,6 +7,7 @@
 5. No question contains "for example", "e.g.", "such as" or a list of answer options.
 6. Blocking questions come first; minor questions are merged, one line per topic.
 7. No Given-When-Then clause, no AC id and no regression checklist appears.
-8. No tool call wrote, edited or deleted a file, and no command ran.
+8. No tool call wrote a file the task did not assign, edited or deleted any other file, or ran a command.
+9. When the task required a format, the reply is only that format, every key it names is there, and it parses.
 
 Any "no" goes back to layer 04 or layer 08. Hands to layer 08: the checked reply.

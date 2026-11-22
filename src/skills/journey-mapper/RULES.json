@@ -1,15 +1,77 @@
 [
-  { "id": "R-journey-mapper-1", "text": "Every step, actor and slot value MUST quote the goal text (or a project file the user named, with its path and line); NEVER state a business rule, message, limit, role or step the source does not state.", "checklist": "Every quote is found word for word in the goal or the cited file; no fact appears without a quote." },
-  { "id": "R-journey-mapper-2", "text": "Everything the source does not state MUST become an open business question with an id and the steps it affects; NEVER fill a gap with a usual default.", "checklist": "Every gap points to a question id that exists and names its steps." },
-  { "id": "R-journey-mapper-3", "text": "Every step MUST list all seven slots in order: Loading, Empty, Error, Success, Validation, Reload and back, Permissions; each slot is a quote, a question id, or Not applicable with a reason.", "checklist": "Each step has the seven slot lines in order." },
-  { "id": "R-journey-mapper-4", "text": "A question MUST ask, never suggest: no answer options, no examples, no for example, no named product or provider the goal does not name.", "checklist": "No question has options, examples, for example, e.g., such as, or a provider the goal does not name." },
-  { "id": "R-journey-mapper-5", "text": "A question that stops the journey from being finished MUST be marked [blocking]; the others MUST be [minor], merged by topic into one line each.", "checklist": "Every question is tagged; blocking first; minor merged one line per topic." },
-  { "id": "R-journey-mapper-6", "text": "The skill MUST be read-only: NEVER write, edit or delete a file and NEVER run a command; the map is the reply.", "checklist": "The transcript has no write, edit, delete or shell tool call." },
-  { "id": "R-journey-mapper-7", "text": "A request with no feature goal MUST get only the fixed question of layer 03, step 3.", "checklist": "A request without a goal got exactly the fixed question." },
-  { "id": "R-journey-mapper-8", "text": "A request for acceptance criteria MUST start with the fixed sentence of layer 06, step 3, and the reply MUST contain no Given-When-Then clause.", "checklist": "An acceptance-criteria request starts with the fixed sentence and has no Given-When-Then clause." },
-  { "id": "R-journey-mapper-9", "text": "A request for a regression checklist or what to retest after a change or a diff MUST get only the fixed sentence of layer 06, step 4.", "checklist": "A retest request got exactly the fixed sentence." },
-  { "id": "R-journey-mapper-10", "text": "The reply MUST follow the format of layer 08: header, Steps, Cross-step checks, Open business questions, Not in this map.", "checklist": "The reply has every section of layer 08 in order." },
-  { "id": "R-journey-mapper-11", "text": "Two statements of the goal that disagree MUST become one blocking question starting Conflict: that quotes both; NEVER choose one.", "checklist": "A conflict is one blocking Conflict: question quoting both statements." },
-  { "id": "R-journey-mapper-12", "text": "The skill MUST have the ten core layers, each linked from SKILL.md, and stay self-contained with no repository paths.", "checklist": "chk-layers and chk-portable pass." },
-  { "id": "R-journey-mapper-13", "text": "SKILL.md MUST stay within 150 lines, with frontmatter name, description and semver version.", "checklist": "SKILL.md is at most 150 lines with valid frontmatter." }
+  {
+    "id": "R-journey-mapper-1",
+    "text": "Every step, actor and slot value MUST quote the goal text (or a project file the user named, with its path and line); NEVER state a business rule, message, limit, role or step the source does not state.",
+    "checklist": "Every quote is found word for word in the goal or the cited file; no fact appears without a quote."
+  },
+  {
+    "id": "R-journey-mapper-2",
+    "text": "Everything the source does not state MUST become an open business question with an id and the steps it affects; NEVER fill a gap with a usual default.",
+    "checklist": "Every gap points to a question id that exists and names its steps."
+  },
+  {
+    "id": "R-journey-mapper-3",
+    "text": "Every step MUST list all seven slots in order: Loading, Empty, Error, Success, Validation, Reload and back, Permissions; each slot is a quote, a question id, or Not applicable with a reason.",
+    "checklist": "Each step has the seven slot lines in order."
+  },
+  {
+    "id": "R-journey-mapper-4",
+    "text": "A question MUST ask, never suggest: no answer options, no examples, no for example, no named product or provider the goal does not name.",
+    "checklist": "No question has options, examples, for example, e.g., such as, or a provider the goal does not name."
+  },
+  {
+    "id": "R-journey-mapper-5",
+    "text": "A question that stops the journey from being finished MUST be marked [blocking]; the others MUST be [minor], merged by topic into one line each.",
+    "checklist": "Every question is tagged; blocking first; minor merged one line per topic."
+  },
+  {
+    "id": "R-journey-mapper-6",
+    "text": "NEVER write a file the task did not assign, NEVER edit or delete any other file and NEVER run a command; the map is the reply or the assigned file.",
+    "checklist": "The transcript has no write except the assigned file, no edit or delete of other files, and no shell call."
+  },
+  {
+    "id": "R-journey-mapper-7",
+    "text": "A request with no feature goal MUST get only the fixed question of layer 03, step 3.",
+    "checklist": "A request without a goal got exactly the fixed question."
+  },
+  {
+    "id": "R-journey-mapper-8",
+    "text": "A request for acceptance criteria MUST start with the fixed sentence of layer 06, step 3, and the reply MUST contain no Given-When-Then clause.",
+    "checklist": "An acceptance-criteria request starts with the fixed sentence and has no Given-When-Then clause."
+  },
+  {
+    "id": "R-journey-mapper-9",
+    "text": "A request for a regression checklist or what to retest after a change or a diff MUST get only the fixed sentence of layer 06, step 4.",
+    "checklist": "A retest request got exactly the fixed sentence."
+  },
+  {
+    "id": "R-journey-mapper-10",
+    "text": "The reply MUST follow the format of layer 08 (header, Steps, Cross-step checks, Open business questions, Not in this map), unless the task prompt requires another format (R-journey-mapper-14).",
+    "checklist": "The reply has every section of layer 08 in order."
+  },
+  {
+    "id": "R-journey-mapper-11",
+    "text": "Two statements of the goal that disagree MUST become one blocking question starting Conflict: that quotes both; NEVER choose one.",
+    "checklist": "A conflict is one blocking Conflict: question quoting both statements."
+  },
+  {
+    "id": "R-journey-mapper-12",
+    "text": "The skill MUST have the ten core layers, each linked from SKILL.md, and stay self-contained with no repository paths.",
+    "checklist": "chk-layers and chk-portable pass."
+  },
+  {
+    "id": "R-journey-mapper-13",
+    "text": "SKILL.md MUST stay within 150 lines, with frontmatter name, description and semver version.",
+    "checklist": "SKILL.md is at most 150 lines with valid frontmatter."
+  },
+  {
+    "id": "R-journey-mapper-14",
+    "text": "When the task prompt requires an output format (for example JSON only), the reply MUST be exactly that format, valid and complete, with the map's steps, slots and blocking questions in its fields; NEVER print the Markdown map then.",
+    "checklist": "A format-bound reply parses, has every required key and no Markdown map."
+  },
+  {
+    "id": "R-journey-mapper-15",
+    "text": "When the task assigns a file and a write tool is available, the map MUST be written to that file and to no other file.",
+    "checklist": "The assigned file holds the map; no other file was written."
+  }
 ]
