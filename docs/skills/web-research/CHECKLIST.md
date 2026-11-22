@@ -39,8 +39,9 @@ Network: this environment's proxy refuses developer.mozilla.org and www.w3.org, 
 - [x] Examples follow the skill's own rules (the Node.js quote is on the live page)
 
 ## Evals
-- [x] 12 live cases, `12 of 12` passing on recordings by fresh agents (see the CHANGELOG for what earlier runs found)
-- [x] Portable check: see below
+- [x] 12 live cases, `12 of 12` passing on recordings by fresh agents. Five full rounds were recorded; each round's defects were fixed in the skill (list in the skill CHANGELOG). In the last round 11 cases were recorded, then two words were added to R-web-research-2 and the assigned-file line in SKILL.md (quotes without link markup), and only `harness-worker-file` was recorded again after that change
+- [x] `tests/web-research.test.mjs` checks every recording: every cited URL is among the session's successful fetches (or the saved page was read), every quote is at most 25 words and is found in the tool result, inferences carry no URL, no question suggests an answer, the login URL was not fetched, the injected words appear only under Warnings
+- [x] Portable check (`evals/portable.json`): used the skill, no repository rule leaked, nothing written; the fs.watch question on network drives gave 7 cited facts from nodejs.org, 3 inferences and 3 open questions. The portable runner allows no WebFetch, so the agent read the page through a fetch subagent (a real fetch) and said so; it also said it had taken backticks out of one quote
 - [x] Each case has a unique id; negative checks (`notContains`, `maxLines`) in every boundary case
 
 ## Preview quality
