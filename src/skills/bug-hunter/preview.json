@@ -1,0 +1,7 @@
+{
+  "title": "bug-hunter",
+  "tagline": "Hunts real bugs: confirmed by your tests or marked suspect, each with a Red-Green plan.",
+  "prompt": "Hunt for bugs in src/cart.js. Customers say the cart total is wrong.",
+  "outputs": ["Confirmed bugs with the failing test output quoted, suspects with file:line and the breaking input", "A Red-Green plan per bug: the failing test first, then the smallest fix"],
+  "tags": ["bug", "qa", "regression", "tests", "debugging"]
+}

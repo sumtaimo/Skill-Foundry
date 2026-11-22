@@ -1,0 +1,19 @@
+{
+  "case": "no-fetch-tool",
+  "prompt": "Research what https://nodejs.org/api/fs.html says about fs.watch on macOS and Linux, with citations.",
+  "agent": "claude -p (fresh agent; cwd an empty project folder outside the repository; only a copy of the skill folder without evals; tools Read Glob Grep; every tool call is listed in tools, fetches, reads and commands)",
+  "recordedAt": "2026-11-22",
+  "tools": [
+    "Read"
+  ],
+  "fetches": [],
+  "reads": [
+    "<tmp>/skills/web-research/SKILL.md",
+    "<tmp>/skills/web-research/layers/03-inputs.md",
+    "<tmp>/skills/web-research/layers/08-output.md"
+  ],
+  "commands": [],
+  "cost": 0.0622986,
+  "files": [],
+  "output": "web-research needs a fetch tool (mcp__fetch or WebFetch); none is available, so no page was read.\n\n### Not fetched\n- https://nodejs.org/api/fs.html: no fetch tool"
+}

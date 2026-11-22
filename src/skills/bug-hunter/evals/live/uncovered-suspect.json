@@ -1,0 +1,19 @@
+{
+  "case": "uncovered-suspect",
+  "prompt": "Find the bugs in src/slug.js. The tests are green but I don't trust it.",
+  "agent": "claude -p (fresh agent; cwd an empty project folder outside the repository with the fixture slug; only a copy of the skill folder without evals; tools Read Glob Grep Bash, with Bash(npm test:*) and Bash(node --test:*) allowed (Claude Code also auto-allows its own read-only commands inside the project); no Write or Edit tool, like the read-only [HARNESS HUNTER] planner call; every command it ran is in commands)",
+  "recordedAt": "2026-11-22",
+  "tools": [
+    "Read",
+    "Glob",
+    "Bash"
+  ],
+  "commands": [
+    {
+      "command": "npm test"
+    }
+  ],
+  "cost": 0.1754674,
+  "output": "## Bug hunt: src/slug.js\n\nScope: `src/slug.js`\nTest command: `npm test`\nTest run: 4 passed, 0 failed\nResult: 0 confirmed, 1 suspect\n\n### Confirmed\nNone.\n\n### Suspect\n1. `src/slug.js:3` `slugify` only replaces the first space, so a title with three or more words keeps its later spaces.\n   - Reading: `slugify('New big idea')` returns `\"new-big idea\"`. When `replace` gets a string pattern it changes only the first match. The test at `test/slug.test.js:10` uses just two words, which is why it passes.\n   - Expected: `\"new-big-idea\"` (source: the doc comment at `src/slug.js:1`, \"words joined with \"-\"\")\n   - Red: add a test in `test/slug.test.js`: `slugify('New big idea')` expects `'new-big-idea'`. It must fail first. If it passes, drop this finding.\n   - Green: on line 3, change `.replace(' ', '-')` to `.replaceAll(' ', '-')`. Do this only after Red fails.\n\n### Not in this hunt\n- Code style, naming and formatting; UI style (ui-polish) and accessibility (a11y-audit).\n- What to retest after a change: test-planner.\n- Files outside the scope.\n\nEvidence: `npm test` (4 passed, 0 failed). Files read: `src/slug.js`, `test/slug.test.js`, `package.json`.",
+  "files": []
+}

@@ -1,0 +1,7 @@
+{
+  "title": "journey-mapper",
+  "tagline": "Grows a short feature goal into the whole user journey, with every gap as a question.",
+  "prompt": "Map the user journey: new users sign up with an email and a password of at least 12 characters, then land on the dashboard.",
+  "outputs": ["Numbered steps, each with loading, empty, error, success, validation, reload and permission slots", "Open business questions, blocking first, nothing invented"],
+  "tags": ["journey", "workflow", "user flow", "ba", "requirements"]
+}

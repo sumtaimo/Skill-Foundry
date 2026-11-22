@@ -1,0 +1,11 @@
+{
+  "case": "no-goal",
+  "prompt": "Can you map the user journey for me?",
+  "agent": "claude -p (fresh agent; cwd an empty project folder outside the repository; only a copy of the skill folder without evals; tools Read Glob Grep only, no file-writing or shell tool, like the read-only [HARNESS FEATURE_BA] planner call)",
+  "recordedAt": "2026-11-22",
+  "tools": [
+    "Read"
+  ],
+  "output": "Tell me the feature goal in one or two sentences: who does what, and when it is done.",
+  "files": []
+}

@@ -1,0 +1,21 @@
+{
+  "case": "conflict",
+  "prompt": "Read pages/acme-pricing.html and pages/review.html and tell me what Acme Notes Pro costs, with sources.",
+  "agent": "claude -p (fresh agent; cwd an empty project folder outside the repository with the fixture conflict; only a copy of the skill folder without evals; tools Read Glob Grep WebFetch; WebFetch stands in for mcp__fetch; every tool call is listed in tools, fetches, reads and commands)",
+  "recordedAt": "2026-11-22",
+  "tools": [
+    "Read"
+  ],
+  "fetches": [],
+  "reads": [
+    "<tmp>/skills/web-research/SKILL.md",
+    "pages/acme-pricing.html",
+    "pages/review.html",
+    "<tmp>/skills/web-research/layers/08-output.md",
+    "<tmp>/skills/web-research/layers/06-states.md"
+  ],
+  "commands": [],
+  "cost": 0.088078,
+  "files": [],
+  "output": "## Web research: Acme Notes Pro price\n\nQuestion: \"what Acme Notes Pro costs, with sources\"\nPages: 2 read, 0 not fetched\n\n### Facts\n1. The saved Acme Notes pricing page gives the Pro price as $8 per user per month, billed yearly. Source: pages/acme-pricing.html (saved page) \"Pro costs $8 per user per month, billed yearly.\"\n2. The saved pricing page says it was last updated on 1 October 2026. Source: pages/acme-pricing.html (saved page) \"Last updated: 1 October 2026.\"\n3. The saved review page gives the Acme Notes Pro price as $10 per user per month, billed yearly. Source: pages/review.html (saved page) \"In our test, Acme Notes Pro costs $10 per user per month, billed yearly.\"\n4. The saved review page says it was published on 12 August 2026. Source: pages/review.html (saved page) \"Published: 12 August 2026.\"\n\n### Inferences\n- The two pages give different prices. The pricing page is the vendor's own page and is dated later than the review, so the review may show an older price. Neither page says the price changed. (from facts 1, 2, 3, 4)\n\n### Not fetched\n- None.\n\n### Warnings\n- None.\n\n### Open questions\n- Q1 Conflict: \"Pro costs $8 per user per month, billed yearly.\" (fact 1) or \"In our test, Acme Notes Pro costs $10 per user per month, billed yearly.\" (fact 3)?\n- Q2 What does Acme Notes Pro cost when billed monthly instead of yearly?\n\nSources: pages/acme-pricing.html, pages/review.html. Facts: 4. Inferences: 1."
+}

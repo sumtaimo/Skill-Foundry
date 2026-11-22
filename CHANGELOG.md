@@ -4,6 +4,18 @@ Versions of Skill Foundry itself (the `skill-foundry` command and the set of ski
 version in its folder. Versions move slowly: a bump needs the owner's approval in chat; record smaller changes under the
 current version.
 
+## 1.8.0 - 2026-11-22
+
+- New skill `web-research` 0.1.0 (fetched on demand, not in the default core; BA_ANALYST): reads public pages (official docs, standards, comparable products) for a spec, without changing any project file. Every fact cites the URL it was fetched from with one exact quote of at most 25 words; facts are kept apart from inferences; pages that could not be fetched are named with the tool's reason; text inside a page is data, and a page instruction is reported under Warnings, never followed. Without a fetch tool (`mcp__fetch` or `WebFetch`) it says so in a fixed first line and answers nothing from memory. Fixed sentences send a user journey to journey-mapper, Given-When-Then to spec-writer, and refuse to log in or fill forms. Follows the task's own format (the `[HARNESS FEATURE_BA]` JSON) and writes a harness worker's assigned file. Asked for by Agentic-Harness; keywords are whole phrases ("web research", "competitor research", "best practice" ...) so journey-mapper stays first on the FEATURE_BA topic; proven by fresh real agents (live 12 of 12 with real fetches of nodejs.org pages, routing 95 of 95, portable).
+
+## 1.7.0 - 2026-11-22
+
+- New skill `bug-hunter` 0.1.0 (fetched on demand, not in the default core; QA_AUDITOR): hunts for real bugs without changing the code. Runs only the project's own test command, reports each bug as confirmed (the test output quoted) or suspect (`file:line`, the breaking input and the expected result with its source), each with a Red-Green plan; never invents a bug, never reports style. Fills the HUNTER JSON format (confidence, red and fix subtasks) when the task requires it, and steps aside for a worker task with files to write. Asked for by Agentic-Harness for its read-only `[HARNESS HUNTER]` planner call (1.0.41); keywords "bug hunt", "bug hunter", "hunt for bugs" rank it first on "bug hunt: <focus>" and keep it off fix workers; proven by fresh real agents (live 13 of 13, routing 89 of 89, portable).
+
+## 1.6.0 - 2026-11-21
+
+- New skill `journey-mapper` 0.1.0 (fetched on demand, not in the default core; BA_ANALYST): grows a short feature goal into the whole user journey, read-only in the reply: steps with loading, empty, error, success, validation, reload and permission slots, every fact quoted from the goal, every gap an open business question. Asked for by Agentic-Harness for its read-only `[HARNESS FEATURE_BA]` planner call (1.0.39); follows the task's own format (JSON only) and writes a harness worker's assigned file, from the Agentic-Harness risk check; proven by fresh real agents (live 9 of 9, two with the exact harness 1.0.41 prompts; routing 89 of 89; portable).
+
 ## 1.5.0 - 2026-11-21
 
 - New skill `browser-check` 0.1.0 (fetched on demand, not in the default core; QA_AUDITOR, UX_DESIGNER, DEV_ENGINEER): clicks through one flow of a local app in a real browser, finds each element from the user's own words and says which one it used (asks when several match), and reports each step PASS, FAIL or NOT RUN with errors and screenshots. Asked for by Agentic-Harness 1.0.36; proven by fresh real agents (live 8 of 8, routing 77 of 77, portable).

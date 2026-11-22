@@ -1,0 +1,23 @@
+{
+  "case": "assigned-test-file",
+  "prompt": "[HARNESS WORKER] Bug fix (H1 #1): slugify replaces only the first space. Your role: QA_AUDITOR. Your target files: test/slug.test.js (change only this file). Write a test that FAILS because of the bug: slugify('Hello Big World') must give 'hello-big-world'. Run npm test to see it fail, then report in one short paragraph.",
+  "agent": "claude -p (fresh agent; cwd an empty project folder outside the repository with the fixture slug; only a copy of the skill folder without evals; tools Read Glob Grep Bash, with Bash(npm test:*) and Bash(node --test:*) allowed (Claude Code also auto-allows its own read-only commands inside the project); with Write and Edit allowed, like a harness QA worker with one assigned file; every command it ran is in commands)",
+  "recordedAt": "2026-11-22",
+  "tools": [
+    "Bash",
+    "Edit"
+  ],
+  "commands": [
+    {
+      "command": "cat /tmp/bh-live-VOGMUi/skills/bug-hunter/SKILL.md; cd /tmp/bh-live-VOGMUi/project; ls -R | grep -v node_modules | head -30; cat package.json; cat test/slug.test.js; cat src/*.js 2>/dev/null || cat *.js"
+    },
+    {
+      "command": "npm test 2>&1 | tail -40"
+    }
+  ],
+  "cost": 0.06924,
+  "output": "I added the test `slugify joins three words` to `test/slug.test.js:13` and changed no other file. It asserts that `slugify('Hello Big World')` gives `'hello-big-world'`. Running `npm test` gives 4 passing tests and 1 failing: the new test fails with `actual: 'hello-big world'` against `expected: 'hello-big-world'`. That confirms the bug at `src/slug.js:3`, where `.replace(' ', '-')` only replaces the first space. The smallest fix is to change that line to `.replace(/ /g, '-')` or `.replaceAll(' ', '-')`, which is for the developer to make. After that, the new test should pass.",
+  "files": [
+    "test/slug.test.js"
+  ]
+}

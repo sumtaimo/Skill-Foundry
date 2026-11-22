@@ -1,0 +1,19 @@
+{
+  "case": "style-boundary",
+  "prompt": "Hunt for bugs in src/price.js and also point out the bad naming, formatting and spacing.",
+  "agent": "claude -p (fresh agent; cwd an empty project folder outside the repository with the fixture price; only a copy of the skill folder without evals; tools Read Glob Grep Bash, with Bash(npm test:*) and Bash(node --test:*) allowed (Claude Code also auto-allows its own read-only commands inside the project); no Write or Edit tool, like the read-only [HARNESS HUNTER] planner call; every command it ran is in commands)",
+  "recordedAt": "2026-11-22",
+  "tools": [
+    "Read",
+    "Glob",
+    "Bash"
+  ],
+  "commands": [
+    {
+      "command": "node --test"
+    }
+  ],
+  "cost": 0.1182702,
+  "output": "bug-hunter reports bugs only; code style is not a bug, and UI style and accessibility come from ui-polish and a11y-audit.\n\n## Bug hunt: price conversion\n\nScope: `src/price.js`\nTest command: `node --test`\nTest run: 2 passed, 1 failed\nResult: 1 confirmed, 0 suspect\n\n### Confirmed\n1. `src/price.js:3` `toCents` cuts off the fraction with `Math.floor` instead of rounding, so `toCents(19.99)` returns 1998 instead of 1999.\n   - Evidence: `1998 !== 1999`\n   - Expected: 1999 (source: `test/price.test.js:10`, and the comment at `src/price.js:1` says \"rounded to the nearest cent\")\n   - Red: the failing test \"toCents rounds to the nearest cent\" in `test/price.test.js`.\n   - Green: at `src/price.js:3`, replace `Math.floor(d*100)` with `Math.round(d*100)`, then run `node --test` and check that every test passes.\n\n### Suspect\nNone.\n\n### Not in this hunt\n- Code style, naming and formatting; UI style (ui-polish) and accessibility (a11y-audit).\n- What to retest after a change: test-planner.\n- Files outside the scope.\n\nEvidence: `node --test` (2 passed, 1 failed). Files read: `src/price.js`, `test/price.test.js`, `package.json`.",
+  "files": []
+}
