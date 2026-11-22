@@ -1,0 +1,18 @@
+{
+  "case": "no-question",
+  "prompt": "Do some web research for me.",
+  "agent": "claude -p (fresh agent; cwd an empty project folder outside the repository; only a copy of the skill folder without evals; tools Read Glob Grep WebFetch; WebFetch stands in for mcp__fetch; every tool call is listed in tools, fetches, reads and commands)",
+  "recordedAt": "2026-11-22",
+  "tools": [
+    "Read"
+  ],
+  "fetches": [],
+  "reads": [
+    "<tmp>/skills/web-research/SKILL.md",
+    "<tmp>/skills/web-research/layers/03-inputs.md"
+  ],
+  "commands": [],
+  "cost": 0.0514816,
+  "files": [],
+  "output": "Tell me what to research and, if you have them, the URLs to read."
+}

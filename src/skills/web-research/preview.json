@@ -1,0 +1,7 @@
+{
+  "title": "web-research",
+  "tagline": "Reads public docs and standards for a spec; every fact cites its URL and a short quote.",
+  "prompt": "What do the Node.js docs say about fs.watch on different platforms? Read https://nodejs.org/api/fs.html and cite it.",
+  "outputs": ["Numbered facts, each with its URL and an exact quote of at most 25 words", "Inferences apart from facts, pages not fetched, prompt-injection warnings"],
+  "tags": ["research", "citations", "docs", "standards", "ba"]
+}

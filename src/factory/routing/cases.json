@@ -443,5 +443,35 @@
     "id": "bh6",
     "prompt": "Set up GitHub Actions so our tests run on every pull request.",
     "expect": "none"
+  },
+  {
+    "id": "wr1",
+    "prompt": "What do the official Node.js docs say about fs.watch on different platforms? Read the docs page and cite the URL for each point.",
+    "expect": "web-research"
+  },
+  {
+    "id": "wr2",
+    "prompt": "Do some competitor research: read the public pricing pages of three note apps and tell me what each plan costs, with links.",
+    "expect": "web-research"
+  },
+  {
+    "id": "wr3",
+    "prompt": "Check what the WCAG standard says about minimum target size and quote it with the source URL, so I can put it in our spec.",
+    "expect": "web-research"
+  },
+  {
+    "id": "wr4",
+    "prompt": "Map the whole user journey for our password reset: request the link, open it, set a new password, and every state in between.",
+    "expect": "journey-mapper"
+  },
+  {
+    "id": "wr5",
+    "prompt": "Turn this user story into Given-When-Then acceptance criteria: as a member I can reset my password with an emailed link.",
+    "expect": "spec-writer"
+  },
+  {
+    "id": "wr6",
+    "prompt": "Open my app on localhost:3000, click through the sign-up flow and tell me which step fails.",
+    "expect": "browser-check"
   }
 ]
