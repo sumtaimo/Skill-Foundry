@@ -5,14 +5,10 @@
   "recordedAt": "2026-11-22",
   "tools": [
     "Read",
-    "Bash"
+    "Grep"
   ],
-  "commands": [
-    {
-      "command": "find . -type f | head -100"
-    }
-  ],
-  "cost": 0.0615146,
+  "commands": [],
+  "cost": 0.0554692,
   "output": "bug-hunter finds bugs in code; a regression checklist of what to retest after a change comes from test-planner.",
   "files": []
 }

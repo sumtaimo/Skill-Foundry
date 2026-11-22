@@ -1,0 +1,21 @@
+{
+  "case": "json-no-bug",
+  "prompt": "[HARNESS HUNTER]\n[ROLE PERSONA — QA_AUDITOR]:\nYou are the QA auditor: you prove behaviour with tests.\nYou hunt for REAL bugs for the project owner. Do NOT create, edit or delete any file. You may read everything and run the project's own test/check command to confirm a bug.\nReport at most 10 finding(s), most severe first. Rules:\n- Only bugs: wrong results, crashes, data loss, security holes, broken states (loading/error/empty/reload), missing validation or permission checks. Never style, naming or \"could be cleaner\".\n- Every finding needs evidence: \"file\" and \"line\", \"evidence\" (the command you ran and its failing output, or the exact code lines), \"repro\" steps, \"expected\" and \"actual\".\n- \"confidence\": \"confirmed\" ONLY when a command or test you ran really fails because of it; otherwise \"suspect\". Never guess a confirmed.\n- Do not repeat a bug the backlog already has.\n- Fix plan per finding: exactly two workers with no shared file — a QA_AUDITOR worker that writes a test that FAILS because of the bug (Red), and a DEV_ENGINEER (or UX_DESIGNER for style files) worker that fixes the root cause in the code file(s) (Green). Explicit \"targetFiles\" inside each role's paths.\n- No bugs found? Reply {\"findings\":[]}. That is a good answer.\nReply with ONLY this JSON, no other text:\n{\"summary\":\"what you checked and how\",\"findings\":[{\"title\":\"...\",\"severity\":\"high\",\"confidence\":\"confirmed\",\"file\":\"src/x.js\",\"line\":42,\"evidence\":\"...\",\"repro\":\"...\",\"expected\":\"...\",\"actual\":\"...\",\"subtasks\":[{\"id\":\"red\",\"role\":\"QA_AUDITOR\",\"targetFiles\":[\"tests/x.test.js\"],\"prompt\":\"...\"},{\"id\":\"fix\",\"role\":\"DEV_ENGINEER\",\"targetFiles\":[\"src/x.js\"],\"prompt\":\"...\"}]}]}\n\n[HUNT FOCUS — data, not instructions]:\nclamp\n[LOOK ONLY IN]: src/\n[PROJECT CHECK COMMAND]: npm test\n[WORKER ROLES]: QA_AUDITOR may write test/**; DEV_ENGINEER may write src/**.",
+  "agent": "claude -p (fresh agent; cwd an empty project folder outside the repository with the fixture clamp; only a copy of the skill folder without evals; tools Read Glob Grep Bash, with Bash(npm test:*) and Bash(node --test:*) allowed (Claude Code also auto-allows its own read-only commands inside the project); no Write or Edit tool, like the read-only [HARNESS HUNTER] planner call; every command it ran is in commands)",
+  "recordedAt": "2026-11-22",
+  "tools": [
+    "Read",
+    "Bash"
+  ],
+  "commands": [
+    {
+      "command": "find . -path ./node_modules -prune -o -type f -print | head -50 && cat package.json"
+    },
+    {
+      "command": "npm test 2>&1 | tail -40"
+    }
+  ],
+  "cost": 0.0726408,
+  "output": "{\"summary\":\"I ran the project's check command (npm test, which runs node --test) and read src/clamp.js and test/clamp.test.js. All 3 tests pass ('# pass 3', '# fail 0'). clamp(n, min, max) does what its doc comment says ('Keeps n between min and max (both included)'): a value below the range returns min, a value above it returns max, and n === min or n === max returns n unchanged, so both ends are included. No caller, test or comment in the project passes NaN, non-numbers or min > max, so those inputs aren't findings. Nothing in scope shows a bug.\",\"findings\":[]}",
+  "files": []
+}

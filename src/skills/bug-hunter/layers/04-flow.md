@@ -2,7 +2,7 @@
 
 Run the tests:
 
-1. Run the test command once (twice only after adding Red tests to an assigned file, layer 06, step 14), from the project folder, exactly as found in layer 02 (`npm test` or `node --test`). Never add other commands to it (no pipes, no `cd`, no `&&`).
+1. Run the test command once, from the project folder, exactly as found in layer 02 (`npm test` or `node --test`). Never add other commands to it (no pipes, no `cd`, no `&&`).
 2. Count the passed and failed tests from its output. When it cannot run (permission denied, the tool is missing, it never finishes), it did not run: go to layer 06, step 5.
 3. For each failing test, copy the failing line of the output word for word (the assertion message with the actual and expected values, or the error and its first stack line in the project).
 

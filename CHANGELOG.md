@@ -6,7 +6,7 @@ current version.
 
 ## 1.7.0 - 2026-11-22
 
-- New skill `bug-hunter` 0.1.0 (fetched on demand, not in the default core; QA_AUDITOR): hunts for real bugs without changing the code. Runs only the project's own test command, reports each bug as confirmed (the test output quoted) or suspect (`file:line`, the breaking input and the expected result with its source), each with a Red-Green plan; never invents a bug, never reports style. Follows a task's required format (JSON only) and writes Red tests only into a test file the task assigns. Asked for by Agentic-Harness for its read-only `[HARNESS HUNTER]` planner call (1.0.39); keywords rank it first on "bug hunt regression tests: <scope>" under the cap of 2; proven by fresh real agents (live 12 of 12, routing 89 of 89, portable).
+- New skill `bug-hunter` 0.1.0 (fetched on demand, not in the default core; QA_AUDITOR): hunts for real bugs without changing the code. Runs only the project's own test command, reports each bug as confirmed (the test output quoted) or suspect (`file:line`, the breaking input and the expected result with its source), each with a Red-Green plan; never invents a bug, never reports style. Fills the HUNTER JSON format (confidence, red and fix subtasks) when the task requires it, and steps aside for a worker task with files to write. Asked for by Agentic-Harness for its read-only `[HARNESS HUNTER]` planner call (1.0.41); keywords "bug hunt", "bug hunter", "hunt for bugs" rank it first on "bug hunt: <focus>" and keep it off fix workers; proven by fresh real agents (live 13 of 13, routing 89 of 89, portable).
 
 ## 1.6.0 - 2026-11-21
 

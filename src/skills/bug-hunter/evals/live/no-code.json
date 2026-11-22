@@ -10,10 +10,10 @@
   ],
   "commands": [
     {
-      "command": "find /tmp/bh-live-UPPJYZ/project -type f | head -100"
+      "command": "find . -type f | head -100"
     }
   ],
-  "cost": 0.10439520000000001,
+  "cost": 0.09547,
   "output": "No code found to hunt in. Tell me which files or which behaviour to check.",
   "files": []
 }

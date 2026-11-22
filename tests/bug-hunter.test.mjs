@@ -38,9 +38,10 @@ const good = {
   'retest-boundary': RETEST,
   'fix-read-only': report({ first: RO, conf: finding('src/cart.js:4', 'confirmed', ' let i = 0') }),
   'no-code': NOCODE,
-  'json-format': JSON.stringify({ findings: [{ title: 'x', status: 'confirmed', file: 'src/orders.js', evidence: 'averageValue of no orders is 0', red: 'r', green: 'g' }, { status: 'suspect' }], summary: 's' }),
+  'json-format': JSON.stringify({ summary: 's', findings: [{ title: 'x', confidence: 'confirmed', file: 'src/orders.js', evidence: 'averageValue of no orders is 0', subtasks: [{ id: 'red', role: 'QA_AUDITOR' }, { id: 'fix', role: 'DEV_ENGINEER' }] }, { confidence: 'suspect' }] }),
+  'json-no-bug': JSON.stringify({ summary: `npm test: 3 passed. ${NONE}`, findings: [] }),
   'pasted-code': report({ first: NOTEST, cmd: 'none found', run: 'did not run: pasted', result: '0 confirmed, 1 suspect', sus: finding('pasted:3', 'suspect', ' list.length - n') }),
-  'assigned-test-file': report({ first: 'Red tests added to `test/slug.test.js`', run: '4 passed, 1 failed', conf: finding('src/slug.js:3', 'confirmed') }),
+  'assigned-test-file': "Added a test to test/slug.test.js: slugify('Hello Big World') expects 'hello-big-world'; npm test fails on it (4 passed, 1 failed).",
 };
 
 test('bug-hunter lint is clean (chk-layers, chk-portable, chk-frontmatter, chk-links)', async () => {
@@ -68,7 +69,7 @@ test('bug-hunter live recordings: no source file changed, only the test command 
   assert.equal(live.length, cases.length);
   for (const rec of live) {
     const c = cases.find((x) => x.id === rec.case);
-    assert.deepEqual(rec.files, c.tools === 'write' ? ['test/slug.test.js'] : [], `${rec.case}: changed files`);
+    assert.deepEqual(rec.files, c.tools === 'write' ? ['test/slug.test.js'] : [], `${rec.case}: changed files (a worker task writes only its target file)`);
     for (const t of rec.tools) assert.ok(['Read', 'Glob', 'Grep', 'Bash', ...(c.tools === 'write' ? ['Write', 'Edit'] : [])].includes(t), `${rec.case}: used ${t}`);
     for (const { command } of rec.commands) {
       assert.doesNotMatch(command, /(^|[\s;&|])(rm|mv|cp|sed -i|tee|npm (i|install|run)|node -e|node -p|npx)\b|>(?!&|\/dev\/null)/, `${rec.case}: ${command}`);
@@ -100,8 +101,20 @@ test('bug-hunter live recordings: every cited fixture line holds the code, confi
     const body = rec.output.includes('### Confirmed') ? rec.output.split('### Confirmed')[1].split('### Not in this hunt')[0] : rec.output;
     assert.doesNotMatch(body, /\b(indent\w*|semicolons?|naming|rename)\b/i, `${rec.case}: style finding`);
   }
-  const json = JSON.parse(live.find((r) => r.case === 'json-format').output);
-  assert.ok(json.findings.length >= 1 && json.findings.every((f) => ['confirmed', 'suspect'].includes(f.status)), 'json-format: every finding keeps its status');
+  // The harness parser (lib/hunt.mjs normalizeFindings) accepts a json fence; every finding needs title, file, evidence,
+  // confidence confirmed|suspect, and subtasks with a QA_AUDITOR Red worker on test files and a non-QA fix worker.
+  const parse = (out) => JSON.parse(out.trim().replace(/^```(?:json)?\n?|\n?```$/g, ''));
+  const json = parse(live.find((r) => r.case === 'json-format').output);
+  assert.ok(json.findings.length >= 2, 'json-format: the confirmed and the suspect bug');
+  for (const f of json.findings) {
+    assert.ok(f.title && f.file && f.evidence, `json-format: ${f.title} has title, file and evidence`);
+    assert.ok(['confirmed', 'suspect'].includes(f.confidence), `json-format: ${f.title} confidence`);
+    const qa = f.subtasks.filter((s) => s.role === 'QA_AUDITOR');
+    assert.ok(qa.length >= 1 && f.subtasks.some((s) => s.role !== 'QA_AUDITOR'), `json-format: ${f.title} has a Red and a fix worker`);
+    for (const s of qa) for (const p of s.targetFiles) assert.match(p, /^tests?\//, `json-format: Red worker writes only test files (${p})`);
+  }
+  assert.equal(json.findings.find((f) => /averageValue/.test(f.title + f.evidence)).confidence, 'confirmed');
+  assert.deepEqual(parse(live.find((r) => r.case === 'json-no-bug').output).findings, [], 'json-no-bug: an empty findings list');
 });
 
 test('bug-hunter registry entry: QA_AUDITOR only, not default, no engine, keywords rank it first on the HUNTER topic', () => {
@@ -114,11 +127,13 @@ test('bug-hunter registry entry: QA_AUDITOR only, not default, no engine, keywor
   assert.equal(e.engine, undefined);
   // The same whole-word rule as Agentic-Harness keywordMatches (plural s/es allowed).
   const hits = (text, kws) => kws.filter((k) => new RegExp(`(?<![a-z0-9])${k.replace(/\s+/g, '\\s+')}(?:s|es)?(?![a-z0-9])`, 'i').test(text));
-  const topic = 'bug hunt regression tests: src/auth/login.js';
+  // Agentic-Harness 1.0.41 HUNTER topic is "bug hunt: <focus>"; test-champion has keyword "bug".
+  const topic = 'bug hunt: checkout';
   const mine = hits(topic, e.keywords);
   const champion = hits(topic, ['test', 'tests', 'coverage', 'regression', 'bug']);
   const longest = (h) => Math.max(0, ...h.map((k) => k.length));
   assert.ok(mine.length > champion.length || (mine.length === champion.length && longest(mine) > longest(champion)), `bug-hunter ${mine} vs test-champion ${champion}`);
-  assert.deepEqual(hits('give me a regression checklist for this diff', e.keywords), [], 'a regression checklist is test-planner work');
+  for (const worker of ['Bug fix (H1 #1): Crash in checkout. QA writes a test that fails because of the bug', 'Write regression tests for the login form edge cases', 'give me a regression checklist for this diff'])
+    assert.deepEqual(hits(worker, e.keywords), [], `not loaded for: ${worker}`);
   for (const k of e.keywords) assert.ok(k.length >= 4, `${k} is at least 4 characters`);
 });
