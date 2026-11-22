@@ -1,0 +1,14 @@
+{
+  "case": "no-test-command",
+  "prompt": "Check src/week.js for bugs and edge cases that break it.",
+  "agent": "claude -p (fresh agent; cwd an empty project folder outside the repository with the fixture calendar; only a copy of the skill folder without evals; tools Read Glob Grep Bash, with Bash(npm test:*) and Bash(node --test:*) allowed (Claude Code also auto-allows its own read-only commands inside the project); no Write or Edit tool, like the read-only [HARNESS HUNTER] planner call; every command it ran is in commands)",
+  "recordedAt": "2026-11-22",
+  "tools": [
+    "Read",
+    "Glob"
+  ],
+  "commands": [],
+  "cost": 0.1395114,
+  "output": "No test command ran, so nothing below is confirmed: every finding is a suspect from reading the code.\n\n## Bug hunt: weekday helpers in src/week.js\n\nScope: `src/week.js`\nTest command: none found\nTest run: did not run: the `test` script in `package.json` is the npm placeholder and there are no test files\nResult: 0 confirmed, 1 suspect\n\n### Confirmed\nNone.\n\n### Suspect\n1. `src/week.js:4` `isWeekend` returns `false` for every Sunday.\n   - Reading: `isWeekend(new Date(2026, 10, 22))` (Sunday, 22 November 2026) returns `false`. `getDay()` gives `0` for Sunday and never gives `7`, so `day === 7` on line 4 can never be true.\n   - Expected: `true` (source: the doc comment at `src/week.js:1`, \"True when the date falls on a Saturday or a Sunday.\")\n   - Red: add a test in `test/week.test.js`: `isWeekend(new Date(2026, 10, 22))` expects `true`. It must fail first; if it passes, drop this finding.\n   - Green: on line 4, change `day === 7` to `day === 0`. Do this only after Red fails, then run `node --test` and check that every test passes.\n\n### Not in this hunt\n- Code style, naming and formatting; UI style (ui-polish) and accessibility (a11y-audit).\n- What to retest after a change: test-planner.\n- Files outside the scope.\n\nEvidence: the test command did not run. Files read: `src/week.js`, `package.json`.",
+  "files": []
+}

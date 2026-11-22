@@ -1,0 +1,18 @@
+{
+  "case": "retest-boundary",
+  "prompt": "We changed the cart discount code yesterday. Give me a regression checklist of what to retest.",
+  "agent": "claude -p (fresh agent; cwd an empty project folder outside the repository with the fixture cart; only a copy of the skill folder without evals; tools Read Glob Grep Bash, with Bash(npm test:*) and Bash(node --test:*) allowed (Claude Code also auto-allows its own read-only commands inside the project); no Write or Edit tool, like the read-only [HARNESS HUNTER] planner call; every command it ran is in commands)",
+  "recordedAt": "2026-11-22",
+  "tools": [
+    "Read",
+    "Bash"
+  ],
+  "commands": [
+    {
+      "command": "find . -type f | head -100"
+    }
+  ],
+  "cost": 0.0535468,
+  "output": "bug-hunter finds bugs in code; a regression checklist of what to retest after a change comes from test-planner.",
+  "files": []
+}

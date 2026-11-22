@@ -1,0 +1,652 @@
+[
+  {
+    "id": "cart-symptom",
+    "fixture": "cart",
+    "prompt": "Hunt for bugs in src/cart.js. Customers say the cart total is wrong.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Bug hunt"
+      },
+      {
+        "type": "contains",
+        "value": "Scope:"
+      },
+      {
+        "type": "contains",
+        "value": "Test command:"
+      },
+      {
+        "type": "contains",
+        "value": "Test run:"
+      },
+      {
+        "type": "contains",
+        "value": "Result:"
+      },
+      {
+        "type": "contains",
+        "value": "### Confirmed"
+      },
+      {
+        "type": "contains",
+        "value": "### Suspect"
+      },
+      {
+        "type": "contains",
+        "value": "### Not in this hunt"
+      },
+      {
+        "type": "contains",
+        "value": "Evidence:"
+      },
+      {
+        "type": "notContains",
+        "value": "bug-free"
+      },
+      {
+        "type": "contains",
+        "value": "`npm test`"
+      },
+      {
+        "type": "contains",
+        "value": "2 passed, 1 failed"
+      },
+      {
+        "type": "contains",
+        "value": "1 confirmed"
+      },
+      {
+        "type": "contains",
+        "value": "src/cart.js:4"
+      },
+      {
+        "type": "contains",
+        "value": "- Red:"
+      },
+      {
+        "type": "contains",
+        "value": "- Green:"
+      },
+      {
+        "type": "contains",
+        "value": "cartTotal adds every item"
+      },
+      {
+        "type": "contains",
+        "value": "25"
+      },
+      {
+        "type": "notContains",
+        "value": "No test command ran, so nothing below is confirmed: every finding is a suspect from reading the code."
+      },
+      {
+        "type": "notContains",
+        "value": "No bug found in this scope; this does not prove there are none."
+      },
+      {
+        "type": "maxLines",
+        "value": 45
+      }
+    ]
+  },
+  {
+    "id": "harness-hunter",
+    "fixture": "orders",
+    "prompt": "bug hunt regression tests: src/orders.js",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Bug hunt"
+      },
+      {
+        "type": "contains",
+        "value": "Scope:"
+      },
+      {
+        "type": "contains",
+        "value": "Test command:"
+      },
+      {
+        "type": "contains",
+        "value": "Test run:"
+      },
+      {
+        "type": "contains",
+        "value": "Result:"
+      },
+      {
+        "type": "contains",
+        "value": "### Confirmed"
+      },
+      {
+        "type": "contains",
+        "value": "### Suspect"
+      },
+      {
+        "type": "contains",
+        "value": "### Not in this hunt"
+      },
+      {
+        "type": "contains",
+        "value": "Evidence:"
+      },
+      {
+        "type": "notContains",
+        "value": "bug-free"
+      },
+      {
+        "type": "contains",
+        "value": "`npm test`"
+      },
+      {
+        "type": "contains",
+        "value": "3 passed, 1 failed"
+      },
+      {
+        "type": "contains",
+        "value": "1 confirmed"
+      },
+      {
+        "type": "contains",
+        "value": "src/orders.js:9"
+      },
+      {
+        "type": "contains",
+        "value": "averageValue of no orders is 0"
+      },
+      {
+        "type": "contains",
+        "value": "NaN"
+      },
+      {
+        "type": "contains",
+        "value": "src/orders.js:14"
+      },
+      {
+        "type": "contains",
+        "value": "- Reading:"
+      },
+      {
+        "type": "contains",
+        "value": "- Red:"
+      },
+      {
+        "type": "contains",
+        "value": "- Green:"
+      },
+      {
+        "type": "notContains",
+        "value": "bug-hunter finds bugs in code; a regression checklist of what to retest after a change comes from test-planner."
+      },
+      {
+        "type": "notContains",
+        "value": "No bug found in this scope; this does not prove there are none."
+      },
+      {
+        "type": "maxLines",
+        "value": 55
+      }
+    ]
+  },
+  {
+    "id": "uncovered-suspect",
+    "fixture": "slug",
+    "prompt": "Find the bugs in src/slug.js. The tests are green but I don't trust it.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Bug hunt"
+      },
+      {
+        "type": "contains",
+        "value": "Scope:"
+      },
+      {
+        "type": "contains",
+        "value": "Test command:"
+      },
+      {
+        "type": "contains",
+        "value": "Test run:"
+      },
+      {
+        "type": "contains",
+        "value": "Result:"
+      },
+      {
+        "type": "contains",
+        "value": "### Confirmed"
+      },
+      {
+        "type": "contains",
+        "value": "### Suspect"
+      },
+      {
+        "type": "contains",
+        "value": "### Not in this hunt"
+      },
+      {
+        "type": "contains",
+        "value": "Evidence:"
+      },
+      {
+        "type": "notContains",
+        "value": "bug-free"
+      },
+      {
+        "type": "contains",
+        "value": "4 passed, 0 failed"
+      },
+      {
+        "type": "contains",
+        "value": "0 confirmed"
+      },
+      {
+        "type": "contains",
+        "value": "src/slug.js:3"
+      },
+      {
+        "type": "contains",
+        "value": "- Reading:"
+      },
+      {
+        "type": "contains",
+        "value": "- Red:"
+      },
+      {
+        "type": "contains",
+        "value": "- Green:"
+      },
+      {
+        "type": "contains",
+        "value": "replace(' ', '-')"
+      },
+      {
+        "type": "notContains",
+        "value": "No test command ran, so nothing below is confirmed: every finding is a suspect from reading the code."
+      },
+      {
+        "type": "notContains",
+        "value": "No bug found in this scope; this does not prove there are none."
+      },
+      {
+        "type": "maxLines",
+        "value": 45
+      }
+    ]
+  },
+  {
+    "id": "no-test-command",
+    "fixture": "calendar",
+    "prompt": "Check src/week.js for bugs and edge cases that break it.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Bug hunt"
+      },
+      {
+        "type": "contains",
+        "value": "Scope:"
+      },
+      {
+        "type": "contains",
+        "value": "Test command:"
+      },
+      {
+        "type": "contains",
+        "value": "Test run:"
+      },
+      {
+        "type": "contains",
+        "value": "Result:"
+      },
+      {
+        "type": "contains",
+        "value": "### Confirmed"
+      },
+      {
+        "type": "contains",
+        "value": "### Suspect"
+      },
+      {
+        "type": "contains",
+        "value": "### Not in this hunt"
+      },
+      {
+        "type": "contains",
+        "value": "Evidence:"
+      },
+      {
+        "type": "notContains",
+        "value": "bug-free"
+      },
+      {
+        "type": "contains",
+        "value": "No test command ran, so nothing below is confirmed: every finding is a suspect from reading the code."
+      },
+      {
+        "type": "contains",
+        "value": "none found"
+      },
+      {
+        "type": "contains",
+        "value": "did not run"
+      },
+      {
+        "type": "contains",
+        "value": "0 confirmed"
+      },
+      {
+        "type": "contains",
+        "value": "src/week.js:4"
+      },
+      {
+        "type": "contains",
+        "value": "- Reading:"
+      },
+      {
+        "type": "contains",
+        "value": "- Red:"
+      },
+      {
+        "type": "contains",
+        "value": "- Green:"
+      },
+      {
+        "type": "contains",
+        "value": "Sunday"
+      },
+      {
+        "type": "notContains",
+        "value": "src/week.js:10"
+      },
+      {
+        "type": "maxLines",
+        "value": 45
+      }
+    ]
+  },
+  {
+    "id": "clean-no-bug",
+    "fixture": "clamp",
+    "prompt": "Hunt for bugs in src/clamp.js.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Bug hunt"
+      },
+      {
+        "type": "contains",
+        "value": "Scope:"
+      },
+      {
+        "type": "contains",
+        "value": "Test command:"
+      },
+      {
+        "type": "contains",
+        "value": "Test run:"
+      },
+      {
+        "type": "contains",
+        "value": "Result:"
+      },
+      {
+        "type": "contains",
+        "value": "### Confirmed"
+      },
+      {
+        "type": "contains",
+        "value": "### Suspect"
+      },
+      {
+        "type": "contains",
+        "value": "### Not in this hunt"
+      },
+      {
+        "type": "contains",
+        "value": "Evidence:"
+      },
+      {
+        "type": "notContains",
+        "value": "bug-free"
+      },
+      {
+        "type": "contains",
+        "value": "No bug found in this scope; this does not prove there are none."
+      },
+      {
+        "type": "contains",
+        "value": "3 passed, 0 failed"
+      },
+      {
+        "type": "contains",
+        "value": "0 confirmed, 0 suspect"
+      },
+      {
+        "type": "contains",
+        "value": "None."
+      },
+      {
+        "type": "notContains",
+        "value": "- Red:"
+      },
+      {
+        "type": "notContains",
+        "value": "is correct"
+      },
+      {
+        "type": "maxLines",
+        "value": 35
+      }
+    ]
+  },
+  {
+    "id": "style-boundary",
+    "fixture": "price",
+    "prompt": "Hunt for bugs in src/price.js and also point out the bad naming, formatting and spacing.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Bug hunt"
+      },
+      {
+        "type": "contains",
+        "value": "Scope:"
+      },
+      {
+        "type": "contains",
+        "value": "Test command:"
+      },
+      {
+        "type": "contains",
+        "value": "Test run:"
+      },
+      {
+        "type": "contains",
+        "value": "Result:"
+      },
+      {
+        "type": "contains",
+        "value": "### Confirmed"
+      },
+      {
+        "type": "contains",
+        "value": "### Suspect"
+      },
+      {
+        "type": "contains",
+        "value": "### Not in this hunt"
+      },
+      {
+        "type": "contains",
+        "value": "Evidence:"
+      },
+      {
+        "type": "notContains",
+        "value": "bug-free"
+      },
+      {
+        "type": "contains",
+        "value": "bug-hunter reports bugs only; code style is not a bug, and UI style and accessibility come from ui-polish and a11y-audit."
+      },
+      {
+        "type": "contains",
+        "value": "1 confirmed"
+      },
+      {
+        "type": "contains",
+        "value": "src/price.js:3"
+      },
+      {
+        "type": "contains",
+        "value": "toCents rounds to the nearest cent"
+      },
+      {
+        "type": "contains",
+        "value": "Math.round"
+      },
+      {
+        "type": "contains",
+        "value": "- Red:"
+      },
+      {
+        "type": "contains",
+        "value": "- Green:"
+      },
+      {
+        "type": "notContains",
+        "value": "indent"
+      },
+      {
+        "type": "notContains",
+        "value": "semicolon"
+      },
+      {
+        "type": "notContains",
+        "value": "rename"
+      },
+      {
+        "type": "maxLines",
+        "value": 45
+      }
+    ]
+  },
+  {
+    "id": "retest-boundary",
+    "fixture": "cart",
+    "prompt": "We changed the cart discount code yesterday. Give me a regression checklist of what to retest.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "bug-hunter finds bugs in code; a regression checklist of what to retest after a change comes from test-planner."
+      },
+      {
+        "type": "notContains",
+        "value": "## Bug hunt"
+      },
+      {
+        "type": "notContains",
+        "value": "- Red:"
+      },
+      {
+        "type": "maxLines",
+        "value": 3
+      }
+    ]
+  },
+  {
+    "id": "fix-read-only",
+    "fixture": "cart",
+    "prompt": "Find the bug in src/cart.js and fix it.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Bug hunt"
+      },
+      {
+        "type": "contains",
+        "value": "Scope:"
+      },
+      {
+        "type": "contains",
+        "value": "Test command:"
+      },
+      {
+        "type": "contains",
+        "value": "Test run:"
+      },
+      {
+        "type": "contains",
+        "value": "Result:"
+      },
+      {
+        "type": "contains",
+        "value": "### Confirmed"
+      },
+      {
+        "type": "contains",
+        "value": "### Suspect"
+      },
+      {
+        "type": "contains",
+        "value": "### Not in this hunt"
+      },
+      {
+        "type": "contains",
+        "value": "Evidence:"
+      },
+      {
+        "type": "notContains",
+        "value": "bug-free"
+      },
+      {
+        "type": "contains",
+        "value": "bug-hunter is read-only and changes no file; the Red-Green plan below says which test to add and what to fix."
+      },
+      {
+        "type": "contains",
+        "value": "1 confirmed"
+      },
+      {
+        "type": "contains",
+        "value": "src/cart.js:4"
+      },
+      {
+        "type": "contains",
+        "value": "- Red:"
+      },
+      {
+        "type": "contains",
+        "value": "- Green:"
+      },
+      {
+        "type": "contains",
+        "value": "let i = 0"
+      },
+      {
+        "type": "maxLines",
+        "value": 45
+      }
+    ]
+  },
+  {
+    "id": "no-code",
+    "prompt": "Hunt for bugs in this project.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "No code found to hunt in. Tell me which files or which behaviour to check."
+      },
+      {
+        "type": "notContains",
+        "value": "## Bug hunt"
+      },
+      {
+        "type": "maxLines",
+        "value": 3
+      }
+    ]
+  }
+]

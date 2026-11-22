@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="bug-hunter cover">
+  <rect x="0" y="0" width="640" height="360" fill="var(--cover-bg)"/>
+  <circle cx="290" cy="170" r="92" fill="none" stroke="currentColor" stroke-width="8"/>
+  <path d="M356 236 L450 330" fill="none" stroke="currentColor" stroke-width="16"/>
+  <ellipse cx="290" cy="178" rx="30" ry="40" fill="var(--cover-accent)" stroke="currentColor" stroke-width="6"/>
+  <circle cx="290" cy="128" r="16" fill="currentColor"/>
+  <path d="M260 160 L234 148 M260 182 L230 182 M260 204 L234 216 M320 160 L346 148 M320 182 L350 182 M320 204 L346 216" fill="none" stroke="currentColor" stroke-width="6"/>
+  <rect x="470" y="96" width="110" height="18" rx="6" fill="var(--cover-accent)"/>
+  <rect x="470" y="130" width="80" height="18" rx="6" fill="currentColor"/>
+</svg>
