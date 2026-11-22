@@ -648,5 +648,112 @@
         "value": 3
       }
     ]
+  },
+  {
+    "id": "json-format",
+    "fixture": "orders",
+    "prompt": "bug hunt regression tests: src/orders.js\n\nReply with ONLY this JSON, no other text: {\"findings\":[{\"title\":\"\",\"status\":\"confirmed|suspect\",\"file\":\"\",\"line\":0,\"evidence\":\"\",\"expected\":\"\",\"red\":\"\",\"green\":\"\"}],\"summary\":\"\"}",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "\"findings\""
+      },
+      {
+        "type": "contains",
+        "value": "\"status\""
+      },
+      {
+        "type": "contains",
+        "value": "confirmed"
+      },
+      {
+        "type": "contains",
+        "value": "suspect"
+      },
+      {
+        "type": "contains",
+        "value": "orders.js"
+      },
+      {
+        "type": "contains",
+        "value": "averageValue of no orders is 0"
+      },
+      {
+        "type": "contains",
+        "value": "\"red\""
+      },
+      {
+        "type": "contains",
+        "value": "\"green\""
+      },
+      {
+        "type": "contains",
+        "value": "\"summary\""
+      },
+      {
+        "type": "notContains",
+        "value": "## Bug hunt"
+      },
+      {
+        "type": "notContains",
+        "value": "### Confirmed"
+      },
+      {
+        "type": "notContains",
+        "value": "```"
+      },
+      {
+        "type": "maxLines",
+        "value": 60
+      }
+    ]
+  },
+  {
+    "id": "assigned-test-file",
+    "fixture": "slug",
+    "tools": "write",
+    "prompt": "You are the QA worker for this task. Your assigned file: test/slug.test.js (you may change only this file). Hunt for bugs in src/slug.js and add the Red tests for what you find to your assigned file.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "Red tests added to `test/slug.test.js`"
+      },
+      {
+        "type": "contains",
+        "value": "## Bug hunt"
+      },
+      {
+        "type": "contains",
+        "value": "1 confirmed"
+      },
+      {
+        "type": "contains",
+        "value": "src/slug.js:3"
+      },
+      {
+        "type": "contains",
+        "value": "- Red:"
+      },
+      {
+        "type": "contains",
+        "value": "- Green:"
+      },
+      {
+        "type": "contains",
+        "value": "### Not in this hunt"
+      },
+      {
+        "type": "fileExists",
+        "value": "test/slug.test.js"
+      },
+      {
+        "type": "notContains",
+        "value": "bug-hunter is read-only and changes no file"
+      },
+      {
+        "type": "maxLines",
+        "value": 50
+      }
+    ]
   }
 ]

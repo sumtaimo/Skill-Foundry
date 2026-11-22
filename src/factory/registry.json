@@ -270,5 +270,24 @@
       "sign up",
       "checkout"
     ]
+  },
+  {
+    "name": "bug-hunter",
+    "version": "0.1.0",
+    "purpose": "Hunts for real bugs in a project's code without changing it: runs the project's own test command, reports each bug as confirmed (test output quoted) or suspect (file:line and the breaking input), each with a Red-Green plan; never invents a bug, never reports style.",
+    "status": "ready",
+    "roles": [
+      "QA_AUDITOR"
+    ],
+    "keywords": [
+      "bug hunt",
+      "hunt",
+      "regression test",
+      "regression tests",
+      "edge case",
+      "crash",
+      "broken",
+      "bugs"
+    ]
   }
 ]

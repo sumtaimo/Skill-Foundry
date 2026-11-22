@@ -4,6 +4,10 @@ Versions of Skill Foundry itself (the `skill-foundry` command and the set of ski
 version in its folder. Versions move slowly: a bump needs the owner's approval in chat; record smaller changes under the
 current version.
 
+## 1.7.0 - 2026-11-22
+
+- New skill `bug-hunter` 0.1.0 (fetched on demand, not in the default core; QA_AUDITOR): hunts for real bugs without changing the code. Runs only the project's own test command, reports each bug as confirmed (the test output quoted) or suspect (`file:line`, the breaking input and the expected result with its source), each with a Red-Green plan; never invents a bug, never reports style. Follows a task's required format (JSON only) and writes Red tests only into a test file the task assigns. Asked for by Agentic-Harness for its read-only `[HARNESS HUNTER]` planner call (1.0.39); keywords rank it first on "bug hunt regression tests: <scope>" under the cap of 2; proven by fresh real agents (live 11 of 11, routing 89 of 89, portable).
+
 ## 1.6.0 - 2026-11-21
 
 - New skill `journey-mapper` 0.1.0 (fetched on demand, not in the default core; BA_ANALYST): grows a short feature goal into the whole user journey, read-only in the reply: steps with loading, empty, error, success, validation, reload and permission slots, every fact quoted from the goal, every gap an open business question. Asked for by Agentic-Harness for its read-only `[HARNESS FEATURE_BA]` planner call (1.0.39); proven by fresh real agents (live 7 of 7, routing 83 of 83, portable).

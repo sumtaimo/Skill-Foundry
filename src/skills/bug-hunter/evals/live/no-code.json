@@ -5,10 +5,15 @@
   "recordedAt": "2026-11-22",
   "tools": [
     "Read",
+    "Bash",
     "Glob"
   ],
-  "commands": [],
-  "cost": 0.1295182,
+  "commands": [
+    {
+      "command": "find . -type f | head -100"
+    }
+  ],
+  "cost": 0.10086940000000001,
   "output": "No code found to hunt in. Tell me which files or which behaviour to check.",
   "files": []
 }

@@ -413,5 +413,35 @@
     "id": "jm6",
     "prompt": "Estimate how many sprints the checkout redesign will take and in which order we should build it.",
     "expect": "none"
+  },
+  {
+    "id": "bh1",
+    "prompt": "Hunt for bugs in src/cart.js. Customers say the cart total is sometimes wrong.",
+    "expect": "bug-hunter"
+  },
+  {
+    "id": "bh2",
+    "prompt": "Our importer crashes on some CSV files and I can't see why. Run the tests and find what is broken in lib/import.js.",
+    "expect": "bug-hunter"
+  },
+  {
+    "id": "bh3",
+    "prompt": "The tests are green but I don't trust src/dates.js. Find edge cases that break it and tell me which bugs are real.",
+    "expect": "bug-hunter"
+  },
+  {
+    "id": "bh4",
+    "prompt": "We changed how discounts are applied in checkout. Give me a regression checklist of what to retest.",
+    "expect": "test-planner"
+  },
+  {
+    "id": "bh5",
+    "prompt": "Check this signup form for screen reader problems and missing ARIA labels: <form><input id=email></form>",
+    "expect": "a11y-audit"
+  },
+  {
+    "id": "bh6",
+    "prompt": "Set up GitHub Actions so our tests run on every pull request.",
+    "expect": "none"
   }
 ]

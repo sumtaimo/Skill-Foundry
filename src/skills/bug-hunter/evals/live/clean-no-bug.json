@@ -13,7 +13,7 @@
       "command": "npm test"
     }
   ],
-  "cost": 0.1484002,
-  "output": "## Bug hunt: clamp in src/clamp.js\n\nScope: `src/clamp.js`\nTest command: `npm test`\nTest run: 3 passed, 0 failed\nResult: 0 confirmed, 0 suspect\n\nNo bug found in this scope; this does not prove there are none.\n\n### Confirmed\nNone.\n\n### Suspect\nNone.\n\n### Not in this hunt\n- Code style, naming and formatting; UI style (ui-polish) and accessibility (a11y-audit).\n- What to retest after a change: test-planner.\n- Files outside the scope.\n\nEvidence: `npm test` (3 passed, 0 failed). Files read: `src/clamp.js`, `test/clamp.test.js`, `package.json`.",
+  "cost": 0.1139278,
+  "output": "## Bug hunt: clamp\n\nScope: `src/clamp.js`\nTest command: `npm test`\nTest run: 3 passed, 0 failed\nResult: 0 confirmed, 0 suspect\n\nNo bug found in this scope; this does not prove there are none.\n\n### Confirmed\nNone.\n\n### Suspect\nNone.\n\n### Not in this hunt\n- Code style, naming and formatting; UI style (ui-polish) and accessibility (a11y-audit).\n- What to retest after a change: test-planner.\n- Files outside the scope.\n\nEvidence: `npm test` (3 passed, 0 failed). Files read: `src/clamp.js`, `test/clamp.test.js`, `package.json`.",
   "files": []
 }
