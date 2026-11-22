@@ -497,7 +497,7 @@ export function main(argv, log = console.log) {
     if (!rest.includes('--no-rules')) log(`rules    AGENTS.md lists ${writeRules().skills.join(', ')}`);
     if (!rest.includes('--no-protect')) { const g = protectSkills(); log(`protect  ${g.file}: ${g.skipped ?? (g.added.length || g.removed.length ? `${g.added.length} protection rule(s) added${g.removed.length ? `, ${g.removed.length} invalid rule(s) removed` : ''}` : 'already in place')}`); }
     if (!rest.includes('--quiet')) summary(log, project);
-    log('Restart your agent (Claude Code) so it loads the skills.');
+    log('Restart your agent (Claude Code, Codex, Antigravity …) so it loads the skills.');
   } else if (cmd === 'check') {
     const r = checkProject();
     if (rest.includes('--json')) log(JSON.stringify(r, null, 2));
