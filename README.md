@@ -27,8 +27,8 @@ npx github:sumtaimo/Skill-Foundry doctor [--fix] [--json]   # diagnose setup and
 What `add` writes in your project:
 - Copies the skill into `.claude/skills/<name>/` (with `.foundry.json` hashes so `check` and `update` preserve your edits).
 - If `.harness/skills/` exists (for example, Agentic-Harness), registers the skill for matching roles so workers load it automatically (`--sync-harness` wraps or replaces existing harness starter copies while keeping `.orig`).
-- Updates a managed block in `AGENTS.md` so any agent (Claude Code, Codex, Gemini CLI, Cursor) discovers the installed skills (`--no-rules` to skip).
-- Adds deny rules to `.claude/settings.json` so agents cannot edit installed skills (`--no-protect` to skip).
+- Updates a managed block in `AGENTS.md` so any agent (Claude Code, Codex, Antigravity, Gemini CLI, Cursor) discovers the installed skills (`--no-rules` to skip).
+- Adds deny rules to `.claude/settings.json` so agents cannot edit installed skills (`--no-protect` to skip). Only Claude Code reads that file; Codex and Antigravity are told by the rule in `AGENTS.md` instead (an instruction, not a block).
 
 ### With an agentic harness: what to expect
 

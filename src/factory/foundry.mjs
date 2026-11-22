@@ -448,9 +448,15 @@ function summary(log, project, root) {
   log(`  full list with fixes: ${CLI} doctor`);
 }
 
+const KNOWN_FLAGS = ['--json', '--force', '--quiet', '--no-rules', '--no-protect', '--sync-harness', '--all', '--default', '--role', '--fix'];
+
 export function main(argv, log = console.log) {
   const [cmd, ...rest] = argv;
   const project = process.cwd();
+  // A mistyped option must stop the command, never be ignored: `add x --no-protec` would silently add the protection
+  // rules the user meant to skip. (Every option the harness and the docs use is in KNOWN_FLAGS.)
+  const unknownFlags = ['list', 'add', 'check', 'doctor', 'remove', 'update'].includes(cmd) ? rest.filter((a) => a.startsWith('-') && !KNOWN_FLAGS.includes(a)) : [];
+  if (unknownFlags.length) throw new Error(`unknown option ${unknownFlags.map((a) => `"${a}"`).join(', ')}. Options: ${KNOWN_FLAGS.join(' ')}`);
   const force = rest.includes('--force');
   const syncHarness = rest.includes('--sync-harness');
   const ri = rest.indexOf('--role');
@@ -477,20 +483,21 @@ export function main(argv, log = console.log) {
     for (const s of catalog()) log(`${s.name.padEnd(18)} ${s.version.padEnd(7)} ${s.roles.join(',').padEnd(26)} ${s.scope === 'factory' ? '(repo only) ' : ''}${s.description.slice(0, 70)}`);
   } else if (cmd === 'add') {
     let list = names;
+    if (ri >= 0 && names.length) throw new Error(`use either skill names (${names.join(', ')}) or --role, not both: run them as two commands`);
     if (ri >= 0) {
-      const role = rest[ri + 1]; const ok = allowedRoles(project);
+      const role = String(rest[ri + 1] ?? '').toUpperCase(); const ok = allowedRoles(project); // roles are written in capitals; accept qa_auditor too
       if (!ok.includes(role)) throw new Error(`--role must be one of ${ok.join(', ')}`);
       list = catalog().filter((s) => s.scope !== 'factory' && s.roles.includes(role)).map((s) => s.name);
     }
     if (rest.includes('--all')) list = catalog().filter((s) => s.scope !== 'factory').map((s) => s.name);
     if (rest.includes('--default')) list = catalog().filter((s) => s.scope !== 'factory' && s.isDefault).map((s) => s.name);
-    if (!list.length && ri >= 0) { log(`no ready skill is registered for ${rest[ri + 1]} yet`); return 0; }
+    if (!list.length && ri >= 0) { log(`no ready skill is registered for ${String(rest[ri + 1]).toUpperCase()} yet`); return 0; }
     if (!list.length) throw new Error('usage: add <skill…> | add --all | add --default | add --role <ROLE>');
     list.forEach((n) => show(addSkill(n, { force, syncHarness })));
     if (!rest.includes('--no-rules')) log(`rules    AGENTS.md lists ${writeRules().skills.join(', ')}`);
     if (!rest.includes('--no-protect')) { const g = protectSkills(); log(`protect  ${g.file}: ${g.skipped ?? (g.added.length || g.removed.length ? `${g.added.length} protection rule(s) added${g.removed.length ? `, ${g.removed.length} invalid rule(s) removed` : ''}` : 'already in place')}`); }
     if (!rest.includes('--quiet')) summary(log, project);
-    log('Restart your agent (Claude Code) so it loads the skills.');
+    log('Restart your agent (Claude Code, Codex, Antigravity …) so it loads the skills.');
   } else if (cmd === 'check') {
     const r = checkProject();
     if (rest.includes('--json')) log(JSON.stringify(r, null, 2));
@@ -520,7 +527,12 @@ export function main(argv, log = console.log) {
     if (!names.length) throw new Error('usage: remove <skill…>');
     names.forEach((n) => log(`removed  ${removeSkill(n).name}`));
   } else if (cmd === 'update') {
-    const r = checkProject().filter((x) => x.latest && (!names.length || names.includes(x.name)));
+    const known = new Set(catalog().filter((s) => s.scope !== 'factory').map((s) => s.name));
+    const typo = names.filter((n) => !known.has(n));
+    if (typo.length) throw new Error(`unknown or not ready skill ${typo.map((n) => `"${n}"`).join(', ')} (see: list)`); // a typo is not "nothing to update"
+    const have = checkProject();
+    for (const n of names.filter((n) => !have.some((x) => x.name === n))) log(`${n} is not installed here (add it first: add ${n})`);
+    const r = have.filter((x) => x.latest && (!names.length || names.includes(x.name)));
     if (!r.length) log('Nothing to update.');
     r.forEach((x) => show(addSkill(x.name, { force, syncHarness })));
     if (r.length && !rest.includes('--no-rules')) log(`rules    AGENTS.md lists ${writeRules().skills.join(', ')}`);

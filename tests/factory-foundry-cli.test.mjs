@@ -397,3 +397,31 @@ test('doctor: an engine skill pointer keeps the role mcp__ tools (harness 1.0.34
   const r = doctorProject(p);
   assert.ok(!r.items.some((i) => i.level === 'problem' && /strips/.test(i.message)), JSON.stringify(r.items.filter((i) => i.level === 'problem')));
 });
+
+test('CLI is strict about what you type: unknown options stop the command, --role accepts lower case, names and --role do not mix, update names a typo', () => {
+  const p = mkdtempSync(join(tmpdir(), 'sf-strict-')); mkdirSync(join(p, '.harness', 'skills'), { recursive: true });
+  const cwd = process.cwd(); process.chdir(p);
+  try {
+    // a typo of an opt-out must NOT silently turn the default (protection rules) on
+    assert.throws(() => main(['add', 'copy-tight', '--no-protec'], () => {}), /unknown option "--no-protec"/);
+    assert.ok(!existsSync(join(p, '.claude', 'skills', 'copy-tight')), 'nothing may be installed when an option is unknown');
+    assert.throws(() => main(['list', '--bogus'], () => {}), /unknown option "--bogus"/);
+    assert.throws(() => main(['check', '--jsn'], () => {}), /unknown option/);
+    // every option the harness and the docs use is still accepted
+    for (const argv of [['list', '--json'], ['check', '--json'], ['doctor', '--json'], ['add', 'copy-tight', '--quiet', '--no-rules', '--no-protect', '--force', '--sync-harness']]) {
+      const spy = process.stdout.write; process.stdout.write = () => true;
+      try { main(argv, () => {}); } finally { process.stdout.write = spy; }
+    }
+    assert.ok(existsSync(join(p, '.claude', 'skills', 'copy-tight', 'SKILL.md')), 'valid options still work');
+    // roles are capitals everywhere else; lower case is understood
+    const out = []; main(['add', '--role', 'ba_analyst', '--quiet'], (l) => out.push(l));
+    assert.ok(out.some((l) => /copy-tight|spec-writer|journey-mapper/.test(l)), out.join('\n'));
+    assert.throws(() => main(['add', '--role', 'NOPE'], () => {}), /--role must be one of/);
+    assert.throws(() => main(['add', 'copy-tight', '--role', 'QA_AUDITOR'], () => {}), /either skill names .* or --role, not both/);
+    // update: a typo is an error, a real skill that is not installed is explained, never silently "nothing to update"
+    assert.throws(() => main(['update', 'journey-mappr'], () => {}), /unknown or not ready skill "journey-mappr"/);
+    assert.ok(!existsSync(join(p, '.claude', 'skills', 'figure-craft')), 'precondition: figure-craft (DEV_ENGINEER only) is not installed by the BA_ANALYST role add');
+    const u = []; assert.equal(main(['update', 'figure-craft'], (l) => u.push(l)), 0);
+    assert.ok(u.some((l) => /figure-craft is not installed here \(add it first: add figure-craft\)/.test(l)), u.join('\n'));
+  } finally { process.chdir(cwd); }
+});
