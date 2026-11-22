@@ -39,6 +39,7 @@ const good = {
   'fix-read-only': report({ first: RO, conf: finding('src/cart.js:4', 'confirmed', ' let i = 0') }),
   'no-code': NOCODE,
   'json-format': JSON.stringify({ findings: [{ title: 'x', status: 'confirmed', file: 'src/orders.js', evidence: 'averageValue of no orders is 0', red: 'r', green: 'g' }, { status: 'suspect' }], summary: 's' }),
+  'pasted-code': report({ first: NOTEST, cmd: 'none found', run: 'did not run: pasted', result: '0 confirmed, 1 suspect', sus: finding('pasted:3', 'suspect', ' list.length - n') }),
   'assigned-test-file': report({ first: 'Red tests added to `test/slug.test.js`', run: '4 passed, 1 failed', conf: finding('src/slug.js:3', 'confirmed') }),
 };
 

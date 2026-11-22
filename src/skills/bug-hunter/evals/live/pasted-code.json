@@ -1,0 +1,14 @@
+{
+  "case": "pasted-code",
+  "prompt": "Find the bug in this helper, it is used for the 'recent orders' box:\n\nfunction lastN(list, n) {\n  // the last n items of the list, newest last\n  return list.slice(list.length - n - 1);\n}",
+  "agent": "claude -p (fresh agent; cwd an empty project folder outside the repository; only a copy of the skill folder without evals; tools Read Glob Grep Bash, with Bash(npm test:*) and Bash(node --test:*) allowed (Claude Code also auto-allows its own read-only commands inside the project); no Write or Edit tool, like the read-only [HARNESS HUNTER] planner call; every command it ran is in commands)",
+  "recordedAt": "2026-11-22",
+  "tools": [
+    "Read",
+    "Glob"
+  ],
+  "commands": [],
+  "cost": 0.11376959999999998,
+  "output": "No test command ran, so nothing below is confirmed: every finding is a suspect from reading the code.\n\n## Bug hunt: lastN helper for the recent orders box\n\nScope: pasted code\nTest command: none found\nTest run: did not run: no package.json and no test files in the project\nResult: 0 confirmed, 1 suspect\n\n### Confirmed\nNone.\n\n### Suspect\n1. `pasted:3` `lastN` returns one item too many (an off-by-one error), so the recent orders box shows n+1 orders.\n   - Reading: `lastN([1, 2, 3, 4, 5], 2)` gives `[3, 4, 5]`. The start index is `list.length - n - 1` = `5 - 2 - 1` = `2`, so `slice` keeps everything from index 2 to the end. In the same way, `lastN([1, 2, 3], 0)` gives `[3]` instead of `[]`.\n   - Expected: `[4, 5]` (source: comment at `pasted:2`, \"the last n items of the list, newest last\")\n   - Red: add a test in `lastN.test.js`: `lastN([1, 2, 3, 4, 5], 2)` expects `[4, 5]`. It must fail first; if it passes, drop this finding.\n   - Green: at `pasted:3`, change the start to `list.length - n` (remove the `- 1`), only after Red fails. Then run `node --test` and see every test pass.\n\n### Not in this hunt\n- Code style, naming and formatting; UI style (ui-polish) and accessibility (a11y-audit).\n- What to retest after a change: test-planner.\n- Files outside the scope.\n\nEvidence: the test command did not run. Files read: none (pasted code only; the project folder is empty).",
+  "files": []
+}

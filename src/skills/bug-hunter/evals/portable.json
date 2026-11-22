@@ -1,0 +1,14 @@
+{
+  "skill": "bug-hunter",
+  "prompt": "Hunt for bugs in this function, our invoice totals look off:\n\nfunction invoiceTotal(lines, taxRate) {\n  // sum of quantity * unitPrice for every line, then add tax (taxRate is a percent, e.g. 7 for 7%)\n  let total = 0;\n  for (const line of lines) total += line.quantity * line.unitPrice;\n  return total + total * taxRate;\n}",
+  "recordedAt": "2026-11-22",
+  "agent": "claude -p in an empty project outside the repository",
+  "skillSha": "ac0caa0796cbff2ace4ea6a07d8b8951cf99c4a994eac46d7aac9d4a3ea0d495",
+  "exit": 0,
+  "usedSkill": true,
+  "leakedRepoRules": false,
+  "touchedRepo": [],
+  "produced": 0,
+  "cost": 0.23582999999999998,
+  "answer": "No test command ran, so nothing below is confirmed: every finding is a suspect from reading the code.\n\n## Bug hunt: invoiceTotal tax calculation\n\nScope: pasted code\nTest command: none found\nTest run: did not run: the project has no package.json, no test script and no test files\nResult: 0 confirmed, 1 suspect\n\n### Confirmed\nNone.\n\n### Suspect\n1. `pasted:5` The tax rate is a percent, but the code multiplies by it as if it were a fraction, so the tax comes out 100 times too big.\n   - Reading: with `invoiceTotal([{ quantity: 1, unitPrice: 100 }], 7)`, the line `total + total * taxRate` works out to `100 + 100 * 7`, which returns `800` instead of `107`. Every invoice with a non-zero tax rate is overstated, and the error grows with the rate.\n   - Expected: `107`. Source: the comment at `pasted:2`, \"taxRate is a percent, e.g. 7 for 7%\".\n   - Red: add a test in `invoiceTotal.test.js`: `invoiceTotal([{ quantity: 1, unitPrice: 100 }], 7)` expects `107`. Add a second one: `invoiceTotal([{ quantity: 2, unitPrice: 50 }, { quantity: 1, unitPrice: 20 }], 10)` expects `132`. The tests must fail first; if they pass, drop this finding.\n   - Green: at `pasted:5`, change it to `return total + total * taxRate / 100;`. Do this only after Red fails.\n\n### Not in this hunt\n- Code style, naming and formatting; UI style (ui-polish) and accessibility (a11y-audit).\n- What to retest after a change: test-planner.\n- Files outside the scope.\n\nEvidence: the test command did not run. Files read: pasted code."
+}

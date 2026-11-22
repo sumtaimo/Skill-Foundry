@@ -2,7 +2,7 @@
 
 Defined terms used in every layer:
 
-- **Scope**: the files, folders or behaviour the user named ("lib/cart.js", "the checkout total"). In the request "bug hunt regression tests: <scope>" it is the text after the colon. No scope named: the project's own source files (layer 02).
+- **Scope**: the files, folders or behaviour the user named ("lib/cart.js", "the checkout total"). In the request "bug hunt regression tests: <scope>" it is the text after the colon. No scope named: the project's own source files (layer 02). Code pasted in the request is a scope too: cite its lines as `pasted:<line>`, counting from its first line.
 - **Test command**: the project's own way to run its tests: `npm test` when `package.json` has a real `test` script, otherwise `node --test` when the project has test files (layer 02, step 3).
 - **Bug**: code that gives a wrong result, throws or crashes, loses or corrupts data, or breaks what a test, the request, or a comment or doc in the project says it must do (references, part 1).
 - **Confirmed**: a bug the test command's output shows, quoted word for word.

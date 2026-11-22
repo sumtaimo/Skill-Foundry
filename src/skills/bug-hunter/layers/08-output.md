@@ -5,7 +5,7 @@ The reply is one Markdown document with this shape. A fixed sentence from layer 
 ````
 ## Bug hunt: <scope in a few words>
 
-Scope: `<file>`, `<folder>`
+Scope: `<file>`, `<folder>` | pasted code
 Test command: `npm test` | `node --test` | none found
 Test run: <n> passed, <n> failed | did not run: <reason>
 Result: <n> confirmed, <n> suspect
@@ -32,12 +32,12 @@ Result: <n> confirmed, <n> suspect
 Evidence: `<test command>` (<n> passed, <n> failed) | the test command did not run. Files read: `<file>`, `<file>`.
 ````
 
-An empty section is the single line "None.". With no finding, the line "No bug found in this scope; this does not prove there are none." comes right after the Result line.
+Every finding starts with its place in backticks: `<file>:<line>` for a file, `pasted:<line>` for code pasted in the request (its first pasted line is line 1). An empty section is the single line "None.". With no finding, the line "No bug found in this scope; this does not prove there are none." comes right after the Result line.
 
 Quality bar:
 
 1. The header has its four lines; the Result counts match the findings.
-2. Each finding starts with `file:line` in backticks and one plain sentence.
+2. Each finding starts with `file:line` (or `pasted:line`) in backticks and one plain sentence.
 3. Each confirmed finding has Evidence, Expected, Red and Green, in that order; each suspect has Reading, Expected, Red and Green.
 4. Red always comes before Green and names a test file and an expected value.
 5. "Not in this hunt" always has its three bullets, plus a "Not found:" bullet for a symptom the code does not explain.

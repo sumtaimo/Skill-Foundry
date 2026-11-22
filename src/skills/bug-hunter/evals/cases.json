@@ -755,5 +755,51 @@
         "value": 50
       }
     ]
+  },
+  {
+    "id": "pasted-code",
+    "prompt": "Find the bug in this helper, it is used for the 'recent orders' box:\n\nfunction lastN(list, n) {\n  // the last n items of the list, newest last\n  return list.slice(list.length - n - 1);\n}",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "No test command ran, so nothing below is confirmed: every finding is a suspect from reading the code."
+      },
+      {
+        "type": "contains",
+        "value": "## Bug hunt"
+      },
+      {
+        "type": "contains",
+        "value": "0 confirmed, 1 suspect"
+      },
+      {
+        "type": "contains",
+        "value": "pasted:3"
+      },
+      {
+        "type": "contains",
+        "value": "- Reading:"
+      },
+      {
+        "type": "contains",
+        "value": "- Red:"
+      },
+      {
+        "type": "contains",
+        "value": "- Green:"
+      },
+      {
+        "type": "contains",
+        "value": "list.length - n"
+      },
+      {
+        "type": "notContains",
+        "value": "No code found to hunt in."
+      },
+      {
+        "type": "maxLines",
+        "value": 40
+      }
+    ]
   }
 ]

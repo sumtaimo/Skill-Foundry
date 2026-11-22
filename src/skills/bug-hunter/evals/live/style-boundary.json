@@ -10,10 +10,10 @@
   ],
   "commands": [
     {
-      "command": "npm test"
+      "command": "npm test 2>&1"
     }
   ],
-  "cost": 0.1153676,
-  "output": "bug-hunter reports bugs only; code style is not a bug, and UI style and accessibility come from ui-polish and a11y-audit.\n\n## Bug hunt: price conversion\n\nScope: `src/price.js`\nTest command: `npm test`\nTest run: 2 passed, 1 failed\nResult: 1 confirmed, 0 suspect\n\n### Confirmed\n1. `src/price.js:3` `toCents` cuts off the fraction with `Math.floor` instead of rounding, so `toCents(19.99)` returns 1998 cents instead of 1999.\n   - Evidence: `1998 !== 1999`\n   - Expected: 1999 (source: `test/price.test.js:10` and the comment at `src/price.js:1`, \"rounded to the nearest cent\")\n   - Red: the failing test \"toCents rounds to the nearest cent\" in `test/price.test.js`.\n   - Green: change `Math.floor(d*100)` to `Math.round(d*100)` at `src/price.js:3`, then run `npm test` and check that every test passes.\n\n### Suspect\nNone.\n\n### Not in this hunt\n- Code style, naming and formatting; UI style (ui-polish) and accessibility (a11y-audit).\n- What to retest after a change: test-planner.\n- Files outside the scope.\n\nEvidence: `npm test` (2 passed, 1 failed). Files read: `src/price.js`, `test/price.test.js`, `package.json`.",
+  "cost": 0.11393640000000001,
+  "output": "bug-hunter reports bugs only; code style is not a bug, and UI style and accessibility come from ui-polish and a11y-audit.\n\n## Bug hunt: price conversion and formatting\n\nScope: `src/price.js`\nTest command: `npm test`\nTest run: 2 passed, 1 failed\nResult: 1 confirmed, 0 suspect\n\n### Confirmed\n1. `src/price.js:3` `toCents` rounds down instead of to the nearest cent, so `toCents(19.99)` returns 1998 instead of 1999.\n   - Evidence: `1998 !== 1999`\n   - Expected: 1999 (source: `test/price.test.js:10` and the comment at `src/price.js:1`, \"rounded to the nearest cent\")\n   - Red: the failing test \"toCents rounds to the nearest cent\" in `test/price.test.js`.\n   - Green: at `src/price.js:3`, change `Math.floor(d*100)` to `Math.round(d*100)`. Then run `npm test` and check that every test passes.\n\n### Suspect\nNone.\n\n### Not in this hunt\n- Code style, naming and formatting; UI style (ui-polish) and accessibility (a11y-audit).\n- What to retest after a change: test-planner.\n- Files outside the scope.\n\nEvidence: `npm test` (2 passed, 1 failed). Files read: `src/price.js`, `test/price.test.js`, `package.json`.",
   "files": []
 }
