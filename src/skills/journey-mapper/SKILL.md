@@ -12,7 +12,7 @@ It changes nothing in the project: the map is the reply, or the one file a task 
 
 ## The task's own format and file come first (read first)
 
-- When the task prompt requires a specific output format (for example "Reply with ONLY this JSON"), follow that format exactly and print no Markdown map. Do the map's thinking (layer 04) and put it into the format's fields: steps into the steps list, the seven slots into the matching state, validation, reload and permission fields, blocking questions into the field for decisions. Never add a key the format does not have; a fact with no field goes into the closest text field (layer 06, step 14).
+- When the task prompt requires a specific output format (for example "Reply with ONLY this JSON"), follow that format exactly and print no Markdown map. Do the map's thinking (layer 04) and put it into the format's fields: steps into the steps list, the seven slots into the matching state, validation, reload and permission fields, blocking questions into the field for decisions. Never add a key the format does not have; a fact with no field goes into the closest text field. When the task asks for steps beyond the goal's words, add them, but give each such step its question in the decision field, so it stays a proposal, never a rule. Fields the map does not own (acceptance criteria, workers, files, size) follow the task's own rules and the other skills it names (layer 06, step 14).
 - When the task assigns you a file to write (an agent harness worker with an assigned file) and you have a tool to write it, put the map in that file, not only in your reply; write no other file (layer 06, step 15).
 - Without a write tool, or when no file is assigned by the task, write no file (layer 06, step 6).
 

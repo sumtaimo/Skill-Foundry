@@ -10,7 +10,7 @@ current version.
 
 ## 1.6.0 - 2026-11-21
 
-- New skill `journey-mapper` 0.1.0 (fetched on demand, not in the default core; BA_ANALYST): grows a short feature goal into the whole user journey, read-only in the reply: steps with loading, empty, error, success, validation, reload and permission slots, every fact quoted from the goal, every gap an open business question. Asked for by Agentic-Harness for its read-only `[HARNESS FEATURE_BA]` planner call (1.0.39); proven by fresh real agents (live 7 of 7, routing 83 of 83, portable).
+- New skill `journey-mapper` 0.1.0 (fetched on demand, not in the default core; BA_ANALYST): grows a short feature goal into the whole user journey, read-only in the reply: steps with loading, empty, error, success, validation, reload and permission slots, every fact quoted from the goal, every gap an open business question. Asked for by Agentic-Harness for its read-only `[HARNESS FEATURE_BA]` planner call (1.0.39); follows the task's own format (JSON only) and writes a harness worker's assigned file, from the Agentic-Harness risk check; proven by fresh real agents (live 9 of 9, two with the exact harness 1.0.41 prompts; routing 89 of 89; portable).
 
 ## 1.5.0 - 2026-11-21
 
