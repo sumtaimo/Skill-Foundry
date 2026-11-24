@@ -1,0 +1,8 @@
+{
+  "case": "vague-ask-first",
+  "prompt": "Draw a nice animated SVG diagram for my app.",
+  "agent": "agy",
+  "recordedAt": "2026-11-24",
+  "output": "Before drawing the diagram, could you clarify two quick details?\n\n1. Which system, flow, or mechanism in your app should the diagram explain, and what are its main stages or branches (such as error, cache-miss, or retry paths)?\n2. Should it be a standalone HTML/SVG file or a React/JSX component, and should it bind to existing CSS design tokens (e.g., `design/tokens.css`)?",
+  "files": []
+}

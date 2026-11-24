@@ -1,0 +1,72 @@
+[
+  {
+    "id": "R-svg-mechanism-1",
+    "text": "Detect existing project design tokens (design/tokens.css, tokens.css, CSS variables) and stack (HTML or React/JSX) before writing code; never edit design/ files or import unrequested external libraries.",
+    "check": "svgmech-detect-tokens"
+  },
+  {
+    "id": "R-svg-mechanism-2",
+    "text": "Every mechanism <svg> MUST declare an explicit numeric viewBox with width=\"100%\" and preserveAspectRatio=\"xMidYMid meet\", keeping all nodes and <text> labels inside >= 24px safe margins so nothing clips at 390px or 1440px.",
+    "check": "svgmech-viewbox-margins"
+  },
+  {
+    "id": "R-svg-mechanism-3",
+    "text": "Every mechanism <svg> MUST organize markup into <defs> (gradients/markers/filters) and semantic <g> layers (layer-backdrop, layer-tracks, layer-signals, layer-nodes, layer-labels).",
+    "check": "svgmech-defs-layers"
+  },
+  {
+    "id": "R-svg-mechanism-4",
+    "text": "Bind all SVG fill, stroke and stop-color attributes to CSS custom properties (var(--...)), url(#...), currentColor or none; never hardcode raw #hex or rgb() literals inside SVG attributes.",
+    "check": "svgmech-token-colors"
+  },
+  {
+    "id": "R-svg-mechanism-5",
+    "text": "Support light and dark modes (:root, [data-theme=\"dark\"] and prefers-color-scheme: dark) with >= 4.5:1 label text contrast and >= 3:1 node/track contrast.",
+    "check": "svgmech-light-dark"
+  },
+  {
+    "id": "R-svg-mechanism-6",
+    "text": "Animate signals using stroke-dashoffset or GPU transform/opacity keyframes; never animate layout geometry or unthrottled heavy filters.",
+    "check": "svgmech-gpu-motion"
+  },
+  {
+    "id": "R-svg-mechanism-7",
+    "text": "Provide an accessible Play/Pause control (button with aria-pressed, >= 44x44px hit target, visible :focus-visible ring) that freezes and resumes all animations cleanly.",
+    "check": "svgmech-play-pause"
+  },
+  {
+    "id": "R-svg-mechanism-8",
+    "text": "Honor @media (prefers-reduced-motion: reduce) by disabling continuous signal travel while keeping directional arrows and stage clarity intact.",
+    "check": "svgmech-reduced-motion"
+  },
+  {
+    "id": "R-svg-mechanism-9",
+    "text": "Every mechanism <svg> MUST include role=\"img\", aria-labelledby, <title> and <desc> summarizing the architecture for screen readers.",
+    "check": "svgmech-a11y-title-desc"
+  },
+  {
+    "id": "R-svg-mechanism-10",
+    "text": "Keep every <text> label readable (>= 12px viewBox units) and unobstructed; for Khmer labels, set letter-spacing: 0 and generous vertical padding so subscripts never clip.",
+    "check": "svgmech-khmer-legibility"
+  },
+  {
+    "id": "R-svg-mechanism-11",
+    "text": "Support keyboard-accessible stage focus or step-through with an aria-live=\"polite\" status readout when the mechanism has discrete stages.",
+    "checklist": "Discrete stages can be stepped through or focused by keyboard and update an aria-live=\"polite\" summary."
+  },
+  {
+    "id": "R-svg-mechanism-12",
+    "text": "Never invent architecture components or protocol steps; when the request gives no subject or mechanism, ask 1-2 concise clarifying questions and emit no <svg>.",
+    "check": "svgmech-ask-when-vague"
+  },
+  {
+    "id": "R-svg-mechanism-13",
+    "text": "Refuse requests meant for 3D isometric cutaways (figure-craft), full-page scroll showcases (motion-craft), product UI screens (ui-craft), standalone token systems (design-system), or CSS polish (ui-polish) with one concise redirect sentence.",
+    "check": "svgmech-refuse-out-of-scope"
+  },
+  {
+    "id": "R-svg-mechanism-14",
+    "text": "Verify rendered output via engine/lint-svg.mjs (when available) and in a real browser at 1440px and 390px in light, dark and reduced-motion modes with zero errors and zero horizontal overflow.",
+    "checklist": "Rendered browser checks at 1440px and 390px pass in light, dark and reduced-motion modes with zero errors and zero horizontal scroll."
+  }
+]

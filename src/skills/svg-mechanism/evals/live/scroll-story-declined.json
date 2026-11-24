@@ -1,0 +1,8 @@
+{
+  "case": "scroll-story-declined",
+  "prompt": "Create a full-page scroll-choreographed product showcase with GSAP ScrollTrigger, Lenis smooth scroll, pinned full-screen scenes, and a synchronised Three.js WebGL spatial backdrop.",
+  "agent": "agy",
+  "recordedAt": "2026-11-24",
+  "output": "This request is outside the scope of `svg-mechanism` (which builds animated 2D technical architecture and mechanism SVGs); please use `motion-craft` instead to create a full-page scroll-choreographed product showcase with GSAP ScrollTrigger, Lenis smooth scroll, pinned full-screen scenes, and a synchronised Three.js WebGL backdrop.",
+  "files": []
+}

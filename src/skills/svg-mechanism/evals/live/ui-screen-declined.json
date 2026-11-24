@@ -1,0 +1,8 @@
+{
+  "case": "ui-screen-declined",
+  "prompt": "Design and build a modern SaaS billing settings screen with a frosted glass navbar, Ctrl+K command palette, bento usage cards, and loading/empty/error states.",
+  "agent": "agy",
+  "recordedAt": "2026-11-24",
+  "output": "This request is for a product UI screen (a SaaS billing settings interface with a frosted glass navbar, Ctrl+K command palette, bento usage cards, and UI states), which is outside `svg-mechanism` (animated 2D technical architecture and mechanism diagrams) — please use the `ui-craft` skill instead.",
+  "files": []
+}

@@ -1,0 +1,927 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OAuth 2.0 PKCE Handshake — Animated 2D SVG Mechanism</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+
+      /* Semantic foundation tokens (design/tokens.css compatible) */
+      --color-surface-default: #f8fafc;
+      --color-surface-raised: #ffffff;
+      --color-surface-subtle: #f1f5f9;
+      --color-text-default: #0f172a;
+      --color-text-muted: #475569;
+      --color-border-default: #cbd5e1;
+      --color-border-strong: #64748b;
+      --color-border-focus: #2563eb;
+      --color-action-primary-bg: #1d4ed8;
+      --color-action-primary-text: #ffffff;
+      --color-warning-text: #b45309;
+      --color-success-text: #047857;
+      --color-danger-text: #b91c1c;
+
+      /* Mechanism aliases derived from semantic tokens */
+      --mech-canvas: var(--color-surface-default, #f8fafc);
+      --mech-node-top: var(--color-surface-raised, #ffffff);
+      --mech-node-bottom: var(--color-surface-subtle, #f1f5f9);
+      --mech-grid-dot: var(--color-border-default, #cbd5e1);
+      --mech-border: var(--color-border-strong, #64748b);
+      --mech-track: var(--color-border-strong, #64748b);
+      --mech-focus: var(--color-border-focus, #2563eb);
+      --mech-accent: var(--color-action-primary-bg, #1d4ed8);
+      --mech-badge-ink: var(--color-action-primary-text, #ffffff);
+      --mech-warn: var(--color-warning-text, #b45309);
+      --mech-ok: var(--color-success-text, #047857);
+      --mech-text: var(--color-text-default, #0f172a);
+      --mech-muted: var(--color-text-muted, #475569);
+
+      --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+    }
+
+    :root[data-theme="dark"] {
+      --color-surface-default: #0b1120;
+      --color-surface-raised: #162033;
+      --color-surface-subtle: #111827;
+      --color-text-default: #f8fafc;
+      --color-text-muted: #cbd5e1;
+      --color-border-default: #334155;
+      --color-border-strong: #94a3b8;
+      --color-border-focus: #60a5fa;
+      --color-action-primary-bg: #38bdf8;
+      --color-action-primary-text: #082f49;
+      --color-warning-text: #fbbf24;
+      --color-success-text: #34d399;
+      --color-danger-text: #f87171;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --color-surface-default: #0b1120;
+        --color-surface-raised: #162033;
+        --color-surface-subtle: #111827;
+        --color-text-default: #f8fafc;
+        --color-text-muted: #cbd5e1;
+        --color-border-default: #334155;
+        --color-border-strong: #94a3b8;
+        --color-border-focus: #60a5fa;
+        --color-action-primary-bg: #38bdf8;
+        --color-action-primary-text: #082f49;
+        --color-warning-text: #fbbf24;
+        --color-success-text: #34d399;
+        --color-danger-text: #f87171;
+      }
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: clamp(16px, 3vw, 32px);
+      font-family: var(--font-sans);
+      background: var(--mech-canvas);
+      color: var(--mech-text);
+      line-height: 1.5;
+      overflow-x: clip;
+    }
+
+    .mech-figure {
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto;
+      padding: clamp(14px, 2.5vw, 24px);
+      background: var(--mech-node-top);
+      border: 1px solid var(--mech-grid-dot);
+      border-radius: var(--radius-lg);
+      display: grid;
+      gap: 16px;
+    }
+
+    .mech-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .mech-heading {
+      margin: 0;
+      font-size: clamp(1.05rem, 2vw, 1.3rem);
+      font-weight: 700;
+      color: var(--mech-text);
+    }
+
+    .mech-subtitle {
+      margin: 4px 0 0;
+      font-size: 0.9rem;
+      color: var(--mech-muted);
+    }
+
+    .mech-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mech-btn {
+      appearance: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 44px;
+      min-width: 44px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1.5px solid var(--mech-border);
+      background: var(--mech-node-bottom);
+      color: var(--mech-text);
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 150ms ease, border-color 150ms ease, opacity 150ms ease;
+    }
+
+    .mech-btn:hover {
+      border-color: var(--mech-accent);
+    }
+
+    .mech-btn:focus-visible {
+      outline: 2px solid var(--mech-focus);
+      outline-offset: 2px;
+    }
+
+    .mech-btn--primary {
+      background: var(--mech-accent);
+      border-color: var(--mech-accent);
+      color: var(--mech-badge-ink);
+    }
+
+    .mech-btn[aria-pressed="true"]:not(.mech-btn--primary) {
+      background: var(--mech-accent);
+      border-color: var(--mech-accent);
+      color: var(--mech-badge-ink);
+    }
+
+    .mech-canvas-wrap {
+      width: 100%;
+      border: 1px solid var(--mech-grid-dot);
+      border-radius: var(--radius-md);
+      background: var(--mech-canvas);
+      overflow: hidden;
+    }
+
+    .mech-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .mech-svg text {
+      font-family: var(--font-sans);
+      user-select: none;
+    }
+
+    .node-title {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .node-sub {
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .pill-label {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-num {
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* Interactive focusable stage pills inside SVG */
+    .stage-pill {
+      cursor: pointer;
+    }
+
+    .stage-pill:focus-visible .pill-bg {
+      stroke: var(--mech-focus);
+      stroke-width: 2.5;
+    }
+
+    .stage-pill:focus {
+      outline: none;
+    }
+
+    /* GPU-friendly signal animations (stroke-dashoffset, transform, opacity only) */
+    @keyframes mech-flow {
+      from {
+        stroke-dashoffset: 36;
+      }
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes mech-pulse {
+      0%, 100% {
+        opacity: 0.35;
+        transform: scale(0.92);
+      }
+      50% {
+        opacity: 0.95;
+        transform: scale(1.18);
+      }
+    }
+
+    .signal-stream {
+      stroke-dasharray: 16 20;
+      stroke-linecap: round;
+      animation: mech-flow 2.6s linear infinite;
+    }
+
+    .signal-stream--stage-1 {
+      animation-duration: 2.6s;
+      animation-delay: 0s;
+    }
+
+    .signal-stream--stage-2 {
+      animation-duration: 2.6s;
+      animation-delay: 0.7s;
+    }
+
+    .signal-stream--stage-3a {
+      animation-duration: 3.2s;
+      animation-delay: 1.4s;
+    }
+
+    .signal-stream--stage-3b {
+      animation-duration: 3.2s;
+      animation-delay: 2.1s;
+    }
+
+    .signal-node-pulse {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: mech-pulse 2.6s ease-in-out infinite;
+    }
+
+    .signal-node-pulse--stage-2 {
+      animation-delay: 0.7s;
+    }
+
+    .signal-node-pulse--stage-3a {
+      animation-duration: 3.2s;
+      animation-delay: 1.4s;
+    }
+
+    .signal-node-pulse--stage-3b {
+      animation-duration: 3.2s;
+      animation-delay: 2.1s;
+    }
+
+    /* Play/Pause contract */
+    .mech-figure[data-paused="true"] .signal-stream,
+    .mech-figure[data-paused="true"] .signal-node-pulse {
+      animation-play-state: paused;
+    }
+
+    /* Stage inspection highlighting (non-active stays >= 0.55 readable) */
+    .stage-item,
+    .actor-node {
+      transition: opacity 160ms ease;
+    }
+
+    .mech-figure[data-active-stage="1"] .stage-item:not([data-stage="1"]),
+    .mech-figure[data-active-stage="1"] .actor-node[data-node="token-endpoint"],
+    .mech-figure[data-active-stage="2"] .stage-item:not([data-stage="2"]),
+    .mech-figure[data-active-stage="2"] .actor-node[data-node="token-endpoint"],
+    .mech-figure[data-active-stage="3"] .stage-item:not([data-stage="3"]),
+    .mech-figure[data-active-stage="3"] .actor-node[data-node="auth-server"] {
+      opacity: 0.55;
+    }
+
+    .mech-figure[data-active-stage="1"] .stage-pill[data-stage="1"] .pill-bg,
+    .mech-figure[data-active-stage="2"] .stage-pill[data-stage="2"] .pill-bg,
+    .mech-figure[data-active-stage="3"] .stage-pill[data-stage="3"] .pill-bg {
+      stroke-width: 2.25;
+    }
+
+    .mech-footer {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-top: 4px;
+    }
+
+    .mech-stages {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .mech-status {
+      margin: 0;
+      font-size: 0.875rem;
+      color: var(--mech-muted);
+      min-height: 1.4em;
+    }
+
+    /* Reduced-motion static clarity fallback */
+    @media (prefers-reduced-motion: reduce) {
+      .signal-stream,
+      .signal-node-pulse {
+        animation: none !important;
+        animation-play-state: paused !important;
+        opacity: 0.9 !important;
+      }
+
+      .mech-btn,
+      .stage-item,
+      .actor-node {
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <figure class="mech-figure" data-paused="false" data-active-stage="">
+      <div class="mech-header">
+        <div>
+          <h1 class="mech-heading">OAuth 2.0 PKCE Handshake</h1>
+          <p class="mech-subtitle">Browser App, Auth Server, and Token Endpoint sequence</p>
+        </div>
+
+        <div class="mech-controls">
+          <button
+            type="button"
+            class="mech-btn mech-btn--primary"
+            data-mech-toggle
+            aria-pressed="false"
+          >
+            Pause animation
+          </button>
+          <button
+            type="button"
+            class="mech-btn"
+            data-theme-toggle
+            aria-pressed="false"
+          >
+            Switch theme
+          </button>
+        </div>
+      </div>
+
+      <div class="mech-canvas-wrap">
+        <svg
+          class="mech-svg"
+          viewBox="0 0 880 480"
+          width="100%"
+          preserveAspectRatio="xMidYMid meet"
+          role="img"
+          aria-labelledby="pkce-title pkce-desc"
+        >
+          <title id="pkce-title">OAuth 2.0 PKCE Handshake Mechanism</title>
+          <desc id="pkce-desc">
+            Animated 2D diagram of an OAuth 2.0 PKCE handshake between Browser App, Auth Server, and Token Endpoint.
+            Step 1: Browser App sends an Auth Request with a Code Challenge to Auth Server.
+            Step 2: Auth Server returns an Auth Code to Browser App.
+            Step 3: Browser App sends the Auth Code and Code Verifier to the Token Endpoint and receives an Access Token.
+          </desc>
+
+          <defs>
+            <linearGradient id="pkce-node-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--mech-node-top)" />
+              <stop offset="100%" stop-color="var(--mech-node-bottom)" />
+            </linearGradient>
+
+            <linearGradient id="pkce-signal-primary" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="var(--mech-accent)" stop-opacity="0.35" />
+              <stop offset="100%" stop-color="var(--mech-accent)" stop-opacity="1" />
+            </linearGradient>
+
+            <linearGradient id="pkce-signal-code" x1="1" y1="0" x2="0" y2="0">
+              <stop offset="0%" stop-color="var(--mech-warn)" stop-opacity="0.35" />
+              <stop offset="100%" stop-color="var(--mech-warn)" stop-opacity="1" />
+            </linearGradient>
+
+            <linearGradient id="pkce-signal-token" x1="1" y1="0" x2="0" y2="0">
+              <stop offset="0%" stop-color="var(--mech-ok)" stop-opacity="0.35" />
+              <stop offset="100%" stop-color="var(--mech-ok)" stop-opacity="1" />
+            </linearGradient>
+
+            <pattern id="pkce-grid" width="24" height="24" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1" fill="var(--mech-grid-dot)" />
+            </pattern>
+
+            <marker
+              id="pkce-arrow-primary"
+              viewBox="0 0 10 10"
+              refX="8"
+              refY="5"
+              markerWidth="7"
+              markerHeight="7"
+              orient="auto-start-reverse"
+            >
+              <path d="M 1 1.5 L 9 5 L 1 8.5 Z" fill="var(--mech-accent)" />
+            </marker>
+
+            <marker
+              id="pkce-arrow-code"
+              viewBox="0 0 10 10"
+              refX="8"
+              refY="5"
+              markerWidth="7"
+              markerHeight="7"
+              orient="auto-start-reverse"
+            >
+              <path d="M 1 1.5 L 9 5 L 1 8.5 Z" fill="var(--mech-warn)" />
+            </marker>
+
+            <marker
+              id="pkce-arrow-token"
+              viewBox="0 0 10 10"
+              refX="8"
+              refY="5"
+              markerWidth="7"
+              markerHeight="7"
+              orient="auto-start-reverse"
+            >
+              <path d="M 1 1.5 L 9 5 L 1 8.5 Z" fill="var(--mech-ok)" />
+            </marker>
+          </defs>
+
+          <!-- Layer 1: Backdrop -->
+          <g class="layer-backdrop">
+            <rect x="0" y="0" width="880" height="480" rx="16" fill="var(--mech-canvas)" />
+            <rect x="0" y="0" width="880" height="480" rx="16" fill="url(#pkce-grid)" />
+          </g>
+
+          <!-- Layer 2: Static lifelines & directional base tracks -->
+          <g class="layer-tracks" fill="none">
+            <!-- Vertical actor lifelines -->
+            <path
+              class="actor-node"
+              data-node="browser-app"
+              d="M 144 104 L 144 440"
+              stroke="var(--mech-track)"
+              stroke-width="2"
+              stroke-dasharray="6 6"
+            />
+            <path
+              class="actor-node"
+              data-node="auth-server"
+              d="M 440 104 L 440 440"
+              stroke="var(--mech-track)"
+              stroke-width="2"
+              stroke-dasharray="6 6"
+            />
+            <path
+              class="actor-node"
+              data-node="token-endpoint"
+              d="M 736 104 L 736 440"
+              stroke="var(--mech-track)"
+              stroke-width="2"
+              stroke-dasharray="6 6"
+            />
+
+            <!-- Clean line-crossing bridges over Auth Server lifeline for Stage 3 -->
+            <rect x="434" y="330" width="12" height="12" fill="var(--mech-canvas)" stroke="none" />
+            <rect x="434" y="410" width="12" height="12" fill="var(--mech-canvas)" stroke="none" />
+
+            <!-- Stage 1 static track: Browser App -> Auth Server -->
+            <path
+              class="stage-item"
+              data-stage="1"
+              d="M 150 176 L 432 176"
+              stroke="var(--mech-accent)"
+              stroke-opacity="0.35"
+              stroke-width="2.5"
+              marker-end="url(#pkce-arrow-primary)"
+            />
+
+            <!-- Stage 2 static track: Auth Server -> Browser App -->
+            <path
+              class="stage-item"
+              data-stage="2"
+              d="M 434 256 L 152 256"
+              stroke="var(--mech-warn)"
+              stroke-opacity="0.35"
+              stroke-width="2.5"
+              marker-end="url(#pkce-arrow-code)"
+            />
+
+            <!-- Stage 3a static track: Browser App -> Token Endpoint -->
+            <path
+              class="stage-item"
+              data-stage="3"
+              d="M 150 336 L 728 336"
+              stroke="var(--mech-accent)"
+              stroke-opacity="0.35"
+              stroke-width="2.5"
+              marker-end="url(#pkce-arrow-primary)"
+            />
+
+            <!-- Stage 3b static track: Token Endpoint -> Browser App -->
+            <path
+              class="stage-item"
+              data-stage="3"
+              d="M 730 416 L 152 416"
+              stroke="var(--mech-ok)"
+              stroke-opacity="0.35"
+              stroke-width="2.5"
+              marker-end="url(#pkce-arrow-token)"
+            />
+          </g>
+
+          <!-- Layer 3: Animated signals & endpoint arrival pulses -->
+          <g class="layer-signals" fill="none">
+            <!-- Stage 1 signal -->
+            <path
+              class="signal-stream signal-stream--stage-1 stage-item"
+              data-stage="1"
+              d="M 150 176 L 424 176"
+              stroke="url(#pkce-signal-primary)"
+              stroke-width="3.5"
+            />
+            <circle
+              class="signal-node-pulse stage-item"
+              data-stage="1"
+              cx="440"
+              cy="176"
+              r="9"
+              stroke="var(--mech-accent)"
+              stroke-width="2"
+            />
+
+            <!-- Stage 2 signal -->
+            <path
+              class="signal-stream signal-stream--stage-2 stage-item"
+              data-stage="2"
+              d="M 434 256 L 160 256"
+              stroke="url(#pkce-signal-code)"
+              stroke-width="3.5"
+            />
+            <circle
+              class="signal-node-pulse signal-node-pulse--stage-2 stage-item"
+              data-stage="2"
+              cx="144"
+              cy="256"
+              r="9"
+              stroke="var(--mech-warn)"
+              stroke-width="2"
+            />
+
+            <!-- Stage 3a signal -->
+            <path
+              class="signal-stream signal-stream--stage-3a stage-item"
+              data-stage="3"
+              d="M 150 336 L 720 336"
+              stroke="url(#pkce-signal-primary)"
+              stroke-width="3.5"
+            />
+            <circle
+              class="signal-node-pulse signal-node-pulse--stage-3a stage-item"
+              data-stage="3"
+              cx="736"
+              cy="336"
+              r="9"
+              stroke="var(--mech-accent)"
+              stroke-width="2"
+            />
+
+            <!-- Stage 3b signal -->
+            <path
+              class="signal-stream signal-stream--stage-3b stage-item"
+              data-stage="3"
+              d="M 730 416 L 160 416"
+              stroke="url(#pkce-signal-token)"
+              stroke-width="3.5"
+            />
+            <circle
+              class="signal-node-pulse signal-node-pulse--stage-3b stage-item"
+              data-stage="3"
+              cx="144"
+              cy="416"
+              r="9"
+              stroke="var(--mech-ok)"
+              stroke-width="2"
+            />
+          </g>
+
+          <!-- Layer 4: Actor cards, lifeline anchors & stage pill containers -->
+          <g class="layer-nodes">
+            <!-- Actor 1: Browser App -->
+            <g class="actor-node" data-node="browser-app">
+              <rect
+                x="40"
+                y="32"
+                width="208"
+                height="72"
+                rx="12"
+                fill="url(#pkce-node-fill)"
+                stroke="var(--mech-accent)"
+                stroke-width="2"
+              />
+              <line x1="128" y1="440" x2="160" y2="440" stroke="var(--mech-track)" stroke-width="2" stroke-linecap="round" />
+            </g>
+
+            <!-- Actor 2: Auth Server -->
+            <g class="actor-node" data-node="auth-server">
+              <rect
+                x="336"
+                y="32"
+                width="208"
+                height="72"
+                rx="12"
+                fill="url(#pkce-node-fill)"
+                stroke="var(--mech-border)"
+                stroke-width="2"
+              />
+              <line x1="424" y1="440" x2="456" y2="440" stroke="var(--mech-track)" stroke-width="2" stroke-linecap="round" />
+            </g>
+
+            <!-- Actor 3: Token Endpoint -->
+            <g class="actor-node" data-node="token-endpoint">
+              <rect
+                x="632"
+                y="32"
+                width="208"
+                height="72"
+                rx="12"
+                fill="url(#pkce-node-fill)"
+                stroke="var(--mech-ok)"
+                stroke-width="2"
+              />
+              <line x1="720" y1="440" x2="752" y2="440" stroke="var(--mech-track)" stroke-width="2" stroke-linecap="round" />
+            </g>
+
+            <!-- Lifeline junction anchors -->
+            <circle class="stage-item" data-stage="1" cx="144" cy="176" r="5" fill="var(--mech-node-top)" stroke="var(--mech-accent)" stroke-width="2" />
+            <circle class="stage-item" data-stage="1" cx="440" cy="176" r="5" fill="var(--mech-accent)" stroke="var(--mech-accent)" stroke-width="2" />
+
+            <circle class="stage-item" data-stage="2" cx="440" cy="256" r="5" fill="var(--mech-node-top)" stroke="var(--mech-warn)" stroke-width="2" />
+            <circle class="stage-item" data-stage="2" cx="144" cy="256" r="5" fill="var(--mech-warn)" stroke="var(--mech-warn)" stroke-width="2" />
+
+            <circle class="stage-item" data-stage="3" cx="144" cy="336" r="5" fill="var(--mech-node-top)" stroke="var(--mech-accent)" stroke-width="2" />
+            <circle class="stage-item" data-stage="3" cx="736" cy="336" r="5" fill="var(--mech-accent)" stroke="var(--mech-accent)" stroke-width="2" />
+
+            <circle class="stage-item" data-stage="3" cx="736" cy="416" r="5" fill="var(--mech-node-top)" stroke="var(--mech-ok)" stroke-width="2" />
+            <circle class="stage-item" data-stage="3" cx="144" cy="416" r="5" fill="var(--mech-ok)" stroke="var(--mech-ok)" stroke-width="2" />
+          </g>
+
+          <!-- Layer 5: Labels & keyboard-focusable stage pills -->
+          <g class="layer-labels">
+            <!-- Actor headings -->
+            <g class="actor-node" data-node="browser-app">
+              <text class="node-title" x="144" y="64" text-anchor="middle" fill="var(--mech-text)">Browser App</text>
+              <text class="node-sub" x="144" y="84" text-anchor="middle" fill="var(--mech-muted)">PKCE Client</text>
+            </g>
+
+            <g class="actor-node" data-node="auth-server">
+              <text class="node-title" x="440" y="64" text-anchor="middle" fill="var(--mech-text)">Auth Server</text>
+              <text class="node-sub" x="440" y="84" text-anchor="middle" fill="var(--mech-muted)">Authorization</text>
+            </g>
+
+            <g class="actor-node" data-node="token-endpoint">
+              <text class="node-title" x="736" y="64" text-anchor="middle" fill="var(--mech-text)">Token Endpoint</text>
+              <text class="node-sub" x="736" y="84" text-anchor="middle" fill="var(--mech-muted)">Verifier Check</text>
+            </g>
+
+            <!-- Stage 1 pill -->
+            <g
+              class="stage-pill stage-item"
+              data-stage="1"
+              tabindex="0"
+              role="button"
+              aria-label="Inspect Stage 1: Auth Request plus Code Challenge from Browser App to Auth Server"
+            >
+              <rect
+                class="pill-bg"
+                x="160"
+                y="132"
+                width="264"
+                height="28"
+                rx="14"
+                fill="var(--mech-node-top)"
+                stroke="var(--mech-accent)"
+                stroke-width="1.5"
+              />
+              <circle cx="176" cy="146" r="10" fill="var(--mech-accent)" />
+              <text class="badge-num" x="176" y="150" text-anchor="middle" fill="var(--mech-badge-ink)">1</text>
+              <text class="pill-label" x="194" y="150" text-anchor="start" fill="var(--mech-text)">Auth Request + Code Challenge</text>
+            </g>
+
+            <!-- Stage 2 pill -->
+            <g
+              class="stage-pill stage-item"
+              data-stage="2"
+              tabindex="0"
+              role="button"
+              aria-label="Inspect Stage 2: Auth Code from Auth Server to Browser App"
+            >
+              <rect
+                class="pill-bg"
+                x="228"
+                y="212"
+                width="128"
+                height="28"
+                rx="14"
+                fill="var(--mech-node-top)"
+                stroke="var(--mech-warn)"
+                stroke-width="1.5"
+              />
+              <circle cx="244" cy="226" r="10" fill="var(--mech-warn)" />
+              <text class="badge-num" x="244" y="230" text-anchor="middle" fill="var(--mech-badge-ink)">2</text>
+              <text class="pill-label" x="262" y="230" text-anchor="start" fill="var(--mech-text)">Auth Code</text>
+            </g>
+
+            <!-- Stage 3a pill -->
+            <g
+              class="stage-pill stage-item"
+              data-stage="3"
+              tabindex="0"
+              role="button"
+              aria-label="Inspect Stage 3 request: Code plus Verifier from Browser App to Token Endpoint"
+            >
+              <rect
+                class="pill-bg"
+                x="504"
+                y="292"
+                width="168"
+                height="28"
+                rx="14"
+                fill="var(--mech-node-top)"
+                stroke="var(--mech-accent)"
+                stroke-width="1.5"
+              />
+              <circle cx="520" cy="306" r="10" fill="var(--mech-accent)" />
+              <text class="badge-num" x="520" y="310" text-anchor="middle" fill="var(--mech-badge-ink)">3</text>
+              <text class="pill-label" x="538" y="310" text-anchor="start" fill="var(--mech-text)">Code + Verifier</text>
+            </g>
+
+            <!-- Stage 3b pill -->
+            <g
+              class="stage-pill stage-item"
+              data-stage="3"
+              tabindex="0"
+              role="button"
+              aria-label="Inspect Stage 3 response: Access Token returned from Token Endpoint to Browser App"
+            >
+              <rect
+                class="pill-bg"
+                x="504"
+                y="372"
+                width="168"
+                height="28"
+                rx="14"
+                fill="var(--mech-node-top)"
+                stroke="var(--mech-ok)"
+                stroke-width="1.5"
+              />
+              <circle cx="520" cy="386" r="10" fill="var(--mech-ok)" />
+              <text class="badge-num" x="520" y="390" text-anchor="middle" fill="var(--mech-badge-ink)">3</text>
+              <text class="pill-label" x="538" y="390" text-anchor="start" fill="var(--mech-text)">→ Access Token</text>
+            </g>
+          </g>
+        </svg>
+      </div>
+
+      <figcaption class="mech-footer">
+        <div class="mech-stages" role="group" aria-label="Filter handshake stage">
+          <button type="button" class="mech-btn" data-stage-btn="" aria-pressed="true">All stages</button>
+          <button type="button" class="mech-btn" data-stage-btn="1" aria-pressed="false">1. Auth Request</button>
+          <button type="button" class="mech-btn" data-stage-btn="2" aria-pressed="false">2. Auth Code</button>
+          <button type="button" class="mech-btn" data-stage-btn="3" aria-pressed="false">3. Token Exchange</button>
+        </div>
+        <p class="mech-status" data-mech-status aria-live="polite">
+          Showing all 3 PKCE handshake stages. Select a stage to inspect its exchange.
+        </p>
+      </figcaption>
+    </figure>
+  </main>
+
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const fig = document.querySelector('.mech-figure');
+      const svg = fig.querySelector('svg');
+      const toggleBtn = fig.querySelector('[data-mech-toggle]');
+      const themeBtn = fig.querySelector('[data-theme-toggle]');
+      const statusEl = fig.querySelector('[data-mech-status]');
+      const stageBtns = [...fig.querySelectorAll('[data-stage-btn]')];
+      const svgStagePills = [...svg.querySelectorAll('.stage-pill')];
+
+      const STAGE_COPY = {
+        '': 'Showing all 3 PKCE handshake stages. Select a stage to inspect its exchange.',
+        '1': 'Stage 1: Browser App sends an Auth Request with a Code Challenge to Auth Server.',
+        '2': 'Stage 2: Auth Server returns an Auth Code to Browser App.',
+        '3': 'Stage 3: Browser App sends the Auth Code and Code Verifier to the Token Endpoint, which returns an Access Token.'
+      };
+
+      function setPaused(nextPaused, announce) {
+        fig.dataset.paused = String(nextPaused);
+        toggleBtn.setAttribute('aria-pressed', String(nextPaused));
+        toggleBtn.textContent = nextPaused ? 'Play animation' : 'Pause animation';
+        if (typeof svg.pauseAnimations === 'function') {
+          if (nextPaused) {
+            svg.pauseAnimations();
+          } else {
+            svg.unpauseAnimations();
+          }
+        }
+        if (announce && statusEl) {
+          statusEl.textContent = nextPaused
+            ? 'Animation paused. Static directional arrows and stage badges remain visible.'
+            : 'Animation playing.';
+        }
+      }
+
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReduced) {
+        setPaused(true, false);
+        statusEl.textContent = 'Reduced motion is active; displaying static directional arrows for all 3 PKCE stages.';
+      }
+
+      toggleBtn.addEventListener('click', () => {
+        const isPaused = fig.dataset.paused === 'true';
+        setPaused(!isPaused, true);
+      });
+
+      function setActiveStage(stageId) {
+        const nextStage = fig.dataset.activeStage === stageId && stageId !== '' ? '' : stageId;
+        fig.dataset.activeStage = nextStage;
+        stageBtns.forEach((btn) => {
+          btn.setAttribute('aria-pressed', String(btn.dataset.stageBtn === nextStage));
+        });
+        if (statusEl) {
+          statusEl.textContent = STAGE_COPY[nextStage] || STAGE_COPY[''];
+        }
+      }
+
+      stageBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const target = btn.dataset.stageBtn;
+          fig.dataset.activeStage = target;
+          stageBtns.forEach((b) => {
+            b.setAttribute('aria-pressed', String(b.dataset.stageBtn === target));
+          });
+          statusEl.textContent = STAGE_COPY[target] || STAGE_COPY[''];
+        });
+      });
+
+      svgStagePills.forEach((pill) => {
+        pill.addEventListener('click', () => setActiveStage(pill.dataset.stage));
+        pill.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setActiveStage(pill.dataset.stage);
+          } else if (e.key === 'Escape') {
+            fig.dataset.activeStage = '';
+            stageBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.stageBtn === '')));
+            statusEl.textContent = STAGE_COPY[''];
+          }
+        });
+      });
+
+      function currentTheme() {
+        if (root.dataset.theme === 'dark' || root.dataset.theme === 'light') {
+          return root.dataset.theme;
+        }
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+
+      function syncThemeButton() {
+        const dark = currentTheme() === 'dark';
+        themeBtn.setAttribute('aria-pressed', String(dark));
+        themeBtn.textContent = dark ? 'Light mode' : 'Dark mode';
+      }
+
+      syncThemeButton();
+      themeBtn.addEventListener('click', () => {
+        const next = currentTheme() === 'dark' ? 'light' : 'dark';
+        root.dataset.theme = next;
+        syncThemeButton();
+        statusEl.textContent = `Switched diagram theme to ${next} mode.`;
+      });
+    })();
+  </script>
+</body>
+</html>

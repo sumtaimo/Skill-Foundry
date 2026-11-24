@@ -1,0 +1,911 @@
+<!doctype html>
+<html lang="km">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>លំហូរផ្ទៀងផ្ទាត់ការទូទាត់ QR — QR Payment Verification Flow</title>
+  <style>
+    /* =========================================================================
+       1. Semantic Design Tokens (design/tokens.css compatible, Light & Dark)
+       ========================================================================= */
+    :root {
+      color-scheme: light dark;
+
+      /* Base semantic tokens (inherit host tokens if loaded, safe light defaults) */
+      --color-surface-default: #f8fafc;
+      --color-surface-raised: #ffffff;
+      --color-surface-subtle: #f1f5f9;
+      --color-text-default: #0f172a;
+      --color-text-muted: #334155;
+      --color-border-default: #64748b;
+      --color-border-strong: #475569;
+      --color-border-focus: #1d4ed8;
+      --color-action-primary-bg: #1d4ed8;
+      --color-action-primary-text: #ffffff;
+      --color-success-text: #047857;
+      --color-success-surface: #ecfdf5;
+
+      /* Mechanism-scoped aliases bound strictly to semantic tokens */
+      --mech-page-bg: var(--color-surface-subtle);
+      --mech-canvas: var(--color-surface-default);
+      --mech-node-top: var(--color-surface-raised);
+      --mech-node-bottom: var(--color-surface-subtle);
+      --mech-ok-top: var(--color-surface-raised);
+      --mech-ok-bottom: var(--color-success-surface);
+      --mech-grid-dot: #cbd5e1;
+      --mech-node-border: var(--color-border-default);
+      --mech-track: var(--color-border-strong);
+      --mech-accent: var(--color-action-primary-bg);
+      --mech-accent-text: var(--color-action-primary-text);
+      --mech-ok: var(--color-success-text);
+      --mech-text: var(--color-text-default);
+      --mech-muted: var(--color-text-muted);
+      --mech-focus: var(--color-border-focus);
+      --mech-pill-bg: var(--color-surface-raised);
+
+      --font-km: 'Noto Sans Khmer', 'Kantumruy Pro', 'Khmer OS Siemreap', 'Leelawadee UI', system-ui, -apple-system, sans-serif;
+      --font-latin: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    :root[data-theme="dark"] {
+      --color-surface-default: #0b1120;
+      --color-surface-raised: #162033;
+      --color-surface-subtle: #111827;
+      --color-text-default: #f8fafc;
+      --color-text-muted: #cbd5e1;
+      --color-border-default: #64748b;
+      --color-border-strong: #94a3b8;
+      --color-border-focus: #60a5fa;
+      --color-action-primary-bg: #38bdf8;
+      --color-action-primary-text: #082f49;
+      --color-success-text: #34d399;
+      --color-success-surface: #064e3b;
+      --mech-grid-dot: #334155;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --color-surface-default: #0b1120;
+        --color-surface-raised: #162033;
+        --color-surface-subtle: #111827;
+        --color-text-default: #f8fafc;
+        --color-text-muted: #cbd5e1;
+        --color-border-default: #64748b;
+        --color-border-strong: #94a3b8;
+        --color-border-focus: #60a5fa;
+        --color-action-primary-bg: #38bdf8;
+        --color-action-primary-text: #082f49;
+        --color-success-text: #34d399;
+        --color-success-surface: #064e3b;
+        --mech-grid-dot: #334155;
+      }
+    }
+
+    /* =========================================================================
+       2. Responsive Layout & Khmer Typography Discipline
+       ========================================================================= */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      background-color: var(--mech-page-bg);
+      color: var(--mech-text);
+      font-family: var(--font-km);
+      line-height: 1.7;
+      letter-spacing: 0;
+    }
+
+    :lang(km),
+    .label-km {
+      font-family: var(--font-km);
+      letter-spacing: 0;
+      word-spacing: normal;
+    }
+
+    .label-en {
+      font-family: var(--font-latin);
+      letter-spacing: 0.01em;
+    }
+
+    .mech-shell {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 20px 16px 32px;
+    }
+
+    .mech-figure {
+      margin: 0;
+      background-color: var(--mech-node-top);
+      border: 1.5px solid var(--mech-node-border);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .mech-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .mech-controls,
+    .mech-stage-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mech-btn {
+      appearance: none;
+      min-height: 44px;
+      min-width: 44px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1.5px solid var(--mech-node-border);
+      background-color: var(--mech-node-top);
+      color: var(--mech-text);
+      font-family: var(--font-km);
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.5;
+      letter-spacing: 0;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+    }
+
+    .mech-btn:hover {
+      border-color: var(--mech-accent);
+    }
+
+    .mech-btn:focus-visible {
+      outline: 3px solid var(--mech-focus);
+      outline-offset: 2px;
+    }
+
+    .mech-btn-primary {
+      background-color: var(--mech-accent);
+      border-color: var(--mech-accent);
+      color: var(--mech-accent-text);
+    }
+
+    .mech-btn[aria-pressed="true"]:not(.mech-btn-primary) {
+      background-color: var(--mech-accent);
+      border-color: var(--mech-accent);
+      color: var(--mech-accent-text);
+    }
+
+    .mech-stage-viewport {
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .mech-svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-width: 100%;
+      overflow: visible;
+    }
+
+    .mech-caption {
+      margin: 0;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background-color: var(--mech-canvas);
+      border: 1px solid var(--mech-node-border);
+      font-size: 14px;
+      line-height: 1.75;
+      color: var(--mech-text);
+    }
+
+    .mech-caption-meta {
+      margin: 4px 0 0;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--mech-muted);
+    }
+
+    /* =========================================================================
+       3. SVG Typography, Interactive Stage Focus & GPU-Friendly Motion
+       ========================================================================= */
+    .svg-title-km {
+      font-size: 15px;
+      font-weight: 700;
+      fill: var(--mech-text);
+      letter-spacing: 0;
+    }
+
+    .svg-node-km {
+      font-size: 16px;
+      font-weight: 700;
+      fill: var(--mech-text);
+      letter-spacing: 0;
+    }
+
+    .svg-node-en {
+      font-size: 13px;
+      font-weight: 500;
+      fill: var(--mech-muted);
+    }
+
+    .svg-badge-num {
+      font-size: 13px;
+      font-weight: 700;
+      fill: var(--mech-accent-text);
+    }
+
+    .svg-pill-text {
+      font-size: 12px;
+      font-weight: 700;
+      fill: var(--mech-text);
+    }
+
+    .svg-legend-text {
+      font-size: 12.5px;
+      font-weight: 500;
+      fill: var(--mech-muted);
+      letter-spacing: 0;
+    }
+
+    .mech-node {
+      cursor: pointer;
+      transition: opacity 180ms ease;
+    }
+
+    .mech-node:focus {
+      outline: none;
+    }
+
+    .mech-node .node-focus-ring {
+      opacity: 0;
+      transition: opacity 150ms ease;
+    }
+
+    .mech-node:focus-visible .node-focus-ring,
+    .mech-node:hover .node-focus-ring {
+      opacity: 1;
+    }
+
+    .mech-label-group {
+      pointer-events: none;
+      transition: opacity 180ms ease;
+    }
+
+    .mech-track-group,
+    .mech-signal-group {
+      transition: opacity 180ms ease;
+    }
+
+    /* Stage inspection dimming (keeps inactive stages readable >= 0.55) */
+    .mech-figure[data-active-stage="1"] [data-stage="2"],
+    .mech-figure[data-active-stage="1"] [data-stage="3"],
+    .mech-figure[data-active-stage="2"] [data-stage="1"],
+    .mech-figure[data-active-stage="2"] [data-stage="3"],
+    .mech-figure[data-active-stage="3"] [data-stage="1"],
+    .mech-figure[data-active-stage="3"] [data-stage="2"] {
+      opacity: 0.58;
+    }
+
+    .mech-figure[data-active-stage="1"] .mech-node[data-stage="1"] .node-focus-ring,
+    .mech-figure[data-active-stage="2"] .mech-node[data-stage="2"] .node-focus-ring,
+    .mech-figure[data-active-stage="3"] .mech-node[data-stage="3"] .node-focus-ring {
+      opacity: 1;
+    }
+
+    /* Signal motion: GPU-friendly stroke-dashoffset, transform & opacity only */
+    @keyframes mech-flow {
+      from {
+        stroke-dashoffset: 60;
+      }
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes mech-stage-pulse {
+      0%,
+      100% {
+        opacity: 0.18;
+        transform: scale(0.97);
+      }
+      22% {
+        opacity: 0.92;
+        transform: scale(1.03);
+      }
+      50% {
+        opacity: 0.18;
+        transform: scale(0.97);
+      }
+    }
+
+    .signal-stream {
+      stroke-dasharray: 12 18;
+      stroke-linecap: round;
+      animation: mech-flow 2.4s linear infinite;
+    }
+
+    .signal-stream-2 {
+      animation-delay: -0.9s;
+    }
+
+    .stage-pulse {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: mech-stage-pulse 3s ease-in-out infinite;
+    }
+
+    .stage-pulse-1 {
+      animation-delay: 0s;
+    }
+
+    .stage-pulse-2 {
+      animation-delay: 1s;
+    }
+
+    .stage-pulse-3 {
+      animation-delay: 2s;
+    }
+
+    /* Play/Pause state contract */
+    .mech-figure[data-paused="true"] .signal-stream,
+    .mech-figure[data-paused="true"] .stage-pulse {
+      animation-play-state: paused;
+    }
+
+    /* Reduced-motion static clarity fallback */
+    @media (prefers-reduced-motion: reduce) {
+      .signal-stream,
+      .stage-pulse {
+        animation: none !important;
+        animation-play-state: paused !important;
+      }
+
+      .signal-stream {
+        opacity: 0.92 !important;
+      }
+
+      .stage-pulse {
+        opacity: 0.35 !important;
+        transform: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="mech-shell">
+    <figure class="mech-figure" data-paused="false" data-active-stage="all">
+      <div class="mech-toolbar">
+        <div class="mech-controls">
+          <button
+            type="button"
+            class="mech-btn mech-btn-primary"
+            data-mech-toggle
+            aria-pressed="false"
+          >
+            Pause animation
+          </button>
+          <button
+            type="button"
+            class="mech-btn"
+            data-theme-toggle
+            aria-pressed="false"
+          >
+            Dark theme
+          </button>
+        </div>
+
+        <div class="mech-stage-bar" role="group" aria-label="Select QR payment stage">
+          <button type="button" class="mech-btn" data-stage-btn="all" aria-pressed="true">
+            All stages
+          </button>
+          <button type="button" class="mech-btn label-km" lang="km" data-stage-btn="1" aria-pressed="false">
+            1. ស្កេន QR
+          </button>
+          <button type="button" class="mech-btn label-km" lang="km" data-stage-btn="2" aria-pressed="false">
+            2. ផ្ទៀងផ្ទាត់
+          </button>
+          <button type="button" class="mech-btn label-km" lang="km" data-stage-btn="3" aria-pressed="false">
+            3. បញ្ជាក់
+          </button>
+        </div>
+      </div>
+
+      <div class="mech-stage-viewport">
+        <svg
+          class="mech-svg"
+          viewBox="0 0 920 360"
+          width="100%"
+          preserveAspectRatio="xMidYMid meet"
+          role="img"
+          aria-labelledby="qr-mech-title qr-mech-desc"
+        >
+          <title id="qr-mech-title">
+            លំហូរផ្ទៀងផ្ទាត់ការទូទាត់ QR — QR Payment Verification Flow
+          </title>
+          <desc id="qr-mech-desc">
+            Three-stage left-to-right QR payment verification mechanism: Stage 1 អតិថិជនស្កេន QR (Customer Scans QR) sends a payment request to Stage 2 ធនាគារផ្ទៀងផ្ទាត់ (Bank Verifies), which validates and completes Stage 3 បញ្ជាក់ការទូទាត់ (Payment Confirmed).
+          </desc>
+
+          <defs>
+            <linearGradient id="qr-node-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--mech-node-top)" />
+              <stop offset="100%" stop-color="var(--mech-node-bottom)" />
+            </linearGradient>
+
+            <linearGradient id="qr-node-ok-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--mech-ok-top)" />
+              <stop offset="100%" stop-color="var(--mech-ok-bottom)" />
+            </linearGradient>
+
+            <pattern id="qr-grid" width="24" height="24" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1.1" fill="var(--mech-grid-dot)" />
+            </pattern>
+
+            <marker
+              id="qr-arrow"
+              viewBox="0 0 10 10"
+              refX="9"
+              refY="5"
+              markerWidth="7"
+              markerHeight="7"
+              orient="auto-start-reverse"
+            >
+              <path d="M 1 1.5 L 9 5 L 1 8.5 Z" fill="var(--mech-accent)" />
+            </marker>
+
+            <marker
+              id="qr-arrow-ok"
+              viewBox="0 0 10 10"
+              refX="9"
+              refY="5"
+              markerWidth="7"
+              markerHeight="7"
+              orient="auto-start-reverse"
+            >
+              <path d="M 1 1.5 L 9 5 L 1 8.5 Z" fill="var(--mech-ok)" />
+            </marker>
+          </defs>
+
+          <!-- Layer 1: Backdrop -->
+          <g class="layer-backdrop">
+            <rect x="0" y="0" width="920" height="360" rx="16" fill="var(--mech-canvas)" />
+            <rect x="0" y="0" width="920" height="360" rx="16" fill="url(#qr-grid)" />
+          </g>
+
+          <!-- Layer 2: Static Tracks & Directional Arrows -->
+          <g class="layer-tracks" fill="none">
+            <g class="mech-track-group" data-stage="1">
+              <path
+                d="M 266 180 L 341 180"
+                stroke="var(--mech-track)"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                marker-end="url(#qr-arrow)"
+              />
+              <rect
+                x="276"
+                y="136"
+                width="56"
+                height="24"
+                rx="12"
+                fill="var(--mech-pill-bg)"
+                stroke="var(--mech-node-border)"
+                stroke-width="1.25"
+              />
+            </g>
+
+            <g class="mech-track-group" data-stage="2">
+              <path
+                d="M 578 180 L 653 180"
+                stroke="var(--mech-track)"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                marker-end="url(#qr-arrow-ok)"
+              />
+              <rect
+                x="588"
+                y="136"
+                width="56"
+                height="24"
+                rx="12"
+                fill="var(--mech-pill-bg)"
+                stroke="var(--mech-node-border)"
+                stroke-width="1.25"
+              />
+            </g>
+          </g>
+
+          <!-- Layer 3: Animated Signals -->
+          <g class="layer-signals" fill="none">
+            <g class="mech-signal-group" data-stage="1">
+              <path
+                class="signal-stream signal-stream-1"
+                d="M 266 180 L 333 180"
+                stroke="var(--mech-accent)"
+                stroke-width="3.5"
+              />
+            </g>
+
+            <g class="mech-signal-group" data-stage="2">
+              <path
+                class="signal-stream signal-stream-2"
+                d="M 578 180 L 645 180"
+                stroke="var(--mech-ok)"
+                stroke-width="3.5"
+              />
+            </g>
+          </g>
+
+          <!-- Layer 4: Stage Nodes (Generous Height 184px for Khmer Subscripts) -->
+          <g class="layer-nodes">
+            <!-- Stage 1: អតិថិជនស្កេន QR -->
+            <g
+              class="mech-node"
+              data-stage="1"
+              tabindex="0"
+              role="button"
+              aria-label="Stage 1: អតិថិជនស្កេន QR (Customer Scans QR)"
+            >
+              <rect
+                class="stage-pulse stage-pulse-1"
+                x="28"
+                y="84"
+                width="240"
+                height="192"
+                rx="18"
+                fill="none"
+                stroke="var(--mech-accent)"
+                stroke-width="2"
+              />
+              <rect
+                x="32"
+                y="88"
+                width="232"
+                height="184"
+                rx="14"
+                fill="url(#qr-node-fill)"
+                stroke="var(--mech-node-border)"
+                stroke-width="1.75"
+              />
+              <rect
+                class="node-focus-ring"
+                x="28"
+                y="84"
+                width="240"
+                height="192"
+                rx="18"
+                fill="none"
+                stroke="var(--mech-focus)"
+                stroke-width="3"
+              />
+              <circle cx="58" cy="114" r="14" fill="var(--mech-accent)" />
+
+              <!-- 2D QR Scan Icon -->
+              <g fill="none" stroke="var(--mech-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M 126 138 L 126 130 L 134 130" />
+                <path d="M 162 130 L 170 130 L 170 138" />
+                <path d="M 126 158 L 126 166 L 134 166" />
+                <path d="M 162 166 L 170 166 L 170 158" />
+                <rect x="134" y="136" width="10" height="10" rx="1.5" fill="var(--mech-accent)" stroke="none" />
+                <rect x="152" y="136" width="10" height="10" rx="1.5" fill="var(--mech-accent)" stroke="none" />
+                <rect x="134" y="152" width="10" height="10" rx="1.5" fill="var(--mech-accent)" stroke="none" />
+                <rect x="152" y="152" width="4" height="4" fill="var(--mech-accent)" stroke="none" />
+                <rect x="158" y="158" width="4" height="4" fill="var(--mech-accent)" stroke="none" />
+              </g>
+            </g>
+
+            <!-- Stage 2: ធនាគារផ្ទៀងផ្ទាត់ -->
+            <g
+              class="mech-node"
+              data-stage="2"
+              tabindex="0"
+              role="button"
+              aria-label="Stage 2: ធនាគារផ្ទៀងផ្ទាត់ (Bank Verifies)"
+            >
+              <rect
+                class="stage-pulse stage-pulse-2"
+                x="340"
+                y="84"
+                width="240"
+                height="192"
+                rx="18"
+                fill="none"
+                stroke="var(--mech-accent)"
+                stroke-width="2"
+              />
+              <rect
+                x="344"
+                y="88"
+                width="232"
+                height="184"
+                rx="14"
+                fill="url(#qr-node-fill)"
+                stroke="var(--mech-node-border)"
+                stroke-width="1.75"
+              />
+              <rect
+                class="node-focus-ring"
+                x="340"
+                y="84"
+                width="240"
+                height="192"
+                rx="18"
+                fill="none"
+                stroke="var(--mech-focus)"
+                stroke-width="3"
+              />
+              <circle cx="370" cy="114" r="14" fill="var(--mech-accent)" />
+
+              <!-- 2D Bank Verification Shield Icon -->
+              <g fill="none" stroke="var(--mech-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M 460 128 L 478 135 L 478 148 C 478 158 470 165 460 168 C 450 165 442 158 442 148 L 442 135 Z" />
+                <path d="M 452 149 L 458 155 L 469 143" />
+              </g>
+            </g>
+
+            <!-- Stage 3: បញ្ជាក់ការទូទាត់ -->
+            <g
+              class="mech-node"
+              data-stage="3"
+              tabindex="0"
+              role="button"
+              aria-label="Stage 3: បញ្ជាក់ការទូទាត់ (Payment Confirmed)"
+            >
+              <rect
+                class="stage-pulse stage-pulse-3"
+                x="652"
+                y="84"
+                width="240"
+                height="192"
+                rx="18"
+                fill="none"
+                stroke="var(--mech-ok)"
+                stroke-width="2"
+              />
+              <rect
+                x="656"
+                y="88"
+                width="232"
+                height="184"
+                rx="14"
+                fill="url(#qr-node-ok-fill)"
+                stroke="var(--mech-ok)"
+                stroke-width="2"
+              />
+              <rect
+                class="node-focus-ring"
+                x="652"
+                y="84"
+                width="240"
+                height="192"
+                rx="18"
+                fill="none"
+                stroke="var(--mech-focus)"
+                stroke-width="3"
+              />
+              <circle cx="682" cy="114" r="14" fill="var(--mech-ok)" />
+
+              <!-- 2D Payment Confirmed Icon -->
+              <g fill="none" stroke="var(--mech-ok)" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="772" cy="148" r="18" />
+                <path d="M 763 148 L 770 155 L 782 141" />
+              </g>
+            </g>
+          </g>
+
+          <!-- Layer 5: Crisp Khmer & English Labels (Safe >= 24px Margin) -->
+          <g class="layer-labels">
+            <text
+              class="svg-title-km label-km"
+              lang="km"
+              x="460"
+              y="48"
+              text-anchor="middle"
+            >
+              លំហូរផ្ទៀងផ្ទាត់ការទូទាត់ QR · QR Payment Verification Flow
+            </text>
+
+            <!-- Track Step Pills -->
+            <g class="mech-label-group" data-stage="1">
+              <text class="svg-pill-text label-en" x="304" y="152" text-anchor="middle">1 → 2</text>
+            </g>
+            <g class="mech-label-group" data-stage="2">
+              <text class="svg-pill-text label-en" x="616" y="152" text-anchor="middle">2 → 3</text>
+            </g>
+
+            <!-- Stage 1 Labels -->
+            <g class="mech-label-group" data-stage="1">
+              <text class="svg-badge-num label-en" x="58" y="119" text-anchor="middle">1</text>
+              <text class="svg-node-km label-km" lang="km" x="148" y="206" text-anchor="middle">
+                អតិថិជនស្កេន QR
+              </text>
+              <text class="svg-node-en label-en" lang="en" x="148" y="238" text-anchor="middle">
+                Customer Scans QR
+              </text>
+            </g>
+
+            <!-- Stage 2 Labels -->
+            <g class="mech-label-group" data-stage="2">
+              <text class="svg-badge-num label-en" x="370" y="119" text-anchor="middle">2</text>
+              <text class="svg-node-km label-km" lang="km" x="460" y="206" text-anchor="middle">
+                ធនាគារផ្ទៀងផ្ទាត់
+              </text>
+              <text class="svg-node-en label-en" lang="en" x="460" y="238" text-anchor="middle">
+                Bank Verifies
+              </text>
+            </g>
+
+            <!-- Stage 3 Labels -->
+            <g class="mech-label-group" data-stage="3">
+              <text class="svg-badge-num label-en" x="682" y="119" text-anchor="middle">3</text>
+              <text class="svg-node-km label-km" lang="km" x="772" y="206" text-anchor="middle">
+                បញ្ជាក់ការទូទាត់
+              </text>
+              <text class="svg-node-en label-en" lang="en" x="772" y="238" text-anchor="middle">
+                Payment Confirmed
+              </text>
+            </g>
+
+            <!-- Bottom Static Legend -->
+            <g class="mech-legend">
+              <line
+                x1="156"
+                y1="316"
+                x2="188"
+                y2="316"
+                stroke="var(--mech-accent)"
+                stroke-width="3"
+                stroke-dasharray="8 6"
+                stroke-linecap="round"
+              />
+              <text class="svg-legend-text label-km" lang="km" x="198" y="320" text-anchor="start">
+                សំណើផ្ទៀងផ្ទាត់ · Verification Signal
+              </text>
+
+              <line
+                x1="496"
+                y1="316"
+                x2="528"
+                y2="316"
+                stroke="var(--mech-ok)"
+                stroke-width="3"
+                stroke-dasharray="8 6"
+                stroke-linecap="round"
+              />
+              <text class="svg-legend-text label-km" lang="km" x="538" y="320" text-anchor="start">
+                ការបញ្ជាក់ជោគជ័យ · Confirmation Signal
+              </text>
+            </g>
+          </g>
+        </svg>
+      </div>
+
+      <figcaption class="mech-caption">
+        <div data-mech-status aria-live="polite" aria-atomic="true">
+          ដំណើរការពេញលេញ៖ 1. អតិថិជនស្កេន QR → 2. ធនាគារផ្ទៀងផ្ទាត់ → 3. បញ្ជាក់ការទូទាត់ (Full flow: Customer Scans QR → Bank Verifies → Payment Confirmed).
+        </div>
+        <p class="mech-caption-meta label-en">
+          Use Play/Pause to freeze signal streams, or select/focus any stage (1–3) with mouse or keyboard to inspect it.
+        </p>
+      </figcaption>
+    </figure>
+  </main>
+
+  <script>
+    (() => {
+      const fig = document.querySelector('.mech-figure');
+      const svg = fig.querySelector('svg');
+      const toggleBtn = fig.querySelector('[data-mech-toggle]');
+      const themeBtn = fig.querySelector('[data-theme-toggle]');
+      const statusEl = fig.querySelector('[data-mech-status]');
+      const stageBtns = [...fig.querySelectorAll('[data-stage-btn]')];
+      const stageNodes = [...svg.querySelectorAll('.mech-node[data-stage]')];
+
+      const STAGE_COPY = {
+        all: 'ដំណើរការពេញលេញ៖ 1. អតិថិជនស្កេន QR → 2. ធនាគារផ្ទៀងផ្ទាត់ → 3. បញ្ជាក់ការទូទាត់ (Full flow: Customer Scans QR → Bank Verifies → Payment Confirmed).',
+        1: 'ដំណាក់កាលទី 1 — អតិថិជនស្កេន QR (Customer Scans QR): អតិថិជនស្កេនកូដ QR ដើម្បីចាប់ផ្ដើមសំណើទូទាត់ទៅធនាគារ។',
+        2: 'ដំណាក់កាលទី 2 — ធនាគារផ្ទៀងផ្ទាត់ (Bank Verifies): ធនាគារពិនិត្យ និងផ្ទៀងផ្ទាត់ព័ត៌មានប្រតិបត្តិការ មុននឹងបញ្ជូនការបញ្ជាក់។',
+        3: 'ដំណាក់កាលទី 3 — បញ្ជាក់ការទូទាត់ (Payment Confirmed): ការទូទាត់ត្រូវបានបញ្ជាក់ដោយជោគជ័យ។',
+      };
+
+      const setPaused = (paused, announce = true) => {
+        fig.dataset.paused = String(paused);
+        toggleBtn.setAttribute('aria-pressed', String(paused));
+        toggleBtn.textContent = paused ? 'Play animation' : 'Pause animation';
+        if (typeof svg.pauseAnimations === 'function') {
+          if (paused) {
+            svg.pauseAnimations();
+          } else {
+            svg.unpauseAnimations();
+          }
+        }
+        if (announce && statusEl) {
+          statusEl.textContent = paused
+            ? 'បានផ្អាកចលនា — Animation paused. Static directional arrows and stage numbers remain visible.'
+            : 'កំពុងលេងចលនា — Animation playing. ' + STAGE_COPY[fig.dataset.activeStage || 'all'];
+        }
+      };
+
+      const setActiveStage = (stage) => {
+        const next = stage && STAGE_COPY[stage] ? stage : 'all';
+        fig.dataset.activeStage = next;
+        for (const btn of stageBtns) {
+          btn.setAttribute('aria-pressed', String(btn.dataset.stageBtn === next));
+        }
+        if (statusEl) {
+          statusEl.textContent = STAGE_COPY[next];
+        }
+      };
+
+      // Respect prefers-reduced-motion on initial load
+      const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+      if (reducedMotionQuery.matches) {
+        setPaused(true, false);
+        statusEl.textContent =
+          'របៀបកាត់បន្ថយចលនា (Reduced motion active) — ' + STAGE_COPY.all;
+      }
+
+      toggleBtn.addEventListener('click', () => {
+        const isPaused = fig.dataset.paused === 'true';
+        setPaused(!isPaused, true);
+      });
+
+      // Light / Dark theme sync toggle
+      const syncThemeButton = () => {
+        const explicit = document.documentElement.dataset.theme;
+        const isDark = explicit
+          ? explicit === 'dark'
+          : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        themeBtn.setAttribute('aria-pressed', String(isDark));
+        themeBtn.textContent = isDark ? 'Light theme' : 'Dark theme';
+      };
+      syncThemeButton();
+
+      themeBtn.addEventListener('click', () => {
+        const isDarkNow = themeBtn.getAttribute('aria-pressed') === 'true';
+        document.documentElement.dataset.theme = isDarkNow ? 'light' : 'dark';
+        syncThemeButton();
+      });
+
+      // Stage toolbar buttons
+      for (const btn of stageBtns) {
+        btn.addEventListener('click', () => {
+          setActiveStage(btn.dataset.stageBtn);
+        });
+      }
+
+      // Keyboard & pointer interaction on SVG stage nodes
+      for (const node of stageNodes) {
+        const stage = node.dataset.stage;
+        node.addEventListener('click', () => {
+          setActiveStage(fig.dataset.activeStage === stage ? 'all' : stage);
+        });
+        node.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setActiveStage(fig.dataset.activeStage === stage ? 'all' : stage);
+          } else if (e.key === 'Escape') {
+            setActiveStage('all');
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
