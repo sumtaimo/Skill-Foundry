@@ -7,7 +7,7 @@
       "id": "UI-2026-01",
       "title": "Promote ui-craft to ready 1.0.0 (live evals, portable check, routing, site tests)",
       "priority": 1,
-      "status": "BACKLOG",
+      "status": "DONE",
       "source": "advisor-handoff",
       "role": "DEV_ENGINEER",
       "skills": [
@@ -29,13 +29,17 @@
         "checkPage passes at 1440px and 390px light/dark reduced-motion on live-generated HTML in evals/live/files/.",
         "npm run guard passes with at most one skill (ui-craft) changed."
       ],
-      "verifyCmd": "node src/factory/lint-skills.mjs ui-craft && node src/factory/live-evals.mjs ui-craft && node --test tests/ui-craft.test.mjs tests/site-finder.test.mjs && npm run guard"
+      "verifyCmd": "node src/factory/lint-skills.mjs ui-craft && node src/factory/live-evals.mjs ui-craft && node --test tests/ui-craft.test.mjs tests/site-finder.test.mjs && npm run guard",
+      "completedAt": "2026-11-24T04:26:24.826Z",
+      "result": "DONE_OUTSIDE_HARNESS",
+      "doneNote": "Merged: ui-craft 1.0.0 ready on master",
+      "updatedAt": "2026-11-24T04:26:24.828Z"
     },
     {
       "id": "UI-2026-02",
       "title": "Upgrade design-system to 1.1.0 with optional 2026 glass, z-index, radius and weight tokens",
       "priority": 2,
-      "status": "BACKLOG",
+      "status": "DONE",
       "source": "advisor-handoff",
       "role": "DEV_ENGINEER",
       "skills": [
@@ -53,13 +57,17 @@
         "New eval case(s) verify optional 2026 glass/z-index/weight tokens via real-agent live recordings and portable check.",
         "npm run guard passes with only design-system touched."
       ],
-      "verifyCmd": "node src/factory/lint-skills.mjs design-system && node src/factory/live-evals.mjs design-system && node --test tests/design-system.test.mjs && npm run guard"
+      "verifyCmd": "node src/factory/lint-skills.mjs design-system && node src/factory/live-evals.mjs design-system && node --test tests/design-system.test.mjs && npm run guard",
+      "completedAt": "2026-11-24T04:26:24.924Z",
+      "result": "DONE_OUTSIDE_HARNESS",
+      "doneNote": "Merged: design-system 1.1.0 and 1.2.1 ready on master",
+      "updatedAt": "2026-11-24T04:26:24.926Z"
     },
     {
       "id": "UI-2026-03",
       "title": "Upgrade ui-polish to 1.1.0 for 2026 token compatibility and ui-craft boundary sync",
       "priority": 3,
-      "status": "BACKLOG",
+      "status": "DONE",
       "source": "advisor-handoff",
       "role": "DEV_ENGINEER",
       "skills": [
@@ -77,13 +85,17 @@
         "ui-polish live evals, portable-check, checkPage, and tokens-then-polish recipe all pass from fresh real-agent recordings.",
         "npm run guard passes with only ui-polish touched."
       ],
-      "verifyCmd": "node src/factory/lint-skills.mjs ui-polish && node src/factory/live-evals.mjs ui-polish && node --test tests/ui-polish.test.mjs tests/factory-recipes.test.mjs && npm run guard"
+      "verifyCmd": "node src/factory/lint-skills.mjs ui-polish && node src/factory/live-evals.mjs ui-polish && node --test tests/ui-polish.test.mjs tests/factory-recipes.test.mjs && npm run guard",
+      "completedAt": "2026-11-24T04:26:25.020Z",
+      "result": "DONE_OUTSIDE_HARNESS",
+      "doneNote": "Merged: ui-polish 1.1.0 ready on master",
+      "updatedAt": "2026-11-24T04:26:25.022Z"
     },
     {
       "id": "UI-2026-04",
       "title": "Sync ux-review 1.0.1 negative boundaries with ui-polish and ui-craft",
       "priority": 4,
-      "status": "BACKLOG",
+      "status": "DONE",
       "source": "advisor-handoff",
       "role": "DEV_ENGINEER",
       "skills": [
@@ -100,7 +112,11 @@
         "ux-review live evals and portable-check pass from fresh real-agent recordings.",
         "npm run guard passes with only ux-review touched."
       ],
-      "verifyCmd": "node src/factory/lint-skills.mjs ux-review && node src/factory/live-evals.mjs ux-review && node --test tests/ux-review.test.mjs && npm run guard"
+      "verifyCmd": "node src/factory/lint-skills.mjs ux-review && node src/factory/live-evals.mjs ux-review && node --test tests/ux-review.test.mjs && npm run guard",
+      "completedAt": "2026-11-24T04:26:25.122Z",
+      "result": "DONE_OUTSIDE_HARNESS",
+      "doneNote": "Merged: ux-review 1.0.1 ready on master",
+      "updatedAt": "2026-11-24T04:26:25.124Z"
     },
     {
       "id": "UI-2026-05",

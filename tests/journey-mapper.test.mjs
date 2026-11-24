@@ -72,15 +72,16 @@ test('journey-mapper live recordings: every step has the seven slots in order, e
   const maps = [...live.filter((r) => r.output.includes('## Journey map')).map((r) => ({ case: r.case, output: r.output })), { case: 'harness-step-worker file', output: worker }];
   assert.match(worker, /at least 8 characters/);
   for (const rec of maps) {
-    const steps = rec.output.split('### Steps')[1].split('### Cross-step checks')[0].split(/\n(?=\d+\. )/).filter((s) => /^\s*\d+\. /.test(s));
+    const out = rec.output.replace(/\r\n/g, '\n');
+    const steps = out.split('### Steps')[1].split('### Cross-step checks')[0].split(/\n(?=\d+\. )/).filter((s) => /^\s*\d+\. /.test(s));
     assert.ok(steps.length >= 2, rec.case);
     for (const s of steps) {
       const names = [...s.matchAll(/^\s+- ([A-Za-z ]+):/gm)].map((m) => m[1]);
       assert.deepEqual(names, SLOTS, `${rec.case}: slots of "${s.split('\n')[0]}"`);
     }
-    const qs = rec.output.split('### Open business questions')[1].split('### Not in this map')[0];
+    const qs = out.split('### Open business questions')[1].split('### Not in this map')[0];
     const ids = new Set([...qs.matchAll(/^- (Q\d+) \[(?:blocking|minor)\]/gm)].map((m) => m[1]));
-    for (const m of rec.output.matchAll(/\bQ\d+\b/g)) assert.ok(ids.has(m[0]), `${rec.case}: ${m[0]} used but not asked`);
+    for (const m of out.matchAll(/\bQ\d+\b/g)) assert.ok(ids.has(m[0]), `${rec.case}: ${m[0]} used but not asked`);
     assert.doesNotMatch(qs, /for example|e\.g\.|such as/i, rec.case);
     const tags = [...qs.matchAll(/\[(blocking|minor)\]/g)].map((m) => m[1]);
     assert.ok(tags.indexOf('minor') === -1 || tags.lastIndexOf('blocking') < tags.indexOf('minor'), `${rec.case}: blocking first`);

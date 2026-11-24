@@ -80,9 +80,10 @@ Rules that apply to every skill (the full text is in `AGENTS.md`, SKILL QUALITY 
 3. Pilot: figure-craft showcase comes from a recorded real run (refrigerator). **[built]**
 4. Migrate skills to the layer files; all portable ready skills checked with `chk-portable`. **[built]**
 5. Recipes for combining skills. **[built]** (3 recipes in `src/factory/recipes.json`: `ship-a-change`, `tokens-then-polish`, `spec-then-retest`)
-6. Additional domain skills added one skill per session under `docs/factory/STANDARD.md` with fresh real-agent proof: **[in progress on `lab`]**
-   - `ui-craft` draft `0.1.0` (`[built]` on `lab` `@f82dd71`, pending fresh-agent live/portable/routing recordings -> `1.0.0` `ready` and Skill Foundry `1.1.0`).
-   - Ordered continuation tasks (`UI-2026-01` .. `UI-2026-05`: `ui-craft` `ready` -> `design-system` `1.1.0` -> `ui-polish` `1.1.0` -> `ux-review` `1.0.1` -> `svg-mechanism` `1.0.0`) are tracked in `.harness/backlog.json` (`status: BACKLOG`) and documented end-to-end in `docs/factory/notes/2026-ui-upgrade-handoff.md`.
+6. Additional domain skills added one skill per session under `docs/factory/STANDARD.md` with fresh real-agent proof: **[in progress]**
+   - `UI-2026-01` .. `UI-2026-04` (`ui-craft` `1.0.0`, `design-system` `1.1.0`/`1.2.1`, `ui-polish` `1.1.0`, `ux-review` `1.0.1`) plus `component-kit` `1.0.0`, `browser-check` `0.1.0`, `journey-mapper` `0.1.0`, `bug-hunter` `0.1.0`, `web-research` `0.1.0`: **[built]** and merged (`master`).
+   - `scroll-director` `0.1.0` (`[draft]` on branch `claude/cinematic-scroll-motion-6c286c`, pending fresh-agent re-recording, visual check, routing and portable check).
+   - Remaining planned items: `UI-2026-05` (`svg-mechanism` `1.0.0`, `.harness/backlog.json` `BACKLOG`, `docs/factory/notes/2026-ui-upgrade-handoff.md`), `design-system` S2 scale-up & recipe `product-from-zero` (`docs/factory/notes/design-foundation-plan.md`), and `web-research` cross-engine tool wording (`docs/factory/notes/web-research-cross-engine.md`).
 
 ## 7. Rules for every agent
 
@@ -93,7 +94,7 @@ Rules that apply to every skill (the full text is in `AGENTS.md`, SKILL QUALITY 
 - A skill is also checked for someone outside this repo: `node src/factory/portable-check.mjs <name> --prompt "<request>" --record`. It is required before `ready` and goes stale when the skill changes (not for `scope: factory`).
 - Never leave work half done: finish the gaps your own report lists (AGENTS.md, SKILL QUALITY LAW, rule 11).
 - **Two separate versions (Project vs. Skill)**:
-  - **Skill Foundry project version (`package.json`, `CHANGELOG.md`, currently `1.0.1`)** versions the `skill-foundry` CLI (`--version`), showcase site, `skills.json`, and `llms.txt`, and is displayed in the footer as `Skill Foundry version <x.y.z>`.
+  - **Skill Foundry project version (`package.json`, `CHANGELOG.md`, currently `1.8.0`)** versions the `skill-foundry` CLI (`--version`), showcase site, `skills.json`, and `llms.txt`, and is displayed in the footer as `Skill Foundry version <x.y.z>`.
   - **Each skill's version (`src/skills/<name>/SKILL.md`, `src/skills/<name>/CHANGELOG.md`, `src/factory/registry.json`, e.g. `1.0.0`, `0.2.0`)** versions that skill's folder independently and is displayed on its card and detail page as `Skill version <x.y.z>`.
   - Both move slowly: record smaller changes under the current version and never bump either version without the owner's approval in chat.
 - figure-craft showcases one object only, the refrigerator, at the detail level of the owner's reference figure. The registry field `showcase` pins that case for the site.
