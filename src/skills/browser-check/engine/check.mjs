@@ -20,8 +20,9 @@
 import { createServer } from 'node:http';
 import { createRequire } from 'node:module';
 import { readFileSync, existsSync, mkdirSync, writeFileSync, statSync } from 'node:fs';
-import { resolve, dirname, join, extname, basename, relative, sep, isAbsolute } from 'node:path';
+import { resolve, dirname, join, extname, basename, relative, sep, isAbsolute, delimiter } from 'node:path';
 import { tmpdir } from 'node:os';
+import { fileURLToPath } from 'node:url';
 
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '[::1]', '0.0.0.0']);
 const ACTIONS = ['goto', 'find', 'click', 'fill', 'press', 'select', 'check', 'expect-text', 'expect-no-text', 'expect-url', 'wait', 'screenshot'];
@@ -85,7 +86,7 @@ export function loadSteps(arg) {
 /** Find the playwright package: the project first, then next to this script, then global (NODE_PATH). */
 function loadPlaywright() {
   const bases = [join(process.cwd(), 'package.json'), import.meta.url];
-  for (const p of (process.env.NODE_PATH || '').split(/[:;]/).filter(Boolean)) bases.push(join(p, '_'));
+  for (const p of (process.env.NODE_PATH || '').split(delimiter).filter(Boolean)) bases.push(join(p, '_'));
   for (const b of bases) for (const name of ['playwright', '@playwright/test', 'playwright-core']) {
     try { const m = createRequire(b)(name); if (m?.chromium) return { pw: m, name }; } catch { /* try next */ }
   }
@@ -304,4 +305,4 @@ async function main() {
   process.exit(ok ? 0 : 1);
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === resolve(new URL(import.meta.url).pathname)) main().catch((e) => cannotRun(`unexpected error: ${short(e)}`, 'run the same command again; if it repeats, report the error'));
+if (process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url))) main().catch((e) => cannotRun(`unexpected error: ${short(e)}`, 'run the same command again; if it repeats, report the error'));
