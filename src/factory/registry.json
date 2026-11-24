@@ -303,5 +303,30 @@
       "industry standard",
       "cite sources"
     ]
+  },
+  {
+    "name": "motion-craft",
+    "version": "0.1.0",
+    "purpose": "Turns a plain-language motion idea into one direction, a timed scene plan and one English build prompt (Tier 1 zero-dependency HTML/CSS/JS or Tier 2 GSAP 3.12.5 ScrollTrigger + Lenis ticker sync + Three.js WebGL spatial backdrop) with reduced-motion and phone fallbacks; writes no page code.",
+    "status": "draft",
+    "roles": [
+      "UX_DESIGNER"
+    ],
+    "keywords": [
+      "scrollytelling",
+      "scroll like a video",
+      "scrolls like a video",
+      "scroll-driven",
+      "scroll animation",
+      "gsap scrolltrigger",
+      "lenis smooth scroll",
+      "pinned scroll scenes",
+      "threejs webgl backdrop",
+      "3d walkthrough",
+      "horizontal lookbook",
+      "cinematic website",
+      "interactive motion showcase",
+      "motion graphic website"
+    ]
   }
 ]

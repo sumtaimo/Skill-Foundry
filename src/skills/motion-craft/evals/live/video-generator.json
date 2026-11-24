@@ -1,0 +1,8 @@
+{
+  "case": "video-generator",
+  "prompt": "Write a Veo prompt for a cinematic 8 second drone shot over rice fields.",
+  "agent": "codex (gpt-5.6-luna)",
+  "recordedAt": "2026-11-24",
+  "output": "motion-craft plans interactive web pages with scroll and spatial motion; it does not write prompts for video generators.",
+  "files": []
+}

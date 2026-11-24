@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="scroll-director cover">
+  <rect width="640" height="360" fill="var(--cover-bg)"/>
+  <path d="M80 280 H560 M80 268 V292 M240 268 V292 M400 268 V292 M560 268 V292" fill="none" stroke="currentColor" stroke-width="2"/>
+  <rect x="80" y="80" width="144" height="152" fill="none" stroke="currentColor" stroke-width="2"/>
+  <rect x="248" y="80" width="144" height="152" fill="currentColor"/>
+  <rect x="416" y="80" width="144" height="152" fill="none" stroke="currentColor" stroke-width="2"/>
+  <rect x="416" y="80" width="54" height="152" fill="var(--cover-accent)"/>
+  <circle cx="320" cy="280" r="9" fill="var(--cover-accent)"/>
+</svg>
