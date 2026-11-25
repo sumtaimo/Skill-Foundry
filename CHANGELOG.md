@@ -4,6 +4,10 @@ Versions of Skill Foundry itself (the `skill-foundry` command and the set of ski
 version in its folder. Versions move slowly: a bump needs the owner's approval in chat; record smaller changes under the
 current version.
 
+## 1.9.0 - 2026-11-25
+
+- New skill `motion-craft` 0.1.0 (fetched on demand, not in the default core; `UX_DESIGNER`, `BA_ANALYST`): turns a plain-language motion idea (English, Khmer or any language) into one chosen direction, a timed 0–100% scene plan and one self-contained English build prompt — Tier 1 zero-dependency HTML/CSS/JS by default, or Tier 2 production stack (pinned GSAP 3.12.5 ScrollTrigger inside `gsap.matchMedia()`, Lenis ticker sync, choreographed pinned scenes, and synchronised Three.js 0.160.0 WebGL spatial backdrop with `webglcontextlost` and `IntersectionObserver` safeguards) — with semantic HTML, reduced-motion, no-JS and phone fallbacks; writes no page code. Fixed one-line boundaries route video-generator prompts and task screens (dashboards, forms, tables) out cleanly. Checked against Agentic-Harness roles and skills (includes `BA_ANALYST` alongside `UX_DESIGNER` so older harness projects without `ux-designer.json` such as v1.0.6 still wire cleanly, with zero keyword collision with `UX_DESIGNER`, `BA_ANALYST`, or `FEATURE_BA` skills); proven by fresh real agents (live 16 of 16, routing 102 of 102 with `mc1`–`mc7`, portable).
+
 ## 1.8.0 - 2026-11-22
 
 - Agentic-Harness 1.0.47 cross-repo alignment (under current version pending PO bump approval): updated `spec-writer` (`R-spec-writer-16`, `R-spec-writer-17`) with the `Flow & State Table` for multi-screen/multi-step features and reading `docs/foundation/product.md` / `domain.md` by reference (handling `(fill me)` as unknown); updated `src/factory/lint-skills.mjs` (`chk-portable`) to allow user-project `docs/foundation/` and `docs/ux/` paths; updated `src/factory/foundry.mjs` to recognize all 4 historical Agentic-Harness `spec-writer` starter stub hashes and keep the non-HTML warning accurate for `UX_DESIGNER` with `docs/ux/**`; added `--engine agy` support to `src/factory/recipe-run.mjs`.

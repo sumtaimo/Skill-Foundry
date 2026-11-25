@@ -308,9 +308,10 @@
     "name": "motion-craft",
     "version": "0.1.0",
     "purpose": "Turns a plain-language motion idea into one direction, a timed scene plan and one English build prompt (Tier 1 zero-dependency HTML/CSS/JS or Tier 2 GSAP 3.12.5 ScrollTrigger + Lenis ticker sync + Three.js WebGL spatial backdrop) with reduced-motion and phone fallbacks; writes no page code.",
-    "status": "draft",
+    "status": "ready",
     "roles": [
-      "UX_DESIGNER"
+      "UX_DESIGNER",
+      "BA_ANALYST"
     ],
     "keywords": [
       "scrollytelling",

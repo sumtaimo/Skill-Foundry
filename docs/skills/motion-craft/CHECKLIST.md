@@ -11,7 +11,10 @@
 - **Portable check (`agy`):** Recorded `src/skills/motion-craft/evals/portable.json` on the Tier 2 GSAP + Lenis prompt outside the repo (`exit: 0`, `usedSkill: true`, `leakedRepoRules: false`, `touchedRepo: []`, `produced: 0`; hash verified).
 - **Lint & Guard:** `node src/factory/lint-skills.mjs motion-craft` (`no problems`), `npm run guard` (`skill-guard: ok (skill: motion-craft)`).
 
-## Remaining before `ready`
+## Promotion to `ready` (2026-11-25, `0.1.0` ready; Skill Foundry `1.9.0`)
 
-1. Send `roles` (`["UX_DESIGNER"]`) and `keywords` in `src/factory/registry.json` to the Agentic-Harness session for its risk check (AGENTS.md Rule 14).
-2. With TAIMO's approval: flip `status: "ready"`, add `mc1`–`mc7` into `src/factory/routing/cases.json` + re-record `live.json`, update root `CHANGELOG.md` + bump `package.json`, run `npm run release:check`, and merge to `master`.
+- **Rebase onto `master`:** Rebased `motion-craft` cleanly onto `master` (`9435546`) with zero conflicts.
+- **Agentic-Harness risk check (AGENTS.md Rule 14):** Verified `roles: ["UX_DESIGNER", "BA_ANALYST"]` against Agentic-Harness `.harness/roles/` and all `.harness/skills/` (`brand-craft`, `ui-craft`, `spec-writer`, `api-craft`, etc.) plus all Skill Foundry ready skills — zero role or keyword collisions; non-default (`fetched on demand`). Including `BA_ANALYST` alongside `UX_DESIGNER` (both spec/planning roles that write no page code) ensures backward compatibility with older Agentic-Harness installs (e.g. `release-v1.0.6` without `ux-designer.json`) so `foundry doctor` reports 0 problems.
+- **Registry & routing:** Promoted `status: "ready"` in `src/factory/registry.json` (`version: "0.1.0"`, non-default); added `mc1`–`mc7` into `src/factory/routing/cases.json` and recorded live routing via `agy` (`102/102` passed, `0` failed, `0` stale).
+- **Tests, release tracking & gates:** Updated `tests/site-finder.test.mjs` (`UX_DESIGNER` ready skills list), bumped `package.json` to `1.9.0`, added `## 1.9.0 - 2026-11-25` to root `CHANGELOG.md`, and verified `npm run guard`, `npm run release:check` (`READY`), and Agentic-Harness `test/audit.mjs --foundry`.
+- **Pending owner action:** Merge `motion-craft` to `master` after TAIMO's in-chat approval.
