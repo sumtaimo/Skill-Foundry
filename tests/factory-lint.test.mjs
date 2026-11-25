@@ -65,3 +65,21 @@ for (const [code, mutate, folder] of cases) {
     } finally { await fs.rm(root, { recursive: true, force: true }); }
   });
 }
+
+test('chk-portable allows user-project docs/foundation/* and docs/ux/* paths while still rejecting Skill Foundry docs/factory/*', async () => {
+  const { root, dir } = await copy('portable-doc-check');
+  try {
+    await edit(path.join(dir, 'SKILL.md'), (s) => s.replace(/^scope: factory\r?\n/m, '').replace(/docs\/factory\/\S+|src\/\S+|tests\/\S+/g, 'design/tokens.css') + '\nRead `docs/foundation/product.md` and write `docs/ux/flow.md`.\n');
+    for (const f of await fs.readdir(path.join(dir, 'layers'))) {
+      await edit(path.join(dir, 'layers', f), (s) => s.replace(/(?:src|docs|tests)\/[\w./-]+/g, 'docs/foundation/domain.md'));
+    }
+    for (const f of await fs.readdir(path.join(dir, 'references'))) {
+      await edit(path.join(dir, 'references', f), (s) => s.replace(/(?:src|docs|tests)\/[\w./-]+/g, 'docs/ux/screen.md'));
+    }
+    const clean = await lintSkill(dir, { testsDir: TESTS });
+    assert.deepEqual(clean.filter((p) => p.code === 'chk-portable'), []);
+    await edit(path.join(dir, 'SKILL.md'), (s) => s + '\nSee `docs/factory/STANDARD.md`.\n');
+    const bad = await lintSkill(dir, { testsDir: TESTS });
+    assert.ok(bad.some((p) => p.code === 'chk-portable' && p.message.includes('docs/factory/STANDARD.md')));
+  } finally { await fs.rm(root, { recursive: true, force: true }); }
+});

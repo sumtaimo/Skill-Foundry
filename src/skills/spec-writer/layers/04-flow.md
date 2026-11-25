@@ -21,4 +21,9 @@
 13. Keep minor questions few. Drop a minor question when it only restates a default: a generic failure or error message, a loading indicator, what a reload keeps, who else may use the feature, or any heading the text says nothing about when no stated clause depends on it; also drop one the clauses already answer. Merge the rest into at most three lines in this form: `- [minor] <Heading name>: <question>? <Heading name>: <question>?`. A line holds at most two questions, related ones together; each question still starts with its heading name and a colon and ends with a question mark. Write no `[minor]` line when no minor question remains. A text with all statements clear has no minor line at all.
 14. Write one "Out of scope" line for each exclusion, ending with its source phrase in italics. Write nothing there that the text does not exclude.
 15. Number the clauses AC-1 to AC-N in one run, in heading order, with no restart at a heading. Drop every heading that has no clause.
-16. Hand the clauses, the open questions and the out-of-scope lines to layer 05.
+16. For a multi-screen or multi-step feature (a requirement spanning two or more distinct screens or sequential steps, `R-spec-writer-16`), add a compact `### Flow & State Table` right after the clause headings (before `### Open questions`):
+    - Columns: `| Step | User does | System shows (loading / empty / error / success) | Next or exit |`
+    - Fill each cell using ONLY facts stated in the requirement text (or `docs/foundation/product.md` / `domain.md`); mark any unstated state cell `TBD (see Open questions)` and NEVER invent loading/empty/error messages.
+    - Immediately beneath the table, write four single lines: `Entry point:`, `Exit:`, `Reload:`, and `Permissions:` — each quoting the stated fact or `TBD (see Open questions)`.
+    - For a single-screen or single-step story, omit the `### Flow & State Table` section completely so simple specs stay tight.
+17. Hand the clauses, the Flow & State Table (when applicable), the open questions and the out-of-scope lines to layer 05.

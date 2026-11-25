@@ -48,6 +48,8 @@ Follow the layers in order. Each layer file is the detailed chapter for that ste
 - R-spec-writer-13: SKILL.md MUST stay within 150 lines and have frontmatter with name, description and semver version.
 - R-spec-writer-14: Every relative link MUST point to a file inside the skill folder.
 - R-spec-writer-15: Every other question MUST be tagged `[minor]`, merged into at most three lines of at most two questions each after the blocking ones, or dropped when it only restates a default; a question that blocks nothing is NEVER tagged `[blocking]`.
+- R-spec-writer-16: For a multi-screen or multi-step feature, the document MUST include a compact **Flow & State Table** (`| Step | User does | System shows (loading / empty / error / success) | Next or exit |`) followed by one line each for `Entry point:`, `Exit:`, `Reload:`, and `Permissions:`, quoting only stated facts and marking unstated cells `TBD (see Open questions)`; single-screen stories omit the table.
+- R-spec-writer-17: When `docs/foundation/product.md` or `docs/foundation/domain.md` exist in the project (or are provided in the prompt), read them by reference for stated users and domain rules; treat any `(fill me)` line as unknown under `Open questions` (or `Needs a decision`), NEVER as a rule and NEVER inventing missing facts.
 
 Each rule's check or reviewer item is in `RULES.json`.
 

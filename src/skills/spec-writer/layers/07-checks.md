@@ -21,6 +21,6 @@ Reviewer checklist, answered yes or no (the same list is in references/README.md
 13. No open question suggests an answer, an example or a value, and no minor question only restates a default.
 14. "Out of scope" lists only what the text excludes.
 15. A request outside the boundary got its exact sentence and none of the refused work.
-16. The output follows the format in layer 08.
+16. The output follows the format in layer 08 (including `### Flow & State Table` + `Entry point:`, `Exit:`, `Reload:`, `Permissions:` for multi-screen/multi-step features, and treating any `(fill me)` line in `docs/foundation/product.md` or `docs/foundation/domain.md` as unknown under `Open questions`).
 
 Hand the answers to layer 08 for the quality bar and to layer 10 for the record.

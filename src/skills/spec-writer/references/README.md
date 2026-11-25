@@ -70,4 +70,6 @@ Answer each line yes or no. Any "no" blocks the reply until it is fixed.
 - [ ] Every "Out of scope" line has a source phrase from the text, or the section reads "None stated."
 - [ ] With no requirement text or only a title, the reply is the exact sentence, with no clause and no heading.
 - [ ] A request outside the boundary got its exact sentence and none of the refused work.
+- [ ] For multi-screen or multi-step features, `### Flow & State Table` (`Step | User does | System shows (loading / empty / error / success) | Next or exit`) and the four lines (`Entry point`, `Exit`, `Reload`, `Permissions`) appear with no invented states; single-screen stories omit the table.
+- [ ] When `docs/foundation/product.md` or `docs/foundation/domain.md` is present or provided, stated users/rules are respected and any `(fill me)` line is treated as unknown under `Open questions` (Needs a decision), never invented as a rule.
 - [ ] The output follows the format in layer 08.

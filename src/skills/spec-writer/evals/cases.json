@@ -542,5 +542,42 @@
         "value": 40
       }
     ]
+  },
+  {
+    "id": "multi-step-flow-table",
+    "prompt": "Write acceptance criteria for this multi-step onboarding flow: Only workspace owners can start onboarding from the Setup banner. Step 1 (Workspace details): the owner enters a workspace name and clicks Continue; while saving, the button shows \"Saving...\"; if the name is blank, the page shows \"Enter a workspace name.\" Step 2 (Invite team): the owner adds teammate emails or clicks Skip to reach the Dashboard. After a page reload on Step 2, the saved workspace name stays stored and the owner remains on Step 2. Billing setup is out of scope.",
+    "expect": [
+      { "type": "contains", "value": "## Acceptance criteria:" },
+      { "type": "contains", "value": "AC-1. Given" },
+      { "type": "contains", "value": "### Flow & State Table" },
+      { "type": "contains", "value": "| Step | User does | System shows (loading / empty / error / success) | Next or exit |" },
+      { "type": "contains", "value": "Entry point:" },
+      { "type": "contains", "value": "Exit:" },
+      { "type": "contains", "value": "Reload:" },
+      { "type": "contains", "value": "Permissions:" },
+      { "type": "contains", "value": "Saving..." },
+      { "type": "contains", "value": "Enter a workspace name." },
+      { "type": "contains", "value": "### Open questions" },
+      { "type": "contains", "value": "### Out of scope" },
+      { "type": "contains", "value": "Billing setup is out of scope." },
+      { "type": "notContains", "value": "```" },
+      { "type": "notContains", "value": "[ ]" }
+    ]
+  },
+  {
+    "id": "foundation-fill-me-unknown",
+    "prompt": "Write acceptance criteria for this requirement using the project foundation excerpts below.\n\nFoundation (docs/foundation/product.md): Primary user: Clinic receptionist. Secondary user: (fill me).\nFoundation (docs/foundation/domain.md): An appointment slot lasts 30 minutes. Cancellation fee rule: (fill me).\n\nRequirement: A Clinic receptionist can book an appointment slot for a patient and cancel an existing booking.",
+    "expect": [
+      { "type": "contains", "value": "## Acceptance criteria:" },
+      { "type": "contains", "value": "AC-1. Given" },
+      { "type": "contains", "value": "Clinic receptionist" },
+      { "type": "contains", "value": "30 minutes" },
+      { "type": "contains", "value": "### Open questions" },
+      { "type": "contains", "value": "[blocking]" },
+      { "type": "contains", "value": "Cancellation fee" },
+      { "type": "contains", "value": "### Out of scope" },
+      { "type": "notContains", "value": "for example" },
+      { "type": "notContains", "value": "```" }
+    ]
   }
 ]

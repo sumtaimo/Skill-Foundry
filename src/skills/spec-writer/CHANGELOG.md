@@ -2,6 +2,7 @@
 
 ## 1.0.0 - 2026-11-15
 
+- Agentic-Harness 1.0.47 alignment (under current version pending PO bump approval): added `R-spec-writer-16` (compact `### Flow & State Table` with columns `Step | User does | System shows (loading / empty / error / success) | Next or exit` plus `Entry point:`, `Exit:`, `Reload:`, and `Permissions:` lines for multi-screen/multi-step features; omitted for single-screen stories) and `R-spec-writer-17` (reading `docs/foundation/product.md` and `docs/foundation/domain.md` by reference when present, treating any `(fill me)` line as unknown under `Open questions` / Needs a decision without inventing rules). Added live eval cases `multi-step-flow-table` and `foundation-fill-me-unknown` (14 cases total), re-recorded `evals/portable.json` and `spec-then-retest` recipe.
 - First version: acceptance criteria as clauses AC-1 to AC-N in Given-When-Then form, built only from the feature request, user story or requirement text the user gives.
 - Ten core layers written as numbered clauses with defined terms; rules R-spec-writer-1 to R-spec-writer-14 in RULES.json.
 - Six fixed headings (main path, validation and errors, permissions and roles, empty/loading/disabled states, persistence after reload, limits), each shown only when the text supports a clause.

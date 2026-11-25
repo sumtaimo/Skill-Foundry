@@ -18,6 +18,16 @@ AC-2. Given ..., when ..., then .... _<source phrase>_
 ### Persistence after reload
 ### Limits
 
+### Flow & State Table   (multi-screen or multi-step features only; omit for single-screen stories)
+| Step | User does | System shows (loading / empty / error / success) | Next or exit |
+|---|---|---|---|
+| 1 | <stated action> | <stated states, or TBD (see Open questions)> | <next step or exit> |
+
+Entry point: <stated entry point, or TBD (see Open questions)>
+Exit: <stated exit, or TBD (see Open questions)>
+Reload: <stated reload behaviour, or TBD (see Open questions)>
+Permissions: <stated role/permission, or TBD (see Open questions)>
+
 ### Open questions
 - [blocking] <Heading name>: <question to the Product Owner>? Blocks: <AC-n or "<source phrase>">
 - [blocking] Conflict: <question that quotes both statements>? Blocks: "<source phrase>"
@@ -36,5 +46,5 @@ Quality bar, applied to every clause:
 5. The source phrase is in italics with underscores, is the last thing on the line, and is found in the requirement text by search.
 6. An open question is one sentence that ends with a question mark and can be answered by the Product Owner with a fact. A blocking line adds `Blocks:` and what it blocks after the question mark. Blocking lines come first, with no cap on their number; minor questions are at most three lines after them, two questions per line at most.
 7. An empty "Open questions" section reads "None."; a document with no blocking question has no `[blocking]` line; an empty "Out of scope" section reads "None stated.". Neither heading is dropped.
-8. The document holds no code, no checkbox, no table, no estimate, no priority and no closing remark after "Out of scope".
+8. The document holds no code, no checkbox, no table (except `### Flow & State Table` for multi-screen or multi-step features), no estimate, no priority and no closing remark after "Out of scope".
 9. When layer 06, clause 5 or 6 applies, the fixed sentence is the first line, before the document heading.

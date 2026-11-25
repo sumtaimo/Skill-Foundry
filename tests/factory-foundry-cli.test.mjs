@@ -425,3 +425,38 @@ test('CLI is strict about what you type: unknown options stop the command, --rol
     assert.ok(u.some((l) => /figure-craft is not installed here \(add it first: add figure-craft\)/.test(l)), u.join('\n'));
   } finally { process.chdir(cwd); }
 });
+
+test('Agentic-Harness 1.0.47 alignment: brand-craft is never touched, UX_DESIGNER with docs/ux/** keeps tools, and non-markup warning still fires', () => {
+  const p = mkdtempSync(join(tmpdir(), 'sf-ah47-'));
+  mkdirSync(join(p, '.harness', 'roles'), { recursive: true });
+  mkdirSync(join(p, '.harness', 'skills', 'brand-craft'), { recursive: true });
+  const brandCraft = '---\nname: brand-craft\nroles: ["UX_DESIGNER"]\nallowedTools: ["Read", "Edit", "Write", "Bash(git status)"]\nautoApply: false\n---\n# Brand Craft Rules\n';
+  writeFileSync(join(p, '.harness', 'skills', 'brand-craft', 'SKILL.md'), brandCraft);
+  writeFileSync(join(p, '.harness', 'roles', 'ux-designer.json'), JSON.stringify({
+    name: 'UX_DESIGNER',
+    allowedTools: ['Read', 'Glob', 'Grep', 'Edit({targetFiles})', 'Write({targetFiles})', 'Bash(git status)', 'mcp__playwright'],
+    writablePaths: ['src/**/*.css', 'src/**/*.scss', 'src/**/*.less', 'docs/ux/**'],
+  }));
+  writeFileSync(join(p, '.harness', 'roles', 'reviewer.json'), JSON.stringify({
+    name: 'REVIEWER',
+    allowedTools: ['Read', 'Glob', 'Grep', 'Bash(git diff:*)', 'Bash(git status)', 'Bash(git log:*)'],
+    writablePaths: [],
+  }));
+  for (const [f, name] of [['ba-analyst.json', 'BA_ANALYST'], ['dev-engineer.json', 'DEV_ENGINEER'], ['qa-auditor.json', 'QA_AUDITOR'], ['po-architect.json', 'PO_ARCHITECT']]) {
+    writeFileSync(join(p, '.harness', 'roles', f), JSON.stringify({ name, allowedTools: ['Read', 'Edit({targetFiles})', 'Write({targetFiles})', 'Bash(node:*)'], writablePaths: ['**'] }));
+  }
+  const cwd = process.cwd(); process.chdir(p);
+  try {
+    main(['add', '--default', '--quiet'], () => {});
+    main(['add', 'ui-craft', '--quiet'], () => {});
+    assert.equal(readFileSync(join(p, '.harness', 'skills', 'brand-craft', 'SKILL.md'), 'utf8'), brandCraft, 'brand-craft untouched by add --default / ui-craft');
+    const rep = doctorProject({ project: p });
+    assert.equal(rep.counts.problem, 0, JSON.stringify(rep.items.filter((i) => i.level === 'problem')));
+    // If someone manually maps ui-polish to UX_DESIGNER (CSS + docs/ux/**), doctor still warns it cannot edit HTML/JSX
+    addSkill('ui-polish', { project: p });
+    const ptr = join(p, '.harness', 'skills', 'ui-polish', 'SKILL.md');
+    writeFileSync(ptr, readFileSync(ptr, 'utf8').replace(/roles: \[[^\]]+\]/, 'roles: ["UX_DESIGNER"]'));
+    const rep2 = doctorProject({ project: p });
+    assert.ok(rep2.items.some((i) => i.level === 'warn' && /ui-polish edits HTML\/JSX too/.test(i.message)), JSON.stringify(rep2.items));
+  } finally { process.chdir(cwd); }
+});

@@ -137,8 +137,13 @@ export async function lintSkill(skillDir, { testsDir } = {}) {
       if (!(rel === 'SKILL.md' || rel.startsWith('layers/') || rel.startsWith('references/')) || !rel.endsWith('.md')) continue;
       const text = (await readText(file)) ?? '';
       const re = /(?:^|[\s`("'])((?:src|docs|tests)\/[\w./-]+)/g;
+      // User-project foundation and UX spec paths created by Agentic-Harness (never Skill Foundry repo files).
+      const USER_PROJECT_DOC = /^docs\/(?:foundation|ux)(?:\/|$)/;
       let m;
-      while ((m = re.exec(text))) add(rel, lineOf(text, m.index), 'chk-portable', `${m[1]} is a Skill Foundry repository path; keep the skill self-contained or set scope: factory`);
+      while ((m = re.exec(text))) {
+        if (USER_PROJECT_DOC.test(m[1])) continue;
+        add(rel, lineOf(text, m.index), 'chk-portable', `${m[1]} is a Skill Foundry repository path; keep the skill self-contained or set scope: factory`);
+      }
     }
   }
 

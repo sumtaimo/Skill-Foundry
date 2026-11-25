@@ -62,3 +62,10 @@ Honest record: the author (an AI agent) ticked this list; the owner is the final
 - [x] New eval cases `many-blocking-questions` (six blocking questions kept) and `minor-questions-merged`
 - [x] All 12 live evals, the portable check and the recipe `spec-then-retest` re-recorded with fresh agents; showcase screenshots retaken; routing not re-recorded (description unchanged)
 - [x] Honest note: the author (an AI agent) ticked this list; the owner is the final reviewer. `examples/README.md` and the reference answers in the test are hand-written, not proof
+
+## Update: Agentic-Harness 1.0.47 alignment (2026-11-25, version stays 1.0.0)
+- [x] Added rule `R-spec-writer-16`: multi-step/multi-screen features include a compact `### Flow & State Table` (`Step | User does | System shows (loading / empty / error / success) | Next or exit`) plus 1 line each for `Entry point:`, `Exit:`, `Reload:`, and `Permissions:`; single-screen stories omit it
+- [x] Added rule `R-spec-writer-17`: when `docs/foundation/product.md` or `docs/foundation/domain.md` is present, read it by reference for product context and treat any `(fill me)` line as unknown under `### Open questions` (`Needs a decision`) without inventing rules
+- [x] Added two new eval cases (`multi-step-flow-table`, `foundation-fill-me-unknown`) and recorded live answers from fresh `agy` agents (`14/14` pass in `node src/factory/live-evals.mjs spec-writer`)
+- [x] Re-recorded `evals/portable.json` (`usedSkill: true`, `leakedRepoRules: false`, `touchedRepo: []`) and `src/factory/recipes/spec-then-retest.json` (`used: ["spec-writer", "test-planner"]`) with fresh `agy` agents; routing not re-recorded because frontmatter `description:` did not change
+- [x] Honest note: new live recordings (`multi-step-flow-table`, `foundation-fill-me-unknown`), `evals/portable.json`, and `spec-then-retest.json` came from fresh `agy` agents; reference answers in `tests/spec-writer.test.mjs` are hand-written and are not proof

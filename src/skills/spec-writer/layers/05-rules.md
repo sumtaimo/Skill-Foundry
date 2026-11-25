@@ -1,6 +1,6 @@
 # Layer 05: Rules
 
-1. Apply every rule in RULES.json (R-spec-writer-1 to R-spec-writer-15).
+1. Apply every rule in RULES.json (R-spec-writer-1 to R-spec-writer-17).
 2. R-spec-writer-1: read each clause and remove every behaviour, value, role, message, state or limit the requirement text does not state. What is removed becomes an open question.
 3. R-spec-writer-2: each clause is one line with "Given", "when" and "then" once each, one action and one observable result.
 4. R-spec-writer-3: each clause ends with an italic source phrase copied word for word from the requirement text.

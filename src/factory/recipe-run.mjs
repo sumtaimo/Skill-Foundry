@@ -8,12 +8,12 @@
  * @governed-by PO_ARCHITECT
  */
 import { readFileSync, writeFileSync, mkdtempSync, existsSync } from 'node:fs';
-import { join, resolve, dirname } from 'node:path';
+import { join, resolve, dirname, basename } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { installSkill } from './install.mjs';
+import { addSkill, writeRules } from './foundry.mjs';
 import { parseStream, behaviourHash, REPO_MARKERS } from './portable-check.mjs';
 import { isQuotaError, winCommandLine, noHookArgs } from './live-evals.mjs';
 
@@ -81,12 +81,20 @@ export function checkRecipe(recipe, root = REPO_ROOT) {
 /** Install every skill of the recipe into one empty project and have a real agent answer the request. */
 export async function runRecipe(recipe, { engine = 'claude', timeoutMs = 900000 } = {}) {
   const dir = mkdtempSync(join(tmpdir(), `recipe-${recipe.id}-`));
-  for (const s of recipe.skills) await installSkill(s, { projectRoot: dir, force: true });
-  const args = ['-p', '--output-format', 'stream-json', '--verbose', '--allowedTools', 'Read', 'Write', 'Edit', 'Glob', 'Grep', 'Skill', 'Bash(node:*)', 'Bash(ls:*)', ...noHookArgs()];
-  const spawnOpts = { cwd: dir, input: recipe.prompt, encoding: 'utf8', timeout: timeoutMs, maxBuffer: 1 << 28 };
-  const r = process.platform === 'win32'
-    ? spawnSync(winCommandLine(engine, args), { ...spawnOpts, shell: true })
-    : spawnSync(engine, args, spawnOpts);
+  for (const s of recipe.skills) addSkill(s, { project: dir, force: true });
+  writeRules({ project: dir });
+  const isAgy = /^agy(?:\.exe)?$/i.test(basename(engine));
+  let r;
+  if (isAgy) {
+    const args = ['-p', recipe.prompt, '--output-format', 'stream-json', '--mode', 'auto', '--disable-slash-commands'];
+    r = spawnSync(engine, args, { cwd: dir, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', timeout: timeoutMs, maxBuffer: 1 << 28 });
+  } else {
+    const args = ['-p', '--output-format', 'stream-json', '--verbose', '--allowedTools', 'Read', 'Write', 'Edit', 'Glob', 'Grep', 'Skill', 'Bash(node:*)', 'Bash(ls:*)', ...noHookArgs()];
+    const spawnOpts = { cwd: dir, input: recipe.prompt, encoding: 'utf8', timeout: timeoutMs, maxBuffer: 1 << 28 };
+    r = process.platform === 'win32'
+      ? spawnSync(winCommandLine(engine, args), { ...spawnOpts, shell: true })
+      : spawnSync(engine, args, spawnOpts);
+  }
   if (r.error) throw r.error;
   const s = parseStream(r.stdout, recipe.skills[0]);
   return { id: recipe.id, prompt: recipe.prompt, project: dir, exit: r.status, used: skillsUsed(s.tools, recipe.skills), leakedRepoRules: REPO_MARKERS.test(s.final), touchedRepo: s.touchedRepo, cost: s.cost, answer: s.final };

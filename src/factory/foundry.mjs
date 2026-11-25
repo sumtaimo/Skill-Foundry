@@ -114,12 +114,20 @@ const pointerTools = (s) => (hasEngine(s) ? ['Edit', 'Write', 'Bash'] : []);
  */
 const STARTER_MARK = 'starter-stub: agentic-harness';
 const STARTER_SHA = {
-  'spec-writer': ['7fb11973a154c1caa78e5451d023eeb203a62208d6c0066a22d8195319546ebd'],
+  'spec-writer': [
+    '90b9bddfc8cff8b02c4ab6f78d1abb750c1ba8963e14d1b0c8e58cbff57026e7',
+    'f14d673bad4efe2ef816f55dd6f894a06603d7805eeec73dde88aa902ff6ca21',
+    '00af0aa3e40020c29a2fffe323b8b90046aac84d7c3ad996a78247e82a989812',
+    '7fb11973a154c1caa78e5451d023eeb203a62208d6c0066a22d8195319546ebd',
+  ],
   'ui-craft': ['70dc022a35d83d96feb8e58f4d42adfd202367a4371c396f44d16b513407ad93'],
 };
 export function isStarterStub(name, text) {
   if (text.includes(STARTER_MARK)) return true;
-  return (STARTER_SHA[name] ?? []).includes(sha(Buffer.from(text.replace(/\r\n?/g, '\n').trim())));
+  const list = STARTER_SHA[name] ?? [];
+  if (!list.length) return false;
+  const norm = text.replace(/\r\n?/g, '\n');
+  return list.includes(sha(Buffer.from(norm.trim()))) || list.includes(sha(Buffer.from(norm)));
 }
 
 /** Capability flag, not a version number: does the project's harness match keywords for every member (also leads with an explicit skills list)? */
@@ -399,8 +407,8 @@ export function doctorProject({ project = process.cwd(), root = REPO } = {}) {
         if (mode === 'optional') add('info', 'harness', `${x.name} has an engine/*.mjs script; role ${role.name} may not run node, so it uses the documented script-less fallback (less precise). Give the engine step to DEV_ENGINEER`);
         else add('warn', 'harness', `${x.name} runs engine/*.mjs scripts but role ${role.name} may not run node`, `add "Bash(node:*)" to allowedTools in .harness/roles/${role.file} (project owner), or let DEV_ENGINEER run the engine step`);
       }
-      const cssOnly = (role) => (role.writablePaths || []).length && role.writablePaths.every((w) => /\.(css|scss|less)\b/.test(w));
-      if (['ui-polish', 'a11y-audit'].includes(x.name)) for (const r of known) if (cssOnly(roles[String(r).toUpperCase()])) add('warn', 'harness', `${x.name} edits HTML/JSX too, but role ${r} may only write CSS`, `widen that role's writablePaths in .harness/roles (project owner) or give ${x.name} to DEV_ENGINEER`);
+      const nonMarkupOnly = (role) => (role.writablePaths || []).length && role.writablePaths.every((w) => /\.(css|scss|less|md)\b|^docs\/ux(?:\/|$)/.test(w));
+      if (['ui-polish', 'a11y-audit'].includes(x.name)) for (const r of known) if (nonMarkupOnly(roles[String(r).toUpperCase()])) add('warn', 'harness', `${x.name} edits HTML/JSX too, but role ${r} may only write style/UX-doc files`, `widen that role's writablePaths in .harness/roles (project owner) or give ${x.name} to DEV_ENGINEER`);
     }
     const team = readJson(join(project, '.harness', 'team.json'));
     // Capability flag, not a version number: a harness that exports SKILL_COMPOSITION = 'additive-union' ADDS a lead's explicit skills to autoApply skills.
