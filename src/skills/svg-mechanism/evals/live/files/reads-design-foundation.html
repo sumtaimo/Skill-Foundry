@@ -1,0 +1,936 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Agent Loop — Animated 2D Mechanism SVG</title>
+  <!-- Bind directly to the project's existing design tokens without modifying design/tokens.css -->
+  <link rel="stylesheet" href="design/tokens.css">
+  <style>
+    /*
+     * Safe fallback values used ONLY when design/tokens.css is absent.
+     * Existing --color-* variables from design/tokens.css are never overwritten
+     * and are referenced directly inside CSS and inline SVG attributes.
+     */
+    :root {
+      color-scheme: light dark;
+      --mech-surface-default: #f8fafc;
+      --mech-surface-raised: #ffffff;
+      --mech-text-default: #0f172a;
+      --mech-text-muted: #475569;
+      --mech-border-default: #64748b;
+      --mech-action-primary-bg: #1d4ed8;
+      --mech-warning-text: #b45309;
+    }
+
+    :root[data-theme="dark"] {
+      --mech-surface-default: #0b1120;
+      --mech-surface-raised: #162033;
+      --mech-text-default: #f8fafc;
+      --mech-text-muted: #cbd5e1;
+      --mech-border-default: #64748b;
+      --mech-action-primary-bg: #38bdf8;
+      --mech-warning-text: #fbbf24;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --mech-surface-default: #0b1120;
+        --mech-surface-raised: #162033;
+        --mech-text-default: #f8fafc;
+        --mech-text-muted: #cbd5e1;
+        --mech-border-default: #64748b;
+        --mech-action-primary-bg: #38bdf8;
+        --mech-warning-text: #fbbf24;
+      }
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: clamp(12px, 3vw, 24px);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--color-surface-default, var(--mech-surface-default));
+      color: var(--color-text-default, var(--mech-text-default));
+      line-height: 1.5;
+    }
+
+    .mech-figure {
+      margin: 0 auto;
+      max-width: 960px;
+      width: 100%;
+      background-color: var(--color-surface-raised, var(--mech-surface-raised));
+      border: 1px solid var(--color-border-default, var(--mech-border-default));
+      border-radius: 16px;
+      padding: clamp(12px, 2.5vw, 20px);
+    }
+
+    .mech-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .mech-heading {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--color-text-default, var(--mech-text-default));
+    }
+
+    .mech-sub {
+      margin: 2px 0 0;
+      font-size: 0.875rem;
+      color: var(--color-text-muted, var(--mech-text-muted));
+    }
+
+    .mech-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .mech-btn {
+      appearance: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      min-width: 44px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--color-border-default, var(--mech-border-default));
+      background-color: var(--color-surface-default, var(--mech-surface-default));
+      color: var(--color-text-default, var(--mech-text-default));
+      font: inherit;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 150ms ease, transform 150ms ease, border-color 150ms ease;
+    }
+
+    .mech-btn:hover {
+      border-color: var(--color-action-primary-bg, var(--mech-action-primary-bg));
+    }
+
+    .mech-btn:focus-visible {
+      outline: 2px solid var(--color-action-primary-bg, var(--mech-action-primary-bg));
+      outline-offset: 2px;
+    }
+
+    .mech-btn[aria-pressed="true"] {
+      border-color: var(--color-action-primary-bg, var(--mech-action-primary-bg));
+      box-shadow: inset 0 0 0 1px var(--color-action-primary-bg, var(--mech-action-primary-bg));
+    }
+
+    .mech-btn-retry[aria-pressed="true"] {
+      border-color: var(--color-warning-text, var(--mech-warning-text));
+      box-shadow: inset 0 0 0 1px var(--color-warning-text, var(--mech-warning-text));
+      color: var(--color-warning-text, var(--mech-warning-text));
+    }
+
+    .mech-stage-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .mech-viewport {
+      width: 100%;
+      overflow: hidden;
+      border-radius: 12px;
+      border: 1px solid var(--color-border-default, var(--mech-border-default));
+      background-color: var(--color-surface-default, var(--mech-surface-default));
+    }
+
+    .mech-svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-width: 100%;
+      font-family: inherit;
+    }
+
+    /* GPU-only motion: stroke-dashoffset, transform, and opacity */
+    @keyframes mech-flow {
+      from { stroke-dashoffset: 64; }
+      to { stroke-dashoffset: 0; }
+    }
+
+    @keyframes mech-pulse {
+      0%, 100% {
+        opacity: 0.45;
+        transform: scale(0.92);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.12);
+      }
+    }
+
+    .signal-stream {
+      stroke-dasharray: 14 18;
+      stroke-linecap: round;
+      animation: mech-flow 2.4s linear infinite;
+    }
+
+    .signal-s1 { animation-delay: 0s; }
+    .signal-s2 { animation-delay: 0.45s; }
+    .signal-s3 { animation-delay: 0.9s; }
+
+    .signal-retry {
+      stroke-dasharray: 12 20;
+      stroke-linecap: round;
+      animation: mech-flow 3.2s linear infinite;
+      animation-delay: 1.35s;
+    }
+
+    .signal-node-pulse {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: mech-pulse 2.6s ease-in-out infinite;
+    }
+
+    .pulse-1 { animation-delay: 0s; }
+    .pulse-2 { animation-delay: 0.55s; }
+    .pulse-3 { animation-delay: 1.1s; }
+    .pulse-4 { animation-delay: 1.65s; }
+
+    /* Interactive SVG node focus & stage inspection */
+    .node-card {
+      cursor: pointer;
+      outline: none;
+    }
+
+    .node-focus-ring {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 140ms ease;
+    }
+
+    .node-card:focus-visible .node-focus-ring,
+    .node-card:hover .node-focus-ring {
+      opacity: 1;
+    }
+
+    [data-stage] {
+      transition: opacity 180ms ease;
+    }
+
+    .mech-figure[data-active-stage="planner"] [data-stage]:not([data-stage~="planner"]),
+    .mech-figure[data-active-stage="executor"] [data-stage]:not([data-stage~="executor"]),
+    .mech-figure[data-active-stage="verifier"] [data-stage]:not([data-stage~="verifier"]),
+    .mech-figure[data-active-stage="commit"] [data-stage]:not([data-stage~="commit"]),
+    .mech-figure[data-active-stage="retry"] [data-stage]:not([data-stage~="retry"]) {
+      opacity: 0.58;
+    }
+
+    .mech-figure[data-active-stage="planner"] .node-card[data-stage~="planner"] .node-focus-ring,
+    .mech-figure[data-active-stage="executor"] .node-card[data-stage~="executor"] .node-focus-ring,
+    .mech-figure[data-active-stage="verifier"] .node-card[data-stage~="verifier"] .node-focus-ring,
+    .mech-figure[data-active-stage="commit"] .node-card[data-stage~="commit"] .node-focus-ring {
+      opacity: 1;
+    }
+
+    /* Play/Pause state */
+    .mech-figure[data-paused="true"] .signal-stream,
+    .mech-figure[data-paused="true"] .signal-retry,
+    .mech-figure[data-paused="true"] .signal-node-pulse {
+      animation-play-state: paused;
+    }
+
+    /* Static clarity fallback for prefers-reduced-motion */
+    @media (prefers-reduced-motion: reduce) {
+      .signal-stream,
+      .signal-retry,
+      .signal-node-pulse {
+        animation: none !important;
+        animation-play-state: paused !important;
+        opacity: 0.9 !important;
+      }
+    }
+
+    .mech-caption {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--color-border-default, var(--mech-border-default));
+      background-color: var(--color-surface-default, var(--mech-surface-default));
+      font-size: 0.875rem;
+      color: var(--color-text-muted, var(--mech-text-muted));
+    }
+
+    .mech-caption strong {
+      color: var(--color-text-default, var(--mech-text-default));
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <figure class="mech-figure" data-paused="false" data-active-stage="all">
+      <div class="mech-header">
+        <div>
+          <h1 class="mech-heading">AI Agent Loop</h1>
+          <p class="mech-sub">Planner &rarr; Executor &rarr; Verifier &rarr; Commit, with retry loop on check failure</p>
+        </div>
+        <button
+          type="button"
+          class="mech-btn"
+          data-mech-toggle
+          aria-pressed="false"
+        >Pause animation</button>
+      </div>
+
+      <div class="mech-controls" role="group" aria-label="Inspect agent loop stages">
+        <div class="mech-stage-group">
+          <button type="button" class="mech-btn" data-stage-btn="all" aria-pressed="true">All stages</button>
+          <button type="button" class="mech-btn" data-stage-btn="planner" aria-pressed="false">1. Planner</button>
+          <button type="button" class="mech-btn" data-stage-btn="executor" aria-pressed="false">2. Executor</button>
+          <button type="button" class="mech-btn" data-stage-btn="verifier" aria-pressed="false">3. Verifier</button>
+          <button type="button" class="mech-btn" data-stage-btn="commit" aria-pressed="false">4. Commit</button>
+          <button type="button" class="mech-btn mech-btn-retry" data-stage-btn="retry" aria-pressed="false">Retry loop</button>
+        </div>
+      </div>
+
+      <div class="mech-viewport">
+        <svg
+          class="mech-svg"
+          viewBox="0 0 920 400"
+          width="100%"
+          preserveAspectRatio="xMidYMid meet"
+          role="img"
+          aria-labelledby="agent-loop-title agent-loop-desc"
+        >
+          <title id="agent-loop-title">AI Agent Loop Architecture</title>
+          <desc id="agent-loop-desc">
+            A 2D animated flow diagram of an AI Agent Loop with four stages from left to right:
+            1. Planner sends a plan to 2. Executor, which passes results to 3. Verifier.
+            When checks pass, flow advances to 4. Commit. When checks fail, a retry loop routes
+            from Verifier back to Planner.
+          </desc>
+
+          <defs>
+            <linearGradient id="agent-node-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--color-surface-raised, var(--mech-surface-raised))" />
+              <stop offset="100%" stop-color="var(--color-surface-default, var(--mech-surface-default))" />
+            </linearGradient>
+
+            <linearGradient id="agent-signal-primary" gradientUnits="userSpaceOnUse" x1="196" y1="156" x2="720" y2="156">
+              <stop offset="0%" stop-color="var(--color-action-primary-bg, var(--mech-action-primary-bg))" stop-opacity="0.75" />
+              <stop offset="100%" stop-color="var(--color-action-primary-bg, var(--mech-action-primary-bg))" stop-opacity="1" />
+            </linearGradient>
+
+            <linearGradient id="agent-signal-retry" gradientUnits="userSpaceOnUse" x1="574" y1="300" x2="118" y2="300">
+              <stop offset="0%" stop-color="var(--color-warning-text, var(--mech-warning-text))" stop-opacity="0.75" />
+              <stop offset="100%" stop-color="var(--color-warning-text, var(--mech-warning-text))" stop-opacity="1" />
+            </linearGradient>
+
+            <pattern id="agent-grid" width="24" height="24" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1" fill="var(--color-border-default, var(--mech-border-default))" opacity="0.35" />
+            </pattern>
+
+            <marker
+              id="agent-arrow-primary"
+              viewBox="0 0 10 10"
+              refX="8"
+              refY="5"
+              markerWidth="7"
+              markerHeight="7"
+              orient="auto-start-reverse"
+            >
+              <path d="M 1 2 L 8 5 L 1 8 Z" fill="var(--color-action-primary-bg, var(--mech-action-primary-bg))" />
+            </marker>
+
+            <marker
+              id="agent-arrow-retry"
+              viewBox="0 0 10 10"
+              refX="8"
+              refY="5"
+              markerWidth="7"
+              markerHeight="7"
+              orient="auto-start-reverse"
+            >
+              <path d="M 1 2 L 8 5 L 1 8 Z" fill="var(--color-warning-text, var(--mech-warning-text))" />
+            </marker>
+          </defs>
+
+          <!-- Layer 1: Backdrop & coordinate dot grid -->
+          <g class="layer-backdrop">
+            <rect x="0" y="0" width="920" height="400" fill="var(--color-surface-default, var(--mech-surface-default))" />
+            <rect x="0" y="0" width="920" height="400" fill="url(#agent-grid)" />
+          </g>
+
+          <!-- Layer 2: Static directional tracks -->
+          <g class="layer-tracks" fill="none">
+            <!-- Planner -> Executor -->
+            <path
+              data-stage="planner executor"
+              d="M 196 156 L 264 156"
+              stroke="var(--color-border-default, var(--mech-border-default))"
+              stroke-width="2.5"
+              marker-end="url(#agent-arrow-primary)"
+            />
+            <!-- Executor -> Verifier -->
+            <path
+              data-stage="executor verifier"
+              d="M 424 156 L 492 156"
+              stroke="var(--color-border-default, var(--mech-border-default))"
+              stroke-width="2.5"
+              marker-end="url(#agent-arrow-primary)"
+            />
+            <!-- Verifier -> Commit (check pass) -->
+            <path
+              data-stage="verifier commit"
+              d="M 652 156 L 720 156"
+              stroke="var(--color-border-default, var(--mech-border-default))"
+              stroke-width="2.5"
+              marker-end="url(#agent-arrow-primary)"
+            />
+            <!-- Verifier -> Planner (retry loop on check failure) -->
+            <path
+              data-stage="verifier retry planner"
+              d="M 574 208 L 574 284 Q 574 300 558 300 L 134 300 Q 118 300 118 284 L 118 212"
+              stroke="var(--color-warning-text, var(--mech-warning-text))"
+              stroke-width="2"
+              stroke-dasharray="6 6"
+              opacity="0.55"
+              marker-end="url(#agent-arrow-retry)"
+            />
+          </g>
+
+          <!-- Layer 3: Animated signal streams -->
+          <g class="layer-signals" fill="none">
+            <path
+              class="signal-stream signal-s1"
+              data-stage="planner executor"
+              d="M 196 156 L 258 156"
+              stroke="url(#agent-signal-primary)"
+              stroke-width="3.5"
+            />
+            <path
+              class="signal-stream signal-s2"
+              data-stage="executor verifier"
+              d="M 424 156 L 486 156"
+              stroke="url(#agent-signal-primary)"
+              stroke-width="3.5"
+            />
+            <path
+              class="signal-stream signal-s3"
+              data-stage="verifier commit"
+              d="M 652 156 L 714 156"
+              stroke="url(#agent-signal-primary)"
+              stroke-width="3.5"
+            />
+            <path
+              class="signal-retry"
+              data-stage="verifier retry planner"
+              d="M 574 208 L 574 284 Q 574 300 558 300 L 134 300 Q 118 300 118 284 L 118 218"
+              stroke="url(#agent-signal-retry)"
+              stroke-width="3.5"
+            />
+          </g>
+
+          <!-- Layer 4: Stage nodes & edge badges -->
+          <g class="layer-nodes">
+            <!-- Stage 1: Planner -->
+            <g
+              class="node-card"
+              data-stage="planner retry"
+              data-node-stage="planner"
+              tabindex="0"
+              role="button"
+              aria-label="Stage 1: Planner"
+            >
+              <rect
+                class="node-focus-ring"
+                x="35"
+                y="99"
+                width="166"
+                height="114"
+                rx="16"
+                fill="none"
+                stroke="var(--color-action-primary-bg, var(--mech-action-primary-bg))"
+                stroke-width="2.5"
+              />
+              <rect
+                x="40"
+                y="104"
+                width="156"
+                height="104"
+                rx="12"
+                fill="url(#agent-node-grad)"
+                stroke="var(--color-border-default, var(--mech-border-default))"
+                stroke-width="1.5"
+              />
+              <rect
+                x="54"
+                y="116"
+                width="28"
+                height="22"
+                rx="11"
+                fill="var(--color-surface-default, var(--mech-surface-default))"
+                stroke="var(--color-action-primary-bg, var(--mech-action-primary-bg))"
+                stroke-width="1.5"
+              />
+              <circle
+                class="signal-node-pulse pulse-1"
+                cx="178"
+                cy="127"
+                r="4.5"
+                fill="var(--color-action-primary-bg, var(--mech-action-primary-bg))"
+              />
+            </g>
+
+            <!-- Stage 2: Executor -->
+            <g
+              class="node-card"
+              data-stage="executor"
+              data-node-stage="executor"
+              tabindex="0"
+              role="button"
+              aria-label="Stage 2: Executor"
+            >
+              <rect
+                class="node-focus-ring"
+                x="263"
+                y="99"
+                width="166"
+                height="114"
+                rx="16"
+                fill="none"
+                stroke="var(--color-action-primary-bg, var(--mech-action-primary-bg))"
+                stroke-width="2.5"
+              />
+              <rect
+                x="268"
+                y="104"
+                width="156"
+                height="104"
+                rx="12"
+                fill="url(#agent-node-grad)"
+                stroke="var(--color-border-default, var(--mech-border-default))"
+                stroke-width="1.5"
+              />
+              <rect
+                x="282"
+                y="116"
+                width="28"
+                height="22"
+                rx="11"
+                fill="var(--color-surface-default, var(--mech-surface-default))"
+                stroke="var(--color-action-primary-bg, var(--mech-action-primary-bg))"
+                stroke-width="1.5"
+              />
+              <circle
+                class="signal-node-pulse pulse-2"
+                cx="406"
+                cy="127"
+                r="4.5"
+                fill="var(--color-action-primary-bg, var(--mech-action-primary-bg))"
+              />
+            </g>
+
+            <!-- Stage 3: Verifier -->
+            <g
+              class="node-card"
+              data-stage="verifier retry"
+              data-node-stage="verifier"
+              tabindex="0"
+              role="button"
+              aria-label="Stage 3: Verifier"
+            >
+              <rect
+                class="node-focus-ring"
+                x="491"
+                y="99"
+                width="166"
+                height="114"
+                rx="16"
+                fill="none"
+                stroke="var(--color-action-primary-bg, var(--mech-action-primary-bg))"
+                stroke-width="2.5"
+              />
+              <rect
+                x="496"
+                y="104"
+                width="156"
+                height="104"
+                rx="12"
+                fill="url(#agent-node-grad)"
+                stroke="var(--color-border-default, var(--mech-border-default))"
+                stroke-width="1.5"
+              />
+              <rect
+                x="510"
+                y="116"
+                width="28"
+                height="22"
+                rx="11"
+                fill="var(--color-surface-default, var(--mech-surface-default))"
+                stroke="var(--color-action-primary-bg, var(--mech-action-primary-bg))"
+                stroke-width="1.5"
+              />
+              <circle
+                class="signal-node-pulse pulse-3"
+                cx="634"
+                cy="127"
+                r="4.5"
+                fill="var(--color-action-primary-bg, var(--mech-action-primary-bg))"
+              />
+            </g>
+
+            <!-- Stage 4: Commit -->
+            <g
+              class="node-card"
+              data-stage="commit"
+              data-node-stage="commit"
+              tabindex="0"
+              role="button"
+              aria-label="Stage 4: Commit"
+            >
+              <rect
+                class="node-focus-ring"
+                x="719"
+                y="99"
+                width="166"
+                height="114"
+                rx="16"
+                fill="none"
+                stroke="var(--color-action-primary-bg, var(--mech-action-primary-bg))"
+                stroke-width="2.5"
+              />
+              <rect
+                x="724"
+                y="104"
+                width="156"
+                height="104"
+                rx="12"
+                fill="url(#agent-node-grad)"
+                stroke="var(--color-border-default, var(--mech-border-default))"
+                stroke-width="1.5"
+              />
+              <rect
+                x="738"
+                y="116"
+                width="28"
+                height="22"
+                rx="11"
+                fill="var(--color-surface-default, var(--mech-surface-default))"
+                stroke="var(--color-action-primary-bg, var(--mech-action-primary-bg))"
+                stroke-width="1.5"
+              />
+              <circle
+                class="signal-node-pulse pulse-4"
+                cx="862"
+                cy="127"
+                r="4.5"
+                fill="var(--color-action-primary-bg, var(--mech-action-primary-bg))"
+              />
+            </g>
+
+            <!-- Edge Pill: Check Pass (above Verifier -> Commit track) -->
+            <rect
+              data-stage="verifier commit"
+              x="664"
+              y="120"
+              width="48"
+              height="24"
+              rx="12"
+              fill="var(--color-surface-raised, var(--mech-surface-raised))"
+              stroke="var(--color-action-primary-bg, var(--mech-action-primary-bg))"
+              stroke-width="1.5"
+            />
+
+            <!-- Edge Pill: Retry on check failure (above Retry track) -->
+            <rect
+              data-stage="verifier retry planner"
+              x="256"
+              y="256"
+              width="180"
+              height="28"
+              rx="14"
+              fill="var(--color-surface-raised, var(--mech-surface-raised))"
+              stroke="var(--color-warning-text, var(--mech-warning-text))"
+              stroke-width="1.5"
+            />
+
+            <!-- Legend swatches -->
+            <line
+              x1="40"
+              y1="356"
+              x2="68"
+              y2="356"
+              stroke="var(--color-action-primary-bg, var(--mech-action-primary-bg))"
+              stroke-width="3"
+              stroke-linecap="round"
+            />
+            <line
+              x1="340"
+              y1="356"
+              x2="368"
+              y2="356"
+              stroke="var(--color-warning-text, var(--mech-warning-text))"
+              stroke-width="3"
+              stroke-dasharray="6 5"
+              stroke-linecap="round"
+            />
+          </g>
+
+          <!-- Layer 5: Typography & labels (all coordinates within >= 40px safe margin) -->
+          <g class="layer-labels" pointer-events="none">
+            <text
+              x="40"
+              y="52"
+              font-size="13"
+              font-weight="600"
+              letter-spacing="0.04em"
+              fill="var(--color-text-muted, var(--mech-text-muted))"
+            >AI AGENT EXECUTION LOOP</text>
+
+            <!-- Stage 1 labels -->
+            <g data-stage="planner retry">
+              <text
+                x="68"
+                y="131"
+                text-anchor="middle"
+                font-size="12"
+                font-weight="700"
+                fill="var(--color-text-default, var(--mech-text-default))"
+              >1</text>
+              <text
+                x="118"
+                y="166"
+                text-anchor="middle"
+                font-size="16"
+                font-weight="700"
+                fill="var(--color-text-default, var(--mech-text-default))"
+              >Planner</text>
+              <text
+                x="118"
+                y="188"
+                text-anchor="middle"
+                font-size="12"
+                fill="var(--color-text-muted, var(--mech-text-muted))"
+              >Plan next step</text>
+            </g>
+
+            <!-- Stage 2 labels -->
+            <g data-stage="executor">
+              <text
+                x="296"
+                y="131"
+                text-anchor="middle"
+                font-size="12"
+                font-weight="700"
+                fill="var(--color-text-default, var(--mech-text-default))"
+              >2</text>
+              <text
+                x="346"
+                y="166"
+                text-anchor="middle"
+                font-size="16"
+                font-weight="700"
+                fill="var(--color-text-default, var(--mech-text-default))"
+              >Executor</text>
+              <text
+                x="346"
+                y="188"
+                text-anchor="middle"
+                font-size="12"
+                fill="var(--color-text-muted, var(--mech-text-muted))"
+              >Run planned work</text>
+            </g>
+
+            <!-- Stage 3 labels -->
+            <g data-stage="verifier retry">
+              <text
+                x="524"
+                y="131"
+                text-anchor="middle"
+                font-size="12"
+                font-weight="700"
+                fill="var(--color-text-default, var(--mech-text-default))"
+              >3</text>
+              <text
+                x="574"
+                y="166"
+                text-anchor="middle"
+                font-size="16"
+                font-weight="700"
+                fill="var(--color-text-default, var(--mech-text-default))"
+              >Verifier</text>
+              <text
+                x="574"
+                y="188"
+                text-anchor="middle"
+                font-size="12"
+                fill="var(--color-text-muted, var(--mech-text-muted))"
+              >Check output</text>
+            </g>
+
+            <!-- Stage 4 labels -->
+            <g data-stage="commit">
+              <text
+                x="752"
+                y="131"
+                text-anchor="middle"
+                font-size="12"
+                font-weight="700"
+                fill="var(--color-text-default, var(--mech-text-default))"
+              >4</text>
+              <text
+                x="802"
+                y="166"
+                text-anchor="middle"
+                font-size="16"
+                font-weight="700"
+                fill="var(--color-text-default, var(--mech-text-default))"
+              >Commit</text>
+              <text
+                x="802"
+                y="188"
+                text-anchor="middle"
+                font-size="12"
+                fill="var(--color-text-muted, var(--mech-text-muted))"
+              >Accept &amp; commit</text>
+            </g>
+
+            <!-- Edge labels -->
+            <text
+              data-stage="verifier commit"
+              x="688"
+              y="136"
+              text-anchor="middle"
+              font-size="12"
+              font-weight="600"
+              fill="var(--color-text-default, var(--mech-text-default))"
+            >Pass</text>
+
+            <text
+              data-stage="verifier retry planner"
+              x="346"
+              y="274"
+              text-anchor="middle"
+              font-size="12"
+              font-weight="600"
+              fill="var(--color-warning-text, var(--mech-warning-text))"
+            >Check failure &middot; Retry</text>
+
+            <!-- Legend labels -->
+            <text
+              x="76"
+              y="360"
+              font-size="12"
+              fill="var(--color-text-muted, var(--mech-text-muted))"
+            >Primary flow (Planner to Commit)</text>
+            <text
+              x="376"
+              y="360"
+              font-size="12"
+              fill="var(--color-text-muted, var(--mech-text-muted))"
+            >Retry loop on check failure</text>
+          </g>
+        </svg>
+      </div>
+
+      <figcaption class="mech-caption" data-mech-status aria-live="polite">
+        <strong>All stages:</strong> Signals flow from Planner &rarr; Executor &rarr; Verifier &rarr; Commit, or loop back from Verifier to Planner on check failure.
+      </figcaption>
+    </figure>
+  </main>
+
+  <script>
+    (() => {
+      const figure = document.querySelector('.mech-figure');
+      const svg = figure.querySelector('svg');
+      const toggleBtn = figure.querySelector('[data-mech-toggle]');
+      const statusEl = figure.querySelector('[data-mech-status]');
+      const stageButtons = [...figure.querySelectorAll('[data-stage-btn]')];
+      const svgNodes = [...figure.querySelectorAll('[data-node-stage]')];
+
+      const stageCopy = {
+        all: ['All stages', 'Signals flow from Planner -> Executor -> Verifier -> Commit, or loop back from Verifier to Planner on check failure.'],
+        planner: ['1. Planner', 'Defines the next plan and sends work forward to Executor; also receives retry feedback when verification fails.'],
+        executor: ['2. Executor', 'Receives the plan from Planner, performs the work, and hands output to Verifier.'],
+        verifier: ['3. Verifier', 'Runs checks on Executor output; advances to Commit on pass or routes back to Planner on check failure.'],
+        commit: ['4. Commit', 'Finalizes verified output once Verifier checks pass.'],
+        retry: ['Retry loop', 'Triggered on Verifier check failure; routes back to Planner for another pass through the loop.'],
+      };
+
+      const setStatus = (heading, detail) => {
+        statusEl.textContent = '';
+        const strong = document.createElement('strong');
+        strong.textContent = heading + ': ';
+        statusEl.append(strong, document.createTextNode(detail));
+      };
+
+      const setPaused = (paused, announce = true) => {
+        figure.dataset.paused = String(paused);
+        toggleBtn.setAttribute('aria-pressed', String(paused));
+        toggleBtn.textContent = paused ? 'Play animation' : 'Pause animation';
+        if (typeof svg.pauseAnimations === 'function') {
+          if (paused) svg.pauseAnimations();
+          else svg.unpauseAnimations();
+        }
+        if (announce) {
+          setStatus(
+            paused ? 'Animation paused' : 'Animation playing',
+            paused
+              ? 'Motion is paused; static directional arrows and numbered stages remain visible.'
+              : 'Signal streams resumed along the primary and retry paths.'
+          );
+        }
+      };
+
+      const setStage = (stageKey) => {
+        const key = stageCopy[stageKey] ? stageKey : 'all';
+        figure.dataset.activeStage = key;
+        for (const btn of stageButtons) {
+          btn.setAttribute('aria-pressed', String(btn.dataset.stageBtn === key));
+        }
+        const [title, detail] = stageCopy[key];
+        setStatus(title, detail);
+      };
+
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      if (reducedMotion.matches) {
+        setPaused(true, false);
+        setStatus(
+          'Reduced motion active',
+          'Continuous signal animation is disabled; directional arrows and numbered stages show the full loop statically.'
+        );
+      }
+
+      toggleBtn.addEventListener('click', () => {
+        setPaused(figure.dataset.paused !== 'true', true);
+      });
+
+      for (const btn of stageButtons) {
+        btn.addEventListener('click', () => setStage(btn.dataset.stageBtn));
+      }
+
+      for (const node of svgNodes) {
+        const activate = () => setStage(node.dataset.nodeStage);
+        node.addEventListener('click', activate);
+        node.addEventListener('focus', activate);
+        node.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            activate();
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="svg-mechanism cover">
+  <rect x="0" y="0" width="640" height="360" fill="var(--cover-bg)"/>
+  <line x1="176" y1="152" x2="246" y2="152" stroke="currentColor" stroke-width="2" opacity="0.45"/>
+  <line x1="394" y1="152" x2="464" y2="152" stroke="currentColor" stroke-width="2" opacity="0.45"/>
+  <path d="M 526 200 L 526 266 L 398 266" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="6 5" opacity="0.5"/>
+  <line x1="186" y1="152" x2="234" y2="152" stroke="var(--cover-accent)" stroke-width="4" stroke-linecap="round"/>
+  <line x1="404" y1="152" x2="452" y2="152" stroke="var(--cover-accent)" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="238" cy="152" r="5" fill="var(--cover-accent)"/>
+  <circle cx="456" cy="152" r="5" fill="var(--cover-accent)"/>
+  <circle cx="446" cy="266" r="4" fill="var(--cover-accent)" opacity="0.8"/>
+
+  <rect x="52" y="106" width="124" height="92" rx="12" fill="none" stroke="var(--cover-accent)" stroke-width="2"/>
+  <rect x="74" y="132" width="80" height="12" rx="4" fill="currentColor" opacity="0.85"/>
+  <rect x="82" y="156" width="64" height="8" rx="4" fill="currentColor" opacity="0.4"/>
+
+  <rect x="252" y="106" width="142" height="92" rx="12" fill="none" stroke="currentColor" stroke-width="2" opacity="0.75"/>
+  <rect x="280" y="132" width="86" height="12" rx="4" fill="currentColor" opacity="0.85"/>
+  <rect x="288" y="156" width="70" height="8" rx="4" fill="currentColor" opacity="0.4"/>
+
+  <rect x="468" y="106" width="120" height="92" rx="12" fill="none" stroke="currentColor" stroke-width="2" opacity="0.75"/>
+  <rect x="490" y="132" width="76" height="12" rx="4" fill="currentColor" opacity="0.85"/>
+  <rect x="498" y="156" width="60" height="8" rx="4" fill="currentColor" opacity="0.4"/>
+
+  <rect x="252" y="236" width="142" height="60" rx="10" fill="none" stroke="var(--cover-accent)" stroke-width="2" stroke-dasharray="5 4"/>
+  <rect x="282" y="260" width="82" height="10" rx="4" fill="var(--cover-accent)" opacity="0.85"/>
+
+  <rect x="52" y="42" width="164" height="14" rx="4" fill="currentColor" opacity="0.8"/>
+  <rect x="492" y="36" width="96" height="28" rx="14" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.55"/>
+  <rect x="514" y="46" width="52" height="8" rx="4" fill="var(--cover-accent)"/>
+</svg>

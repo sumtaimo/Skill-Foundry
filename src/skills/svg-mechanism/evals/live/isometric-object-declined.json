@@ -1,0 +1,8 @@
+{
+  "case": "isometric-object-declined",
+  "prompt": "Draw an interactive 3D isometric cutaway illustration of an espresso machine showing the boiler, thermoblock, pressure pump, and steam wand that the user can open and rotate.",
+  "agent": "agy",
+  "recordedAt": "2026-11-24",
+  "output": "This request is outside the scope of `svg-mechanism` (which builds animated 2D technical architecture and data-flow diagrams); please use `figure-craft` to create an interactive 3D isometric cutaway illustration of a physical espresso machine.",
+  "files": []
+}

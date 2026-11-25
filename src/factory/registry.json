@@ -329,5 +329,26 @@
       "interactive motion showcase",
       "motion graphic website"
     ]
+  },
+  {
+    "name": "svg-mechanism",
+    "version": "0.1.0",
+    "purpose": "Builds animated 2D technical architecture, data-flow, pipeline, protocol handshake and mechanism explainer SVGs synced to CSS design tokens, with <defs> gradients/markers, interactive Play/Pause controls, screen-reader title/desc and prefers-reduced-motion fallback.",
+    "status": "ready",
+    "roles": [
+      "DEV_ENGINEER",
+      "UX_DESIGNER"
+    ],
+    "keywords": [
+      "animated svg",
+      "svg mechanism",
+      "2d architecture diagram",
+      "data flow svg",
+      "pipeline diagram",
+      "protocol handshake svg",
+      "svg flow"
+    ],
+    "engine": "optional",
+    "default": false
   }
 ]

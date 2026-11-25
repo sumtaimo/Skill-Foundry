@@ -1,0 +1,1028 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Webhook Delivery Pipeline — Animated 2D Architecture SVG</title>
+  <style>
+    /* Semantic design tokens (design/tokens.css compatible) */
+    :root {
+      color-scheme: light dark;
+      --color-surface-default: #f8fafc;
+      --color-surface-raised: #ffffff;
+      --color-surface-subtle: #f1f5f9;
+      --color-text-default: #0f172a;
+      --color-text-muted: #475569;
+      --color-border-default: #cbd5e1;
+      --color-border-strong: #64748b;
+      --color-border-focus: #1d4ed8;
+      --color-action-primary-bg: #1d4ed8;
+      --color-action-primary-text: #ffffff;
+      --color-accent-subtle: #eff6ff;
+      --color-warning-text: #92400e;
+      --color-warning-surface: #fffbeb;
+      --color-warning-subtle: #fef3c7;
+
+      /* Internal mechanism SVG aliases bound to semantic tokens */
+      --mech-canvas: var(--color-surface-default, #f8fafc);
+      --mech-node-top: var(--color-surface-raised, #ffffff);
+      --mech-node-bottom: var(--color-surface-subtle, #f1f5f9);
+      --mech-warn-top: var(--color-warning-surface, #fffbeb);
+      --mech-warn-bottom: var(--color-warning-subtle, #fef3c7);
+      --mech-grid-dot: var(--color-border-default, #cbd5e1);
+      --mech-border: var(--color-border-default, #cbd5e1);
+      --mech-node-border: var(--color-border-strong, #64748b);
+      --mech-track: var(--color-border-strong, #64748b);
+      --mech-accent: var(--color-action-primary-bg, #1d4ed8);
+      --mech-accent-bg: var(--color-accent-subtle, #eff6ff);
+      --mech-warn: var(--color-warning-text, #92400e);
+      --mech-warn-bg: var(--color-warning-subtle, #fef3c7);
+      --mech-focus: var(--color-border-focus, #1d4ed8);
+      --mech-text: var(--color-text-default, #0f172a);
+      --mech-muted: var(--color-text-muted, #475569);
+      --mech-pill-bg: var(--color-surface-raised, #ffffff);
+    }
+
+    :root[data-theme="dark"] {
+      --color-surface-default: #0b1120;
+      --color-surface-raised: #162033;
+      --color-surface-subtle: #111827;
+      --color-text-default: #f8fafc;
+      --color-text-muted: #cbd5e1;
+      --color-border-default: #334155;
+      --color-border-strong: #8294ac;
+      --color-border-focus: #60a5fa;
+      --color-action-primary-bg: #38bdf8;
+      --color-action-primary-text: #082f49;
+      --color-accent-subtle: #172554;
+      --color-warning-text: #fbbf24;
+      --color-warning-surface: #261b0c;
+      --color-warning-subtle: #1c1409;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --color-surface-default: #0b1120;
+        --color-surface-raised: #162033;
+        --color-surface-subtle: #111827;
+        --color-text-default: #f8fafc;
+        --color-text-muted: #cbd5e1;
+        --color-border-default: #334155;
+        --color-border-strong: #8294ac;
+        --color-border-focus: #60a5fa;
+        --color-action-primary-bg: #38bdf8;
+        --color-action-primary-text: #082f49;
+        --color-accent-subtle: #172554;
+        --color-warning-text: #fbbf24;
+        --color-warning-surface: #261b0c;
+        --color-warning-subtle: #1c1409;
+      }
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      max-width: 100%;
+      overflow-x: hidden;
+      background-color: var(--color-surface-default);
+      color: var(--color-text-default);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.5;
+    }
+
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 24px 16px 32px;
+    }
+
+    .mech-figure {
+      margin: 0;
+      padding: 16px;
+      border-radius: 16px;
+      background-color: var(--color-surface-raised);
+      border: 1px solid var(--color-border-default);
+    }
+
+    .mech-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .mech-heading {
+      margin: 0;
+      font-size: 1.125rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--color-text-default);
+    }
+
+    .mech-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mech-btn {
+      appearance: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 44px;
+      min-width: 44px;
+      padding: 0 14px;
+      border-radius: 10px;
+      border: 1px solid var(--color-border-strong);
+      background-color: var(--color-surface-subtle);
+      color: var(--color-text-default);
+      font: inherit;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+    }
+
+    .mech-btn:hover {
+      border-color: var(--color-action-primary-bg);
+    }
+
+    .mech-btn:focus-visible {
+      outline: 2px solid var(--color-border-focus);
+      outline-offset: 2px;
+    }
+
+    .mech-btn--primary {
+      background-color: var(--color-action-primary-bg);
+      border-color: var(--color-action-primary-bg);
+      color: var(--color-action-primary-text);
+    }
+
+    .mech-btn--stage[aria-pressed="true"] {
+      background-color: var(--color-accent-subtle);
+      border-color: var(--color-action-primary-bg);
+      color: var(--color-action-primary-bg);
+    }
+
+    .mech-btn--stage[data-stage-btn="retry-dlq"][aria-pressed="true"] {
+      background-color: var(--color-warning-subtle);
+      border-color: var(--color-warning-text);
+      color: var(--color-warning-text);
+    }
+
+    .mech-stage-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .mech-stage-bar__label {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      margin-right: 4px;
+    }
+
+    .mech-canvas-wrap {
+      width: 100%;
+      max-width: 100%;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .mech-svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-width: 100%;
+      overflow: visible;
+    }
+
+    .mech-svg text {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .mech-node {
+      cursor: pointer;
+      outline: none;
+    }
+
+    .mech-node .node-box {
+      transition: opacity 160ms ease, stroke-width 160ms ease;
+    }
+
+    .mech-node .node-focus-ring {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 150ms ease;
+    }
+
+    .mech-node:focus-visible .node-focus-ring {
+      opacity: 1;
+    }
+
+    .mech-node:hover .node-box {
+      stroke-width: 2.5;
+    }
+
+    .mech-track-group,
+    .mech-signal-group,
+    .mech-node,
+    .mech-label-group {
+      transition: opacity 180ms ease;
+    }
+
+    /* Stage focus highlighting (non-active stages stay readable >= 0.55) */
+    .mech-figure[data-active-stage] .mech-node,
+    .mech-figure[data-active-stage] .mech-label-group,
+    .mech-figure[data-active-stage] .mech-track-group,
+    .mech-figure[data-active-stage] .mech-signal-group {
+      opacity: 0.56;
+    }
+
+    .mech-figure[data-active-stage="producer"] [data-stage~="producer"],
+    .mech-figure[data-active-stage="queue"] [data-stage~="queue"],
+    .mech-figure[data-active-stage="worker"] [data-stage~="worker"],
+    .mech-figure[data-active-stage="retry-dlq"] [data-stage~="retry-dlq"] {
+      opacity: 1;
+    }
+
+    .mech-figure[data-active-stage="producer"] .mech-node[data-stage="producer"] .node-box,
+    .mech-figure[data-active-stage="queue"] .mech-node[data-stage="queue"] .node-box,
+    .mech-figure[data-active-stage="worker"] .mech-node[data-stage="worker"] .node-box {
+      stroke: var(--mech-accent);
+      stroke-width: 2.5;
+    }
+
+    .mech-figure[data-active-stage="retry-dlq"] .mech-node[data-stage="retry-dlq"] .node-box {
+      stroke: var(--mech-warn);
+      stroke-width: 2.5;
+    }
+
+    /* GPU-friendly signal motion: stroke-dashoffset, transform, opacity only */
+    @keyframes mech-flow {
+      from { stroke-dashoffset: 64; }
+      to { stroke-dashoffset: 0; }
+    }
+
+    @keyframes mech-pulse {
+      0%, 100% { opacity: 0.45; transform: scale(0.92); }
+      50% { opacity: 1; transform: scale(1.08); }
+    }
+
+    .signal-stream {
+      stroke-dasharray: 14 18;
+      stroke-linecap: round;
+      animation: mech-flow 2.4s linear infinite;
+    }
+
+    .signal-stream--step-1 {
+      animation-duration: 2.4s;
+      animation-delay: 0s;
+    }
+
+    .signal-stream--step-2 {
+      animation-duration: 2.4s;
+      animation-delay: 0.6s;
+    }
+
+    .signal-stream--dlq {
+      stroke-dasharray: 10 14;
+      animation-duration: 3.2s;
+      animation-delay: 1.2s;
+    }
+
+    .signal-node-pulse {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: mech-pulse 2.4s ease-in-out infinite;
+    }
+
+    .signal-node-pulse--2 { animation-delay: 0.5s; }
+    .signal-node-pulse--3 { animation-delay: 1.0s; }
+    .signal-node-pulse--4 { animation-delay: 1.5s; animation-duration: 3.2s; }
+
+    /* Pause state toggled by Play/Pause button */
+    .mech-figure[data-paused="true"] .signal-stream,
+    .mech-figure[data-paused="true"] .signal-node-pulse {
+      animation-play-state: paused;
+    }
+
+    /* Reduced-motion static clarity fallback */
+    @media (prefers-reduced-motion: reduce) {
+      .signal-stream,
+      .signal-node-pulse {
+        animation: none !important;
+        animation-play-state: paused !important;
+        opacity: 0.9 !important;
+      }
+    }
+
+    .mech-caption {
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background-color: var(--color-surface-subtle);
+      border: 1px solid var(--color-border-default);
+      color: var(--color-text-default);
+      font-size: 0.875rem;
+    }
+
+    .mech-caption strong {
+      color: var(--color-text-default);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <figure class="mech-figure" data-paused="false">
+      <div class="mech-header">
+        <h1 class="mech-heading">Webhook Delivery Pipeline</h1>
+        <div class="mech-controls">
+          <button
+            type="button"
+            class="mech-btn mech-btn--primary"
+            data-mech-toggle
+            aria-pressed="false"
+          >
+            Pause animation
+          </button>
+          <button
+            type="button"
+            class="mech-btn"
+            data-theme-toggle
+            aria-pressed="false"
+          >
+            Toggle theme
+          </button>
+        </div>
+      </div>
+
+      <div class="mech-stage-bar" role="group" aria-label="Inspect pipeline stages">
+        <span class="mech-stage-bar__label">Focus stage:</span>
+        <button type="button" class="mech-btn mech-btn--stage" data-stage-btn="all" aria-pressed="true">All</button>
+        <button type="button" class="mech-btn mech-btn--stage" data-stage-btn="producer" aria-pressed="false">1. Producer</button>
+        <button type="button" class="mech-btn mech-btn--stage" data-stage-btn="queue" aria-pressed="false">2. Queue</button>
+        <button type="button" class="mech-btn mech-btn--stage" data-stage-btn="worker" aria-pressed="false">3. Worker</button>
+        <button type="button" class="mech-btn mech-btn--stage" data-stage-btn="retry-dlq" aria-pressed="false">4. Retry DLQ</button>
+      </div>
+
+      <div class="mech-canvas-wrap">
+        <svg
+          class="mech-svg"
+          viewBox="0 0 920 400"
+          width="100%"
+          preserveAspectRatio="xMidYMid meet"
+          role="img"
+          aria-labelledby="webhook-mech-title webhook-mech-desc"
+        >
+          <title id="webhook-mech-title">Webhook Delivery Pipeline Architecture</title>
+          <desc id="webhook-mech-desc">
+            A 2D pipeline showing webhook events moving from Producer to Queue to Worker, with failed deliveries routed down a warning branch from Worker to Retry DLQ.
+          </desc>
+
+          <defs>
+            <linearGradient id="mech-node-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--mech-node-top)" />
+              <stop offset="100%" stop-color="var(--mech-node-bottom)" />
+            </linearGradient>
+
+            <linearGradient id="mech-node-warn-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--mech-warn-top)" />
+              <stop offset="100%" stop-color="var(--mech-warn-bottom)" />
+            </linearGradient>
+
+            <linearGradient id="mech-signal-grad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="var(--mech-accent)" stop-opacity="0.35" />
+              <stop offset="100%" stop-color="var(--mech-accent)" stop-opacity="1" />
+            </linearGradient>
+
+            <linearGradient id="mech-signal-warn-grad" x1="1" y1="0" x2="0" y2="0">
+              <stop offset="0%" stop-color="var(--mech-warn)" stop-opacity="0.35" />
+              <stop offset="100%" stop-color="var(--mech-warn)" stop-opacity="1" />
+            </linearGradient>
+
+            <pattern id="mech-grid" width="24" height="24" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1" fill="var(--mech-grid-dot)" />
+            </pattern>
+
+            <marker
+              id="mech-arrow"
+              viewBox="0 0 12 12"
+              refX="10"
+              refY="6"
+              markerWidth="12"
+              markerHeight="12"
+              orient="auto-start-reverse"
+              markerUnits="userSpaceOnUse"
+            >
+              <path d="M 1 2 L 10 6 L 1 10 Z" fill="var(--mech-accent)" />
+            </marker>
+
+            <marker
+              id="mech-arrow-warn"
+              viewBox="0 0 12 12"
+              refX="10"
+              refY="6"
+              markerWidth="12"
+              markerHeight="12"
+              orient="auto-start-reverse"
+              markerUnits="userSpaceOnUse"
+            >
+              <path d="M 1 2 L 10 6 L 1 10 Z" fill="var(--mech-warn)" />
+            </marker>
+          </defs>
+
+          <!-- Layer 1: Backdrop -->
+          <g class="layer-backdrop">
+            <rect
+              x="1"
+              y="1"
+              width="918"
+              height="398"
+              rx="14"
+              fill="var(--mech-canvas)"
+              stroke="var(--mech-border)"
+              stroke-width="1.5"
+            />
+            <rect x="1" y="1" width="918" height="398" rx="14" fill="url(#mech-grid)" />
+            <!-- Legend card background -->
+            <rect
+              x="48"
+              y="276"
+              width="248"
+              height="72"
+              rx="10"
+              fill="url(#mech-node-fill)"
+              stroke="var(--mech-border)"
+              stroke-width="1.25"
+            />
+          </g>
+
+          <!-- Layer 2: Static directional tracks -->
+          <g class="layer-tracks" fill="none">
+            <!-- Producer -> Queue -->
+            <g class="mech-track-group" data-stage="producer queue">
+              <path
+                d="M 248 136 L 358 136"
+                stroke="var(--mech-track)"
+                stroke-width="2.5"
+                marker-end="url(#mech-arrow)"
+              />
+            </g>
+
+            <!-- Queue -> Worker -->
+            <g class="mech-track-group" data-stage="queue worker">
+              <path
+                d="M 560 136 L 670 136"
+                stroke="var(--mech-track)"
+                stroke-width="2.5"
+                marker-end="url(#mech-arrow)"
+              />
+            </g>
+
+            <!-- Worker -> Retry DLQ (failed-delivery branch) -->
+            <g class="mech-track-group" data-stage="worker retry-dlq">
+              <path
+                d="M 772 184 L 772 296 Q 772 312 756 312 L 562 312"
+                stroke="var(--mech-warn)"
+                stroke-width="2.5"
+                stroke-dasharray="6 5"
+                marker-end="url(#mech-arrow-warn)"
+              />
+            </g>
+
+            <!-- Legend track swatches -->
+            <line
+              x1="64"
+              y1="298"
+              x2="96"
+              y2="298"
+              stroke="var(--mech-accent)"
+              stroke-width="2.5"
+              marker-end="url(#mech-arrow)"
+            />
+            <line
+              x1="64"
+              y1="326"
+              x2="96"
+              y2="326"
+              stroke="var(--mech-warn)"
+              stroke-width="2.5"
+              stroke-dasharray="5 4"
+              marker-end="url(#mech-arrow-warn)"
+            />
+          </g>
+
+          <!-- Layer 3: Animated signal streams -->
+          <g class="layer-signals" fill="none">
+            <g class="mech-signal-group" data-stage="producer queue">
+              <path
+                class="signal-stream signal-stream--step-1"
+                d="M 248 136 L 348 136"
+                stroke="url(#mech-signal-grad)"
+                stroke-width="4"
+              />
+            </g>
+
+            <g class="mech-signal-group" data-stage="queue worker">
+              <path
+                class="signal-stream signal-stream--step-2"
+                d="M 560 136 L 660 136"
+                stroke="url(#mech-signal-grad)"
+                stroke-width="4"
+              />
+            </g>
+
+            <g class="mech-signal-group" data-stage="worker retry-dlq">
+              <path
+                class="signal-stream signal-stream--dlq"
+                d="M 772 184 L 772 296 Q 772 312 756 312 L 572 312"
+                stroke="url(#mech-signal-warn-grad)"
+                stroke-width="4"
+              />
+            </g>
+          </g>
+
+          <!-- Layer 4: Interactive stage nodes -->
+          <g class="layer-nodes">
+            <!-- Stage 1: Producer -->
+            <g
+              class="mech-node"
+              data-stage="producer"
+              tabindex="0"
+              role="button"
+              aria-pressed="false"
+              aria-label="Stage 1: Producer. Emits webhook events into the Queue."
+            >
+              <rect
+                class="node-focus-ring"
+                x="43"
+                y="83"
+                width="210"
+                height="106"
+                rx="15"
+                fill="none"
+                stroke="var(--mech-focus)"
+                stroke-width="3"
+              />
+              <rect
+                class="node-box"
+                x="48"
+                y="88"
+                width="200"
+                height="96"
+                rx="12"
+                fill="url(#mech-node-fill)"
+                stroke="var(--mech-node-border)"
+                stroke-width="1.75"
+              />
+              <rect
+                x="60"
+                y="98"
+                width="60"
+                height="22"
+                rx="11"
+                fill="var(--mech-accent-bg)"
+                stroke="var(--mech-accent)"
+                stroke-width="1"
+              />
+              <circle
+                class="signal-node-pulse signal-node-pulse--1"
+                cx="228"
+                cy="109"
+                r="5"
+                fill="var(--mech-accent)"
+              />
+            </g>
+
+            <!-- Stage 2: Queue -->
+            <g
+              class="mech-node"
+              data-stage="queue"
+              tabindex="0"
+              role="button"
+              aria-pressed="false"
+              aria-label="Stage 2: Queue. Buffers webhook events from Producer and dispatches them to Worker."
+            >
+              <rect
+                class="node-focus-ring"
+                x="355"
+                y="83"
+                width="210"
+                height="106"
+                rx="15"
+                fill="none"
+                stroke="var(--mech-focus)"
+                stroke-width="3"
+              />
+              <rect
+                class="node-box"
+                x="360"
+                y="88"
+                width="200"
+                height="96"
+                rx="12"
+                fill="url(#mech-node-fill)"
+                stroke="var(--mech-node-border)"
+                stroke-width="1.75"
+              />
+              <rect
+                x="372"
+                y="98"
+                width="60"
+                height="22"
+                rx="11"
+                fill="var(--mech-accent-bg)"
+                stroke="var(--mech-accent)"
+                stroke-width="1"
+              />
+              <circle
+                class="signal-node-pulse signal-node-pulse--2"
+                cx="540"
+                cy="109"
+                r="5"
+                fill="var(--mech-accent)"
+              />
+            </g>
+
+            <!-- Stage 3: Worker -->
+            <g
+              class="mech-node"
+              data-stage="worker"
+              tabindex="0"
+              role="button"
+              aria-pressed="false"
+              aria-label="Stage 3: Worker. Processes queued events for webhook delivery and routes failed deliveries to Retry DLQ."
+            >
+              <rect
+                class="node-focus-ring"
+                x="667"
+                y="83"
+                width="210"
+                height="106"
+                rx="15"
+                fill="none"
+                stroke="var(--mech-focus)"
+                stroke-width="3"
+              />
+              <rect
+                class="node-box"
+                x="672"
+                y="88"
+                width="200"
+                height="96"
+                rx="12"
+                fill="url(#mech-node-fill)"
+                stroke="var(--mech-node-border)"
+                stroke-width="1.75"
+              />
+              <rect
+                x="684"
+                y="98"
+                width="60"
+                height="22"
+                rx="11"
+                fill="var(--mech-accent-bg)"
+                stroke="var(--mech-accent)"
+                stroke-width="1"
+              />
+              <circle
+                class="signal-node-pulse signal-node-pulse--3"
+                cx="852"
+                cy="109"
+                r="5"
+                fill="var(--mech-accent)"
+              />
+            </g>
+
+            <!-- Stage 4 (Branch): Retry DLQ -->
+            <g
+              class="mech-node"
+              data-stage="retry-dlq"
+              tabindex="0"
+              role="button"
+              aria-pressed="false"
+              aria-label="Stage 4: Retry DLQ. Failed-delivery branch receiving unsuccessful deliveries from Worker."
+            >
+              <rect
+                class="node-focus-ring"
+                x="355"
+                y="259"
+                width="210"
+                height="106"
+                rx="15"
+                fill="none"
+                stroke="var(--mech-focus)"
+                stroke-width="3"
+              />
+              <rect
+                class="node-box"
+                x="360"
+                y="264"
+                width="200"
+                height="96"
+                rx="12"
+                fill="url(#mech-node-warn-fill)"
+                stroke="var(--mech-warn)"
+                stroke-width="1.75"
+              />
+              <rect
+                x="372"
+                y="274"
+                width="68"
+                height="22"
+                rx="11"
+                fill="var(--mech-warn-bg)"
+                stroke="var(--mech-warn)"
+                stroke-width="1"
+              />
+              <circle
+                class="signal-node-pulse signal-node-pulse--4"
+                cx="540"
+                cy="285"
+                r="5"
+                fill="var(--mech-warn)"
+              />
+            </g>
+          </g>
+
+          <!-- Layer 5: Labels and edge pills -->
+          <g class="layer-labels" pointer-events="none">
+            <!-- Canvas eyebrow -->
+            <text
+              x="48"
+              y="48"
+              font-size="12"
+              font-weight="700"
+              letter-spacing="0.08em"
+              fill="var(--mech-muted)"
+            >
+              WEBHOOK DELIVERY PIPELINE
+            </text>
+
+            <!-- Producer labels -->
+            <g class="mech-label-group" data-stage="producer">
+              <text x="90" y="113" text-anchor="middle" font-size="12" font-weight="700" fill="var(--mech-accent)">Step 1</text>
+              <text x="148" y="144" text-anchor="middle" font-size="16" font-weight="700" fill="var(--mech-text)">Producer</text>
+              <text x="148" y="166" text-anchor="middle" font-size="12" fill="var(--mech-muted)">Emits webhook events</text>
+            </g>
+
+            <!-- Edge pill: Producer -> Queue -->
+            <g class="mech-label-group" data-stage="producer queue">
+              <rect
+                x="270"
+                y="100"
+                width="68"
+                height="22"
+                rx="11"
+                fill="var(--mech-pill-bg)"
+                stroke="var(--mech-border)"
+                stroke-width="1"
+              />
+              <text x="304" y="115" text-anchor="middle" font-size="12" font-weight="600" fill="var(--mech-text)">Event</text>
+            </g>
+
+            <!-- Queue labels -->
+            <g class="mech-label-group" data-stage="queue">
+              <text x="402" y="113" text-anchor="middle" font-size="12" font-weight="700" fill="var(--mech-accent)">Step 2</text>
+              <text x="460" y="144" text-anchor="middle" font-size="16" font-weight="700" fill="var(--mech-text)">Queue</text>
+              <text x="460" y="166" text-anchor="middle" font-size="12" fill="var(--mech-muted)">Buffers event jobs</text>
+            </g>
+
+            <!-- Edge pill: Queue -> Worker -->
+            <g class="mech-label-group" data-stage="queue worker">
+              <rect
+                x="580"
+                y="100"
+                width="72"
+                height="22"
+                rx="11"
+                fill="var(--mech-pill-bg)"
+                stroke="var(--mech-border)"
+                stroke-width="1"
+              />
+              <text x="616" y="115" text-anchor="middle" font-size="12" font-weight="600" fill="var(--mech-text)">Dispatch</text>
+            </g>
+
+            <!-- Worker labels -->
+            <g class="mech-label-group" data-stage="worker">
+              <text x="714" y="113" text-anchor="middle" font-size="12" font-weight="700" fill="var(--mech-accent)">Step 3</text>
+              <text x="772" y="144" text-anchor="middle" font-size="16" font-weight="700" fill="var(--mech-text)">Worker</text>
+              <text x="772" y="166" text-anchor="middle" font-size="12" fill="var(--mech-muted)">Delivers webhooks</text>
+            </g>
+
+            <!-- Edge pill: Worker -> Retry DLQ -->
+            <g class="mech-label-group" data-stage="worker retry-dlq">
+              <rect
+                x="610"
+                y="274"
+                width="112"
+                height="22"
+                rx="11"
+                fill="var(--mech-warn-bg)"
+                stroke="var(--mech-warn)"
+                stroke-width="1"
+              />
+              <text x="666" y="289" text-anchor="middle" font-size="12" font-weight="600" fill="var(--mech-warn)">Failed delivery</text>
+            </g>
+
+            <!-- Retry DLQ labels -->
+            <g class="mech-label-group" data-stage="retry-dlq">
+              <text x="406" y="289" text-anchor="middle" font-size="12" font-weight="700" fill="var(--mech-warn)">Branch</text>
+              <text x="460" y="320" text-anchor="middle" font-size="16" font-weight="700" fill="var(--mech-text)">Retry DLQ</text>
+              <text x="460" y="342" text-anchor="middle" font-size="12" fill="var(--mech-muted)">Failed-delivery branch</text>
+            </g>
+
+            <!-- Legend labels -->
+            <text x="108" y="302" text-anchor="start" font-size="12" font-weight="600" fill="var(--mech-text)">Primary delivery flow</text>
+            <text x="108" y="330" text-anchor="start" font-size="12" font-weight="600" fill="var(--mech-warn)">Failed-delivery branch</text>
+          </g>
+        </svg>
+      </div>
+
+      <figcaption class="mech-caption" data-mech-status aria-live="polite">
+        Showing all stages: Producer emits webhook events to Queue, Queue dispatches them to Worker, and failed deliveries branch to Retry DLQ.
+      </figcaption>
+    </figure>
+  </main>
+
+  <script>
+    (() => {
+      const fig = document.querySelector('.mech-figure');
+      const svg = fig.querySelector('svg');
+      const toggleBtn = fig.querySelector('[data-mech-toggle]');
+      const themeBtn = fig.querySelector('[data-theme-toggle]');
+      const statusEl = fig.querySelector('[data-mech-status]');
+      const stageNodes = Array.from(fig.querySelectorAll('.mech-node[data-stage]'));
+      const stageBtns = Array.from(fig.querySelectorAll('[data-stage-btn]'));
+
+      const STAGE_COPY = {
+        all: 'Showing all stages: Producer emits webhook events to Queue, Queue dispatches them to Worker, and failed deliveries branch to Retry DLQ.',
+        producer: 'Stage 1 — Producer: Emits webhook events along the primary delivery track into the Queue.',
+        queue: 'Stage 2 — Queue: Receives events from Producer, buffers them, and dispatches jobs to the Worker.',
+        worker: 'Stage 3 — Worker: Consumes dispatched events from Queue for delivery and routes failed deliveries to Retry DLQ.',
+        'retry-dlq': 'Branch — Retry DLQ: Captures failed deliveries routed from the Worker along the failed-delivery branch.'
+      };
+
+      const STAGE_ORDER = ['producer', 'queue', 'worker', 'retry-dlq'];
+      const reducedQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+      function setPaused(paused, announce) {
+        fig.dataset.paused = String(paused);
+        toggleBtn.setAttribute('aria-pressed', String(paused));
+        toggleBtn.textContent = paused ? 'Play animation' : 'Pause animation';
+        if (typeof svg.pauseAnimations === 'function') {
+          if (paused) {
+            svg.pauseAnimations();
+          } else {
+            svg.unpauseAnimations();
+          }
+        }
+        if (announce && statusEl) {
+          if (reducedQuery.matches && !paused) {
+            statusEl.textContent = 'System reduced-motion preference is active; static directional arrows remain visible.';
+          } else {
+            statusEl.textContent = paused
+              ? 'Animation paused. Static directional arrows and numbered stages remain visible.'
+              : 'Animation playing across Producer, Queue, Worker, and the Retry DLQ branch.';
+          }
+        }
+      }
+
+      if (reducedQuery.matches) {
+        setPaused(true, false);
+        if (statusEl) {
+          statusEl.textContent = 'Reduced motion active: static directional arrows show Producer to Queue to Worker, with failed deliveries branching to Retry DLQ.';
+        }
+      }
+
+      reducedQuery.addEventListener('change', (e) => {
+        if (e.matches) {
+          setPaused(true, true);
+        }
+      });
+
+      toggleBtn.addEventListener('click', () => {
+        const isPaused = fig.dataset.paused === 'true';
+        setPaused(!isPaused, true);
+      });
+
+      function currentTheme() {
+        const explicit = document.documentElement.dataset.theme;
+        if (explicit === 'dark' || explicit === 'light') return explicit;
+        return darkQuery.matches ? 'dark' : 'light';
+      }
+
+      function syncThemeButton() {
+        const isDark = currentTheme() === 'dark';
+        themeBtn.setAttribute('aria-pressed', String(isDark));
+        themeBtn.textContent = isDark ? 'Switch to light' : 'Switch to dark';
+      }
+
+      syncThemeButton();
+      darkQuery.addEventListener('change', syncThemeButton);
+
+      themeBtn.addEventListener('click', () => {
+        const next = currentTheme() === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        syncThemeButton();
+        if (statusEl) {
+          statusEl.textContent = `Switched diagram theme to ${next} mode.`;
+        }
+      });
+
+      function setActiveStage(stageId, moveNodeFocus = false) {
+        if (!stageId || stageId === 'all') {
+          delete fig.dataset.activeStage;
+        } else {
+          fig.dataset.activeStage = stageId;
+        }
+
+        const active = fig.dataset.activeStage || 'all';
+        stageBtns.forEach((btn) => {
+          btn.setAttribute('aria-pressed', String(btn.dataset.stageBtn === active));
+        });
+        stageNodes.forEach((node) => {
+          node.setAttribute('aria-pressed', String(node.dataset.stage === active));
+        });
+
+        if (moveNodeFocus && active !== 'all') {
+          const targetNode = stageNodes.find((n) => n.dataset.stage === active);
+          if (targetNode) targetNode.focus();
+        }
+
+        if (statusEl) {
+          statusEl.textContent = STAGE_COPY[active] || STAGE_COPY.all;
+        }
+      }
+
+      stageBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const target = btn.dataset.stageBtn;
+          const next = target !== 'all' && fig.dataset.activeStage === target ? 'all' : target;
+          setActiveStage(next, false);
+        });
+      });
+
+      let activeBeforePointer = null;
+
+      stageNodes.forEach((node) => {
+        const stage = node.dataset.stage;
+        node.addEventListener('pointerdown', () => {
+          activeBeforePointer = fig.dataset.activeStage || 'all';
+        });
+
+        node.addEventListener('click', () => {
+          const wasActive = activeBeforePointer === stage;
+          activeBeforePointer = null;
+          setActiveStage(wasActive ? 'all' : stage, false);
+        });
+
+        node.addEventListener('focus', () => {
+          setActiveStage(stage, false);
+        });
+
+        node.addEventListener('keydown', (e) => {
+          const idx = STAGE_ORDER.indexOf(stage);
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            const next = fig.dataset.activeStage === stage ? 'all' : stage;
+            setActiveStage(next, false);
+          } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            const nextStage = STAGE_ORDER[(idx + 1) % STAGE_ORDER.length];
+            setActiveStage(nextStage, true);
+          } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            const prevStage = STAGE_ORDER[(idx - 1 + STAGE_ORDER.length) % STAGE_ORDER.length];
+            setActiveStage(prevStage, true);
+          } else if (e.key === 'Home') {
+            e.preventDefault();
+            setActiveStage(STAGE_ORDER[0], true);
+          } else if (e.key === 'End') {
+            e.preventDefault();
+            setActiveStage(STAGE_ORDER[STAGE_ORDER.length - 1], true);
+          } else if (e.key === 'Escape') {
+            e.preventDefault();
+            setActiveStage('all', false);
+            node.blur();
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

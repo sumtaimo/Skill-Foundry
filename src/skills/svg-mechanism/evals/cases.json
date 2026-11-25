@@ -1,0 +1,106 @@
+[
+  {
+    "id": "webhook-pipeline",
+    "prompt": "Build a standalone HTML file with an animated 2D architecture SVG showing how a webhook delivery pipeline works: Producer -> Queue -> Worker, with a failed-delivery Retry DLQ branch. Sync all SVG colors to light/dark CSS tokens (no hardcoded hex inside SVG attributes), include <defs> gradients and arrowheads, a Play/Pause button, keyboard stage focus, and prefers-reduced-motion static fallback.",
+    "expect": [
+      { "type": "contains", "value": "## SVG Mechanism:" },
+      { "type": "contains", "value": "<svg" },
+      { "type": "contains", "value": "viewBox=" },
+      { "type": "contains", "value": "<defs>" },
+      { "type": "contains", "value": "<marker" },
+      { "type": "contains", "value": "<title" },
+      { "type": "contains", "value": "<desc" },
+      { "type": "contains", "value": "var(--" },
+      { "type": "contains", "value": "aria-pressed" },
+      { "type": "contains", "value": "prefers-reduced-motion: reduce" },
+      { "type": "contains", "value": "data-theme=\"dark\"" },
+      { "type": "contains", "value": "DLQ" }
+    ]
+  },
+  {
+    "id": "oauth-pkce-handshake",
+    "prompt": "Create an animated 2D mechanism SVG in standalone HTML explaining an OAuth 2.0 PKCE handshake between Browser App, Auth Server, and Token Endpoint (1: Auth Request + Code Challenge, 2: Auth Code, 3: Code + Verifier -> Access Token). Use semantic CSS tokens for light and dark mode, <defs> gradients/markers, accessible <title>/<desc>, Play/Pause button, and reduced-motion support.",
+    "expect": [
+      { "type": "contains", "value": "## SVG Mechanism:" },
+      { "type": "contains", "value": "viewBox=" },
+      { "type": "contains", "value": "<defs>" },
+      { "type": "contains", "value": "PKCE" },
+      { "type": "contains", "value": "aria-pressed" },
+      { "type": "contains", "value": "prefers-reduced-motion: reduce" },
+      { "type": "contains", "value": "var(--" }
+    ]
+  },
+  {
+    "id": "react-cache-flow",
+    "prompt": "Build a React JSX component plus companion CSS for an animated 2D mechanism SVG showing a 3-tier cache read flow: Client -> Edge CDN (Hit fast path) -> Origin API -> Database (Miss fill path). Sync colors strictly to CSS custom properties in light/dark mode, include Play/Pause state via aria-pressed, and support prefers-reduced-motion.",
+    "expect": [
+      { "type": "contains", "value": "## SVG Mechanism:" },
+      { "type": "contains", "value": "export" },
+      { "type": "contains", "value": "viewBox=" },
+      { "type": "contains", "value": "<defs>" },
+      { "type": "contains", "value": "aria-pressed" },
+      { "type": "contains", "value": "prefers-reduced-motion: reduce" },
+      { "type": "contains", "value": "var(--" }
+    ]
+  },
+  {
+    "id": "reads-design-foundation",
+    "prompt": "Our project already has design/tokens.css defining --color-surface-default, --color-surface-raised, --color-text-default, --color-text-muted, --color-border-default, --color-action-primary-bg, and --color-warning-text. Build a standalone HTML animated 2D SVG for an AI Agent Loop (Planner -> Executor -> Verifier -> Commit, with Retry loop on check failure) that binds directly to those exact CSS variables without editing design/tokens.css or hardcoding hex colors inside SVG.",
+    "expect": [
+      { "type": "contains", "value": "## SVG Mechanism:" },
+      { "type": "contains", "value": "--color-surface-default" },
+      { "type": "contains", "value": "--color-action-primary-bg" },
+      { "type": "contains", "value": "--color-warning-text" },
+      { "type": "contains", "value": "viewBox=" },
+      { "type": "contains", "value": "aria-pressed" },
+      { "type": "contains", "value": "prefers-reduced-motion: reduce" }
+    ]
+  },
+  {
+    "id": "khmer-payment-flow",
+    "prompt": "Create an animated 2D mechanism SVG in standalone HTML with Khmer labels showing a QR payment verification flow: អតិថិជនស្កេន QR (Customer Scans QR) -> ធនាគារផ្ទៀងផ្ទាត់ (Bank Verifies) -> បញ្ជាក់ការទូទាត់ (Payment Confirmed). Keep Khmer typography crisp (letter-spacing: 0, generous box height), bind to light/dark CSS tokens, include Play/Pause and prefers-reduced-motion.",
+    "expect": [
+      { "type": "contains", "value": "## SVG Mechanism:" },
+      { "type": "contains", "value": "letter-spacing: 0" },
+      { "type": "contains", "value": "QR" },
+      { "type": "contains", "value": "viewBox=" },
+      { "type": "contains", "value": "aria-pressed" },
+      { "type": "contains", "value": "prefers-reduced-motion: reduce" }
+    ]
+  },
+  {
+    "id": "vague-ask-first",
+    "prompt": "Draw a nice animated SVG diagram for my app.",
+    "expect": [
+      { "type": "contains", "value": "?" },
+      { "type": "notContains", "value": "<svg" },
+      { "type": "notContains", "value": "<!doctype" }
+    ]
+  },
+  {
+    "id": "isometric-object-declined",
+    "prompt": "Draw an interactive 3D isometric cutaway illustration of an espresso machine showing the boiler, thermoblock, pressure pump, and steam wand that the user can open and rotate.",
+    "expect": [
+      { "type": "contains", "value": "figure-craft" },
+      { "type": "notContains", "value": "<svg" }
+    ]
+  },
+  {
+    "id": "ui-screen-declined",
+    "prompt": "Design and build a modern SaaS billing settings screen with a frosted glass navbar, Ctrl+K command palette, bento usage cards, and loading/empty/error states.",
+    "expect": [
+      { "type": "contains", "value": "ui-craft" },
+      { "type": "notContains", "value": "<svg" },
+      { "type": "notContains", "value": "<!doctype" }
+    ]
+  },
+  {
+    "id": "scroll-story-declined",
+    "prompt": "Create a full-page scroll-choreographed product showcase with GSAP ScrollTrigger, Lenis smooth scroll, pinned full-screen scenes, and a synchronised Three.js WebGL spatial backdrop.",
+    "expect": [
+      { "type": "contains", "value": "motion-craft" },
+      { "type": "notContains", "value": "<svg" },
+      { "type": "notContains", "value": "<!doctype" }
+    ]
+  }
+]

@@ -1,0 +1,20 @@
+/* Fixture matching the 7 CSS variables stated in the reads-design-foundation eval prompt */
+:root {
+  --color-surface-default: #f8fafc;
+  --color-surface-raised: #ffffff;
+  --color-text-default: #0f172a;
+  --color-text-muted: #475569;
+  --color-border-default: #cbd5e1;
+  --color-action-primary-bg: #1d4ed8;
+  --color-warning-text: #b45309;
+}
+
+:root[data-theme="dark"] {
+  --color-surface-default: #0b1120;
+  --color-surface-raised: #162033;
+  --color-text-default: #f8fafc;
+  --color-text-muted: #cbd5e1;
+  --color-border-default: #334155;
+  --color-action-primary-bg: #38bdf8;
+  --color-warning-text: #fbbf24;
+}

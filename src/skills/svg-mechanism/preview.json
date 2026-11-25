@@ -1,0 +1,11 @@
+{
+  "title": "svg-mechanism",
+  "tagline": "Build animated 2D architecture and data-flow SVGs synced to CSS tokens.",
+  "prompt": "Draw an animated 2D SVG showing a webhook pipeline (Producer -> Queue -> Worker -> Retry DLQ) synced to light/dark CSS tokens with Play/Pause and reduced-motion support.",
+  "outputs": [
+    "Layered 2D <svg> with <defs> gradients, directional markers and safe viewBox margins",
+    "Light & dark CSS custom-property syncing with zero hardcoded hex attributes in SVG",
+    "Accessible Play/Pause toggle, stage inspector and prefers-reduced-motion static fallback"
+  ],
+  "tags": ["svg", "architecture", "animation", "diagram", "tokens"]
+}

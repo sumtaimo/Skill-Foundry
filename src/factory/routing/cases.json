@@ -508,5 +508,35 @@
     "id": "mc7",
     "prompt": "Write a Veo prompt for a cinematic 8 second drone shot over rice fields.",
     "expect": "none"
+  },
+  {
+    "id": "sm1",
+    "prompt": "Draw an animated 2D architecture SVG showing how our webhook queue and retry DLQ work, synced to CSS tokens with Play/Pause.",
+    "expect": "svg-mechanism"
+  },
+  {
+    "id": "sm2",
+    "prompt": "Build a token-synced animated SVG diagram explaining an OAuth 2.0 PKCE handshake with prefers-reduced-motion support.",
+    "expect": "svg-mechanism"
+  },
+  {
+    "id": "sm3",
+    "prompt": "Visualize how our CDN edge cache hit/miss pipeline works as an animated 2D data flow SVG in React.",
+    "expect": "svg-mechanism"
+  },
+  {
+    "id": "sm4",
+    "prompt": "Create an interactive 2D animated SVG explaining an AI agent planner-executor-verifier loop with light and dark CSS variables.",
+    "expect": "svg-mechanism"
+  },
+  {
+    "id": "sm5",
+    "prompt": "Draw an interactive 3D isometric cutaway illustration of an espresso machine showing the boiler and pump.",
+    "expect": "figure-craft"
+  },
+  {
+    "id": "sm6",
+    "prompt": "Build a modern billing dashboard screen with frosted glass header, Ctrl+K command palette, and empty states.",
+    "expect": "ui-craft"
   }
 ]
