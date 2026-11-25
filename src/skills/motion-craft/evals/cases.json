@@ -1,0 +1,1618 @@
+[
+  {
+    "id": "no-assets",
+    "prompt": "I run a small pottery studio called Field Kiln. I want a website that scrolls like a film and does not look like AI. I have no photos or video yet. Give me the prompt.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Direction"
+      },
+      {
+        "type": "contains",
+        "value": "**Model:**"
+      },
+      {
+        "type": "contains",
+        "value": "**Look:**"
+      },
+      {
+        "type": "contains",
+        "value": "**Why:**"
+      },
+      {
+        "type": "contains",
+        "value": "## Scene plan"
+      },
+      {
+        "type": "contains",
+        "value": "## Prompt"
+      },
+      {
+        "type": "contains",
+        "value": "```text"
+      },
+      {
+        "type": "contains",
+        "value": "GOAL:"
+      },
+      {
+        "type": "contains",
+        "value": "CONTENT:"
+      },
+      {
+        "type": "contains",
+        "value": "SCENES:"
+      },
+      {
+        "type": "contains",
+        "value": "MOTION:"
+      },
+      {
+        "type": "contains",
+        "value": "LOOK:"
+      },
+      {
+        "type": "contains",
+        "value": "LAYOUT:"
+      },
+      {
+        "type": "contains",
+        "value": "ASSETS:"
+      },
+      {
+        "type": "contains",
+        "value": "FALLBACKS:"
+      },
+      {
+        "type": "contains",
+        "value": "AVOID:"
+      },
+      {
+        "type": "contains",
+        "value": "DONE WHEN:"
+      },
+      {
+        "type": "contains",
+        "value": "## Needs from you"
+      },
+      {
+        "type": "contains",
+        "value": "0-"
+      },
+      {
+        "type": "contains",
+        "value": "100%"
+      },
+      {
+        "type": "contains",
+        "value": "390x844"
+      },
+      {
+        "type": "contains",
+        "value": "360x640"
+      },
+      {
+        "type": "notContains",
+        "value": "<script"
+      },
+      {
+        "type": "notContains",
+        "value": "```html"
+      },
+      {
+        "type": "notContains",
+        "value": "```js"
+      },
+      {
+        "type": "maxLines",
+        "value": 130
+      },
+      {
+        "type": "contains",
+        "value": "M1"
+      },
+      {
+        "type": "contains",
+        "value": "Field Kiln"
+      },
+      {
+        "type": "notContains",
+        "value": "by hand"
+      },
+      {
+        "type": "notContains",
+        "value": "one piece at a time"
+      },
+      {
+        "type": "notContains",
+        "value": "handmade"
+      }
+    ]
+  },
+  {
+    "id": "khmer",
+    "prompt": "ខ្ញុំចង់បាន website សម្រាប់ហាងកាហ្វេ \"ដើមត្នោត\" ដែល scroll ទៅដូចមើលវីដេអូ។ អត្ថបទលើ website ជាភាសាខ្មែរ។ ខ្ញុំមិនទាន់មានរូបទេ។ សូមសរសេរ prompt ឱ្យខ្ញុំ។",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Direction"
+      },
+      {
+        "type": "contains",
+        "value": "**Model:**"
+      },
+      {
+        "type": "contains",
+        "value": "**Look:**"
+      },
+      {
+        "type": "contains",
+        "value": "**Why:**"
+      },
+      {
+        "type": "contains",
+        "value": "## Scene plan"
+      },
+      {
+        "type": "contains",
+        "value": "## Prompt"
+      },
+      {
+        "type": "contains",
+        "value": "```text"
+      },
+      {
+        "type": "contains",
+        "value": "GOAL:"
+      },
+      {
+        "type": "contains",
+        "value": "CONTENT:"
+      },
+      {
+        "type": "contains",
+        "value": "SCENES:"
+      },
+      {
+        "type": "contains",
+        "value": "MOTION:"
+      },
+      {
+        "type": "contains",
+        "value": "LOOK:"
+      },
+      {
+        "type": "contains",
+        "value": "LAYOUT:"
+      },
+      {
+        "type": "contains",
+        "value": "ASSETS:"
+      },
+      {
+        "type": "contains",
+        "value": "FALLBACKS:"
+      },
+      {
+        "type": "contains",
+        "value": "AVOID:"
+      },
+      {
+        "type": "contains",
+        "value": "DONE WHEN:"
+      },
+      {
+        "type": "contains",
+        "value": "## Needs from you"
+      },
+      {
+        "type": "contains",
+        "value": "0-"
+      },
+      {
+        "type": "contains",
+        "value": "100%"
+      },
+      {
+        "type": "contains",
+        "value": "390x844"
+      },
+      {
+        "type": "contains",
+        "value": "360x640"
+      },
+      {
+        "type": "notContains",
+        "value": "<script"
+      },
+      {
+        "type": "notContains",
+        "value": "```html"
+      },
+      {
+        "type": "notContains",
+        "value": "```js"
+      },
+      {
+        "type": "maxLines",
+        "value": 130
+      },
+      {
+        "type": "contains",
+        "value": "M1"
+      },
+      {
+        "type": "contains",
+        "value": "ដើមត្នោត"
+      },
+      {
+        "type": "contains",
+        "value": "1.6"
+      },
+      {
+        "type": "contains",
+        "value": "lang=\"km\""
+      }
+    ]
+  },
+  {
+    "id": "has-video",
+    "prompt": "We have a 12 second product film, film.mp4, and a poster.jpg of our desk lamp, the Arc One. I want an Apple-style scroll where the film plays as you scroll. Write the prompt for Cursor.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Direction"
+      },
+      {
+        "type": "contains",
+        "value": "**Model:**"
+      },
+      {
+        "type": "contains",
+        "value": "**Look:**"
+      },
+      {
+        "type": "contains",
+        "value": "**Why:**"
+      },
+      {
+        "type": "contains",
+        "value": "## Scene plan"
+      },
+      {
+        "type": "contains",
+        "value": "## Prompt"
+      },
+      {
+        "type": "contains",
+        "value": "```text"
+      },
+      {
+        "type": "contains",
+        "value": "GOAL:"
+      },
+      {
+        "type": "contains",
+        "value": "CONTENT:"
+      },
+      {
+        "type": "contains",
+        "value": "SCENES:"
+      },
+      {
+        "type": "contains",
+        "value": "MOTION:"
+      },
+      {
+        "type": "contains",
+        "value": "LOOK:"
+      },
+      {
+        "type": "contains",
+        "value": "LAYOUT:"
+      },
+      {
+        "type": "contains",
+        "value": "ASSETS:"
+      },
+      {
+        "type": "contains",
+        "value": "FALLBACKS:"
+      },
+      {
+        "type": "contains",
+        "value": "AVOID:"
+      },
+      {
+        "type": "contains",
+        "value": "DONE WHEN:"
+      },
+      {
+        "type": "contains",
+        "value": "## Needs from you"
+      },
+      {
+        "type": "contains",
+        "value": "0-"
+      },
+      {
+        "type": "contains",
+        "value": "100%"
+      },
+      {
+        "type": "contains",
+        "value": "390x844"
+      },
+      {
+        "type": "contains",
+        "value": "360x640"
+      },
+      {
+        "type": "notContains",
+        "value": "<script"
+      },
+      {
+        "type": "notContains",
+        "value": "```html"
+      },
+      {
+        "type": "notContains",
+        "value": "```js"
+      },
+      {
+        "type": "maxLines",
+        "value": 130
+      },
+      {
+        "type": "contains",
+        "value": "M2"
+      },
+      {
+        "type": "contains",
+        "value": "film.mp4"
+      },
+      {
+        "type": "contains",
+        "value": "poster.jpg"
+      },
+      {
+        "type": "contains",
+        "value": "Arc One"
+      }
+    ]
+  },
+  {
+    "id": "rooms",
+    "prompt": "Write me a prompt for a 3D walkthrough website of an imaginary museum of silence: three empty rooms the visitor moves through on scroll. Plain geometry is fine, I have no models.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Direction"
+      },
+      {
+        "type": "contains",
+        "value": "**Model:**"
+      },
+      {
+        "type": "contains",
+        "value": "**Look:**"
+      },
+      {
+        "type": "contains",
+        "value": "**Why:**"
+      },
+      {
+        "type": "contains",
+        "value": "## Scene plan"
+      },
+      {
+        "type": "contains",
+        "value": "## Prompt"
+      },
+      {
+        "type": "contains",
+        "value": "```text"
+      },
+      {
+        "type": "contains",
+        "value": "GOAL:"
+      },
+      {
+        "type": "contains",
+        "value": "CONTENT:"
+      },
+      {
+        "type": "contains",
+        "value": "SCENES:"
+      },
+      {
+        "type": "contains",
+        "value": "MOTION:"
+      },
+      {
+        "type": "contains",
+        "value": "LOOK:"
+      },
+      {
+        "type": "contains",
+        "value": "LAYOUT:"
+      },
+      {
+        "type": "contains",
+        "value": "ASSETS:"
+      },
+      {
+        "type": "contains",
+        "value": "FALLBACKS:"
+      },
+      {
+        "type": "contains",
+        "value": "AVOID:"
+      },
+      {
+        "type": "contains",
+        "value": "DONE WHEN:"
+      },
+      {
+        "type": "contains",
+        "value": "## Needs from you"
+      },
+      {
+        "type": "contains",
+        "value": "0-"
+      },
+      {
+        "type": "contains",
+        "value": "100%"
+      },
+      {
+        "type": "contains",
+        "value": "390x844"
+      },
+      {
+        "type": "contains",
+        "value": "360x640"
+      },
+      {
+        "type": "notContains",
+        "value": "<script"
+      },
+      {
+        "type": "notContains",
+        "value": "```html"
+      },
+      {
+        "type": "notContains",
+        "value": "```js"
+      },
+      {
+        "type": "maxLines",
+        "value": 130
+      },
+      {
+        "type": "contains",
+        "value": "M3"
+      },
+      {
+        "type": "contains",
+        "value": "Three.js"
+      }
+    ]
+  },
+  {
+    "id": "lookbook",
+    "prompt": "I have eight photos, look-01.jpg to look-08.jpg, for the fashion label Sarun. I want them to slide sideways while I scroll. How do I prompt an AI for that?",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Direction"
+      },
+      {
+        "type": "contains",
+        "value": "**Model:**"
+      },
+      {
+        "type": "contains",
+        "value": "**Look:**"
+      },
+      {
+        "type": "contains",
+        "value": "**Why:**"
+      },
+      {
+        "type": "contains",
+        "value": "## Scene plan"
+      },
+      {
+        "type": "contains",
+        "value": "## Prompt"
+      },
+      {
+        "type": "contains",
+        "value": "```text"
+      },
+      {
+        "type": "contains",
+        "value": "GOAL:"
+      },
+      {
+        "type": "contains",
+        "value": "CONTENT:"
+      },
+      {
+        "type": "contains",
+        "value": "SCENES:"
+      },
+      {
+        "type": "contains",
+        "value": "MOTION:"
+      },
+      {
+        "type": "contains",
+        "value": "LOOK:"
+      },
+      {
+        "type": "contains",
+        "value": "LAYOUT:"
+      },
+      {
+        "type": "contains",
+        "value": "ASSETS:"
+      },
+      {
+        "type": "contains",
+        "value": "FALLBACKS:"
+      },
+      {
+        "type": "contains",
+        "value": "AVOID:"
+      },
+      {
+        "type": "contains",
+        "value": "DONE WHEN:"
+      },
+      {
+        "type": "contains",
+        "value": "## Needs from you"
+      },
+      {
+        "type": "contains",
+        "value": "0-"
+      },
+      {
+        "type": "contains",
+        "value": "100%"
+      },
+      {
+        "type": "contains",
+        "value": "390x844"
+      },
+      {
+        "type": "contains",
+        "value": "360x640"
+      },
+      {
+        "type": "notContains",
+        "value": "<script"
+      },
+      {
+        "type": "notContains",
+        "value": "```html"
+      },
+      {
+        "type": "notContains",
+        "value": "```js"
+      },
+      {
+        "type": "maxLines",
+        "value": 130
+      },
+      {
+        "type": "contains",
+        "value": "M4"
+      },
+      {
+        "type": "contains",
+        "value": "Sarun"
+      },
+      {
+        "type": "contains",
+        "value": "look-01.jpg"
+      }
+    ]
+  },
+  {
+    "id": "override",
+    "prompt": "Cinematic scrolling website prompt for my jazz trio, Low Tide. No media. I do want a thin scroll progress bar. Skip the reduced-motion stuff, I do not care about it.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Direction"
+      },
+      {
+        "type": "contains",
+        "value": "**Model:**"
+      },
+      {
+        "type": "contains",
+        "value": "**Look:**"
+      },
+      {
+        "type": "contains",
+        "value": "**Why:**"
+      },
+      {
+        "type": "contains",
+        "value": "## Scene plan"
+      },
+      {
+        "type": "contains",
+        "value": "## Prompt"
+      },
+      {
+        "type": "contains",
+        "value": "```text"
+      },
+      {
+        "type": "contains",
+        "value": "GOAL:"
+      },
+      {
+        "type": "contains",
+        "value": "CONTENT:"
+      },
+      {
+        "type": "contains",
+        "value": "SCENES:"
+      },
+      {
+        "type": "contains",
+        "value": "MOTION:"
+      },
+      {
+        "type": "contains",
+        "value": "LOOK:"
+      },
+      {
+        "type": "contains",
+        "value": "LAYOUT:"
+      },
+      {
+        "type": "contains",
+        "value": "ASSETS:"
+      },
+      {
+        "type": "contains",
+        "value": "FALLBACKS:"
+      },
+      {
+        "type": "contains",
+        "value": "AVOID:"
+      },
+      {
+        "type": "contains",
+        "value": "DONE WHEN:"
+      },
+      {
+        "type": "contains",
+        "value": "## Needs from you"
+      },
+      {
+        "type": "contains",
+        "value": "0-"
+      },
+      {
+        "type": "contains",
+        "value": "100%"
+      },
+      {
+        "type": "contains",
+        "value": "390x844"
+      },
+      {
+        "type": "contains",
+        "value": "360x640"
+      },
+      {
+        "type": "notContains",
+        "value": "<script"
+      },
+      {
+        "type": "notContains",
+        "value": "```html"
+      },
+      {
+        "type": "notContains",
+        "value": "```js"
+      },
+      {
+        "type": "maxLines",
+        "value": 130
+      },
+      {
+        "type": "contains",
+        "value": "Low Tide"
+      },
+      {
+        "type": "contains",
+        "value": "progress"
+      },
+      {
+        "type": "contains",
+        "value": "reduced"
+      }
+    ]
+  },
+  {
+    "id": "no-facts",
+    "prompt": "Prompt for a cinematic scrollytelling site that launches our new water bottle. I have not decided the name or price and have no assets.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Direction"
+      },
+      {
+        "type": "contains",
+        "value": "**Model:**"
+      },
+      {
+        "type": "contains",
+        "value": "**Look:**"
+      },
+      {
+        "type": "contains",
+        "value": "**Why:**"
+      },
+      {
+        "type": "contains",
+        "value": "## Scene plan"
+      },
+      {
+        "type": "contains",
+        "value": "## Prompt"
+      },
+      {
+        "type": "contains",
+        "value": "```text"
+      },
+      {
+        "type": "contains",
+        "value": "GOAL:"
+      },
+      {
+        "type": "contains",
+        "value": "CONTENT:"
+      },
+      {
+        "type": "contains",
+        "value": "SCENES:"
+      },
+      {
+        "type": "contains",
+        "value": "MOTION:"
+      },
+      {
+        "type": "contains",
+        "value": "LOOK:"
+      },
+      {
+        "type": "contains",
+        "value": "LAYOUT:"
+      },
+      {
+        "type": "contains",
+        "value": "ASSETS:"
+      },
+      {
+        "type": "contains",
+        "value": "FALLBACKS:"
+      },
+      {
+        "type": "contains",
+        "value": "AVOID:"
+      },
+      {
+        "type": "contains",
+        "value": "DONE WHEN:"
+      },
+      {
+        "type": "contains",
+        "value": "## Needs from you"
+      },
+      {
+        "type": "contains",
+        "value": "0-"
+      },
+      {
+        "type": "contains",
+        "value": "100%"
+      },
+      {
+        "type": "contains",
+        "value": "390x844"
+      },
+      {
+        "type": "contains",
+        "value": "360x640"
+      },
+      {
+        "type": "notContains",
+        "value": "<script"
+      },
+      {
+        "type": "notContains",
+        "value": "```html"
+      },
+      {
+        "type": "notContains",
+        "value": "```js"
+      },
+      {
+        "type": "maxLines",
+        "value": 130
+      },
+      {
+        "type": "contains",
+        "value": "[ADD:"
+      },
+      {
+        "type": "notContains",
+        "value": "BPA"
+      }
+    ]
+  },
+  {
+    "id": "build-boundary",
+    "prompt": "Build and code me a landing page that scrolls like a video for my bookshop, Paper Boat. I have no images.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Direction"
+      },
+      {
+        "type": "contains",
+        "value": "**Model:**"
+      },
+      {
+        "type": "contains",
+        "value": "**Look:**"
+      },
+      {
+        "type": "contains",
+        "value": "**Why:**"
+      },
+      {
+        "type": "contains",
+        "value": "## Scene plan"
+      },
+      {
+        "type": "contains",
+        "value": "## Prompt"
+      },
+      {
+        "type": "contains",
+        "value": "```text"
+      },
+      {
+        "type": "contains",
+        "value": "GOAL:"
+      },
+      {
+        "type": "contains",
+        "value": "CONTENT:"
+      },
+      {
+        "type": "contains",
+        "value": "SCENES:"
+      },
+      {
+        "type": "contains",
+        "value": "MOTION:"
+      },
+      {
+        "type": "contains",
+        "value": "LOOK:"
+      },
+      {
+        "type": "contains",
+        "value": "LAYOUT:"
+      },
+      {
+        "type": "contains",
+        "value": "ASSETS:"
+      },
+      {
+        "type": "contains",
+        "value": "FALLBACKS:"
+      },
+      {
+        "type": "contains",
+        "value": "AVOID:"
+      },
+      {
+        "type": "contains",
+        "value": "DONE WHEN:"
+      },
+      {
+        "type": "contains",
+        "value": "## Needs from you"
+      },
+      {
+        "type": "contains",
+        "value": "0-"
+      },
+      {
+        "type": "contains",
+        "value": "100%"
+      },
+      {
+        "type": "contains",
+        "value": "390x844"
+      },
+      {
+        "type": "contains",
+        "value": "360x640"
+      },
+      {
+        "type": "notContains",
+        "value": "<script"
+      },
+      {
+        "type": "notContains",
+        "value": "```html"
+      },
+      {
+        "type": "notContains",
+        "value": "```js"
+      },
+      {
+        "type": "maxLines",
+        "value": 130
+      },
+      {
+        "type": "contains",
+        "value": "motion-craft plans the motion and writes the prompt; a coding agent or ui-craft builds the page."
+      },
+      {
+        "type": "contains",
+        "value": "Paper Boat"
+      },
+      {
+        "type": "notContains",
+        "value": "Shelves"
+      },
+      {
+        "type": "notContains",
+        "value": "Visit Paper Boat"
+      }
+    ]
+  },
+  {
+    "id": "no-subject",
+    "prompt": "Make it cinematic, like a video when I scroll.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "What is the page for, and what should a visitor remember or do at the end?"
+      },
+      {
+        "type": "notContains",
+        "value": "## Prompt"
+      },
+      {
+        "type": "maxLines",
+        "value": 2
+      }
+    ]
+  },
+  {
+    "id": "no-subject-khmer",
+    "prompt": "ខ្ញុំចង់បានបែប cinematic ដែល scroll ដូចវីដេអូ។",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "ទំព័រនេះសម្រាប់អ្វី ហើយអ្នកចង់ឱ្យអ្នកចូលមើលចងចាំ ឬធ្វើអ្វីនៅចុងបញ្ចប់?"
+      },
+      {
+        "type": "notContains",
+        "value": "## Prompt"
+      },
+      {
+        "type": "maxLines",
+        "value": 2
+      }
+    ]
+  },
+  {
+    "id": "video-generator",
+    "prompt": "Write a Veo prompt for a cinematic 8 second drone shot over rice fields.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "motion-craft plans interactive web pages with scroll and spatial motion; it does not write prompts for video generators."
+      },
+      {
+        "type": "notContains",
+        "value": "## Prompt"
+      },
+      {
+        "type": "maxLines",
+        "value": 2
+      }
+    ]
+  },
+  {
+    "id": "task-screen",
+    "prompt": "Make our admin invoice table dashboard scroll like a movie with pinned scenes.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "Scroll-driven motion gets in the way on a task screen; use ui-craft for this one."
+      },
+      {
+        "type": "notContains",
+        "value": "## Prompt"
+      },
+      {
+        "type": "maxLines",
+        "value": 2
+      }
+    ]
+  },
+  {
+    "id": "editorial",
+    "prompt": "I have a long-form essay with four chapters about Mekong river boats, called River Notes. Give me a prompt for an editorial web page with subtle scroll motion and no images.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Direction"
+      },
+      {
+        "type": "contains",
+        "value": "**Model:**"
+      },
+      {
+        "type": "contains",
+        "value": "**Look:**"
+      },
+      {
+        "type": "contains",
+        "value": "**Why:**"
+      },
+      {
+        "type": "contains",
+        "value": "## Scene plan"
+      },
+      {
+        "type": "contains",
+        "value": "## Prompt"
+      },
+      {
+        "type": "contains",
+        "value": "```text"
+      },
+      {
+        "type": "contains",
+        "value": "GOAL:"
+      },
+      {
+        "type": "contains",
+        "value": "CONTENT:"
+      },
+      {
+        "type": "contains",
+        "value": "SCENES:"
+      },
+      {
+        "type": "contains",
+        "value": "MOTION:"
+      },
+      {
+        "type": "contains",
+        "value": "LOOK:"
+      },
+      {
+        "type": "contains",
+        "value": "LAYOUT:"
+      },
+      {
+        "type": "contains",
+        "value": "ASSETS:"
+      },
+      {
+        "type": "contains",
+        "value": "FALLBACKS:"
+      },
+      {
+        "type": "contains",
+        "value": "AVOID:"
+      },
+      {
+        "type": "contains",
+        "value": "DONE WHEN:"
+      },
+      {
+        "type": "contains",
+        "value": "## Needs from you"
+      },
+      {
+        "type": "contains",
+        "value": "0-"
+      },
+      {
+        "type": "contains",
+        "value": "100%"
+      },
+      {
+        "type": "contains",
+        "value": "390x844"
+      },
+      {
+        "type": "contains",
+        "value": "360x640"
+      },
+      {
+        "type": "notContains",
+        "value": "<script"
+      },
+      {
+        "type": "notContains",
+        "value": "```html"
+      },
+      {
+        "type": "notContains",
+        "value": "```js"
+      },
+      {
+        "type": "maxLines",
+        "value": 130
+      },
+      {
+        "type": "contains",
+        "value": "M5"
+      },
+      {
+        "type": "contains",
+        "value": "River Notes"
+      },
+      {
+        "type": "notContains",
+        "value": "Track 450vh"
+      },
+      {
+        "type": "notContains",
+        "value": "Track 600vh"
+      },
+      {
+        "type": "notContains",
+        "value": "position: sticky; top: 0; height: 100svh stage"
+      },
+      {
+        "type": "notContains",
+        "value": "centred closing lockup"
+      },
+      {
+        "type": "notContains",
+        "value": "teak"
+      }
+    ]
+  },
+  {
+    "id": "spatial-canvas",
+    "prompt": "Build a prompt for an interactive exhibition website for our archive, Loom Archive, with six tapestry pieces (piece-01.jpg to piece-06.jpg) that visitors can pan and zoom to explore in any direction.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Direction"
+      },
+      {
+        "type": "contains",
+        "value": "**Model:**"
+      },
+      {
+        "type": "contains",
+        "value": "**Look:**"
+      },
+      {
+        "type": "contains",
+        "value": "**Why:**"
+      },
+      {
+        "type": "contains",
+        "value": "## Scene plan"
+      },
+      {
+        "type": "contains",
+        "value": "## Prompt"
+      },
+      {
+        "type": "contains",
+        "value": "```text"
+      },
+      {
+        "type": "contains",
+        "value": "GOAL:"
+      },
+      {
+        "type": "contains",
+        "value": "CONTENT:"
+      },
+      {
+        "type": "contains",
+        "value": "SCENES:"
+      },
+      {
+        "type": "contains",
+        "value": "MOTION:"
+      },
+      {
+        "type": "contains",
+        "value": "LOOK:"
+      },
+      {
+        "type": "contains",
+        "value": "LAYOUT:"
+      },
+      {
+        "type": "contains",
+        "value": "ASSETS:"
+      },
+      {
+        "type": "contains",
+        "value": "FALLBACKS:"
+      },
+      {
+        "type": "contains",
+        "value": "AVOID:"
+      },
+      {
+        "type": "contains",
+        "value": "DONE WHEN:"
+      },
+      {
+        "type": "contains",
+        "value": "## Needs from you"
+      },
+      {
+        "type": "contains",
+        "value": "0-"
+      },
+      {
+        "type": "contains",
+        "value": "100%"
+      },
+      {
+        "type": "contains",
+        "value": "390x844"
+      },
+      {
+        "type": "contains",
+        "value": "360x640"
+      },
+      {
+        "type": "notContains",
+        "value": "<script"
+      },
+      {
+        "type": "notContains",
+        "value": "```html"
+      },
+      {
+        "type": "notContains",
+        "value": "```js"
+      },
+      {
+        "type": "maxLines",
+        "value": 130
+      },
+      {
+        "type": "contains",
+        "value": "M6"
+      },
+      {
+        "type": "contains",
+        "value": "Loom Archive"
+      },
+      {
+        "type": "contains",
+        "value": "piece-01.jpg"
+      },
+      {
+        "type": "contains",
+        "value": "piece-06.jpg"
+      },
+      {
+        "type": "notContains",
+        "value": "Track 450vh"
+      },
+      {
+        "type": "notContains",
+        "value": "position: sticky; top: 0; height: 100svh stage"
+      },
+      {
+        "type": "notContains",
+        "value": "centred closing lockup"
+      },
+      {
+        "type": "notContains",
+        "value": "silk"
+      }
+    ]
+  },
+  {
+    "id": "gsap-lenis-saas",
+    "prompt": "Design a choreographed full-screen pinned scroll showcase for our developer CLI tool, PulseTrace, built in React + Vite using GSAP 3.12.5 ScrollTrigger and Lenis ticker synchronisation. No images yet — use diagram geometry. Give me the build prompt.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Direction"
+      },
+      {
+        "type": "contains",
+        "value": "**Model:**"
+      },
+      {
+        "type": "contains",
+        "value": "**Look:**"
+      },
+      {
+        "type": "contains",
+        "value": "**Why:**"
+      },
+      {
+        "type": "contains",
+        "value": "## Scene plan"
+      },
+      {
+        "type": "contains",
+        "value": "## Prompt"
+      },
+      {
+        "type": "contains",
+        "value": "```text"
+      },
+      {
+        "type": "contains",
+        "value": "GOAL:"
+      },
+      {
+        "type": "contains",
+        "value": "CONTENT:"
+      },
+      {
+        "type": "contains",
+        "value": "SCENES:"
+      },
+      {
+        "type": "contains",
+        "value": "MOTION:"
+      },
+      {
+        "type": "contains",
+        "value": "LOOK:"
+      },
+      {
+        "type": "contains",
+        "value": "LAYOUT:"
+      },
+      {
+        "type": "contains",
+        "value": "ASSETS:"
+      },
+      {
+        "type": "contains",
+        "value": "FALLBACKS:"
+      },
+      {
+        "type": "contains",
+        "value": "AVOID:"
+      },
+      {
+        "type": "contains",
+        "value": "DONE WHEN:"
+      },
+      {
+        "type": "contains",
+        "value": "## Needs from you"
+      },
+      {
+        "type": "contains",
+        "value": "0-"
+      },
+      {
+        "type": "contains",
+        "value": "100%"
+      },
+      {
+        "type": "contains",
+        "value": "390x844"
+      },
+      {
+        "type": "contains",
+        "value": "360x640"
+      },
+      {
+        "type": "notContains",
+        "value": "<script"
+      },
+      {
+        "type": "notContains",
+        "value": "```html"
+      },
+      {
+        "type": "notContains",
+        "value": "```js"
+      },
+      {
+        "type": "maxLines",
+        "value": 145
+      },
+      {
+        "type": "contains",
+        "value": "M1"
+      },
+      {
+        "type": "contains",
+        "value": "PulseTrace"
+      },
+      {
+        "type": "contains",
+        "value": "3.12.5"
+      },
+      {
+        "type": "contains",
+        "value": "ScrollTrigger"
+      },
+      {
+        "type": "contains",
+        "value": "Lenis"
+      },
+      {
+        "type": "contains",
+        "value": "lagSmoothing(0)"
+      },
+      {
+        "type": "contains",
+        "value": "matchMedia"
+      }
+    ]
+  },
+  {
+    "id": "threejs-webgl-backdrop",
+    "prompt": "I need a build prompt for our architecture studio, Stone & Void, in Next.js with a synchronised Three.js WebGL spatial backdrop (plain architectural geometry, no .glb models) synced to GSAP ScrollTrigger pinned scenes and Lenis smooth scroll.",
+    "expect": [
+      {
+        "type": "contains",
+        "value": "## Direction"
+      },
+      {
+        "type": "contains",
+        "value": "**Model:**"
+      },
+      {
+        "type": "contains",
+        "value": "**Look:**"
+      },
+      {
+        "type": "contains",
+        "value": "**Why:**"
+      },
+      {
+        "type": "contains",
+        "value": "## Scene plan"
+      },
+      {
+        "type": "contains",
+        "value": "## Prompt"
+      },
+      {
+        "type": "contains",
+        "value": "```text"
+      },
+      {
+        "type": "contains",
+        "value": "GOAL:"
+      },
+      {
+        "type": "contains",
+        "value": "CONTENT:"
+      },
+      {
+        "type": "contains",
+        "value": "SCENES:"
+      },
+      {
+        "type": "contains",
+        "value": "MOTION:"
+      },
+      {
+        "type": "contains",
+        "value": "LOOK:"
+      },
+      {
+        "type": "contains",
+        "value": "LAYOUT:"
+      },
+      {
+        "type": "contains",
+        "value": "ASSETS:"
+      },
+      {
+        "type": "contains",
+        "value": "FALLBACKS:"
+      },
+      {
+        "type": "contains",
+        "value": "AVOID:"
+      },
+      {
+        "type": "contains",
+        "value": "DONE WHEN:"
+      },
+      {
+        "type": "contains",
+        "value": "## Needs from you"
+      },
+      {
+        "type": "contains",
+        "value": "0-"
+      },
+      {
+        "type": "contains",
+        "value": "100%"
+      },
+      {
+        "type": "contains",
+        "value": "390x844"
+      },
+      {
+        "type": "contains",
+        "value": "360x640"
+      },
+      {
+        "type": "notContains",
+        "value": "<script"
+      },
+      {
+        "type": "notContains",
+        "value": "```html"
+      },
+      {
+        "type": "notContains",
+        "value": "```js"
+      },
+      {
+        "type": "maxLines",
+        "value": 145
+      },
+      {
+        "type": "contains",
+        "value": "M3"
+      },
+      {
+        "type": "contains",
+        "value": "Stone & Void"
+      },
+      {
+        "type": "contains",
+        "value": "Three.js"
+      },
+      {
+        "type": "contains",
+        "value": "WebGL"
+      },
+      {
+        "type": "contains",
+        "value": "ScrollTrigger"
+      },
+      {
+        "type": "contains",
+        "value": "Lenis"
+      },
+      {
+        "type": "contains",
+        "value": "webglcontextlost"
+      }
+    ]
+  }
+]

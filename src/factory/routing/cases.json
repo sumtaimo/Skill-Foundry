@@ -473,5 +473,40 @@
     "id": "wr6",
     "prompt": "Open my app on localhost:3000, click through the sign-up flow and tell me which step fails.",
     "expect": "browser-check"
+  },
+  {
+    "id": "mc1",
+    "prompt": "I want a website that scrolls like a video for our tea shop, write me the prompt.",
+    "expect": "motion-craft"
+  },
+  {
+    "id": "mc2",
+    "prompt": "ខ្ញុំចង់បាន website សម្រាប់ហាងកាហ្វេ \"ដើមត្នោត\" ដែល scroll ទៅដូចមើលវីដេអូ។ សូមសរសេរ prompt ឱ្យខ្ញុំ។",
+    "expect": "motion-craft"
+  },
+  {
+    "id": "mc3",
+    "prompt": "Give me a build prompt for our SaaS product launch using GSAP ScrollTrigger pinned scenes and Lenis ticker synchronisation.",
+    "expect": "motion-craft"
+  },
+  {
+    "id": "mc4",
+    "prompt": "Write a prompt for an architecture studio showcase with a synchronised Three.js WebGL spatial backdrop on scroll.",
+    "expect": "motion-craft"
+  },
+  {
+    "id": "mc5",
+    "prompt": "Build me a clean pricing landing page with a navbar, FAQ and footer in React.",
+    "expect": "ui-craft"
+  },
+  {
+    "id": "mc6",
+    "prompt": "Make our admin invoice table dashboard scroll smoothly when rows are filtered.",
+    "expect": "none"
+  },
+  {
+    "id": "mc7",
+    "prompt": "Write a Veo prompt for a cinematic 8 second drone shot over rice fields.",
+    "expect": "none"
   }
 ]

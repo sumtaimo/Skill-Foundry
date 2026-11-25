@@ -1,0 +1,7 @@
+{
+  "title": "motion-craft",
+  "tagline": "Turns any scroll or spatial motion idea into a timed scene plan and build prompt.",
+  "prompt": "I run a small pottery studio and want a website that scrolls like a film. I have no photos yet.",
+  "outputs": ["One direction with stack tier and reason", "A timed scene plan", "One English prompt with fallbacks and checks"],
+  "tags": ["motion", "scroll", "gsap", "webgl", "khmer"]
+}

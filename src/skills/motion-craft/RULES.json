@@ -1,0 +1,72 @@
+[
+  {
+    "id": "R-motion-craft-1",
+    "text": "A plan MUST recommend exactly one model and one look from the references and say why in the user's language; NEVER give a menu of directions.",
+    "checklist": "One model and one look, with a reason in the user language."
+  },
+  {
+    "id": "R-motion-craft-2",
+    "text": "The scene plan MUST have 3 to 6 scenes whose scroll ranges start at 0, end at 100 and touch with no gap or overlap; the prompt MUST repeat the same ranges.",
+    "checklist": "3 to 6 contiguous ranges from 0 to 100, the same in table and prompt."
+  },
+  {
+    "id": "R-motion-craft-3",
+    "text": "The prompt MUST be one self-contained English text block with the ten labelled parts of layer 08 and numeric timing, colours and sizes; NEVER use a mood word in place of an instruction.",
+    "checklist": "One English text block has all ten labels in order and real numbers."
+  },
+  {
+    "id": "R-motion-craft-4",
+    "text": "NEVER invent a name, price, date, number, award, quote, address, material, process, service, product feature or link, even one typical of that kind of business; an unknown fact MUST be left out or be an `[ADD: ...]` slot listed under Needs from you.",
+    "checklist": "Every fact is in the request, or is a listed slot."
+  },
+  {
+    "id": "R-motion-craft-5",
+    "text": "A plan MUST work with the assets the user has; NEVER assume video, photos or models, stock media or generated stand-ins.",
+    "checklist": "Every asset used was stated by the user or is drawn in code."
+  },
+  {
+    "id": "R-motion-craft-6",
+    "text": "The prompt MUST keep semantic HTML in reading order, native scroll, keyboard access, and a complete static version for reduced motion, no JavaScript and failed media; NEVER let a style request remove these.",
+    "checklist": "Semantic order, native scroll, keyboard and all three fallbacks are in the prompt."
+  },
+  {
+    "id": "R-motion-craft-7",
+    "text": "The prompt MUST say how text and media share the screen at 1440x900, 390x844 and 360x640, and that two scenes' text is never readable in the same place at the same time.",
+    "checklist": "The three viewports and the no-overlap hand-over are in the prompt."
+  },
+  {
+    "id": "R-motion-craft-8",
+    "text": "The template exclusions MUST be on by default; one the user asks for by name MUST be allowed and left out of AVOID.",
+    "checklist": "Exclusions are present except the ones the user asked for."
+  },
+  {
+    "id": "R-motion-craft-9",
+    "text": "A named brand, studio, magazine or site MUST be translated to its mechanism; NEVER put that name in the prompt or copy its layout, words, assets or identity, unless it is the user's own brand.",
+    "checklist": "No reference brand appears in the prompt."
+  },
+  {
+    "id": "R-motion-craft-10",
+    "text": "Khmer page text MUST get a Khmer font, line height 1.6 or more, letter spacing 0, and reveals by line or block; NEVER split it by character or give it negative tracking.",
+    "checklist": "Khmer copy gets font, line height, spacing and block reveal."
+  },
+  {
+    "id": "R-motion-craft-11",
+    "text": "NEVER write page code, create a file the user did not ask for, or claim the result was built, tested or previewed.",
+    "checklist": "No page code, unasked file or claim of testing."
+  },
+  {
+    "id": "R-motion-craft-12",
+    "text": "A request matching a fixed state of layer 06 MUST get that state's exact sentence and stop when the state says stop.",
+    "checklist": "Fixed states use the exact sentence."
+  },
+  {
+    "id": "R-motion-craft-13",
+    "text": "A plan MUST have one signature motif drawn from the subject or its media that is detailed enough to recognise with no label, fills at least a third of the stage and visibly transforms in every scene, ending in a composition unlike the opening, and at least one scene MUST change the field colour; NEVER rely on fades and thin lines alone.",
+    "checklist": "One large motif transforms in every scene and one scene changes the field colour."
+  },
+  {
+    "id": "R-motion-craft-14",
+    "text": "The skill MUST have the ten core layers linked from SKILL.md and stay self-contained.",
+    "checklist": "chk-layers and chk-portable pass."
+  }
+]
