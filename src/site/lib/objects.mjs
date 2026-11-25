@@ -18,9 +18,12 @@ export const extract = {
   toast(prompt, answer) {
     const L = lines(answer); const i = L.findIndex((l) => /^Rewritten copy:/.test(l.trim()));
     if (i < 0) return null;
-    const after = L.slice(i + 1).find((l) => l.trim());
-    const before = /'([^']{8,})'|"([^"]{8,})"/.exec(prompt);
-    return after ? { before: before ? before[1] ?? before[2] : null, after: unquote(after) } : null;
+    const inline = L[i].trim().replace(/^Rewritten copy:\s*/i, '').trim();
+    const after = inline || L.slice(i + 1).find((l) => l.trim());
+    const quoted = /'([^']{8,})'|"([^"]{8,})"/.exec(prompt);
+    const afterColon = quoted ? null : /(?:copy|message|text|error)\s*:\s*(.{8,})$/i.exec(String(prompt).trim());
+    const before = quoted ? (quoted[1] ?? quoted[2]) : (afterColon ? afterColon[1].trim() : null);
+    return after ? { before, after: unquote(after) } : null;
   },
   tag(answer) {
     const L = lines(answer); const i = L.findIndex((l) => /^##\s+\d+\.\d+\.\d+\s+-\s+\d{4}-\d\d-\d\d/.test(l));

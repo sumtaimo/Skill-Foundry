@@ -99,3 +99,29 @@ test('no JavaScript: the visible text has no raw placeholder', async (t) => {
     await browser.close();
   }
 });
+
+test('scroll reveal: scrolling through all skill cards reveals every card cleanly without stuck opacity', async (t) => {
+  const chromium = await loadPw();
+  if (!chromium) { t.skip(SKIP_REASON); return; }
+  const out = mkdtempSync(join(tmpdir(), 'sf-visual4-'));
+  await buildSite({ root: ROOT, out });
+  const browser = await chromium.launch();
+  try {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const page = await ctx.newPage();
+    await page.goto(pathToFileURL(join(out, 'index.html')).href, { waitUntil: 'load' });
+    const totalHeight = await page.evaluate(() => document.body.scrollHeight);
+    for (let y = 0; y <= totalHeight; y += 600) {
+      await page.evaluate((pos) => window.scrollTo(0, pos), y);
+      await page.waitForTimeout(80);
+    }
+    await page.waitForTimeout(400);
+    const stuck = await page.evaluate(() => [...document.querySelectorAll('.plate')].filter((el) => Number(getComputedStyle(el).opacity) < 0.99).map((el) => el.dataset.skill));
+    assert.deepEqual(stuck, [], `cards stuck invisible after scroll: ${stuck.join(', ')}`);
+    const copyTightSvg = await page.evaluate(() => document.querySelector('[data-skill="copy-tight"] .cover')?.textContent || '');
+    assert.ok(!copyTightSvg.includes('What changed:'), `copy-tight cover showed heading instead of rewritten copy: ${copyTightSvg}`);
+    await ctx.close();
+  } finally {
+    await browser.close();
+  }
+});

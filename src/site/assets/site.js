@@ -237,31 +237,52 @@
     }
   }
 
-  /* Scroll reveal: marks section heads and cards with .reveal, staggers cards in a grid by 60ms (--i),
-     adds .is-in when they enter the viewport. No observer or reduced motion: everything shows at once. */
+  /* Scroll reveal: marks section heads and cards with .reveal, staggers cards per 3-col row by 35ms (--i: 0..2),
+     adds .is-in when near or inside the viewport, with a scroll sweep fallback so fast scrolling never leaves ghost cards. */
   var REVEAL = '.sec-head, .plate, .stat, .steps > .step, .agent-card, .limit, .faq-box, main > .stage';
   function setupReveal() {
     var els = document.querySelectorAll(REVEAL);
     if (!els.length) return;
     var still = reducedMotion() || !('IntersectionObserver' in window);
-    var vh = window.innerHeight || 900;
+    var pending = [];
+    function show(el) {
+      if (el.classList.contains('is-in')) return;
+      el.classList.add('is-in');
+      window.setTimeout(function () { el.style.removeProperty('--i'); }, 500);
+    }
     var io = still ? null : new IntersectionObserver(function (entries) {
       for (var i = 0; i < entries.length; i++) {
         if (entries[i].isIntersecting) { show(entries[i].target); io.unobserve(entries[i].target); }
       }
-    }, { rootMargin: '0px 0px -4% 0px', threshold: 0.04 });
-    function show(el) {
-      el.classList.add('is-in');
-      window.setTimeout(function () { el.style.removeProperty('--i'); }, 1200);
+    }, { rootMargin: '0px 0px 140px 0px', threshold: 0.01 });
+    function sweep() {
+      var vh = window.innerHeight || 900;
+      for (var k = pending.length - 1; k >= 0; k--) {
+        var el = pending[k];
+        if (el.classList.contains('is-in')) { pending.splice(k, 1); continue; }
+        var r = el.getBoundingClientRect();
+        if (r.top < vh + 140 && r.bottom > -40) {
+          show(el);
+          if (io) io.unobserve(el);
+          pending.splice(k, 1);
+        }
+      }
     }
+    var vh0 = window.innerHeight || 900;
     for (var j = 0; j < els.length; j++) {
       var el = els[j];
       var sibs = el.parentNode ? Array.prototype.indexOf.call(el.parentNode.children, el) : 0;
-      if (el.matches('.plate, .stat, .step, .limit')) el.style.setProperty('--i', String(Math.min(sibs, 8)));
+      if (el.matches('.plate')) el.style.setProperty('--i', String(sibs % 3));
+      else if (el.matches('.stat, .step, .limit')) el.style.setProperty('--i', String(Math.min(sibs, 2)));
       if (still) { el.classList.add('reveal', 'is-in'); continue; }
       el.classList.add('reveal');
       var r = el.getBoundingClientRect();
-      if (r.top < vh && r.bottom > 0) show(el); else io.observe(el);
+      if (r.top < vh0 + 140 && r.bottom > -40) show(el);
+      else { io.observe(el); pending.push(el); }
+    }
+    if (!still && pending.length) {
+      window.addEventListener('scroll', sweep, { passive: true });
+      window.addEventListener('resize', sweep, { passive: true });
     }
   }
 
