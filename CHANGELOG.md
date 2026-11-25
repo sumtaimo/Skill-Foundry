@@ -4,6 +4,10 @@ Versions of Skill Foundry itself (the `skill-foundry` command and the set of ski
 version in its folder. Versions move slowly: a bump needs the owner's approval in chat; record smaller changes under the
 current version.
 
+## 1.9.0 - 2026-11-25
+
+- New skill `svg-mechanism` 0.1.0 (fetched on demand, not in the default core; `DEV_ENGINEER`, `UX_DESIGNER`, `engine: optional`): builds animated 2D technical architecture, data-flow, pipeline, protocol handshake, and mechanism explainer SVGs synced to CSS design tokens (`design/tokens.css` first, light/dark fallback tokens), with `<defs>` gradients/markers, semantic layer groups, accessible Play/Pause `aria-pressed` controls, keyboard stage focus with `aria-live="polite"`, screen-reader `<title>`/`<desc>`, Khmer-safe label typography, and `prefers-reduced-motion: reduce` static fallback. Includes zero-dependency `engine/lint-svg.mjs` (`M1`–`M8`); proven by fresh real agents (live 9 of 9, routing 101 of 101, portable, Playwright `checkPage` at `1440px` and `390px` in light/dark/reduced-motion) and verified against Agentic-Harness roles, keywords, and dual-order audit.
+
 ## 1.8.0 - 2026-11-22
 
 - Agentic-Harness 1.0.47 cross-repo alignment (under current version pending PO bump approval): updated `spec-writer` (`R-spec-writer-16`, `R-spec-writer-17`) with the `Flow & State Table` for multi-screen/multi-step features and reading `docs/foundation/product.md` / `domain.md` by reference (handling `(fill me)` as unknown); updated `src/factory/lint-skills.mjs` (`chk-portable`) to allow user-project `docs/foundation/` and `docs/ux/` paths; updated `src/factory/foundry.mjs` to recognize all 4 historical Agentic-Harness `spec-writer` starter stub hashes and keep the non-HTML warning accurate for `UX_DESIGNER` with `docs/ux/**`; added `--engine agy` support to `src/factory/recipe-run.mjs`.

@@ -308,7 +308,7 @@
     "name": "svg-mechanism",
     "version": "0.1.0",
     "purpose": "Builds animated 2D technical architecture, data-flow, pipeline, protocol handshake and mechanism explainer SVGs synced to CSS design tokens, with <defs> gradients/markers, interactive Play/Pause controls, screen-reader title/desc and prefers-reduced-motion fallback.",
-    "status": "draft",
+    "status": "ready",
     "roles": [
       "DEV_ENGINEER",
       "UX_DESIGNER"
@@ -322,6 +322,7 @@
       "protocol handshake svg",
       "svg flow"
     ],
-    "engine": "optional"
+    "engine": "optional",
+    "default": false
   }
 ]

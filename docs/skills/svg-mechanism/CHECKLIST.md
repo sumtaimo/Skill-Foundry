@@ -1,7 +1,7 @@
 # Review Checklist — `svg-mechanism`
 
-- **Skill version:** `0.1.0` (`draft`)
-- **Date:** `2026-11-24`
+- **Skill version:** `0.1.0` (`ready`)
+- **Date:** `2026-11-25`
 - **Roles:** `DEV_ENGINEER`, `UX_DESIGNER`
 
 ## Machine & Factory Gates
@@ -17,4 +17,4 @@
 - [x] `R-svg-mechanism-11`: Discrete stages support keyboard focus / step inspection with `aria-live="polite"` readout
 - [x] `R-svg-mechanism-14`: Browser checks verified at `1440px` and `390px` in light/dark/reduced-motion modes
 - [x] `figure-craft` untouched; clear separation between 2D technical architecture SVGs (`svg-mechanism`), 3D isometric object cutaways (`figure-craft`), product UI screens (`ui-craft`), and scroll-driven showcases (`motion-craft`)
-- [ ] Agentic-Harness risk check (`AGENTS.md` Rule 14) & PO approval before flipping `status` from `draft` to `ready` (`1.0.0`)
+- [x] Agentic-Harness risk check (`AGENTS.md` Rule 14) complete & promoted `status` from `draft` to `ready` (`0.1.0`, `default: false`; Skill Foundry `1.9.0`; `Agentic-Harness/test/audit.mjs` verified)
