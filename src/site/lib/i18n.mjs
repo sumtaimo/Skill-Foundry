@@ -196,6 +196,9 @@ export const DICTS = {
     "gh.label": "Skill Foundry on GitHub",
     "foot.changelog": "Changelog",
     "foot.license": "License MIT",
+    "pg.title": "Interactive playground",
+    "pg.open": "Open full screen",
+    "pg.badge": "Interactive",
   },
   kh: {
     "skip": "រំលងទៅមាតិកា",
@@ -385,5 +388,8 @@ export const DICTS = {
     "gh.label": "Skill Foundry នៅលើ GitHub",
     "foot.changelog": "កំណត់ត្រាការផ្លាស់ប្តូរ",
     "foot.license": "អាជ្ញាប័ណ្ណ MIT",
+    "pg.title": "សាកល្បងលទ្ធផលផ្ទាល់",
+    "pg.open": "បើកពេញអេក្រង់",
+    "pg.badge": "សាកល្បងផ្ទាល់",
   },
 };

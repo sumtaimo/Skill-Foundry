@@ -202,7 +202,7 @@ svg, img, iframe { max-width: 100%; }
 .mark { flex: none; color: var(--fg); }
 .mark-fg { fill: var(--bg); }
 /* One badge size for every badge-like element */
-.pill-tag, .role-chip, .cover-tag, .step-n, .ver-chip {
+.pill-tag, .role-chip, .cover-tag, .pg-badge, .step-n, .ver-chip {
   display: inline-flex; align-items: center; justify-content: center; min-height: 24px; padding: 0 8px;
   font-size: 13px; font-weight: 500; line-height: 1;
   border: 1px solid var(--line); background: var(--surface); color: var(--muted); border-radius: var(--r-sm);
@@ -351,8 +351,46 @@ main > section[id].real-result {
 .cover { border-radius: var(--r-md); overflow: hidden; border: 1px solid var(--line); color: var(--fg); line-height: 0; position: relative; background: var(--surface); }
 .cover svg { display: block; width: 100%; height: auto; }
 .cover-lg { max-width: 720px; padding: var(--s-2); }
-.cover-tag { position: absolute; left: var(--s-2); bottom: var(--s-2); z-index: 2; }
+.cover-tag { position: absolute; left: var(--s-2); bottom: var(--s-2); z-index: 3; }
 .cover-tag[data-kind="concept"] { color: var(--fg); border-style: dashed; }
+.pg-badge { position: absolute; right: var(--s-2); top: var(--s-2); z-index: 3; background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.cover-frame {
+  position: absolute; top: 0; left: 0; width: 280%; height: 280%; max-width: none;
+  transform: scale(0.3571); transform-origin: 0 0; border: 0; pointer-events: none; z-index: 2;
+  background: var(--surface);
+}
+
+/* Live interactive playground inside #result on visual/UI skill pages */
+@media (max-width: 899px) {
+  .real-result.has-playground { display: flex; flex-direction: column; }
+}
+.real-result.has-playground > h2 { order: -2; }
+.playground {
+  width: 100%; grid-column: 1 / -1; order: -1; margin: 0 0 var(--s-6);
+  border: 1px solid var(--line-strong); border-radius: var(--r-lg);
+  background: var(--surface-2); overflow: hidden;
+}
+.pg-bar {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-2) var(--s-3);
+  padding: var(--s-3); border-bottom: 1px solid var(--line); background: var(--surface);
+}
+.pg-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); flex: 1 1 auto; min-width: 0; }
+.pg-title { font-weight: 600; color: var(--fg); white-space: nowrap; margin-right: var(--s-1); }
+.pg-open { flex: none; }
+.pg-name { color: var(--muted); }
+.pg-tabs { display: flex; flex-wrap: wrap; gap: var(--s-1); }
+.pg-tab {
+  display: inline-flex; align-items: center; justify-content: center; min-height: var(--target); min-width: var(--target);
+  padding: 0 var(--s-3); font: 500 var(--fs-body)/1.2 var(--sans); color: var(--muted);
+  background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-md); cursor: pointer;
+  transition: color .15s var(--ease), border-color .15s var(--ease), background-color .15s var(--ease);
+}
+.pg-tab:hover { color: var(--fg); border-color: var(--line-strong); }
+.pg-tab[aria-pressed="true"] { color: var(--bg); background: var(--fg); border-color: var(--fg); }
+.pg-frame { display: block; width: 100%; height: 520px; border: 0; background: var(--surface); }
+@media (max-width: 760px) {
+  .pg-frame { height: 420px; }
+}
 
 /* Meta row: version, cases, date, role chips; the same on cards and detail pages */
 .meta-row {
@@ -382,9 +420,9 @@ main > section[id].real-result {
 .plate:has(h3 a:focus-visible), .plate:has(.plate-act a:focus-visible) { border-color: var(--faint); }
 .plate .cover { background: var(--surface-2); aspect-ratio: 16 / 10; display: flex; align-items: center; justify-content: center; padding: var(--s-2); }
 .plate .cover svg, .plate .cover img { width: 100%; height: 100%; transition: transform .3s var(--ease); }
-.plate .cover:has(> svg.doc-figure:not(.obj)) { align-items: flex-start; padding: var(--s-2) var(--s-2) 0; }
-.plate .cover:has(> svg.doc-figure:not(.obj)) > svg { width: 100%; height: auto; }
-.plate .cover:has(> svg.doc-figure:not(.obj))::after {
+.plate .cover:not(.cover-live):has(> svg.doc-figure:not(.obj)) { align-items: flex-start; padding: var(--s-2) var(--s-2) 0; }
+.plate .cover:not(.cover-live):has(> svg.doc-figure:not(.obj)) > svg { width: 100%; height: auto; }
+.plate .cover:not(.cover-live):has(> svg.doc-figure:not(.obj))::after {
   content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 48px; z-index: 1; pointer-events: none;
   background: linear-gradient(180deg, transparent, var(--surface-2) 86%);
 }

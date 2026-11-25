@@ -86,7 +86,26 @@ export async function buildSite({ root = REPO_ROOT, out = join(REPO_ROOT, 'dist'
     await writeFile(join(dir, 'banner.svg'), sanitizeBanner(bannerSvg(s, { standalone: true })));
     await writeFile(join(dir, 'index.html'), renderSkillPage(s, { download: dl, siteUrl: process.env.SITE_URL, version }));
     pages.push(`skills/${s.name}/index.html`);
-    if (s.example) await copyFile(s.exampleSrc, join(dir, 'example.html'));
+    if (Array.isArray(s.playgrounds) && s.playgrounds.length) {
+      for (const pg of s.playgrounds) {
+        const dst = join(dir, pg.file);
+        await mkdir(dirname(dst), { recursive: true });
+        if (pg.assets?.length) {
+          let html = await readFile(pg.src, 'utf8');
+          const byRel = new Map(pg.assets.map((a) => [a.rel, a.from]));
+          for (const [rel, from] of byRel) {
+            const cssText = (await readFile(from, 'utf8')).replace(/<\/style/gi, '<\\/style');
+            const escRel = rel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            html = html.replace(new RegExp(`<link\\b[^>]*href="${escRel}(?:[?#][^"]*)?"[^>]*>`, 'gi'), `<style>\n${cssText}\n</style>`);
+          }
+          await writeFile(dst, html);
+        } else {
+          await copyFile(pg.src, dst);
+        }
+      }
+    } else if (s.example) {
+      await copyFile(s.exampleSrc, join(dir, 'example.html'));
+    }
   }
   await writeFile(join(out, 'skills.json'), JSON.stringify(agentIndex(skills, checksums, { version }), null, 2) + '\n');
   await writeFile(join(out, 'llms.txt'), llmsTxt(skills, checksums, { version }));
@@ -159,7 +178,7 @@ export async function checkSite(out, opts = {}) {
   const problems = [];
   const files = await listAll(out);
   const fileSet = new Set(files);
-  const html = files.filter((f) => f.endsWith('.html') && !f.endsWith('/example.html'));
+  const html = files.filter((f) => f.endsWith('.html') && !f.endsWith('/example.html') && !/\/demos\/[^/]+\.html$/.test(f));
 
   // manifest: ready vs draft
   let ready = [];

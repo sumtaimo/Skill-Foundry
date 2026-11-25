@@ -120,6 +120,14 @@ test('scroll reveal: scrolling through all skill cards reveals every card cleanl
     assert.deepEqual(stuck, [], `cards stuck invisible after scroll: ${stuck.join(', ')}`);
     const copyTightSvg = await page.evaluate(() => document.querySelector('[data-skill="copy-tight"] .cover')?.textContent || '');
     assert.ok(!copyTightSvg.includes('What changed:'), `copy-tight cover showed heading instead of rewritten copy: ${copyTightSvg}`);
+    // Verify svg-mechanism live interactive playground & tab switcher
+    await page.goto(pathToFileURL(join(out, 'skills', 'svg-mechanism', 'index.html')).href, { waitUntil: 'load' });
+    const src0 = await page.getAttribute('.pg-frame', 'src');
+    assert.equal(src0, 'example.html', 'svg-mechanism opens primary webhook-pipeline playground');
+    const khTab = page.locator('.pg-tab[data-pg-src="demos/khmer-payment-flow.html"]');
+    await khTab.click();
+    assert.equal(await page.getAttribute('.pg-frame', 'src'), 'demos/khmer-payment-flow.html', 'tab switches playground to Khmer demo');
+    assert.equal(await page.getAttribute('.pg-open', 'href'), 'demos/khmer-payment-flow.html', 'open full screen link tracks active demo');
     await ctx.close();
   } finally {
     await browser.close();

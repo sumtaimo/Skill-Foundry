@@ -254,8 +254,13 @@ ${o.version ? t('foot.version', 'p', 'class="foot-ver"', { v: o.version }) : ''}
 export function renderCard(skill, opts = {}) {
   need(skill, 'renderCard');
   const up = '../'.repeat(opts.depth ?? 0);
+  const hasPg = Array.isArray(skill.playgrounds) && skill.playgrounds.length > 0;
+  const frame = skill.liveCover
+    ? `<iframe class="cover-frame" sandbox="allow-scripts" tabindex="-1" aria-hidden="true" src="${up}skills/${esc(skill.name)}/example.html" title="${esc(skill.title)} live preview"></iframe>`
+    : '';
+  const pgBadge = hasPg ? t('pg.badge', 'span', 'class="pg-badge"') : '';
   return `<article class="plate" data-skill="${esc(skill.name)}" data-roles="${esc((skill.roles || []).join(' '))}" data-text="${esc(haystack(skill))}">
-${cover(skill, 'cover')}
+<div class="cover${skill.liveCover ? ' cover-live' : ''}" data-cover="${esc(skill.coverKind ?? 'concept')}">${coverSvg(skill, false)}${frame}${pgBadge}${coverTag(skill)}</div>
 <h3 lang="en"><a href="${up}skills/${esc(skill.name)}/index.html">${esc(skill.title)}</a></h3>
 <p class="plate-tag" lang="en">${esc(sentence(skill.tagline))}</p>
 ${metaRow(skill)}
@@ -512,6 +517,25 @@ const SECTIONS = [
   { id: 'questions', key: 'questions.title' },
 ];
 
+function playgroundBlock(skill) {
+  const list = Array.isArray(skill.playgrounds) ? skill.playgrounds : [];
+  if (!list.length) return '';
+  const first = list[0];
+  const tabs = list.length > 1
+    ? `<div class="pg-tabs" role="group" aria-label="${esc(skill.title)} demos">${list.map((pg, i) => `<button type="button" class="pg-tab" data-pg-src="${esc(pg.file)}" aria-pressed="${i === 0 ? 'true' : 'false'}" lang="en">${esc(pg.label)}</button>`).join('')}</div>`
+    : `<span class="pg-name" lang="en">${esc(first.label)}</span>`;
+  return `<div class="playground" data-playground="${esc(skill.name)}">
+<div class="pg-bar">
+<div class="pg-head">
+${t('pg.title', 'span', 'class="pg-title"')}
+${tabs}
+</div>
+<a class="btn pg-open" href="${esc(first.file)}" target="_blank" rel="noopener noreferrer">${t('pg.open')}</a>
+</div>
+<iframe class="pg-frame" sandbox="allow-scripts" src="${esc(first.file)}" title="${esc(skill.title)} interactive playground"></iframe>
+</div>`;
+}
+
 /**
  * @param {object} skill
  * @param {{download:{sha256:string,bytes:number}}} opts
@@ -538,13 +562,14 @@ ${toc}
 </div>
 <div class="qbar-progress" aria-hidden="true"></div>
 </nav>
-<section id="result" class="real-result" aria-labelledby="result-title">
+<section id="result" class="real-result${Array.isArray(s.playgrounds) && s.playgrounds.length ? ' has-playground' : ''}" aria-labelledby="result-title">
 ${t('result.skill', 'h2', 'id="result-title"')}
 ${cover(s, 'cover cover-lg', true)}
 <div class="result-side">
 <p class="proof-ask">${t('answer.asked', 'span', 'class="proof-label"')} <code lang="en">${esc(s.prompt)}</code></p>
 <p class="result-actions">${copyButton(s.prompt)}${s.example ? ` <a class="btn" href="example.html">${t('result.full')}</a>` : ''}</p>
 </div>
+${playgroundBlock(s)}
 ${answerAccordion(s)}
 </section>`);
   const factoryNote = s.factoryOnly ? t('install.factory', 'p', 'class="note"') : '';

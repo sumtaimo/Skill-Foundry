@@ -210,7 +210,7 @@ test('theme and language buttons say what they do', async () => {
   let checked = 0;
   for (const f of htmlFiles(await site())) {
     const html = readFileSync(f, 'utf8');
-    if (/[\\/]example\.html$/.test(f)) continue; // the skill's own demo page, not a site page
+    if (/[\\/](?:example\.html|demos[\\/][^\\/]+\.html)$/.test(f)) continue; // the skill's own demo page, not a site page
     const theme = html.match(pattern('theme'));
     const lang = html.match(pattern('lang'));
     assert.ok(theme && lang, `${f}: theme and lang buttons present`);

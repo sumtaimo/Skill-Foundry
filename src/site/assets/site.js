@@ -346,6 +346,17 @@
         save('sf-lang', nl);
       } else if (btn.classList.contains('rolechip')) {
         selectRole(btn);
+      } else if (btn.classList.contains('pg-tab')) {
+        var pg = btn.closest('.playground');
+        var src = btn.getAttribute('data-pg-src');
+        if (pg && src) {
+          var tabs = pg.querySelectorAll('.pg-tab');
+          for (var t = 0; t < tabs.length; t++) tabs[t].setAttribute('aria-pressed', tabs[t] === btn ? 'true' : 'false');
+          var frame = pg.querySelector('.pg-frame');
+          if (frame && frame.getAttribute('src') !== src) frame.setAttribute('src', src);
+          var open = pg.querySelector('.pg-open');
+          if (open) open.setAttribute('href', src);
+        }
       } else if (btn.hasAttribute('data-copy')) {
         copy(btn);
       }

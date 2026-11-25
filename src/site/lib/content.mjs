@@ -3,7 +3,7 @@
  * @governed-by PO_ARCHITECT
  */
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { join, resolve, dirname } from 'node:path';
 import { sanitizeSvg } from './svg.mjs';
 import { scoreLive } from '../../factory/live-evals.mjs';
 import { loadProof, docFigure, loadTokens } from './proof.mjs';
@@ -83,6 +83,71 @@ export function latestRun(runsRoot, name, version, caseId) {
   return null;
 }
 
+/** Curated real fresh-agent HTML playgrounds per visual/UI skill (ordered; primary demo first). */
+const PLAYGROUND_SPECS = {
+  'motion-craft': [
+    { id: 'museum-3d-rooms', label: '3D Museum Walkthrough (Scroll)', rel: 'evals/live/files/museum-3d-rooms.html' },
+    { id: 'khmer-coffee', label: 'ហាងកាហ្វេ ដើមត្នោត (Khmer Scroll)', rel: 'evals/live/files/khmer-coffee.html' },
+  ],
+  'svg-mechanism': [
+    { id: 'webhook-pipeline', label: 'Webhook Delivery Pipeline', rel: 'evals/live/files/webhook-pipeline.html' },
+    { id: 'khmer-payment-flow', label: 'លំហូរទូទាត់ QR (Khmer)', rel: 'evals/live/files/khmer-payment-flow.html' },
+    { id: 'oauth-pkce-handshake', label: 'OAuth 2.0 PKCE Handshake', rel: 'evals/live/files/oauth-pkce-handshake.html' },
+    { id: 'reads-design-foundation', label: 'Design Foundation Flow', rel: 'evals/live/files/reads-design-foundation.html' },
+  ],
+  'ui-craft': [
+    { id: 'bento-glass-landing', label: 'Bento Glass Landing', rel: 'evals/live/files/bento-glass-landing.html' },
+    { id: 'command-palette-shell', label: 'Command Palette (Ctrl+K)', rel: 'evals/live/files/command-palette-shell.html' },
+    { id: 'lifecycle-states-grid', label: 'Lifecycle States Grid', rel: 'evals/live/files/lifecycle-states-grid.html' },
+    { id: 'khmer-line-height', label: 'Khmer Typography UI', rel: 'evals/live/files/khmer-line-height.html' },
+  ],
+  'component-kit': [
+    { id: 'code-demo', label: 'Button & Card Component Kit', rel: 'evals/live/files/code-demo.html' },
+  ],
+  'ui-polish': [
+    { id: 'settings-card', label: 'Polished Settings Card', rel: 'evals/live/files/settings-card.html' },
+    { id: 'foundation-components', label: 'Foundation Components', rel: 'evals/live/files/foundation-components.html' },
+    { id: 'khmer-tokens', label: 'Khmer Token Card', rel: 'evals/live/files/khmer-tokens.html' },
+  ],
+  'design-system': [
+    { id: 'hex-invoicing-demo', label: 'Live Token Theme (Light / Dark)', rel: 'evals/live/files/hex-invoicing-demo.html' },
+  ],
+};
+
+/** Visual/UI skills whose landing cards render a live visual thumbnail iframe of their primary HTML demo. */
+const LIVE_COVER_SKILLS = new Set(['motion-craft', 'svg-mechanism', 'ui-craft', 'component-kit', 'ui-polish']);
+
+/** Find local relative CSS stylesheets linked by a standalone HTML demo so buildSite copies them alongside it. */
+function linkedAssets(htmlPath) {
+  const html = readFileSync(htmlPath, 'utf8');
+  const baseDir = dirname(htmlPath);
+  const assets = [];
+  for (const m of html.matchAll(/<link\b[^>]*href="([^"]+)"[^>]*>/gi)) {
+    const rel = m[1].split(/[?#]/)[0];
+    if (!rel || /^(https?:|\/\/|data:|\/)/i.test(rel) || rel.includes('..')) continue;
+    const from = resolve(baseDir, rel);
+    if (existsSync(from)) assets.push({ rel, from });
+  }
+  return assets;
+}
+
+/** Real fresh-agent interactive HTML playgrounds available for a skill. */
+function loadPlaygrounds(name, dir, run) {
+  const out = [];
+  const specs = PLAYGROUND_SPECS[name];
+  if (specs) {
+    for (const spec of specs) {
+      const src = join(dir, spec.rel);
+      if (!existsSync(src)) continue;
+      const file = out.length === 0 ? 'example.html' : `demos/${spec.id}.html`;
+      out.push({ id: spec.id, label: spec.label, file, src, assets: linkedAssets(src) });
+    }
+  } else if (run?.htmlPath && existsSync(run.htmlPath)) {
+    out.push({ id: 'run', label: 'Interactive demo', file: 'example.html', src: run.htmlPath, assets: linkedAssets(run.htmlPath) });
+  }
+  return out;
+}
+
 /** The "Do not use for ..." sentence of a skill description (what the skill never does), or ''. */
 export function notFor(description) {
   const m = /Do not use (?:it )?for\s+([^.]*)\./i.exec(description);
@@ -129,6 +194,7 @@ export function loadSkills(root, opts = {}) {
       const machine = rules.filter((x) => x && x.check).length;
       const checklist = rules.filter((x) => x && x.checklist && !x.check).length;
       const run = latestRun(runsRoot, r.name, String(r.version), typeof r.showcase === 'string' ? r.showcase : undefined);
+      const playgrounds = loadPlaygrounds(r.name, dir, run);
       const previewExample = join(dir, 'preview', 'example.html');
       const roles = Array.isArray(r.roles) ? r.roles.map(String) : [];
       for (const role of roles) if (!ROLES.includes(role)) throw new Error(`loadSkills: ${r.name} has unknown role ${role}`);
@@ -171,8 +237,10 @@ export function loadSkills(root, opts = {}) {
         rules: { total: rules.length, machine, checklist },
         changelog: existsSync(join(dir, 'CHANGELOG.md')) ? read('CHANGELOG.md').replace(/\r\n?/g, '\n') : '',
         files: listFiles(dir).sort(),
-        example: !!run?.htmlPath || existsSync(previewExample),
-        exampleSrc: run?.htmlPath ? run.htmlPath : existsSync(previewExample) ? previewExample : null,
+        playgrounds,
+        liveCover: LIVE_COVER_SKILLS.has(r.name) && playgrounds.length > 0,
+        example: playgrounds.length > 0 || existsSync(previewExample),
+        exampleSrc: playgrounds[0]?.src ?? (existsSync(previewExample) ? previewExample : null),
         // reference: the recorded output is byte for byte (ignoring CRLF checkout differences) the figure the skill ships as its example
         run: run ? { key: run.key, files: run.files, reference: !!run.htmlPath && existsSync(previewExample) && readFileSync(run.htmlPath, 'utf8').replace(/\r\n/g, '\n') === readFileSync(previewExample, 'utf8').replace(/\r\n/g, '\n') } : null, // a recorded real run; null means the cover and example are the skill's own demo
         zipBytes: 0, // size of the packed zip; buildSite fills it after packAll

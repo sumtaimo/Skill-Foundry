@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>An imaginary museum of silence.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500&display=swap">
+  <style>
+    :root {
+      --light-bg: #F2EFE9;
+      --light-fg: #24211D;
+      --dark-bg: #24211D;
+      --dark-fg: #F2EFE9;
+      --accent: #6B4F3A;
+      --stage-bg: #F2EFE9;
+      --stage-fg: #24211D;
+      --font-sans: 'Instrument Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      margin: 0;
+      padding: 0;
+      background-color: var(--stage-bg);
+      color: var(--stage-fg);
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.5;
+      overflow-x: clip;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100svh;
+      background-color: var(--stage-bg);
+      color: var(--stage-fg);
+      font-family: var(--font-sans);
+      overflow-x: clip;
+    }
+
+    /* Keyboard scene-jump links: visually hidden at rest, visible on keyboard focus */
+    .scene-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .scene-link {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 100;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      clip-path: inset(50%);
+      white-space: nowrap;
+      border: 0;
+      font-family: var(--font-sans);
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 1.5;
+      color: var(--stage-fg);
+      background-color: var(--stage-bg);
+      text-decoration: none;
+      pointer-events: auto;
+    }
+
+    .scene-link:focus-visible {
+      width: auto;
+      height: auto;
+      margin: 0;
+      padding: 10px 16px;
+      overflow: visible;
+      clip: auto;
+      clip-path: none;
+      white-space: normal;
+      max-width: calc(100vw - 32px);
+      outline: 2px solid var(--stage-fg);
+      outline-offset: 2px;
+      border: 1px solid var(--accent);
+    }
+
+    /* Display typography shared by static and active walkthrough */
+    .display-line {
+      margin: 0;
+      font-family: var(--font-sans);
+      font-size: clamp(36px, 5.2vw, 144px);
+      font-weight: 400;
+      line-height: 1.05;
+      letter-spacing: -0.025em;
+      color: inherit;
+      max-width: 100%;
+    }
+
+    .mask {
+      display: block;
+      overflow: hidden;
+      padding: 0.1em 0;
+      margin: -0.1em 0;
+      opacity: 1;
+    }
+
+    .copy {
+      display: block;
+      opacity: 1;
+      will-change: transform;
+    }
+
+    /* =====================================================================
+       BASE STATIC VERSION (No JS / Reduced Motion / Slow-Render Fallback)
+       Compact auto-height sections, every word visible at opacity 1.
+       ===================================================================== */
+    .static-walkthrough {
+      display: block;
+      width: 100%;
+    }
+
+    html.stage-active .static-walkthrough {
+      display: none;
+    }
+
+    .static-room {
+      --room-bg: #F2EFE9;
+      --room-fg: #24211D;
+      --room-wall: #EAE5DD;
+      --room-side: #E5DFD6;
+      --room-ceil: #F5F2EC;
+      --room-floor-a: #E7E1D7;
+      --room-floor-b: #DDD6C9;
+      --room-line: rgba(36, 33, 29, 0.28);
+      background-color: var(--room-bg);
+      color: var(--room-fg);
+      border-bottom: 1px solid var(--accent);
+    }
+
+    .static-room:last-child {
+      border-bottom: 0;
+    }
+
+    .static-room--2 {
+      --room-bg: #24211D;
+      --room-fg: #F2EFE9;
+      --room-wall: #1E1B18;
+      --room-side: #221F1B;
+      --room-ceil: #292622;
+      --room-floor-a: #191613;
+      --room-floor-b: #2C2823;
+      --room-line: rgba(242, 239, 233, 0.34);
+    }
+
+    .static-room__inner {
+      display: grid;
+      grid-template-columns: minmax(0, 60%) minmax(0, 40%);
+      align-items: center;
+      width: 100%;
+      min-height: 420px;
+    }
+
+    .static-room--2 .static-room__inner {
+      grid-template-columns: minmax(0, 40%) minmax(0, 60%);
+    }
+
+    .static-room--2 .static-room__media {
+      order: 2;
+    }
+
+    .static-room--2 .static-room__text {
+      order: 1;
+    }
+
+    .static-room--3 .static-room__inner {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto;
+      min-height: 0;
+    }
+
+    .static-room__media {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      overflow: hidden;
+      background-color: var(--room-bg);
+    }
+
+    .static-room--3 .static-room__media {
+      aspect-ratio: 24 / 9;
+      max-height: 520px;
+    }
+
+    .static-room__text {
+      padding: 40px 48px;
+      opacity: 1;
+    }
+
+    .static-room--3 .static-room__text {
+      text-align: center;
+      padding: 44px 48px 56px;
+    }
+
+    /* Pure CSS one-point perspective architectural stills for static mode */
+    .css-room {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background: var(--room-side);
+    }
+
+    .css-room__ceil {
+      position: absolute;
+      inset: 0;
+      background: var(--room-ceil);
+      clip-path: polygon(0 0, 100% 0, 76% 24%, 24% 24%);
+    }
+
+    .css-room__floor {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, var(--room-floor-a), var(--room-floor-b));
+      clip-path: polygon(0 100%, 100% 100%, 76% 78%, 24% 78%);
+    }
+
+    .css-room__back {
+      position: absolute;
+      left: 24%;
+      top: 24%;
+      width: 52%;
+      height: 54%;
+      background: var(--room-wall);
+      border: 1px solid var(--room-line);
+      border-bottom: 1px solid var(--accent);
+    }
+
+    .css-room__seam-l,
+    .css-room__seam-r {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .css-room__seam-l::before,
+    .css-room__seam-l::after,
+    .css-room__seam-r::before,
+    .css-room__seam-r::after {
+      content: '';
+      position: absolute;
+      background: var(--room-line);
+      height: 1px;
+      transform-origin: 0 50%;
+    }
+
+    .css-room__seam-l::before {
+      left: 0;
+      top: 0;
+      width: 34%;
+      transform: rotate(31deg);
+    }
+
+    .css-room__seam-l::after {
+      left: 0;
+      bottom: 0;
+      width: 34%;
+      height: 1px;
+      background: var(--accent);
+      transform: rotate(-30deg);
+    }
+
+    .css-room__seam-r::before {
+      right: 0;
+      top: 0;
+      width: 34%;
+      transform-origin: 100% 50%;
+      transform: rotate(-31deg);
+    }
+
+    .css-room__seam-r::after {
+      right: 0;
+      bottom: 0;
+      width: 34%;
+      height: 1px;
+      background: var(--accent);
+      transform-origin: 100% 50%;
+      transform: rotate(30deg);
+    }
+
+    .css-room__portal {
+      position: absolute;
+      left: 30%;
+      bottom: 0;
+      width: 40%;
+      height: 70%;
+      background: #24211D;
+      border: 1px solid var(--accent);
+      border-bottom: 1px solid var(--accent);
+      box-shadow: inset 6px 5px 0 0 #6B4F3A, inset -6px 0 0 0 #5C4330;
+    }
+
+    .static-room--2 .css-room__back {
+      left: 16%;
+      top: 18%;
+      width: 68%;
+      height: 64%;
+    }
+
+    .static-room--2 .css-room__ceil {
+      clip-path: polygon(0 0, 100% 0, 84% 18%, 16% 18%);
+    }
+
+    .static-room--2 .css-room__floor {
+      clip-path: polygon(0 100%, 100% 100%, 84% 82%, 16% 82%);
+    }
+
+    .static-room--2 .css-room__portal {
+      background: #F2EFE9;
+      box-shadow: inset 8px 6px 0 0 #6B4F3A, inset -8px 0 0 0 #5C4330;
+    }
+
+    .css-room__alcove {
+      position: absolute;
+      left: 32.5%;
+      top: 22%;
+      width: 35%;
+      height: 60%;
+      background: #D9D1C5;
+      border: 1px solid var(--accent);
+      box-shadow: inset 7px 6px 0 0 #6B4F3A, inset -7px -5px 0 0 #5C4330;
+    }
+
+    /* =====================================================================
+       ACTIVE INTERACTIVE 3D WALKTHROUGH STAGE
+       Hidden by default; enabled only by JS when reduced motion is not reduce.
+       ===================================================================== */
+    .walkthrough-track {
+      display: none;
+      position: relative;
+      width: 100%;
+      height: 450vh;
+    }
+
+    html.stage-active .walkthrough-track {
+      display: block;
+    }
+
+    .stage {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      height: 100svh;
+      overflow-x: clip;
+      overflow-y: clip;
+      background-color: var(--stage-bg);
+      color: var(--stage-fg);
+    }
+
+    /* Layer 0: Background field */
+    .stage-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background-color: var(--stage-bg);
+    }
+
+    /* Stage layout container */
+    .stage-layout {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Layer 1: Single persistent overflow-hidden 3D canvas box */
+    .canvas-box {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 60%;
+      height: 100%;
+      z-index: 1;
+      overflow: hidden;
+      will-change: transform;
+    }
+
+    #museum-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Layer 2: Dedicated non-overlapping text safe zones */
+    .text-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* Opacity is driven ONLY on .scene-copy; inner .mask/.copy remain opacity: 1 */
+    .scene-copy {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      padding: 0 48px;
+      color: var(--stage-fg);
+      will-change: opacity;
+    }
+
+    .scene-copy--1 {
+      top: 0;
+      right: 0;
+      width: 40%;
+      height: 100%;
+      justify-content: flex-start;
+      text-align: left;
+      opacity: 1;
+    }
+
+    .scene-copy--2 {
+      top: 0;
+      left: 0;
+      width: 40%;
+      height: 100%;
+      justify-content: flex-start;
+      text-align: left;
+      opacity: 0;
+    }
+
+    .scene-copy--3 {
+      top: 64%;
+      left: 0;
+      width: 100%;
+      height: 36%;
+      justify-content: center;
+      text-align: center;
+      opacity: 0;
+    }
+
+    /* Desktop Scene 3 closing lockup: strict two-row grid top 64% / bottom 36% */
+    @media (min-width: 900px) {
+      .stage-layout[data-layout="closing"] {
+        display: grid;
+        grid-template-rows: minmax(0, 64%) minmax(0, 36%);
+        grid-template-columns: 1fr;
+      }
+
+      .stage-layout[data-layout="closing"] .canvas-box {
+        position: relative;
+        grid-row: 1;
+        grid-column: 1;
+        top: auto;
+        left: auto;
+        width: 100%;
+        height: 100%;
+        transform: none !important;
+        overflow: hidden;
+      }
+
+      .stage-layout[data-layout="closing"] .text-layer {
+        position: relative;
+        grid-row: 2;
+        grid-column: 1;
+        inset: auto;
+        width: 100%;
+        height: 100%;
+      }
+
+      .stage-layout[data-layout="closing"] .scene-copy--3 {
+        position: relative;
+        top: auto;
+        left: auto;
+        width: 100%;
+        height: 100%;
+        padding: 0 48px;
+      }
+
+      .stage-layout[data-layout="closing"] .scene-copy--1,
+      .stage-layout[data-layout="closing"] .scene-copy--2 {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    /* Mobile breakpoints (covering 390x844 and 360x640) */
+    @media (max-width: 899px) {
+      .display-line {
+        font-size: clamp(36px, 8.4vw, 56px);
+      }
+
+      .static-room__inner,
+      .static-room--2 .static-room__inner {
+        grid-template-columns: 1fr;
+        min-height: 0;
+      }
+
+      .static-room--2 .static-room__media,
+      .static-room--2 .static-room__text {
+        order: initial;
+      }
+
+      .static-room__media,
+      .static-room--3 .static-room__media {
+        aspect-ratio: 16 / 11;
+        max-height: none;
+      }
+
+      .static-room__text,
+      .static-room--3 .static-room__text {
+        padding: 28px 24px 36px;
+      }
+
+      .canvas-box {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 45%;
+        transform: none !important;
+      }
+
+      .text-layer {
+        position: absolute;
+        top: 52%;
+        left: 0;
+        width: 100%;
+        height: 42%;
+      }
+
+      .scene-copy {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        padding: 0 24px;
+        color: var(--stage-fg);
+      }
+
+      .scene-copy--1,
+      .scene-copy--2 {
+        justify-content: flex-start;
+        text-align: left;
+      }
+
+      .scene-copy--3 {
+        justify-content: center;
+        text-align: center;
+      }
+    }
+
+    /* Extra narrow mobile safety for 360x640 so longest word fits with >=24px margin and never <36px */
+    @media (max-width: 420px) {
+      .display-line {
+        font-size: 36px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="scene-nav">
+    <a class="scene-link" href="#scene-1" data-p="0">An imaginary museum of silence.</a>
+    <a class="scene-link" href="#scene-2" data-p="0.5">Three empty rooms.</a>
+    <a class="scene-link" href="#scene-3" data-p="1">An imaginary museum of silence.</a>
+  </nav>
+
+  <!-- Static fallback in reading order (visible by default without JS or with prefers-reduced-motion: reduce) -->
+  <main class="static-walkthrough" id="static-walkthrough">
+    <section id="scene-1" class="static-room static-room--1">
+      <div class="static-room__inner">
+        <div class="static-room__media" aria-hidden="true">
+          <div class="css-room">
+            <div class="css-room__ceil"></div>
+            <div class="css-room__floor"></div>
+            <div class="css-room__seam-l"></div>
+            <div class="css-room__seam-r"></div>
+            <div class="css-room__back">
+              <div class="css-room__portal"></div>
+            </div>
+          </div>
+        </div>
+        <div class="static-room__text">
+          <h1 class="display-line">An imaginary museum of silence.</h1>
+        </div>
+      </div>
+    </section>
+
+    <section id="scene-2" class="static-room static-room--2">
+      <div class="static-room__inner">
+        <div class="static-room__media" aria-hidden="true">
+          <div class="css-room">
+            <div class="css-room__ceil"></div>
+            <div class="css-room__floor"></div>
+            <div class="css-room__seam-l"></div>
+            <div class="css-room__seam-r"></div>
+            <div class="css-room__back">
+              <div class="css-room__portal"></div>
+            </div>
+          </div>
+        </div>
+        <div class="static-room__text">
+          <h2 class="display-line">Three empty rooms.</h2>
+        </div>
+      </div>
+    </section>
+
+    <section id="scene-3" class="static-room static-room--3">
+      <div class="static-room__inner">
+        <div class="static-room__media" aria-hidden="true">
+          <div class="css-room">
+            <div class="css-room__ceil"></div>
+            <div class="css-room__floor"></div>
+            <div class="css-room__seam-l"></div>
+            <div class="css-room__seam-r"></div>
+            <div class="css-room__back">
+              <div class="css-room__alcove"></div>
+            </div>
+          </div>
+        </div>
+        <div class="static-room__text">
+          <h2 class="display-line">An imaginary museum of silence.</h2>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Interactive 3D walkthrough track & sticky stage -->
+  <div class="walkthrough-track" id="walkthrough-track">
+    <div class="stage" id="stage">
+      <div class="stage-bg" aria-hidden="true"></div>
+      <div class="stage-layout" id="stage-layout" data-layout="split">
+        <div class="canvas-box" id="canvas-box">
+          <canvas id="museum-canvas" aria-hidden="true"></canvas>
+        </div>
+        <div class="text-layer">
+          <div class="scene-copy scene-copy--1" id="scene-copy-1">
+            <h1 class="display-line"><span class="mask"><span class="copy" id="copy-1">An imaginary museum of silence.</span></span></h1>
+          </div>
+          <div class="scene-copy scene-copy--2" id="scene-copy-2">
+            <h2 class="display-line"><span class="mask"><span class="copy" id="copy-2">Three empty rooms.</span></span></h2>
+          </div>
+          <div class="scene-copy scene-copy--3" id="scene-copy-3">
+            <h2 class="display-line"><span class="mask"><span class="copy" id="copy-3">An imaginary museum of silence.</span></span></h2>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var root = document.documentElement;
+      var track = document.getElementById('walkthrough-track');
+      var stage = document.getElementById('stage');
+      var stageLayout = document.getElementById('stage-layout');
+      var canvasBox = document.getElementById('canvas-box');
+      var canvas = document.getElementById('museum-canvas');
+      var sceneCopies = [
+        document.getElementById('scene-copy-1'),
+        document.getElementById('scene-copy-2'),
+        document.getElementById('scene-copy-3')
+      ];
+      var innerCopies = [
+        document.getElementById('copy-1'),
+        document.getElementById('copy-2'),
+        document.getElementById('copy-3')
+      ];
+      var navLinks = Array.prototype.slice.call(document.querySelectorAll('.scene-link'));
+      var hashToP = { '#scene-1': 0, '#scene-2': 0.5, '#scene-3': 1 };
+
+      if (!track || !stage || !stageLayout || !canvasBox || !canvas) {
+        return;
+      }
+
+      var ctx = null;
+      var active = false;
+      var inView = true;
+      var observer = null;
+      var rafId = 0;
+      var lastTime = 0;
+      var targetP = 0;
+      var drawn = 0;
+      var slowFrameCount = 0;
+      var canvasCssW = 0;
+      var canvasCssH = 0;
+      var canvasDpr = 1;
+
+      var LIGHT_RGB = [242, 239, 233]; /* #F2EFE9 */
+      var DARK_RGB = [36, 33, 29];     /* #24211D */
+
+      /* -------------------------------------------------------------------
+         Exact cubic-bezier(0.22, 1, 0.36, 1) easing solver
+         ------------------------------------------------------------------- */
+      function clamp(v, min, max) {
+        return v < min ? min : (v > max ? max : v);
+      }
+
+      function range(v, a, b) {
+        if (b <= a) return v >= b ? 1 : 0;
+        return clamp((v - a) / (b - a), 0, 1);
+      }
+
+      function bezierCoord(t, p1, p2) {
+        var u = 1 - t;
+        return 3 * u * u * t * p1 + 3 * u * t * t * p2 + t * t * t;
+      }
+
+      function bezierSlope(t, p1, p2) {
+        var u = 1 - t;
+        return 3 * u * u * p1 + 6 * u * t * (p2 - p1) + 3 * t * t * (1 - p2);
+      }
+
+      function ease(x) {
+        if (x <= 0) return 0;
+        if (x >= 1) return 1;
+        var x1 = 0.22, y1 = 1.0, x2 = 0.36, y2 = 1.0;
+        var t = x;
+        for (var i = 0; i < 6; i++) {
+          var err = bezierCoord(t, x1, x2) - x;
+          if (Math.abs(err) < 1e-6) break;
+          var slope = bezierSlope(t, x1, x2);
+          if (Math.abs(slope) < 1e-6) break;
+          t -= err / slope;
+        }
+        if (t < 0 || t > 1 || Math.abs(bezierCoord(t, x1, x2) - x) > 1e-4) {
+          var lo = 0, hi = 1;
+          t = x;
+          for (var j = 0; j < 14; j++) {
+            var mid = (lo + hi) * 0.5;
+            if (bezierCoord(mid, x1, x2) < x) lo = mid;
+            else hi = mid;
+            t = mid;
+          }
+        }
+        return clamp(bezierCoord(t, y1, y2), 0, 1);
+      }
+
+      function lerp(a, b, t) {
+        return a + (b - a) * t;
+      }
+
+      function mixRGB(a, b, t) {
+        var r = Math.round(lerp(a[0], b[0], t));
+        var g = Math.round(lerp(a[1], b[1], t));
+        var bl = Math.round(lerp(a[2], b[2], t));
+        return 'rgb(' + r + ',' + g + ',' + bl + ')';
+      }
+
+      function mixRGBA(a, b, t, alpha) {
+        var r = Math.round(lerp(a[0], b[0], t));
+        var g = Math.round(lerp(a[1], b[1], t));
+        var bl = Math.round(lerp(a[2], b[2], t));
+        return 'rgba(' + r + ',' + g + ',' + bl + ',' + alpha.toFixed(3) + ')';
+      }
+
+      /* -------------------------------------------------------------------
+         Pure architectural 3D geometry & perspective projection engine
+         Room height H = 1.0 (y: -0.5..+0.5), width W = 1.6 (x: -0.8..+0.8),
+         depth D = 2.0 per chamber; portal wall thickness T = 0.14.
+         Portal openings: 40% width (x: -0.32..+0.32), 70% height (y: -0.5..+0.2).
+         End wall recessed alcove: centred (x: -0.28..+0.28, y: -0.36..+0.26).
+         ------------------------------------------------------------------- */
+      var HALF_W = 0.80;
+      var FLOOR_Y = -0.50;
+      var CEIL_Y = 0.50;
+      var PORTAL_HW = 0.32; /* 40% of 1.6 */
+      var PORTAL_TOP = 0.20; /* 70% of 1.0 from floor -0.50 */
+      var ALCOVE_HW = 0.28;
+      var ALCOVE_BOT = -0.36;
+      var ALCOVE_TOP = 0.26;
+
+      var R1_Z0 = 0.00, R1_Z1 = 2.00;
+      var P1_Z0 = 2.00, P1_Z1 = 2.14;
+      var R2_Z0 = 2.14, R2_Z1 = 4.14;
+      var P2_Z0 = 4.14, P2_Z1 = 4.28;
+      var R3_Z0 = 4.28, R3_Z1 = 6.28;
+      var ALC_Z1 = 6.58;
+
+      var EYE_Y = -0.06;
+
+      function clipPolygonNear(pts, nearZ) {
+        var out = [];
+        var len = pts.length;
+        for (var i = 0; i < len; i++) {
+          var a = pts[i];
+          var b = pts[(i + 1) % len];
+          var aIn = a[2] >= nearZ;
+          var bIn = b[2] >= nearZ;
+          if (aIn && bIn) {
+            out.push(b);
+          } else if (aIn && !bIn) {
+            var t1 = (nearZ - a[2]) / (b[2] - a[2]);
+            out.push([a[0] + (b[0] - a[0]) * t1, a[1] + (b[1] - a[1]) * t1, nearZ]);
+          } else if (!aIn && bIn) {
+            var t2 = (nearZ - a[2]) / (b[2] - a[2]);
+            out.push([a[0] + (b[0] - a[0]) * t2, a[1] + (b[1] - a[1]) * t2, nearZ]);
+            out.push(b);
+          }
+        }
+        return out;
+      }
+
+      function clipSegmentNear(a, b, nearZ) {
+        var aIn = a[2] >= nearZ;
+        var bIn = b[2] >= nearZ;
+        if (!aIn && !bIn) return null;
+        if (aIn && bIn) return [a, b];
+        var t = (nearZ - a[2]) / (b[2] - a[2]);
+        var inter = [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, nearZ];
+        return aIn ? [a, inter] : [inter, b];
+      }
+
+      function projectPoint(pt, camZ, focal, cx, cy) {
+        var dz = pt[2] - camZ;
+        return [
+          cx + (pt[0] * focal) / dz,
+          cy - ((pt[1] - EYE_Y) * focal) / dz
+        ];
+      }
+
+      function drawPoly(pts, fillStyle, camZ, nearZ, focal, cx, cy) {
+        var clipped = clipPolygonNear(pts, nearZ);
+        if (clipped.length < 3) return;
+        ctx.beginPath();
+        for (var i = 0; i < clipped.length; i++) {
+          var p = projectPoint(clipped[i], camZ, focal, cx, cy);
+          if (i === 0) ctx.moveTo(p[0], p[1]);
+          else ctx.lineTo(p[0], p[1]);
+        }
+        ctx.closePath();
+        ctx.fillStyle = fillStyle;
+        ctx.fill();
+      }
+
+      function drawLine(a, b, strokeStyle, lineWidth, camZ, nearZ, focal, cx, cy) {
+        var seg = clipSegmentNear(a, b, nearZ);
+        if (!seg) return;
+        var p0 = projectPoint(seg[0], camZ, focal, cx, cy);
+        var p1 = projectPoint(seg[1], camZ, focal, cx, cy);
+        ctx.beginPath();
+        ctx.moveTo(p0[0], p0[1]);
+        ctx.lineTo(p1[0], p1[1]);
+        ctx.strokeStyle = strokeStyle;
+        ctx.lineWidth = lineWidth;
+        ctx.stroke();
+      }
+
+      function drawFloorGradient(zNearRoom, zFarRoom, nearColor, farColor, camZ, nearZ, focal, cx, cy) {
+        var pts = [
+          [-HALF_W, FLOOR_Y, zNearRoom],
+          [HALF_W, FLOOR_Y, zNearRoom],
+          [HALF_W, FLOOR_Y, zFarRoom],
+          [-HALF_W, FLOOR_Y, zFarRoom]
+        ];
+        var clipped = clipPolygonNear(pts, nearZ);
+        if (clipped.length < 3) return;
+
+        var screenPts = [];
+        var minY = Infinity;
+        var maxY = -Infinity;
+        for (var i = 0; i < clipped.length; i++) {
+          var sp = projectPoint(clipped[i], camZ, focal, cx, cy);
+          screenPts.push(sp);
+          if (sp[1] < minY) minY = sp[1];
+          if (sp[1] > maxY) maxY = sp[1];
+        }
+
+        var fill;
+        if (maxY - minY > 1) {
+          var grad = ctx.createLinearGradient(0, maxY, 0, minY);
+          grad.addColorStop(0, nearColor);
+          grad.addColorStop(1, farColor);
+          fill = grad;
+        } else {
+          fill = farColor;
+        }
+
+        ctx.beginPath();
+        for (var j = 0; j < screenPts.length; j++) {
+          if (j === 0) ctx.moveTo(screenPts[j][0], screenPts[j][1]);
+          else ctx.lineTo(screenPts[j][0], screenPts[j][1]);
+        }
+        ctx.closePath();
+        ctx.fillStyle = fill;
+        ctx.fill();
+      }
+
+      function drawChamberShell(z0, z1, palette, camZ, nearZ, focal, cx, cy) {
+        if (z1 <= nearZ) return;
+
+        /* Ceiling */
+        drawPoly([
+          [-HALF_W, CEIL_Y, z0],
+          [HALF_W, CEIL_Y, z0],
+          [HALF_W, CEIL_Y, z1],
+          [-HALF_W, CEIL_Y, z1]
+        ], palette.ceil, camZ, nearZ, focal, cx, cy);
+
+        /* Left wall */
+        drawPoly([
+          [-HALF_W, FLOOR_Y, z0],
+          [-HALF_W, CEIL_Y, z0],
+          [-HALF_W, CEIL_Y, z1],
+          [-HALF_W, FLOOR_Y, z1]
+        ], palette.left, camZ, nearZ, focal, cx, cy);
+
+        /* Right wall */
+        drawPoly([
+          [HALF_W, FLOOR_Y, z0],
+          [HALF_W, FLOOR_Y, z1],
+          [HALF_W, CEIL_Y, z1],
+          [HALF_W, CEIL_Y, z0]
+        ], palette.right, camZ, nearZ, focal, cx, cy);
+
+        /* Perspective shaded floor */
+        drawFloorGradient(z0, z1, palette.floorNear, palette.floorFar, camZ, nearZ, focal, cx, cy);
+
+        /* 4 corner perspective edges per room */
+        drawLine([-HALF_W, CEIL_Y, z0], [-HALF_W, CEIL_Y, z1], palette.edge, 1, camZ, nearZ, focal, cx, cy);
+        drawLine([HALF_W, CEIL_Y, z0], [HALF_W, CEIL_Y, z1], palette.edge, 1, camZ, nearZ, focal, cx, cy);
+        /* 1px #6B4F3A structural hairlines along floor-wall seams */
+        drawLine([-HALF_W, FLOOR_Y, z0], [-HALF_W, FLOOR_Y, z1], '#6B4F3A', 1, camZ, nearZ, focal, cx, cy);
+        drawLine([HALF_W, FLOOR_Y, z0], [HALF_W, FLOOR_Y, z1], '#6B4F3A', 1, camZ, nearZ, focal, cx, cy);
+      }
+
+      function drawPortalWall(zFront, zBack, frontWallColor, edgeColor, camZ, nearZ, focal, cx, cy) {
+        if (zBack <= nearZ) return;
+
+        /* Inner doorway reveals in #6B4F3A */
+        drawPoly([
+          [-PORTAL_HW, FLOOR_Y, zFront],
+          [-PORTAL_HW, PORTAL_TOP, zFront],
+          [-PORTAL_HW, PORTAL_TOP, zBack],
+          [-PORTAL_HW, FLOOR_Y, zBack]
+        ], '#6B4F3A', camZ, nearZ, focal, cx, cy);
+
+        drawPoly([
+          [PORTAL_HW, FLOOR_Y, zFront],
+          [PORTAL_HW, FLOOR_Y, zBack],
+          [PORTAL_HW, PORTAL_TOP, zBack],
+          [PORTAL_HW, PORTAL_TOP, zFront]
+        ], '#5C4230', camZ, nearZ, focal, cx, cy);
+
+        drawPoly([
+          [-PORTAL_HW, PORTAL_TOP, zFront],
+          [PORTAL_HW, PORTAL_TOP, zFront],
+          [PORTAL_HW, PORTAL_TOP, zBack],
+          [-PORTAL_HW, PORTAL_TOP, zBack]
+        ], '#4E3828', camZ, nearZ, focal, cx, cy);
+
+        /* Threshold floor strip inside portal reveal */
+        drawPoly([
+          [-PORTAL_HW, FLOOR_Y, zFront],
+          [PORTAL_HW, FLOOR_Y, zFront],
+          [PORTAL_HW, FLOOR_Y, zBack],
+          [-PORTAL_HW, FLOOR_Y, zBack]
+        ], '#594231', camZ, nearZ, focal, cx, cy);
+
+        /* Back portal frame hairlines */
+        drawLine([-PORTAL_HW, FLOOR_Y, zBack], [-PORTAL_HW, PORTAL_TOP, zBack], '#6B4F3A', 1, camZ, nearZ, focal, cx, cy);
+        drawLine([PORTAL_HW, FLOOR_Y, zBack], [PORTAL_HW, PORTAL_TOP, zBack], '#6B4F3A', 1, camZ, nearZ, focal, cx, cy);
+        drawLine([-PORTAL_HW, PORTAL_TOP, zBack], [PORTAL_HW, PORTAL_TOP, zBack], '#6B4F3A', 1, camZ, nearZ, focal, cx, cy);
+        drawLine([-PORTAL_HW, FLOOR_Y, zBack], [PORTAL_HW, FLOOR_Y, zBack], '#6B4F3A', 1, camZ, nearZ, focal, cx, cy);
+
+        /* Reveal depth corner hairlines */
+        drawLine([-PORTAL_HW, FLOOR_Y, zFront], [-PORTAL_HW, FLOOR_Y, zBack], '#6B4F3A', 1, camZ, nearZ, focal, cx, cy);
+        drawLine([PORTAL_HW, FLOOR_Y, zFront], [PORTAL_HW, FLOOR_Y, zBack], '#6B4F3A', 1, camZ, nearZ, focal, cx, cy);
+        drawLine([-PORTAL_HW, PORTAL_TOP, zFront], [-PORTAL_HW, PORTAL_TOP, zBack], '#6B4F3A', 1, camZ, nearZ, focal, cx, cy);
+        drawLine([PORTAL_HW, PORTAL_TOP, zFront], [PORTAL_HW, PORTAL_TOP, zBack], '#6B4F3A', 1, camZ, nearZ, focal, cx, cy);
+
+        if (zFront <= nearZ) return;
+
+        /* Front wall face around centred doorway opening (3 quads) */
+        drawPoly([
+          [-HALF_W, FLOOR_Y, zFront],
+          [-PORTAL_HW, FLOOR_Y, zFront],
+          [-PORTAL_HW, CEIL_Y, zFront],
+          [-HALF_W, CEIL_Y, zFront]
+        ], frontWallColor, camZ, nearZ, focal, cx, cy);
+
+        drawPoly([
+          [PORTAL_HW, FLOOR_Y, zFront],
+          [HALF_W, FLOOR_Y, zFront],
+          [HALF_W, CEIL_Y, zFront],
+          [PORTAL_HW, CEIL_Y, zFront]
+        ], frontWallColor, camZ, nearZ, focal, cx, cy);
+
+        drawPoly([
+          [-PORTAL_HW, PORTAL_TOP, zFront],
+          [PORTAL_HW, PORTAL_TOP, zFront],
+          [PORTAL_HW, CEIL_Y, zFront],
+          [-PORTAL_HW, CEIL_Y, zFront]
+        ], frontWallColor, camZ, nearZ, focal, cx, cy);
+
+        /* Wall perimeter corner seams */
+        drawLine([-HALF_W, CEIL_Y, zFront], [HALF_W, CEIL_Y, zFront], edgeColor, 1, camZ, nearZ, focal, cx, cy);
+        drawLine([-HALF_W, FLOOR_Y, zFront], [-HALF_W, CEIL_Y, zFront], edgeColor, 1, camZ, nearZ, focal, cx, cy);
+        drawLine([HALF_W, FLOOR_Y, zFront], [HALF_W, CEIL_Y, zFront], edgeColor, 1, camZ, nearZ, focal, cx, cy);
+
+        /* 1px #6B4F3A floor-wall seams & front portal frame */
+        drawLine([-HALF_W, FLOOR_Y, zFront], [-PORTAL_HW, FLOOR_Y, zFront], '#6B4F3A', 1, camZ, nearZ, focal, cx, cy);
+        drawLine([PORTAL_HW, FLOOR_Y, zFront], [HALF_W, FLOOR_Y, zFront], '#6B4F3A', 1, camZ, nearZ, focal, cx, cy);
+        drawLine([-PORTAL_HW, FLOOR_Y, zFront], [PORTAL_HW, FLOOR_Y, zFront], '#6B4F3A', 1, camZ, nearZ, focal, cx, cy);
+        drawLine([-PORTAL_HW, FLOOR_Y, zFront], [-PORTAL_HW, PORTAL_TOP, zFront], '#6B4F3A', 1, camZ, nearZ, focal, cx, cy);
+        drawLine([PORTAL_HW, FLOOR_Y, zFront], [PORTAL_HW, PORTAL_TOP, zFront], '#6B4F3A', 1, camZ, nearZ, focal, cx, cy);
+        drawLine([-PORTAL_HW, PORTAL_TOP, zFront], [PORTAL_HW, PORTAL_TOP, zFront], '#6B4F3A', 1, camZ, nearZ, focal, cx, cy);
+      }
+
+      function drawEndWallWithAlcove(zWall, zBack, wallColor, alcoveBackColor, edgeColor, camZ, nearZ, focal, cx, cy) {
+        if (zBack <= nearZ) return;
+
+        /* Recessed alcove back plane */
+        drawPoly([
+          [-ALCOVE_HW, ALCOVE_BOT, zBack],
+          [ALCOVE_HW, ALCOVE_BOT, zBack],
+          [ALCOVE_HW, ALCOVE_TOP, zBack],
+          [-ALCOVE_HW, ALCOVE_TOP, zBack]
+        ], alcoveBackColor, camZ, nearZ, focal, cx, cy);
+
+        /* Alcove #6B4F3A reveals (left, right, top, bottom) */
+        drawPoly([
+          [-ALCOVE_HW, ALCOVE_BOT, zWall],
+          [-ALCOVE_HW, ALCOVE_TOP, zWall],
+          [-ALCOVE_HW, ALCOVE_TOP, zBack],
+          [-ALCOVE_HW, ALCOVE_BOT, zBack]
+        ], '#6B4F3A', camZ, nearZ, focal, cx, cy);
+
+        drawPoly([
+          [ALCOVE_HW, ALCOVE_BOT, zWall],
+          [ALCOVE_HW, ALCOVE_BOT, zBack],
+          [ALCOVE_HW, ALCOVE_TOP, zBack],
+          [ALCOVE_HW, ALCOVE_TOP, zWall]
+        ], '#5C4230', camZ, nearZ, focal, cx, cy);
+
+        drawPoly([
+          [-ALCOVE_HW, ALCOVE_TOP, zWall],
+          [ALCOVE_HW, ALCOVE_TOP, zWall],
+          [ALCOVE_HW, ALCOVE_TOP, zBack],
+          [-ALCOVE_HW, ALCOVE_TOP, zBack]
+        ], '#4E3828', camZ, nearZ, focal, cx, cy);
+
+        drawPoly([
+          [-ALCOVE_HW, ALCOVE_BOT, zWall],
+          [ALCOVE_HW, ALCOVE_BOT, zWall],
+          [ALCOVE_HW, ALCOVE_BOT, zBack],
+          [-ALCOVE_HW, ALCOVE_BOT, zBack]
+        ], '#7A5B44', camZ, nearZ, focal, cx, cy);
+
+        /* Inner alcove edges */
+        drawLine([-ALCOVE_HW, ALCOVE_BOT, zBack], [ALCOVE_HW, ALCOVE_BOT, zBack], '#6B4F3A', 1, camZ, nearZ, focal, cx, cy);
+        drawLine([-ALCOVE_HW, ALCOVE_TOP, zBack], [ALCOVE_HW, ALCOVE_TOP, zBack], '#6B4F3A', 1, camZ, nearZ, focal, cx, cy);
+        drawLine([-ALCOVE_HW, ALCOVE_BOT, zBack], [-ALCOVE_HW, ALCOVE_TOP, zBack], '#6B4F3A', 1, camZ, nearZ, focal, cx, cy);
+        drawLine([ALCOVE_HW, ALCOVE_BOT, zBack], [ALCOVE_HW, ALCOVE_TOP, zBack], '#6B4F3A', 1, camZ, nearZ, focal, cx, cy);
+
+        if (zWall <= nearZ) return;
+
+        /* Distant end wall surrounding the recessed alcove (4 quads) */
+        drawPoly([
+          [-HALF_W, FLOOR_Y, zWall],
+          [-ALCOVE_HW, FLOOR_Y, zWall],
+          [-ALCOVE_HW, CEIL_Y, zWall],
+          [-HALF_W, CEIL_Y, zWall]
+        ], wallColor, camZ, nearZ, focal, cx, cy);
+
+        drawPoly([
+          [ALCOVE_HW, FLOOR_Y, zWall],
+          [HALF_W, FLOOR_Y, zWall],
+          [HALF_W, CEIL_Y, zWall],
+          [ALCOVE_HW, CEIL_Y, zWall]
+        ], wallColor, camZ, nearZ, focal, cx, cy);
+
+        drawPoly([
+          [-ALCOVE_HW, ALCOVE_TOP, zWall],
+          [ALCOVE_HW, ALCOVE_TOP, zWall],
+          [ALCOVE_HW, CEIL_Y, zWall],
+          [-ALCOVE_HW, CEIL_Y, zWall]
+        ], wallColor, camZ, nearZ, focal, cx, cy);
+
+        drawPoly([
+          [-ALCOVE_HW, FLOOR_Y, zWall],
+          [ALCOVE_HW, FLOOR_Y, zWall],
+          [ALCOVE_HW, ALCOVE_BOT, zWall],
+          [-ALCOVE_HW, ALCOVE_BOT, zWall]
+        ], wallColor, camZ, nearZ, focal, cx, cy);
+
+        /* End wall edges & 1px #6B4F3A floor seam and alcove frame */
+        drawLine([-HALF_W, CEIL_Y, zWall], [HALF_W, CEIL_Y, zWall], edgeColor, 1, camZ, nearZ, focal, cx, cy);
+        drawLine([-HALF_W, FLOOR_Y, zWall], [-HALF_W, CEIL_Y, zWall], edgeColor, 1, camZ, nearZ, focal, cx, cy);
+        drawLine([HALF_W, FLOOR_Y, zWall], [HALF_W, CEIL_Y, zWall], edgeColor, 1, camZ, nearZ, focal, cx, cy);
+        drawLine([-HALF_W, FLOOR_Y, zWall], [HALF_W, FLOOR_Y, zWall], '#6B4F3A', 1, camZ, nearZ, focal, cx, cy);
+
+        drawLine([-ALCOVE_HW, ALCOVE_BOT, zWall], [ALCOVE_HW, ALCOVE_BOT, zWall], '#6B4F3A', 1, camZ, nearZ, focal, cx, cy);
+        drawLine([-ALCOVE_HW, ALCOVE_TOP, zWall], [ALCOVE_HW, ALCOVE_TOP, zWall], '#6B4F3A', 1, camZ, nearZ, focal, cx, cy);
+        drawLine([-ALCOVE_HW, ALCOVE_BOT, zWall], [-ALCOVE_HW, ALCOVE_TOP, zWall], '#6B4F3A', 1, camZ, nearZ, focal, cx, cy);
+        drawLine([ALCOVE_HW, ALCOVE_BOT, zWall], [ALCOVE_HW, ALCOVE_TOP, zWall], '#6B4F3A', 1, camZ, nearZ, focal, cx, cy);
+      }
+
+      function ensureCanvasSize() {
+        var rect = canvasBox.getBoundingClientRect();
+        var w = Math.max(1, Math.round(rect.width));
+        var h = Math.max(1, Math.round(rect.height));
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        if (w !== canvasCssW || h !== canvasCssH || dpr !== canvasDpr) {
+          canvasCssW = w;
+          canvasCssH = h;
+          canvasDpr = dpr;
+          canvas.width = Math.round(w * dpr);
+          canvas.height = Math.round(h * dpr);
+        }
+      }
+
+      /* -------------------------------------------------------------------
+         Pure function of drawn (0..1) -> updates CSS vars, layout, copy, 3D
+         ------------------------------------------------------------------- */
+      function computeState(d) {
+        /* Camera normalized z (0 -> 1 -> 2) and FOV (55 -> 42 -> 50 deg) */
+        var camU = 0;
+        var fov = 55;
+        if (d <= 0.26) {
+          camU = 0;
+          fov = 55;
+        } else if (d < 0.40) {
+          var t1 = ease(range(d, 0.26, 0.40));
+          camU = lerp(0, 1, t1);
+          fov = lerp(55, 42, t1);
+        } else if (d <= 0.60) {
+          camU = 1;
+          fov = 42;
+        } else if (d < 0.74) {
+          var t2 = ease(range(d, 0.60, 0.74));
+          camU = lerp(1, 2, t2);
+          fov = lerp(42, 50, t2);
+        } else {
+          camU = 2;
+          fov = 50;
+        }
+
+        /* Field inversion: 0 (#F2EFE9) -> 1 (#24211D) at 32-34%, back at 66-68% */
+        var inv = 0;
+        if (d <= 0.32) {
+          inv = 0;
+        } else if (d < 0.34) {
+          inv = ease(range(d, 0.32, 0.34));
+        } else if (d <= 0.66) {
+          inv = 1;
+        } else if (d < 0.68) {
+          inv = 1 - ease(range(d, 0.66, 0.68));
+        } else {
+          inv = 0;
+        }
+
+        /* Scene 1 copy: hold 0-26%, out 26-32% */
+        var op1 = 1;
+        var y1 = 0;
+        if (d <= 0.26) {
+          op1 = 1;
+          y1 = 0;
+        } else if (d < 0.32) {
+          var o1 = ease(range(d, 0.26, 0.32));
+          op1 = 1 - o1;
+          y1 = -16 * o1;
+        } else {
+          op1 = 0;
+          y1 = -16;
+        }
+
+        /* Scene 2 copy: in 34-40%, hold 40-60%, out 60-66% */
+        var op2 = 0;
+        var y2 = 16;
+        if (d <= 0.34) {
+          op2 = 0;
+          y2 = 16;
+        } else if (d < 0.40) {
+          var i2 = ease(range(d, 0.34, 0.40));
+          op2 = i2;
+          y2 = 16 * (1 - i2);
+        } else if (d <= 0.60) {
+          op2 = 1;
+          y2 = 0;
+        } else if (d < 0.66) {
+          var o2 = ease(range(d, 0.60, 0.66));
+          op2 = 1 - o2;
+          y2 = -16 * o2;
+        } else {
+          op2 = 0;
+          y2 = -16;
+        }
+
+        /* Scene 3 copy: in 68-74%, hold 74-100% */
+        var op3 = 0;
+        var y3 = 16;
+        if (d <= 0.68) {
+          op3 = 0;
+          y3 = 16;
+        } else if (d < 0.74) {
+          var i3 = ease(range(d, 0.68, 0.74));
+          op3 = i3;
+          y3 = 16 * (1 - i3);
+        } else {
+          op3 = 1;
+          y3 = 0;
+        }
+
+        /* Desktop canvas slide left 60% -> right 60% during 32-34% (when all copy is opacity 0) */
+        var slideX = ease(range(d, 0.32, 0.34));
+        var isClosing = d >= 0.67;
+
+        return {
+          camU: camU,
+          fov: fov,
+          inv: inv,
+          ops: [op1, op2, op3],
+          ys: [y1, y2, y3],
+          slideX: slideX,
+          isClosing: isClosing
+        };
+      }
+
+      function render(d) {
+        if (!active || !ctx) return;
+        var tStart = performance.now();
+
+        try {
+          var s = computeState(d);
+
+          /* Inherited root CSS variables drive ground, text & motif together at all breakpoints */
+          var bgColor = s.inv === 0 ? '#F2EFE9' : (s.inv === 1 ? '#24211D' : mixRGB(LIGHT_RGB, DARK_RGB, s.inv));
+          var fgColor = s.inv === 0 ? '#24211D' : (s.inv === 1 ? '#F2EFE9' : mixRGB(DARK_RGB, LIGHT_RGB, s.inv));
+          root.style.setProperty('--stage-bg', bgColor);
+          root.style.setProperty('--stage-fg', fgColor);
+
+          /* Desktop layout mode & canvas horizontal translation (mobile ignores via CSS media query) */
+          var nextLayout = s.isClosing ? 'closing' : 'split';
+          if (stageLayout.getAttribute('data-layout') !== nextLayout) {
+            stageLayout.setAttribute('data-layout', nextLayout);
+          }
+
+          if (window.innerWidth >= 900 && !s.isClosing) {
+            var txPct = s.slideX * (200 / 3); /* 0% -> 66.6667% of 60% width = 40% of stage */
+            canvasBox.style.transform = 'translate3d(' + txPct.toFixed(4) + '%, 0, 0)';
+          } else {
+            canvasBox.style.transform = '';
+          }
+
+          /* Scene copy wrappers: opacity ONLY on .scene-copy; transform on inner .copy */
+          for (var i = 0; i < 3; i++) {
+            sceneCopies[i].style.opacity = s.ops[i].toFixed(4);
+            innerCopies[i].style.transform = 'translate3d(0, ' + s.ys[i].toFixed(2) + 'px, 0)';
+          }
+
+          /* Size backing canvas (capped at DPR 2) and project the 3 architectural rooms */
+          ensureCanvasSize();
+          var w = canvasCssW;
+          var h = canvasCssH;
+
+          ctx.setTransform(canvasDpr, 0, 0, canvasDpr, 0, 0);
+          ctx.fillStyle = bgColor;
+          ctx.fillRect(0, 0, w, h);
+
+          /* Map normalized camU (0..1..2) to physical Z eye coordinate */
+          var camZ;
+          if (s.camU <= 1) {
+            camZ = lerp(0.02, 2.28, s.camU);
+          } else {
+            camZ = lerp(2.28, 4.46, s.camU - 1);
+          }
+          var nearZ = camZ + 0.03;
+
+          /* Perspective focal length (vertical FOV with narrow-aspect protection so walls stay framed) */
+          var refH = Math.min(h, w / 1.22);
+          var fovRad = (s.fov * Math.PI) / 180;
+          var focal = (refH * 0.5) / Math.tan(fovRad * 0.5);
+          var cx = w * 0.5;
+          var cy = h * 0.5;
+
+          /* Architectural surface palettes: Rooms 1 & 3 in #F2EFE9 stone, Room 2 in #24211D dark;
+             perspective floor shading shifts tone smoothly when Room 2 inverts (s.inv). */
+          var lightEdge = mixRGBA(DARK_RGB, LIGHT_RGB, s.inv, 0.28);
+          var darkEdge = mixRGBA(LIGHT_RGB, LIGHT_RGB, s.inv, lerp(0.24, 0.36, s.inv));
+
+          var lightRoomPalette = {
+            ceil: '#F5F2EC',
+            left: '#EFEBE4',
+            right: '#EAE5DC',
+            floorNear: mixRGB([232, 226, 216], [218, 211, 200], s.inv),
+            floorFar: mixRGB([220, 213, 201], [202, 194, 182], s.inv),
+            edge: lightEdge
+          };
+
+          var darkRoomPalette = {
+            ceil: '#292622',
+            left: '#24211D',
+            right: '#201D19',
+            floorNear: mixRGB([22, 19, 16], [27, 24, 20], s.inv),
+            floorFar: mixRGB([36, 33, 29], [46, 42, 37], s.inv),
+            edge: darkEdge
+          };
+
+          var alcoveBack = mixRGB([214, 206, 194], [200, 192, 180], s.inv);
+
+          /* Painter's algorithm: strict back-to-front along Z */
+          /* 1. Distant End Wall & Centred Recessed Alcove (Room 3 back) */
+          drawEndWallWithAlcove(R3_Z1, ALC_Z1, '#E5DFD4', alcoveBack, lightEdge, camZ, nearZ, focal, cx, cy);
+
+          /* 2. Room 3 chamber */
+          drawChamberShell(R3_Z0, R3_Z1, lightRoomPalette, camZ, nearZ, focal, cx, cy);
+
+          /* 3. Portal 2 wall (between Room 2 and Room 3) */
+          drawPortalWall(P2_Z0, P2_Z1, '#1E1B18', darkEdge, camZ, nearZ, focal, cx, cy);
+
+          /* 4. Room 2 chamber (inverted dark sanctuary) */
+          drawChamberShell(R2_Z0, R2_Z1, darkRoomPalette, camZ, nearZ, focal, cx, cy);
+
+          /* 5. Portal 1 wall (between Room 1 and Room 2) */
+          drawPortalWall(P1_Z0, P1_Z1, '#E4DED3', lightEdge, camZ, nearZ, focal, cx, cy);
+
+          /* 6. Room 1 chamber */
+          drawChamberShell(R1_Z0, R1_Z1, lightRoomPalette, camZ, nearZ, focal, cx, cy);
+        } catch (err) {
+          disableStage();
+          return;
+        }
+
+        /* Fallback to static still if rendering stalls over 300ms */
+        var elapsed = performance.now() - tStart;
+        if (elapsed > 300) {
+          slowFrameCount += 1;
+          if (slowFrameCount >= 2) {
+            disableStage();
+          }
+        } else {
+          slowFrameCount = 0;
+        }
+      }
+
+      /* -------------------------------------------------------------------
+         Scroll progress, exponential smoothing & rAF scheduling
+         ------------------------------------------------------------------- */
+      function readProgress() {
+        var denom = track.offsetHeight - stage.offsetHeight;
+        if (denom <= 0) return 0;
+        return clamp(-track.getBoundingClientRect().top / denom, 0, 1);
+      }
+
+      function scrollToProgress(p) {
+        var denom = track.offsetHeight - stage.offsetHeight;
+        if (denom <= 0) return;
+        var trackTop = track.getBoundingClientRect().top + window.scrollY;
+        var targetY = Math.round(trackTop + clamp(p, 0, 1) * denom);
+        window.scrollTo({ top: targetY, behavior: 'auto' });
+        targetP = clamp(p, 0, 1);
+        drawn = targetP;
+        render(drawn);
+      }
+
+      function tick(now) {
+        rafId = 0;
+        if (!active || !inView) return;
+
+        var dt = lastTime ? clamp(now - lastTime, 0, 100) : 16;
+        lastTime = now;
+
+        targetP = readProgress();
+        drawn += (targetP - drawn) * (1 - Math.exp(-dt / 120));
+
+        if (Math.abs(targetP - drawn) < 0.00015) {
+          drawn = targetP;
+          render(drawn);
+          lastTime = 0;
+          return;
+        }
+
+        render(drawn);
+        rafId = window.requestAnimationFrame(tick);
+      }
+
+      function scheduleFrame() {
+        if (!active || !inView || rafId) return;
+        lastTime = 0;
+        rafId = window.requestAnimationFrame(tick);
+      }
+
+      function syncImmediate() {
+        if (!active) return;
+        if (rafId) {
+          window.cancelAnimationFrame(rafId);
+          rafId = 0;
+        }
+        targetP = readProgress();
+        drawn = targetP;
+        render(drawn);
+      }
+
+      function handleScroll() {
+        if (!active || !inView) return;
+        targetP = readProgress();
+        scheduleFrame();
+      }
+
+      function handleResize() {
+        if (!active) return;
+        canvasCssW = 0;
+        canvasCssH = 0;
+        syncImmediate();
+      }
+
+      function handleHash() {
+        var h = window.location.hash;
+        if (!active || !Object.prototype.hasOwnProperty.call(hashToP, h)) return;
+        scrollToProgress(hashToP[h]);
+      }
+
+      function enableStage() {
+        if (active) return;
+        try {
+          ctx = canvas.getContext('2d');
+          if (!ctx) {
+            disableStage();
+            return;
+          }
+          root.classList.add('stage-active');
+          active = true;
+          inView = true;
+          slowFrameCount = 0;
+
+          if ('IntersectionObserver' in window) {
+            observer = new IntersectionObserver(function (entries) {
+              for (var i = 0; i < entries.length; i++) {
+                inView = entries[i].isIntersecting;
+                if (!inView && rafId) {
+                  window.cancelAnimationFrame(rafId);
+                  rafId = 0;
+                } else if (inView) {
+                  syncImmediate();
+                }
+              }
+            }, { threshold: 0 });
+            observer.observe(track);
+          }
+
+          window.addEventListener('scroll', handleScroll, { passive: true });
+          window.addEventListener('resize', handleResize, { passive: true });
+          window.addEventListener('hashchange', handleHash);
+          window.addEventListener('load', syncImmediate);
+          window.addEventListener('pageshow', syncImmediate);
+
+          /* Deep link lands on that scene's hold; otherwise draw current scroll position */
+          var initialHash = window.location.hash;
+          if (Object.prototype.hasOwnProperty.call(hashToP, initialHash)) {
+            scrollToProgress(hashToP[initialHash]);
+          } else {
+            syncImmediate();
+          }
+        } catch (err) {
+          disableStage();
+        }
+      }
+
+      function disableStage() {
+        active = false;
+        if (rafId) {
+          window.cancelAnimationFrame(rafId);
+          rafId = 0;
+        }
+        if (observer) {
+          observer.disconnect();
+          observer = null;
+        }
+        window.removeEventListener('scroll', handleScroll);
+        window.removeEventListener('resize', handleResize);
+        window.removeEventListener('hashchange', handleHash);
+        window.removeEventListener('load', syncImmediate);
+        window.removeEventListener('pageshow', syncImmediate);
+        root.classList.remove('stage-active');
+        root.style.removeProperty('--stage-bg');
+        root.style.removeProperty('--stage-fg');
+      }
+
+      /* Keyboard link focus & click jumps to the hold of its scene */
+      navLinks.forEach(function (link) {
+        var pVal = parseFloat(link.getAttribute('data-p'));
+        link.addEventListener('focus', function () {
+          if (active && !isNaN(pVal)) {
+            scrollToProgress(pVal);
+          }
+        });
+        link.addEventListener('click', function (e) {
+          if (active && !isNaN(pVal)) {
+            e.preventDefault();
+            var href = link.getAttribute('href');
+            if (href && window.history && window.history.replaceState) {
+              try {
+                window.history.replaceState(null, '', href);
+              } catch (_) {}
+            }
+            scrollToProgress(pVal);
+          }
+        });
+      });
+
+      /* Respect prefers-reduced-motion live */
+      var motionQuery = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+      function applyMotionPreference() {
+        if (motionQuery && motionQuery.matches) {
+          disableStage();
+        } else {
+          enableStage();
+        }
+      }
+
+      applyMotionPreference();
+
+      if (motionQuery) {
+        if (typeof motionQuery.addEventListener === 'function') {
+          motionQuery.addEventListener('change', applyMotionPreference);
+        } else if (typeof motionQuery.addListener === 'function') {
+          motionQuery.addListener(applyMotionPreference);
+        }
+      }
+    })();
+  </script>
+</body>
+</html>
