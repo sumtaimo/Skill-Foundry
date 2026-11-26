@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lead Qualification &amp; Closing Funnel — Playable Interactive Diagram</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --tc-bg: #f6f7f9;
+      --tc-surface: #ffffff;
+      --tc-surface-alt: #eef1f5;
+      --tc-border: #d5dbe4;
+      --tc-border-strong: #64748b;
+      --tc-text: #0f172a;
+      --tc-muted: #475569;
+      --tc-accent: #1d4ed8;
+      --tc-accent-soft: #dbeafe;
+      --tc-accent-text: #ffffff;
+      --tc-ok: #047857;
+      --tc-ok-soft: #d1fae5;
+      --tc-warn: #b45309;
+      --tc-warn-soft: #fef3c7;
+      --tc-err: #b91c1c;
+      --tc-err-soft: #fee2e2;
+      --tc-focus: #1d4ed8;
+      --tc-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    :root[data-theme="dark"] {
+      --tc-bg: #0b101b;
+      --tc-surface: #121927;
+      --tc-surface-alt: #1a2335;
+      --tc-border: #2a364d;
+      --tc-border-strong: #94a3b8;
+      --tc-text: #f8fafc;
+      --tc-muted: #cbd5e1;
+      --tc-accent: #38bdf8;
+      --tc-accent-soft: #0c2d48;
+      --tc-accent-text: #061826;
+      --tc-ok: #34d399;
+      --tc-ok-soft: #0b2e24;
+      --tc-warn: #fbbf24;
+      --tc-warn-soft: #2c2008;
+      --tc-err: #f87171;
+      --tc-err-soft: #361215;
+      --tc-focus: #60a5fa;
+      --tc-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --tc-bg: #0b101b;
+        --tc-surface: #121927;
+        --tc-surface-alt: #1a2335;
+        --tc-border: #2a364d;
+        --tc-border-strong: #94a3b8;
+        --tc-text: #f8fafc;
+        --tc-muted: #cbd5e1;
+        --tc-accent: #38bdf8;
+        --tc-accent-soft: #0c2d48;
+        --tc-accent-text: #061826;
+        --tc-ok: #34d399;
+        --tc-ok-soft: #0b2e24;
+        --tc-warn: #fbbf24;
+        --tc-warn-soft: #2c2008;
+        --tc-err: #f87171;
+        --tc-err-soft: #361215;
+        --tc-focus: #60a5fa;
+        --tc-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0; max-width: 100%; overflow-x: hidden;
+      background: var(--tc-bg); color: var(--tc-text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.5;
+    }
+
+    .tc-wrap { max-width: 1040px; margin: 0 auto; padding: 20px 16px 36px; }
+    .tc-card {
+      background: var(--tc-surface); border: 1px solid var(--tc-border);
+      border-radius: 16px; padding: 18px; box-shadow: var(--tc-shadow);
+    }
+
+    .tc-head {
+      display: flex; flex-wrap: wrap; justify-content: space-between;
+      align-items: flex-start; gap: 12px; margin-bottom: 14px;
+    }
+    .tc-title-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .tc-title { margin: 0; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.015em; }
+    .tc-badge {
+      display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase;
+      background: var(--tc-accent-soft); color: var(--tc-accent); border: 1px solid var(--tc-accent);
+    }
+    .tc-why { margin: 6px 0 0; font-size: 0.875rem; color: var(--tc-muted); max-width: 68ch; }
+
+    .tc-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .tc-btn {
+      appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      min-height: 40px; min-width: 40px; padding: 0 13px; border-radius: 10px;
+      border: 1px solid var(--tc-border-strong); background: var(--tc-surface-alt);
+      color: var(--tc-text); font: inherit; font-size: 0.84rem; font-weight: 600;
+      cursor: pointer; transition: border-color 140ms ease, background-color 140ms ease, transform 120ms ease;
+    }
+    .tc-btn:hover:not(:disabled) { border-color: var(--tc-accent); }
+    .tc-btn:active:not(:disabled) { transform: translateY(1px); }
+    .tc-btn:disabled { cursor: not-allowed; opacity: 0.45; }
+    .tc-btn:focus-visible { outline: 2px solid var(--tc-focus); outline-offset: 2px; }
+    .tc-btn--primary { background: var(--tc-accent); border-color: var(--tc-accent); color: var(--tc-accent-text); }
+    .tc-btn[aria-expanded="true"], .tc-btn[aria-pressed="true"] {
+      background: var(--tc-accent-soft); border-color: var(--tc-accent); color: var(--tc-accent);
+    }
+    .tc-btn--primary[aria-pressed="true"] { background: var(--tc-accent); color: var(--tc-accent-text); }
+
+    .tc-controls {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 10px; padding: 10px 12px; margin-bottom: 14px;
+      border-radius: 12px; background: var(--tc-surface-alt); border: 1px solid var(--tc-border);
+    }
+    .tc-triggers { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .tc-triggers__label { font-size: 0.8rem; font-weight: 600; color: var(--tc-muted); margin-right: 2px; }
+    .tc-hint { font-size: 0.8rem; font-weight: 600; color: var(--tc-muted); }
+
+    .tc-stage-wrap {
+      width: 100%; border-radius: 12px; border: 1px solid var(--tc-border);
+      background: var(--tc-bg); overflow: hidden;
+    }
+    .tc-svg { display: block; width: 100%; height: auto; }
+    .tc-svg text { font-family: inherit; }
+
+    .tc-ribbon { transition: opacity 180ms ease; }
+    .tc-ribbon[data-active="true"] { opacity: 0.78; }
+    .tc-ribbon[data-active="false"] { opacity: 0.18; }
+
+    .tc-node { cursor: pointer; outline: none; }
+    .tc-node .tc-bar { transition: stroke 160ms ease, stroke-width 160ms ease, opacity 160ms ease; }
+    .tc-node[data-active="true"] .tc-bar { stroke: var(--tc-text); stroke-width: 2.5; }
+    .tc-node-ring { opacity: 0; pointer-events: none; transition: opacity 140ms ease; }
+    .tc-node:focus-visible .tc-node-ring { opacity: 1; }
+
+    .tc-status {
+      margin-top: 12px; padding: 10px 14px; border-radius: 10px;
+      background: var(--tc-surface-alt); border: 1px solid var(--tc-border);
+      font-size: 0.875rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px;
+    }
+    .tc-state-pill { font-weight: 700; color: var(--tc-accent); }
+
+    .tc-logic {
+      margin-top: 14px; padding: 14px; border-radius: 12px;
+      border: 1px solid var(--tc-border); background: var(--tc-surface-alt);
+    }
+    .tc-logic[hidden] { display: none; }
+    .tc-logic-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px; align-items: start; }
+    @media (max-width: 780px) { .tc-logic-grid { grid-template-columns: 1fr; } }
+
+    .tc-subhead { margin: 0 0 8px; font-size: 0.875rem; font-weight: 700; color: var(--tc-text); }
+    .tc-rules { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+    .tc-rule {
+      padding: 8px 10px; border-radius: 8px; border: 1px solid var(--tc-border);
+      background: var(--tc-surface); font-size: 0.8125rem;
+    }
+    .tc-rule[data-active="true"] {
+      border-color: var(--tc-accent); background: var(--tc-accent-soft);
+    }
+    .tc-rule-id { font-weight: 700; color: var(--tc-accent); margin-right: 6px; }
+    .tc-flow-box {
+      padding: 10px; border-radius: 10px; border: 1px solid var(--tc-border);
+      background: var(--tc-surface);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 0.01ms !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="tc-wrap">
+    <section class="tc-card" aria-label="Lead Qualification and Closing Funnel">
+      <header class="tc-head">
+        <div>
+          <div class="tc-title-row">
+            <h1 class="tc-title">Lead Qualification &amp; Closing Funnel</h1>
+            <span class="tc-badge">Sankey</span>
+          </div>
+          <p class="tc-why"><strong>Why this chart:</strong> Incoming leads split proportionally across funnel stages (100% into 70% Qualified and 30% Drop-off, then 55% Won and 15% Lost), so ribbon thickness directly conveys each share while path isolation lets you inspect each branch.</p>
+        </div>
+        <div class="tc-toolbar">
+          <button type="button" class="tc-btn tc-btn--primary" data-tc-play aria-pressed="false">Play</button>
+          <button type="button" class="tc-btn" data-tc-step>Step</button>
+          <button type="button" class="tc-btn" data-tc-reset>Reset</button>
+          <button type="button" class="tc-btn" data-tc-logic aria-expanded="false" aria-controls="tc-logic-drawer">Show the logic</button>
+          <button type="button" class="tc-btn" data-tc-theme aria-pressed="false">Dark mode</button>
+        </div>
+      </header>
+
+      <div class="tc-controls">
+        <div class="tc-triggers" data-tc-triggers role="group" aria-label="Trigger funnel branch">
+          <span class="tc-triggers__label">Events:</span>
+        </div>
+        <span class="tc-hint">Click any stage bar to isolate its flow</span>
+      </div>
+
+      <div class="tc-stage-wrap">
+        <svg id="tc-stage" class="tc-svg" viewBox="0 0 920 380" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="tc-svg-title tc-svg-desc">
+          <title id="tc-svg-title">Lead Qualification and Closing Funnel Sankey Diagram</title>
+          <desc id="tc-svg-desc">Proportional Sankey flow showing 100% Incoming leads splitting into 70% Qualified and 30% Drop-off, and 70% Qualified splitting into 55% Won and 15% Lost.</desc>
+
+          <!-- Proportional Ribbons (1% = 2px height) -->
+          <g fill="none" stroke-linecap="butt">
+            <path class="tc-ribbon" data-ribbon="incoming-qualified" data-active="true" d="M 114 160 C 267 160, 267 130, 420 130" stroke="var(--tc-accent)" stroke-width="140" />
+            <path class="tc-ribbon" data-ribbon="incoming-dropoff" data-active="true" d="M 114 260 C 267 260, 267 286, 420 286" stroke="var(--tc-warn)" stroke-width="60" />
+            <path class="tc-ribbon" data-ribbon="qualified-won" data-active="false" d="M 464 115 C 617 115, 617 115, 770 115" stroke="var(--tc-ok)" stroke-width="110" />
+            <path class="tc-ribbon" data-ribbon="qualified-lost" data-active="false" d="M 464 185 C 617 185, 617 263, 770 263" stroke="var(--tc-err)" stroke-width="30" />
+          </g>
+
+          <!-- Ribbon Share Badges -->
+          <g pointer-events="none">
+            <rect x="242" y="131" width="50" height="26" rx="6" fill="var(--tc-surface)" stroke="var(--tc-border-strong)" stroke-width="1.2" />
+            <text x="267" y="149" text-anchor="middle" font-size="13" font-weight="700" fill="var(--tc-text)">70%</text>
+
+            <rect x="242" y="260" width="50" height="26" rx="6" fill="var(--tc-surface)" stroke="var(--tc-border-strong)" stroke-width="1.2" />
+            <text x="267" y="278" text-anchor="middle" font-size="13" font-weight="700" fill="var(--tc-text)">30%</text>
+
+            <rect x="592" y="102" width="50" height="26" rx="6" fill="var(--tc-surface)" stroke="var(--tc-border-strong)" stroke-width="1.2" />
+            <text x="617" y="120" text-anchor="middle" font-size="13" font-weight="700" fill="var(--tc-text)">55%</text>
+
+            <rect x="592" y="211" width="50" height="26" rx="6" fill="var(--tc-surface)" stroke="var(--tc-border-strong)" stroke-width="1.2" />
+            <text x="617" y="229" text-anchor="middle" font-size="13" font-weight="700" fill="var(--tc-text)">15%</text>
+          </g>
+
+          <!-- Stage Bars -->
+          <g class="tc-nodes">
+            <g class="tc-node" data-state-node="incoming" data-active="true" tabindex="0" role="button" aria-pressed="true">
+              <rect class="tc-node-ring" x="64" y="84" width="56" height="212" rx="12" fill="none" stroke="var(--tc-focus)" stroke-width="3" />
+              <rect class="tc-bar" x="70" y="90" width="44" height="200" rx="8" fill="var(--tc-accent)" />
+              <text x="92" y="72" text-anchor="middle" font-size="14" font-weight="700" fill="var(--tc-text)">100% Incoming</text>
+              <text x="92" y="314" text-anchor="middle" font-size="12" fill="var(--tc-muted)">Total leads</text>
+            </g>
+
+            <g class="tc-node" data-state-node="qualified" data-active="false" tabindex="0" role="button" aria-pressed="false">
+              <rect class="tc-node-ring" x="414" y="54" width="56" height="152" rx="12" fill="none" stroke="var(--tc-focus)" stroke-width="3" />
+              <rect class="tc-bar" x="420" y="60" width="44" height="140" rx="8" fill="var(--tc-accent)" />
+              <text x="442" y="42" text-anchor="middle" font-size="14" font-weight="700" fill="var(--tc-text)">70% Qualified</text>
+            </g>
+
+            <g class="tc-node" data-state-node="dropoff" data-active="false" tabindex="0" role="button" aria-pressed="false">
+              <rect class="tc-node-ring" x="414" y="250" width="56" height="72" rx="12" fill="none" stroke="var(--tc-focus)" stroke-width="3" />
+              <rect class="tc-bar" x="420" y="256" width="44" height="60" rx="8" fill="var(--tc-warn)" />
+              <text x="442" y="340" text-anchor="middle" font-size="14" font-weight="700" fill="var(--tc-text)">30% Drop-off</text>
+            </g>
+
+            <g class="tc-node" data-state-node="won" data-active="false" tabindex="0" role="button" aria-pressed="false">
+              <rect class="tc-node-ring" x="764" y="54" width="56" height="122" rx="12" fill="none" stroke="var(--tc-focus)" stroke-width="3" />
+              <rect class="tc-bar" x="770" y="60" width="44" height="110" rx="8" fill="var(--tc-ok)" />
+              <text x="792" y="42" text-anchor="middle" font-size="14" font-weight="700" fill="var(--tc-text)">55% Won</text>
+            </g>
+
+            <g class="tc-node" data-state-node="lost" data-active="false" tabindex="0" role="button" aria-pressed="false">
+              <rect class="tc-node-ring" x="764" y="242" width="56" height="42" rx="12" fill="none" stroke="var(--tc-focus)" stroke-width="3" />
+              <rect class="tc-bar" x="770" y="248" width="44" height="30" rx="8" fill="var(--tc-err)" />
+              <text x="792" y="302" text-anchor="middle" font-size="14" font-weight="700" fill="var(--tc-text)">15% Lost</text>
+            </g>
+          </g>
+        </svg>
+      </div>
+
+      <div class="tc-status" aria-live="polite" data-tc-status>
+        <span>Active state: <span class="tc-state-pill" data-tc-state-label></span></span>
+        <span data-tc-step-desc></span>
+      </div>
+
+      <section id="tc-logic-drawer" class="tc-logic" hidden>
+        <div class="tc-logic-grid">
+          <div>
+            <h2 class="tc-subhead">Rules</h2>
+            <ul class="tc-rules" data-tc-rules></ul>
+          </div>
+          <div class="tc-flow-box">
+            <h2 class="tc-subhead">Logic Flowchart</h2>
+            <svg id="tc-logic-svg" class="tc-svg" viewBox="0 0 420 260" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="tc-logic-title tc-logic-desc">
+              <title id="tc-logic-title">Lead Funnel Logic Flowchart</title>
+              <desc id="tc-logic-desc">Synchronized rules and stage transition flowchart for the 100% lead funnel.</desc>
+            </svg>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const CHART_SPEC = {
+      chartType: 'Sankey',
+      title: 'Lead Qualification & Closing Funnel',
+      rationale: 'Incoming leads split proportionally into 70% Qualified and 30% Drop-off, then 55% Won and 15% Lost.',
+      initialState: 'incoming',
+      states: [
+        { id: 'incoming', label: '100% Incoming', summary: '100% of incoming leads enter qualification, splitting into 70% Qualified and 30% Drop-off.', x: 66, y: 120 },
+        { id: 'qualified', label: '70% Qualified', summary: '70% of incoming leads qualify and advance to closing, splitting into 55% Won and 15% Lost.', x: 210, y: 66 },
+        { id: 'dropoff', label: '30% Drop-off', summary: '30% of incoming leads exit during initial qualification.', x: 210, y: 174 },
+        { id: 'won', label: '55% Won', summary: '55% of incoming leads (out of 70% Qualified) close as Won.', x: 354, y: 66 },
+        { id: 'lost', label: '15% Lost', summary: '15% of incoming leads (out of 70% Qualified) close as Lost.', x: 354, y: 174 }
+      ],
+      transitions: [
+        { id: 't1', from: 'incoming', to: 'qualified', event: 'Qualify (70%)', guard: '70% share' },
+        { id: 't2', from: 'incoming', to: 'dropoff', event: 'Drop-off (30%)', guard: '30% share' },
+        { id: 't3', from: 'qualified', to: 'won', event: 'Win (55%)', guard: '55% share' },
+        { id: 't4', from: 'qualified', to: 'lost', event: 'Lose (15%)', guard: '15% share' },
+        { id: 't5', from: 'dropoff', to: 'incoming', event: 'Restart', guard: 'replay funnel' },
+        { id: 't6', from: 'won', to: 'incoming', event: 'Restart', guard: 'replay funnel' },
+        { id: 't7', from: 'lost', to: 'incoming', event: 'Restart', guard: 'replay funnel' }
+      ],
+      rules: [
+        { id: 'R1', from: 'incoming', event: 'Qualify (70%)', guard: '70% share', to: 'qualified', text: '70% of 100% Incoming leads pass qualification into Qualified.' },
+        { id: 'R2', from: 'incoming', event: 'Drop-off (30%)', guard: '30% share', to: 'dropoff', text: '30% of 100% Incoming leads exit at Drop-off.' },
+        { id: 'R3', from: 'qualified', event: 'Win (55%)', guard: '55% share', to: 'won', text: '55% of total leads (from 70% Qualified) convert to Won.' },
+        { id: 'R4', from: 'qualified', event: 'Lose (15%)', guard: '15% share', to: 'lost', text: '15% of total leads (from 70% Qualified) close as Lost.' },
+        { id: 'R5', from: 'dropoff', event: 'Restart', guard: 'replay funnel', to: 'incoming', text: 'Restart returns from Drop-off to 100% Incoming to inspect another path.' },
+        { id: 'R6', from: 'won', event: 'Restart', guard: 'replay funnel', to: 'incoming', text: 'Restart returns from Won to 100% Incoming to inspect another path.' },
+        { id: 'R7', from: 'lost', event: 'Restart', guard: 'replay funnel', to: 'incoming', text: 'Restart returns from Lost to 100% Incoming to inspect another path.' }
+      ],
+      demoSequence: [
+        'Qualify (70%)',
+        'Win (55%)',
+        'Restart',
+        'Qualify (70%)',
+        'Lose (15%)',
+        'Restart',
+        'Drop-off (30%)',
+        'Restart'
+      ]
+    };
+
+    const PATH_RIBBONS = {
+      incoming: ['incoming-qualified', 'incoming-dropoff'],
+      qualified: ['incoming-qualified', 'qualified-won', 'qualified-lost'],
+      dropoff: ['incoming-dropoff'],
+      won: ['incoming-qualified', 'qualified-won'],
+      lost: ['incoming-qualified', 'qualified-lost']
+    };
+
+    (() => {
+      let current = CHART_SPEC.initialState;
+      let lastRuleId = null;
+      let playTimer = null;
+      let demoIndex = 0;
+
+      const playBtn = document.querySelector('[data-tc-play]');
+      const stepBtn = document.querySelector('[data-tc-step]');
+      const resetBtn = document.querySelector('[data-tc-reset]');
+      const logicBtn = document.querySelector('[data-tc-logic]');
+      const themeBtn = document.querySelector('[data-tc-theme]');
+      const drawer = document.getElementById('tc-logic-drawer');
+      const triggersEl = document.querySelector('[data-tc-triggers]');
+      const rulesEl = document.querySelector('[data-tc-rules]');
+      const stateLabelEl = document.querySelector('[data-tc-state-label]');
+      const stepDescEl = document.querySelector('[data-tc-step-desc]');
+      const logicSvg = document.getElementById('tc-logic-svg');
+
+      function stateById(id) {
+        return CHART_SPEC.states.find((s) => s.id === id) || CHART_SPEC.states[0];
+      }
+
+      function fireEvent(eventName) {
+        const match = CHART_SPEC.transitions.find((t) => t.from === current && t.event === eventName);
+        if (!match) return false;
+        current = match.to;
+        const rule = CHART_SPEC.rules.find((r) => r.from === match.from && r.event === match.event && r.to === match.to);
+        lastRuleId = rule ? rule.id : null;
+        render();
+        return true;
+      }
+
+      function jumpToState(stateId) {
+        const target = CHART_SPEC.states.find((s) => s.id === stateId);
+        if (!target) return;
+        const via = CHART_SPEC.transitions.find((t) => t.from === current && t.to === stateId)
+          || CHART_SPEC.transitions.find((t) => t.to === stateId);
+        current = stateId;
+        lastRuleId = via
+          ? (CHART_SPEC.rules.find((r) => r.from === via.from && r.to === via.to)?.id ?? null)
+          : null;
+        render();
+      }
+
+      function renderTriggers() {
+        triggersEl.querySelectorAll('button').forEach((b) => b.remove());
+        const available = CHART_SPEC.transitions.filter((t) => t.from === current);
+        const events = [...new Set(CHART_SPEC.transitions.map((t) => t.event))];
+        events.forEach((ev) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'tc-btn';
+          btn.textContent = ev;
+          const validNow = available.some((t) => t.event === ev);
+          btn.disabled = !validNow;
+          btn.addEventListener('click', () => { stopPlay(); fireEvent(ev); });
+          triggersEl.appendChild(btn);
+        });
+      }
+
+      function renderStage() {
+        document.querySelectorAll('[data-state-node]').forEach((node) => {
+          const id = node.getAttribute('data-state-node');
+          const active = id === current;
+          node.setAttribute('data-active', String(active));
+          node.setAttribute('aria-pressed', String(active));
+        });
+        const activeRibbons = PATH_RIBBONS[current] || [];
+        document.querySelectorAll('[data-ribbon]').forEach((ribbon) => {
+          const key = ribbon.getAttribute('data-ribbon');
+          ribbon.setAttribute('data-active', String(activeRibbons.includes(key)));
+        });
+      }
+
+      function renderRules() {
+        rulesEl.innerHTML = '';
+        CHART_SPEC.rules.forEach((r) => {
+          const li = document.createElement('li');
+          li.className = 'tc-rule';
+          const active = r.id === lastRuleId || r.from === current;
+          li.dataset.active = String(active);
+          li.innerHTML = `<span class="tc-rule-id">${r.id}</span><strong>${r.from} &rarr; ${r.to}</strong> (${r.event} &middot; ${r.guard})<br><span style="color:var(--tc-muted)">${r.text}</span>`;
+          rulesEl.appendChild(li);
+        });
+      }
+
+      function renderLogicFlowchart() {
+        const ns = 'http://www.w3.org/2000/svg';
+        logicSvg.querySelectorAll('.tc-lf-dyn').forEach((n) => n.remove());
+        const g = document.createElementNS(ns, 'g');
+        g.setAttribute('class', 'tc-lf-dyn');
+
+        CHART_SPEC.transitions.forEach((t) => {
+          const a = stateById(t.from);
+          const b = stateById(t.to);
+          const active = t.from === current;
+          const path = document.createElementNS(ns, 'path');
+          const d = a.x <= b.x
+            ? `M ${a.x} ${a.y} L ${b.x} ${b.y}`
+            : `M ${a.x} ${a.y + 18} Q ${(a.x + b.x) / 2} 246 ${b.x} ${b.y + 18}`;
+          path.setAttribute('d', d);
+          path.setAttribute('fill', 'none');
+          if (a.x > b.x) path.setAttribute('stroke-dasharray', '4 3');
+          path.setAttribute('stroke', active ? 'var(--tc-accent)' : 'var(--tc-border-strong)');
+          path.setAttribute('stroke-width', active ? '2.2' : '1.4');
+          g.appendChild(path);
+        });
+
+        CHART_SPEC.states.forEach((s) => {
+          const isActive = s.id === current;
+          const rect = document.createElementNS(ns, 'rect');
+          rect.setAttribute('x', String(s.x - 48));
+          rect.setAttribute('y', String(s.y - 18));
+          rect.setAttribute('width', '96');
+          rect.setAttribute('height', '36');
+          rect.setAttribute('rx', '8');
+          rect.setAttribute('fill', isActive ? 'var(--tc-accent-soft)' : 'var(--tc-surface)');
+          rect.setAttribute('stroke', isActive ? 'var(--tc-accent)' : 'var(--tc-border-strong)');
+          rect.setAttribute('stroke-width', isActive ? '2.2' : '1.3');
+          g.appendChild(rect);
+
+          const txt = document.createElementNS(ns, 'text');
+          txt.setAttribute('x', String(s.x));
+          txt.setAttribute('y', String(s.y + 4));
+          txt.setAttribute('text-anchor', 'middle');
+          txt.setAttribute('font-size', '11');
+          txt.setAttribute('font-weight', isActive ? '700' : '600');
+          txt.setAttribute('fill', 'var(--tc-text)');
+          txt.textContent = s.label;
+          g.appendChild(txt);
+        });
+
+        logicSvg.appendChild(g);
+      }
+
+      function render() {
+        const st = stateById(current);
+        stateLabelEl.textContent = st.label;
+        stepDescEl.textContent = st.summary;
+        renderTriggers();
+        renderStage();
+        renderRules();
+        renderLogicFlowchart();
+      }
+
+      function stopPlay() {
+        if (playTimer) { clearInterval(playTimer); playTimer = null; }
+        playBtn.setAttribute('aria-pressed', 'false');
+        playBtn.textContent = 'Play';
+      }
+
+      function stepOnce() {
+        const seq = CHART_SPEC.demoSequence;
+        if (seq.length) {
+          for (let tries = 0; tries < seq.length; tries++) {
+            const ev = seq[(demoIndex + tries) % seq.length];
+            if (fireEvent(ev)) { demoIndex = (demoIndex + tries + 1) % seq.length; return; }
+          }
+        }
+        const first = CHART_SPEC.transitions.find((t) => t.from === current);
+        if (first) fireEvent(first.event);
+      }
+
+      playBtn.addEventListener('click', () => {
+        if (playTimer) { stopPlay(); return; }
+        playBtn.setAttribute('aria-pressed', 'true');
+        playBtn.textContent = 'Pause';
+        stepOnce();
+        playTimer = setInterval(stepOnce, 1400);
+      });
+
+      stepBtn.addEventListener('click', () => { stopPlay(); stepOnce(); });
+      resetBtn.addEventListener('click', () => {
+        stopPlay();
+        demoIndex = 0;
+        current = CHART_SPEC.initialState;
+        lastRuleId = null;
+        render();
+      });
+
+      logicBtn.addEventListener('click', () => {
+        const next = logicBtn.getAttribute('aria-expanded') !== 'true';
+        logicBtn.setAttribute('aria-expanded', String(next));
+        drawer.hidden = !next;
+      });
+
+      const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      function currentTheme() {
+        const explicit = document.documentElement.dataset.theme;
+        if (explicit === 'dark' || explicit === 'light') return explicit;
+        return darkQuery.matches ? 'dark' : 'light';
+      }
+      function syncTheme() {
+        const isDark = currentTheme() === 'dark';
+        themeBtn.setAttribute('aria-pressed', String(isDark));
+        themeBtn.textContent = isDark ? 'Light mode' : 'Dark mode';
+      }
+      themeBtn.addEventListener('click', () => {
+        document.documentElement.dataset.theme = currentTheme() === 'dark' ? 'light' : 'dark';
+        syncTheme();
+      });
+      syncTheme();
+
+      document.querySelectorAll('[data-state-node]').forEach((node) => {
+        const id = node.getAttribute('data-state-node');
+        node.addEventListener('click', () => { stopPlay(); jumpToState(id); });
+        node.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault(); stopPlay(); jumpToState(id);
+          }
+        });
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+[
+  {
+    "id": "checkout-statechart",
+    "prompt": "Create a playable single-file HTML diagram for our checkout payment flow: Cart Ready -> Authorizing -> 3DS Challenge -> Confirmed, with Card Declined allowing up to 2 retries or Cancel. Auto-pick the best chart type, explain why, and include Light/Dark mode plus a Show the logic toggle.",
+    "expect": [
+      { "type": "contains", "value": "Chart choice:" },
+      { "type": "contains", "value": "Statechart" },
+      { "type": "contains", "value": "Why this chart:" },
+      { "type": "contains", "value": "<!doctype html>" },
+      { "type": "contains", "value": "CHART_SPEC" },
+      { "type": "contains", "value": "Show the logic" },
+      { "type": "contains", "value": "aria-expanded" },
+      { "type": "contains", "value": "prefers-reduced-motion: reduce" },
+      { "type": "contains", "value": "data-theme=\"dark\"" },
+      { "type": "notContains", "value": "https://cdn" }
+    ]
+  },
+  {
+    "id": "actor-sequence",
+    "prompt": "Build a playable single-file HTML diagram showing how Browser, Auth Server, and API Service exchange login code, token, and user profile in order. Auto-pick the best diagram type, explain why, and include Play/Step controls plus Show the logic.",
+    "expect": [
+      { "type": "contains", "value": "Chart choice:" },
+      { "type": "contains", "value": "Sequence" },
+      { "type": "contains", "value": "Why this chart:" },
+      { "type": "contains", "value": "<!doctype html>" },
+      { "type": "contains", "value": "CHART_SPEC" },
+      { "type": "contains", "value": "Show the logic" },
+      { "type": "contains", "value": "prefers-reduced-motion: reduce" }
+    ]
+  },
+  {
+    "id": "refund-flowchart",
+    "prompt": "Make an interactive single-file HTML diagram for our refund approval rule: if days <= 14 and item unopened -> Auto-Approve; otherwise -> Manual Support Review. Auto-pick the best chart type, explain why, and include Light/Dark mode and Show the logic.",
+    "expect": [
+      { "type": "contains", "value": "Chart choice:" },
+      { "type": "contains", "value": "Flowchart" },
+      { "type": "contains", "value": "Why this chart:" },
+      { "type": "contains", "value": "<!doctype html>" },
+      { "type": "contains", "value": "CHART_SPEC" },
+      { "type": "contains", "value": "Show the logic" },
+      { "type": "contains", "value": "prefers-reduced-motion: reduce" }
+    ]
+  },
+  {
+    "id": "trial-timeline",
+    "prompt": "Create a playable single-file HTML diagram for a 14-day SaaS onboarding timeline: Day 0-3 Setup, Day 3-7 Trial Active, Day 7-14 Renewal Reminder. Auto-pick the best chart type, explain why, and include Play/Step controls and Show the logic.",
+    "expect": [
+      { "type": "contains", "value": "Chart choice:" },
+      { "type": "contains", "value": "Timeline" },
+      { "type": "contains", "value": "Why this chart:" },
+      { "type": "contains", "value": "<!doctype html>" },
+      { "type": "contains", "value": "CHART_SPEC" },
+      { "type": "contains", "value": "Show the logic" }
+    ]
+  },
+  {
+    "id": "funnel-sankey",
+    "prompt": "Build a playable single-file HTML diagram showing how 100% incoming leads split into 70% Qualified and 30% Drop-off, then 55% Won and 15% Lost. Auto-pick the best chart type, explain why, and include Show the logic.",
+    "expect": [
+      { "type": "contains", "value": "Chart choice:" },
+      { "type": "contains", "value": "Sankey" },
+      { "type": "contains", "value": "Why this chart:" },
+      { "type": "contains", "value": "<!doctype html>" },
+      { "type": "contains", "value": "CHART_SPEC" },
+      { "type": "contains", "value": "Show the logic" }
+    ]
+  },
+  {
+    "id": "vague-ask-first",
+    "prompt": "Make me a nice playable chart for my app.",
+    "expect": [
+      { "type": "contains", "value": "?" },
+      { "type": "notContains", "value": "<!doctype" },
+      { "type": "notContains", "value": "<svg" }
+    ]
+  },
+  {
+    "id": "static-pie-declined",
+    "prompt": "Make a static pie chart of our Q3 revenue by region: North 40%, South 35%, West 25%.",
+    "expect": [
+      { "type": "notContains", "value": "<!doctype" },
+      { "type": "notContains", "value": "<svg" }
+    ]
+  },
+  {
+    "id": "isometric-cutaway-declined",
+    "prompt": "Draw an interactive 3D isometric cutaway illustration of a coffee grinder showing the hopper, burrs, and motor.",
+    "expect": [
+      { "type": "contains", "value": "figure-craft" },
+      { "type": "notContains", "value": "<!doctype" }
+    ]
+  },
+  {
+    "id": "token-svg-declined",
+    "prompt": "Draw an animated 2D architecture SVG showing Producer -> Queue -> Worker -> Retry DLQ synced strictly to design/tokens.css with <defs> gradients and Play/Pause.",
+    "expect": [
+      { "type": "contains", "value": "svg-mechanism" },
+      { "type": "notContains", "value": "<!doctype" }
+    ]
+  }
+]

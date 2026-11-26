@@ -1,0 +1,38 @@
+<!-- Template: Flowchart (Explicit decision diamond, Yes/No paths, policy rules) -->
+<!-- Best when: prompt centers on if/else rules, approvals, routing thresholds, or branching conditions. -->
+<svg id="tc-stage" class="tc-svg" viewBox="0 0 920 380" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="tc-svg-title tc-svg-desc">
+  <title id="tc-svg-title">{{TITLE}}</title>
+  <desc id="tc-svg-desc">{{SVG_DESC}}</desc>
+  <defs>
+    <marker id="tc-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 1 2 L 8 5 L 1 8 Z" fill="var(--tc-border-strong)" />
+    </marker>
+  </defs>
+  <g fill="none" stroke-width="2">
+    <path d="M 210 185 L 340 185" stroke="var(--tc-border-strong)" marker-end="url(#tc-arrow)" />
+    <path d="M 520 185 L 620 185 L 620 100 L 664 100" stroke="var(--tc-ok)" marker-end="url(#tc-arrow)" />
+    <path d="M 520 185 L 620 185 L 620 272 L 664 272" stroke="var(--tc-warn)" stroke-dasharray="5 4" marker-end="url(#tc-arrow)" />
+  </g>
+  <g class="tc-nodes">
+    <g class="tc-node" data-state-node="input" tabindex="0" role="button" aria-pressed="true">
+      <rect x="50" y="145" width="160" height="80" rx="12" fill="var(--tc-surface)" stroke="var(--tc-border-strong)" stroke-width="1.8" />
+      <text x="130" y="183" text-anchor="middle" font-size="14" font-weight="700" fill="var(--tc-text)">Incoming Input</text>
+      <text x="130" y="203" text-anchor="middle" font-size="12" fill="var(--tc-muted)">Check policy</text>
+    </g>
+    <g class="tc-node" data-state-node="decide" tabindex="0" role="button" aria-pressed="false">
+      <polygon points="430,115 520,185 430,255 340,185" fill="var(--tc-surface)" stroke="var(--tc-accent)" stroke-width="2" />
+      <text x="430" y="182" text-anchor="middle" font-size="13" font-weight="700" fill="var(--tc-text)">Guard Met?</text>
+      <text x="430" y="200" text-anchor="middle" font-size="11" fill="var(--tc-muted)">Condition</text>
+    </g>
+    <g class="tc-node" data-state-node="pass" tabindex="0" role="button" aria-pressed="false">
+      <rect x="670" y="60" width="190" height="80" rx="12" fill="var(--tc-surface)" stroke="var(--tc-ok)" stroke-width="1.8" />
+      <text x="765" y="98" text-anchor="middle" font-size="14" font-weight="700" fill="var(--tc-text)">Yes: Fast Path</text>
+      <text x="765" y="118" text-anchor="middle" font-size="12" fill="var(--tc-muted)">Proceed</text>
+    </g>
+    <g class="tc-node" data-state-node="fallback" tabindex="0" role="button" aria-pressed="false">
+      <rect x="670" y="232" width="190" height="80" rx="12" fill="var(--tc-surface)" stroke="var(--tc-warn)" stroke-width="1.8" />
+      <text x="765" y="270" text-anchor="middle" font-size="14" font-weight="700" fill="var(--tc-text)">No: Manual Review</text>
+      <text x="765" y="290" text-anchor="middle" font-size="12" fill="var(--tc-muted)">Escalated</text>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,11 @@
+{
+  "title": "tiny-charts",
+  "tagline": "Auto-pick playable statecharts and diagrams in one HTML with Show the logic.",
+  "prompt": "Create an interactive playable diagram of our checkout payment flow: Cart Ready -> Authorizing -> 3DS Challenge -> Confirmed, with Card Declined allowing up to 2 retries or Cancel. Auto-pick the best chart type, explain why, and include Light/Dark mode plus a Show the logic toggle.",
+  "outputs": [
+    "Auto-picked chart type (Statechart, Sequence, Flowchart, Timeline, or Sankey) with rationale",
+    "Single self-contained HTML5 file driven by a declarative CHART_SPEC statechart engine",
+    "Synchronized Show the logic (Rules + Flowchart) toggle with Light/Dark mode"
+  ],
+  "tags": ["statechart", "diagram", "interactive", "svg", "html"]
+}

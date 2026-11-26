@@ -1,0 +1,8 @@
+{
+  "case": "static-pie-declined",
+  "prompt": "Make a static pie chart of our Q3 revenue by region: North 40%, South 35%, West 25%.",
+  "agent": "codex",
+  "recordedAt": "2026-11-26",
+  "output": "I can’t create this with tiny-charts because static pie charts are out of scope.",
+  "files": []
+}

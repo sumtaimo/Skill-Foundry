@@ -1,0 +1,47 @@
+<!-- Template: Statechart (Lifecycle states, guards, retry/recovery loops) -->
+<!-- Best when: prompt describes states, statuses, events, guards, retries, or failure recovery. -->
+<svg id="tc-stage" class="tc-svg" viewBox="0 0 920 380" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="tc-svg-title tc-svg-desc">
+  <title id="tc-svg-title">{{TITLE}}</title>
+  <desc id="tc-svg-desc">{{SVG_DESC}}</desc>
+  <defs>
+    <marker id="tc-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 1 2 L 8 5 L 1 8 Z" fill="var(--tc-border-strong)" />
+    </marker>
+    <marker id="tc-arrow-active" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 1 2 L 8 5 L 1 8 Z" fill="var(--tc-accent)" />
+    </marker>
+  </defs>
+  <!-- Edges (data-edge="t1" highlights active transitions) -->
+  <g class="tc-edges" fill="none" stroke-width="2">
+    <path data-edge="t1" d="M 210 130 L 346 130" stroke="var(--tc-border-strong)" marker-end="url(#tc-arrow)" />
+    <path data-edge="t2" d="M 526 130 L 666 130" stroke="var(--tc-border-strong)" marker-end="url(#tc-arrow)" />
+    <path data-edge="t3" d="M 436 172 L 436 258" stroke="var(--tc-warn)" stroke-dasharray="5 4" marker-end="url(#tc-arrow)" />
+  </g>
+  <!-- State nodes (data-state-node="<id>" wires click + keyboard + active ring) -->
+  <g class="tc-nodes">
+    <g class="tc-node" data-state-node="draft" tabindex="0" role="button" aria-pressed="true">
+      <rect class="tc-node-ring" x="45" y="85" width="170" height="90" rx="14" fill="none" stroke="var(--tc-focus)" stroke-width="3" />
+      <rect x="50" y="90" width="160" height="80" rx="12" fill="var(--tc-surface)" stroke="var(--tc-border-strong)" stroke-width="1.8" />
+      <text x="130" y="128" text-anchor="middle" font-size="15" font-weight="700" fill="var(--tc-text)">Draft</text>
+      <text x="130" y="148" text-anchor="middle" font-size="12" fill="var(--tc-muted)">Initial state</text>
+    </g>
+    <g class="tc-node" data-state-node="review" tabindex="0" role="button" aria-pressed="false">
+      <rect class="tc-node-ring" x="345" y="85" width="186" height="90" rx="14" fill="none" stroke="var(--tc-focus)" stroke-width="3" />
+      <rect x="350" y="90" width="176" height="80" rx="12" fill="var(--tc-surface)" stroke="var(--tc-border-strong)" stroke-width="1.8" />
+      <text x="438" y="128" text-anchor="middle" font-size="15" font-weight="700" fill="var(--tc-text)">In Review</text>
+      <text x="438" y="148" text-anchor="middle" font-size="12" fill="var(--tc-muted)">Guard checked</text>
+    </g>
+    <g class="tc-node" data-state-node="approved" tabindex="0" role="button" aria-pressed="false">
+      <rect class="tc-node-ring" x="665" y="85" width="186" height="90" rx="14" fill="none" stroke="var(--tc-focus)" stroke-width="3" />
+      <rect x="670" y="90" width="176" height="80" rx="12" fill="var(--tc-surface)" stroke="var(--tc-ok)" stroke-width="1.8" />
+      <text x="758" y="128" text-anchor="middle" font-size="15" font-weight="700" fill="var(--tc-text)">Approved</text>
+      <text x="758" y="148" text-anchor="middle" font-size="12" fill="var(--tc-muted)">Terminal pass</text>
+    </g>
+    <g class="tc-node" data-state-node="rejected" tabindex="0" role="button" aria-pressed="false">
+      <rect class="tc-node-ring" x="345" y="255" width="186" height="90" rx="14" fill="none" stroke="var(--tc-focus)" stroke-width="3" />
+      <rect x="350" y="260" width="176" height="80" rx="12" fill="var(--tc-surface)" stroke="var(--tc-warn)" stroke-width="1.8" />
+      <text x="438" y="298" text-anchor="middle" font-size="15" font-weight="700" fill="var(--tc-text)">Needs Fix</text>
+      <text x="438" y="318" text-anchor="middle" font-size="12" fill="var(--tc-muted)">Retry branch</text>
+    </g>
+  </g>
+</svg>

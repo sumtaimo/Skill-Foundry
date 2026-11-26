@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{TITLE}} — Playable Interactive Diagram</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --tc-bg: #f6f7f9;
+      --tc-surface: #ffffff;
+      --tc-surface-alt: #eef1f5;
+      --tc-border: #d5dbe4;
+      --tc-border-strong: #8a95a5;
+      --tc-text: #111827;
+      --tc-muted: #4b5563;
+      --tc-accent: #1d4ed8;
+      --tc-accent-soft: #dbeafe;
+      --tc-accent-text: #ffffff;
+      --tc-ok: #047857;
+      --tc-ok-soft: #d1fae5;
+      --tc-warn: #b45309;
+      --tc-warn-soft: #fef3c7;
+      --tc-err: #b91c1c;
+      --tc-err-soft: #fee2e2;
+      --tc-focus: #1d4ed8;
+      --tc-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    :root[data-theme="dark"] {
+      --tc-bg: #0b101b;
+      --tc-surface: #121927;
+      --tc-surface-alt: #1a2335;
+      --tc-border: #2a364d;
+      --tc-border-strong: #64748b;
+      --tc-text: #f3f6fb;
+      --tc-muted: #b0bccf;
+      --tc-accent: #38bdf8;
+      --tc-accent-soft: #0c2d48;
+      --tc-accent-text: #061826;
+      --tc-ok: #34d399;
+      --tc-ok-soft: #0b2e24;
+      --tc-warn: #fbbf24;
+      --tc-warn-soft: #2c2008;
+      --tc-err: #f87171;
+      --tc-err-soft: #361215;
+      --tc-focus: #60a5fa;
+      --tc-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --tc-bg: #0b101b;
+        --tc-surface: #121927;
+        --tc-surface-alt: #1a2335;
+        --tc-border: #2a364d;
+        --tc-border-strong: #64748b;
+        --tc-text: #f3f6fb;
+        --tc-muted: #b0bccf;
+        --tc-accent: #38bdf8;
+        --tc-accent-soft: #0c2d48;
+        --tc-accent-text: #061826;
+        --tc-ok: #34d399;
+        --tc-ok-soft: #0b2e24;
+        --tc-warn: #fbbf24;
+        --tc-warn-soft: #2c2008;
+        --tc-err: #f87171;
+        --tc-err-soft: #361215;
+        --tc-focus: #60a5fa;
+        --tc-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0; max-width: 100%; overflow-x: hidden;
+      background: var(--tc-bg); color: var(--tc-text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.5;
+    }
+
+    .tc-wrap { max-width: 1040px; margin: 0 auto; padding: 20px 16px 36px; }
+    .tc-card {
+      background: var(--tc-surface); border: 1px solid var(--tc-border);
+      border-radius: 16px; padding: 18px; box-shadow: var(--tc-shadow);
+    }
+
+    .tc-head {
+      display: flex; flex-wrap: wrap; justify-content: space-between;
+      align-items: flex-start; gap: 12px; margin-bottom: 14px;
+    }
+    .tc-title-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .tc-title { margin: 0; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.015em; }
+    .tc-badge {
+      display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase;
+      background: var(--tc-accent-soft); color: var(--tc-accent); border: 1px solid var(--tc-accent);
+    }
+    .tc-why { margin: 6px 0 0; font-size: 0.875rem; color: var(--tc-muted); max-width: 68ch; }
+
+    .tc-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .tc-btn {
+      appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      min-height: 40px; min-width: 40px; padding: 0 13px; border-radius: 10px;
+      border: 1px solid var(--tc-border-strong); background: var(--tc-surface-alt);
+      color: var(--tc-text); font: inherit; font-size: 0.84rem; font-weight: 600;
+      cursor: pointer; transition: border-color 140ms ease, background-color 140ms ease, transform 120ms ease;
+    }
+    .tc-btn:hover { border-color: var(--tc-accent); }
+    .tc-btn:active { transform: translateY(1px); }
+    .tc-btn:focus-visible { outline: 2px solid var(--tc-focus); outline-offset: 2px; }
+    .tc-btn--primary { background: var(--tc-accent); border-color: var(--tc-accent); color: var(--tc-accent-text); }
+    .tc-btn[aria-expanded="true"], .tc-btn[aria-pressed="true"] {
+      background: var(--tc-accent-soft); border-color: var(--tc-accent); color: var(--tc-accent);
+    }
+    .tc-btn--primary[aria-pressed="true"] { background: var(--tc-accent); color: var(--tc-accent-text); }
+
+    .tc-controls {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 10px; padding: 10px 12px; margin-bottom: 14px;
+      border-radius: 12px; background: var(--tc-surface-alt); border: 1px solid var(--tc-border);
+    }
+    .tc-triggers { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .tc-triggers__label { font-size: 0.8rem; font-weight: 600; color: var(--tc-muted); margin-right: 2px; }
+
+    .tc-stage-wrap {
+      width: 100%; border-radius: 12px; border: 1px solid var(--tc-border);
+      background: var(--tc-bg); overflow: hidden;
+    }
+    .tc-svg { display: block; width: 100%; height: auto; }
+    .tc-svg text { font-family: inherit; }
+    .tc-node { cursor: pointer; outline: none; }
+    .tc-node rect, .tc-node circle, .tc-node polygon { transition: stroke 160ms ease, fill 160ms ease, stroke-width 160ms ease; }
+    .tc-node:focus-visible .tc-node-ring { opacity: 1; }
+    .tc-node-ring { opacity: 0; pointer-events: none; transition: opacity 140ms ease; }
+
+    .tc-status {
+      margin-top: 12px; padding: 10px 14px; border-radius: 10px;
+      background: var(--tc-surface-alt); border: 1px solid var(--tc-border);
+      font-size: 0.875rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px;
+    }
+    .tc-state-pill { font-weight: 700; color: var(--tc-accent); }
+
+    .tc-logic {
+      margin-top: 14px; padding: 14px; border-radius: 12px;
+      border: 1px solid var(--tc-border); background: var(--tc-surface-alt);
+    }
+    .tc-logic[hidden] { display: none; }
+    .tc-logic-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px; align-items: start; }
+    @media (max-width: 780px) { .tc-logic-grid { grid-template-columns: 1fr; } }
+
+    .tc-subhead { margin: 0 0 8px; font-size: 0.875rem; font-weight: 700; color: var(--tc-text); }
+    .tc-rules { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+    .tc-rule {
+      padding: 8px 10px; border-radius: 8px; border: 1px solid var(--tc-border);
+      background: var(--tc-surface); font-size: 0.8125rem;
+    }
+    .tc-rule[data-active="true"] {
+      border-color: var(--tc-accent); background: var(--tc-accent-soft);
+    }
+    .tc-rule-id { font-weight: 700; color: var(--tc-accent); margin-right: 6px; }
+    .tc-flow-box {
+      padding: 10px; border-radius: 10px; border: 1px solid var(--tc-border);
+      background: var(--tc-surface);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 0.01ms !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="tc-wrap">
+    <section class="tc-card" aria-label="{{TITLE}}">
+      <header class="tc-head">
+        <div>
+          <div class="tc-title-row">
+            <h1 class="tc-title">{{TITLE}}</h1>
+            <span class="tc-badge">{{CHART_TYPE}}</span>
+          </div>
+          <p class="tc-why"><strong>Why this chart:</strong> {{RATIONALE}}</p>
+        </div>
+        <div class="tc-toolbar">
+          <button type="button" class="tc-btn tc-btn--primary" data-tc-play aria-pressed="false">Play</button>
+          <button type="button" class="tc-btn" data-tc-step>Step</button>
+          <button type="button" class="tc-btn" data-tc-reset>Reset</button>
+          <button type="button" class="tc-btn" data-tc-logic aria-expanded="false" aria-controls="tc-logic-drawer">Show the logic</button>
+          <button type="button" class="tc-btn" data-tc-theme aria-pressed="false">Dark mode</button>
+        </div>
+      </header>
+
+      <div class="tc-controls">
+        <div class="tc-triggers" data-tc-triggers role="group" aria-label="Trigger events">
+          <span class="tc-triggers__label">Events:</span>
+        </div>
+      </div>
+
+      <div class="tc-stage-wrap">
+        <svg id="tc-stage" class="tc-svg" viewBox="0 0 920 380" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="tc-svg-title tc-svg-desc">
+          <title id="tc-svg-title">{{TITLE}}</title>
+          <desc id="tc-svg-desc">{{SVG_DESC}}</desc>
+          <defs>
+            <marker id="tc-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 1 2 L 8 5 L 1 8 Z" fill="var(--tc-border-strong)" />
+            </marker>
+            <marker id="tc-arrow-active" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 1 2 L 8 5 L 1 8 Z" fill="var(--tc-accent)" />
+            </marker>
+          </defs>
+          <!-- {{SVG_CONTENT}} -->
+        </svg>
+      </div>
+
+      <div class="tc-status" aria-live="polite" data-tc-status>
+        <span>Active state: <span class="tc-state-pill" data-tc-state-label></span></span>
+        <span data-tc-step-desc></span>
+      </div>
+
+      <section id="tc-logic-drawer" class="tc-logic" hidden>
+        <div class="tc-logic-grid">
+          <div>
+            <h2 class="tc-subhead">Rules</h2>
+            <ul class="tc-rules" data-tc-rules></ul>
+          </div>
+          <div class="tc-flow-box">
+            <h2 class="tc-subhead">Logic Flowchart</h2>
+            <svg id="tc-logic-svg" class="tc-svg" viewBox="0 0 420 260" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="tc-logic-title tc-logic-desc">
+              <title id="tc-logic-title">Statechart Logic Flowchart</title>
+              <desc id="tc-logic-desc">Synchronized rules and state transition flowchart.</desc>
+            </svg>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const CHART_SPEC = {
+      chartType: '{{CHART_TYPE}}',
+      title: '{{TITLE}}',
+      rationale: '{{RATIONALE}}',
+      initialState: 'idle',
+      states: [
+        { id: 'idle', label: 'Idle', summary: 'Waiting for start trigger.', tone: 'neutral', x: 70, y: 80 },
+        { id: 'active', label: 'Active', summary: 'Processing request.', tone: 'accent', x: 210, y: 80 },
+        { id: 'done', label: 'Done', summary: 'Completed cleanly.', tone: 'ok', x: 350, y: 80 }
+      ],
+      transitions: [
+        { id: 't1', from: 'idle', to: 'active', event: 'Start', guard: 'input valid' },
+        { id: 't2', from: 'active', to: 'done', event: 'Complete', guard: 'checks pass' },
+        { id: 't3', from: 'done', to: 'idle', event: 'Reset', guard: 'always' }
+      ],
+      rules: [
+        { id: 'R1', from: 'idle', event: 'Start', guard: 'input valid', to: 'active', text: 'When Idle and Start fires with valid input, enter Active.' },
+        { id: 'R2', from: 'active', event: 'Complete', guard: 'checks pass', to: 'done', text: 'When Active and checks pass, transition to Done.' },
+        { id: 'R3', from: 'done', event: 'Reset', guard: 'always', to: 'idle', text: 'Reset returns the machine to Idle.' }
+      ],
+      demoSequence: ['Start', 'Complete', 'Reset']
+    };
+
+    (() => {
+      let current = CHART_SPEC.initialState;
+      let lastRuleId = null;
+      let playTimer = null;
+      let demoIndex = 0;
+
+      const playBtn = document.querySelector('[data-tc-play]');
+      const stepBtn = document.querySelector('[data-tc-step]');
+      const resetBtn = document.querySelector('[data-tc-reset]');
+      const logicBtn = document.querySelector('[data-tc-logic]');
+      const themeBtn = document.querySelector('[data-tc-theme]');
+      const drawer = document.getElementById('tc-logic-drawer');
+      const triggersEl = document.querySelector('[data-tc-triggers]');
+      const rulesEl = document.querySelector('[data-tc-rules]');
+      const stateLabelEl = document.querySelector('[data-tc-state-label]');
+      const stepDescEl = document.querySelector('[data-tc-step-desc]');
+      const logicSvg = document.getElementById('tc-logic-svg');
+
+      function stateById(id) {
+        return CHART_SPEC.states.find((s) => s.id === id) || CHART_SPEC.states[0];
+      }
+
+      function fireEvent(eventName) {
+        const match = CHART_SPEC.transitions.find((t) => t.from === current && t.event === eventName);
+        if (!match) return false;
+        current = match.to;
+        const rule = CHART_SPEC.rules.find((r) => r.from === match.from && r.event === match.event && r.to === match.to);
+        lastRuleId = rule ? rule.id : null;
+        render();
+        return true;
+      }
+
+      function jumpToState(stateId) {
+        const target = CHART_SPEC.states.find((s) => s.id === stateId);
+        if (!target) return;
+        const via = CHART_SPEC.transitions.find((t) => t.from === current && t.to === stateId);
+        current = stateId;
+        lastRuleId = via ? (CHART_SPEC.rules.find((r) => r.from === via.from && r.to === via.to)?.id ?? null) : null;
+        render();
+      }
+
+      function renderTriggers() {
+        triggersEl.querySelectorAll('button').forEach((b) => b.remove());
+        const available = CHART_SPEC.transitions.filter((t) => t.from === current);
+        const events = [...new Set(CHART_SPEC.transitions.map((t) => t.event))];
+        events.forEach((ev) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'tc-btn';
+          btn.textContent = ev;
+          const validNow = available.some((t) => t.event === ev);
+          btn.disabled = !validNow;
+          btn.style.opacity = validNow ? '1' : '0.45';
+          btn.addEventListener('click', () => { stopPlay(); fireEvent(ev); });
+          triggersEl.appendChild(btn);
+        });
+      }
+
+      function renderRules() {
+        rulesEl.innerHTML = '';
+        CHART_SPEC.rules.forEach((r) => {
+          const li = document.createElement('li');
+          li.className = 'tc-rule';
+          const active = r.id === lastRuleId || r.from === current;
+          li.dataset.active = String(active);
+          li.innerHTML = `<span class="tc-rule-id">${r.id}</span><strong>${r.from} → ${r.to}</strong> (${r.event}${r.guard ? ` · ${r.guard}` : ''})<br><span style="color:var(--tc-muted)">${r.text}</span>`;
+          rulesEl.appendChild(li);
+        });
+      }
+
+      function renderLogicFlowchart() {
+        const ns = 'http://www.w3.org/2000/svg';
+        logicSvg.querySelectorAll('.tc-lf-dyn').forEach((n) => n.remove());
+        const g = document.createElementNS(ns, 'g');
+        g.setAttribute('class', 'tc-lf-dyn');
+
+        CHART_SPEC.transitions.forEach((t) => {
+          const a = stateById(t.from);
+          const b = stateById(t.to);
+          const active = t.from === current;
+          const path = document.createElementNS(ns, 'path');
+          const d = a.x <= b.x
+            ? `M ${a.x} ${a.y} L ${b.x} ${b.y}`
+            : `M ${a.x} ${a.y + 18} Q ${(a.x + b.x) / 2} ${Math.max(a.y, b.y) + 65} ${b.x} ${b.y + 18}`;
+          path.setAttribute('d', d);
+          path.setAttribute('fill', 'none');
+          path.setAttribute('stroke', active ? 'var(--tc-accent)' : 'var(--tc-border-strong)');
+          path.setAttribute('stroke-width', active ? '2.2' : '1.5');
+          g.appendChild(path);
+        });
+
+        CHART_SPEC.states.forEach((s) => {
+          const isActive = s.id === current;
+          const rect = document.createElementNS(ns, 'rect');
+          rect.setAttribute('x', String(s.x - 44));
+          rect.setAttribute('y', String(s.y - 18));
+          rect.setAttribute('width', '88');
+          rect.setAttribute('height', '36');
+          rect.setAttribute('rx', '8');
+          rect.setAttribute('fill', isActive ? 'var(--tc-accent-soft)' : 'var(--tc-surface)');
+          rect.setAttribute('stroke', isActive ? 'var(--tc-accent)' : 'var(--tc-border-strong)');
+          rect.setAttribute('stroke-width', isActive ? '2.2' : '1.4');
+          g.appendChild(rect);
+
+          const txt = document.createElementNS(ns, 'text');
+          txt.setAttribute('x', String(s.x));
+          txt.setAttribute('y', String(s.y + 4));
+          txt.setAttribute('text-anchor', 'middle');
+          txt.setAttribute('font-size', '12');
+          txt.setAttribute('font-weight', isActive ? '700' : '600');
+          txt.setAttribute('fill', 'var(--tc-text)');
+          txt.textContent = s.label;
+          g.appendChild(txt);
+        });
+
+        logicSvg.appendChild(g);
+      }
+
+      function renderStage() {
+        document.querySelectorAll('[data-state-node]').forEach((node) => {
+          const id = node.getAttribute('data-state-node');
+          const active = id === current;
+          node.setAttribute('data-active', String(active));
+          node.setAttribute('aria-pressed', String(active));
+        });
+      }
+
+      function render() {
+        const st = stateById(current);
+        stateLabelEl.textContent = st.label;
+        stepDescEl.textContent = st.summary;
+        renderTriggers();
+        renderStage();
+        renderRules();
+        renderLogicFlowchart();
+      }
+
+      function stopPlay() {
+        if (playTimer) { clearInterval(playTimer); playTimer = null; }
+        playBtn.setAttribute('aria-pressed', 'false');
+        playBtn.textContent = 'Play';
+      }
+
+      function stepOnce() {
+        const seq = CHART_SPEC.demoSequence;
+        if (seq.length) {
+          for (let tries = 0; tries < seq.length; tries++) {
+            const ev = seq[(demoIndex + tries) % seq.length];
+            if (fireEvent(ev)) { demoIndex = (demoIndex + tries + 1) % seq.length; return; }
+          }
+        }
+        const first = CHART_SPEC.transitions.find((t) => t.from === current);
+        if (first) fireEvent(first.event);
+      }
+
+      playBtn.addEventListener('click', () => {
+        if (playTimer) { stopPlay(); return; }
+        playBtn.setAttribute('aria-pressed', 'true');
+        playBtn.textContent = 'Pause';
+        stepOnce();
+        playTimer = setInterval(stepOnce, 1400);
+      });
+
+      stepBtn.addEventListener('click', () => { stopPlay(); stepOnce(); });
+      resetBtn.addEventListener('click', () => {
+        stopPlay();
+        demoIndex = 0;
+        current = CHART_SPEC.initialState;
+        lastRuleId = null;
+        render();
+      });
+
+      logicBtn.addEventListener('click', () => {
+        const next = logicBtn.getAttribute('aria-expanded') !== 'true';
+        logicBtn.setAttribute('aria-expanded', String(next));
+        drawer.hidden = !next;
+      });
+
+      const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      function currentTheme() {
+        const explicit = document.documentElement.dataset.theme;
+        if (explicit === 'dark' || explicit === 'light') return explicit;
+        return darkQuery.matches ? 'dark' : 'light';
+      }
+      function syncTheme() {
+        const isDark = currentTheme() === 'dark';
+        themeBtn.setAttribute('aria-pressed', String(isDark));
+        themeBtn.textContent = isDark ? 'Light mode' : 'Dark mode';
+      }
+      themeBtn.addEventListener('click', () => {
+        document.documentElement.dataset.theme = currentTheme() === 'dark' ? 'light' : 'dark';
+        syncTheme();
+      });
+      syncTheme();
+
+      document.querySelectorAll('[data-state-node]').forEach((node) => {
+        node.addEventListener('click', () => { stopPlay(); jumpToState(node.getAttribute('data-state-node')); });
+        node.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault(); stopPlay(); jumpToState(node.getAttribute('data-state-node'));
+          }
+        });
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

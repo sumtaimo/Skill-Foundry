@@ -1,0 +1,32 @@
+<!-- Template: Sankey / Flow Allocation (Proportional split across stages, path isolation) -->
+<!-- Best when: prompt shows traffic, budget, energy, or user funnel splitting and merging across stages. -->
+<svg id="tc-stage" class="tc-svg" viewBox="0 0 920 380" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="tc-svg-title tc-svg-desc">
+  <title id="tc-svg-title">{{TITLE}}</title>
+  <desc id="tc-svg-desc">{{SVG_DESC}}</desc>
+  <!-- Proportional Ribbons -->
+  <g fill="none" stroke-linecap="butt" opacity="0.55">
+    <path d="M 110 150 C 260 150, 280 120, 420 120" stroke="var(--tc-accent)" stroke-width="46" />
+    <path d="M 110 218 C 260 218, 280 268, 420 268" stroke="var(--tc-warn)" stroke-width="22" />
+    <path d="M 464 114 C 600 114, 620 108, 770 108" stroke="var(--tc-ok)" stroke-width="34" />
+    <path d="M 464 140 C 600 140, 620 262, 770 262" stroke="var(--tc-err)" stroke-width="12" />
+  </g>
+  <!-- Stage Bars -->
+  <g class="tc-nodes">
+    <g class="tc-node" data-state-node="incoming" tabindex="0" role="button" aria-pressed="true">
+      <rect x="70" y="96" width="40" height="156" rx="8" fill="var(--tc-accent)" />
+      <text x="90" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="var(--tc-text)">100% Input</text>
+    </g>
+    <g class="tc-node" data-state-node="qualified" tabindex="0" role="button" aria-pressed="false">
+      <rect x="420" y="84" width="44" height="82" rx="8" fill="var(--tc-accent)" />
+      <text x="442" y="68" text-anchor="middle" font-size="13" font-weight="700" fill="var(--tc-text)">70% Qualified</text>
+    </g>
+    <g class="tc-node" data-state-node="dropped" tabindex="0" role="button" aria-pressed="false">
+      <rect x="420" y="242" width="44" height="52" rx="8" fill="var(--tc-warn)" />
+      <text x="442" y="316" text-anchor="middle" font-size="13" font-weight="700" fill="var(--tc-text)">30% Drop-off</text>
+    </g>
+    <g class="tc-node" data-state-node="converted" tabindex="0" role="button" aria-pressed="false">
+      <rect x="770" y="84" width="44" height="58" rx="8" fill="var(--tc-ok)" />
+      <text x="792" y="68" text-anchor="middle" font-size="13" font-weight="700" fill="var(--tc-text)">55% Won</text>
+    </g>
+  </g>
+</svg>

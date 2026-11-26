@@ -1,0 +1,57 @@
+[
+  {
+    "id": "R-tiny-charts-1",
+    "text": "Auto-pick the single best chart type from the picker matrix and state both Chart choice and Why this chart before or inside the deliverable.",
+    "check": "tinycharts-autopick-rationale"
+  },
+  {
+    "id": "R-tiny-charts-2",
+    "text": "Output MUST be a single self-contained HTML5 file built from assets/shell.html with zero external CDN script or stylesheet URLs.",
+    "check": "tinycharts-self-contained"
+  },
+  {
+    "id": "R-tiny-charts-3",
+    "text": "Every diagram MUST embed a single declarative CHART_SPEC (states, transitions, rules, demoSequence) driving both the playable stage and the Show the logic drawer.",
+    "check": "tinycharts-declarative-statechart"
+  },
+  {
+    "id": "R-tiny-charts-4",
+    "text": "Provide Play, Step, Reset, event trigger buttons, and clickable/keyboard-focusable nodes updating an aria-live=\"polite\" status readout.",
+    "check": "tinycharts-playable-controls"
+  },
+  {
+    "id": "R-tiny-charts-5",
+    "text": "Include a Show the logic toggle button (aria-expanded) revealing synchronized Rules and a Logic Flowchart.",
+    "check": "tinycharts-show-logic"
+  },
+  {
+    "id": "R-tiny-charts-6",
+    "text": "Every primary <svg> MUST declare numeric viewBox, role=\"img\", aria-labelledby, <title>, <desc>, and keep <text> labels inside safe margins.",
+    "check": "tinycharts-svg-a11y"
+  },
+  {
+    "id": "R-tiny-charts-7",
+    "text": "Support Light and Dark themes (:root, [data-theme=\"dark\"], prefers-color-scheme: dark, and a theme toggle button) with readable contrast.",
+    "check": "tinycharts-light-dark"
+  },
+  {
+    "id": "R-tiny-charts-8",
+    "text": "Honor @media (prefers-reduced-motion: reduce) and keep responsive layout free of horizontal overflow at 1440px and 390px.",
+    "check": "tinycharts-reduced-motion"
+  },
+  {
+    "id": "R-tiny-charts-9",
+    "text": "Never invent unstated rules or numbers; when a prompt gives no subject, workflow, or rules, ask 1-2 short clarifying questions and output no HTML.",
+    "check": "tinycharts-ask-when-vague"
+  },
+  {
+    "id": "R-tiny-charts-10",
+    "text": "Refuse out-of-scope requests (static spreadsheet pie/bar charts, figure-craft, svg-mechanism, motion-craft, ui-craft) in one concise sentence with no HTML.",
+    "check": "tinycharts-refuse-out-of-scope"
+  },
+  {
+    "id": "R-tiny-charts-11",
+    "text": "Verify rendered output via engine/lint-chart.mjs and Playwright/browser checks at 1440px and 390px in light, dark, and reduced-motion modes.",
+    "checklist": "Rendered HTML passes engine/lint-chart.mjs (C1-C8) and browser checks at 1440px and 390px across light, dark, and reduced motion."
+  }
+]
