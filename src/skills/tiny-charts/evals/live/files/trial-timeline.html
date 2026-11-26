@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>14-Day SaaS Onboarding Timeline — Playable Interactive Diagram</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --tc-bg: #f6f7f9;
+      --tc-surface: #ffffff;
+      --tc-surface-alt: #eef1f5;
+      --tc-border: #d5dbe4;
+      --tc-border-strong: #64748b;
+      --tc-text: #0f172a;
+      --tc-muted: #475569;
+      --tc-accent: #1d4ed8;
+      --tc-accent-soft: #dbeafe;
+      --tc-accent-text: #ffffff;
+      --tc-ok: #047857;
+      --tc-ok-soft: #d1fae5;
+      --tc-warn: #b45309;
+      --tc-warn-soft: #fef3c7;
+      --tc-err: #b91c1c;
+      --tc-err-soft: #fee2e2;
+      --tc-focus: #1d4ed8;
+      --tc-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    :root[data-theme="dark"] {
+      --tc-bg: #0b101b;
+      --tc-surface: #121927;
+      --tc-surface-alt: #1a2335;
+      --tc-border: #2a364d;
+      --tc-border-strong: #94a3b8;
+      --tc-text: #f8fafc;
+      --tc-muted: #cbd5e1;
+      --tc-accent: #38bdf8;
+      --tc-accent-soft: #0c2d48;
+      --tc-accent-text: #061826;
+      --tc-ok: #34d399;
+      --tc-ok-soft: #0b2e24;
+      --tc-warn: #fbbf24;
+      --tc-warn-soft: #2c2008;
+      --tc-err: #f87171;
+      --tc-err-soft: #361215;
+      --tc-focus: #60a5fa;
+      --tc-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --tc-bg: #0b101b;
+        --tc-surface: #121927;
+        --tc-surface-alt: #1a2335;
+        --tc-border: #2a364d;
+        --tc-border-strong: #94a3b8;
+        --tc-text: #f8fafc;
+        --tc-muted: #cbd5e1;
+        --tc-accent: #38bdf8;
+        --tc-accent-soft: #0c2d48;
+        --tc-accent-text: #061826;
+        --tc-ok: #34d399;
+        --tc-ok-soft: #0b2e24;
+        --tc-warn: #fbbf24;
+        --tc-warn-soft: #2c2008;
+        --tc-err: #f87171;
+        --tc-err-soft: #361215;
+        --tc-focus: #60a5fa;
+        --tc-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0; max-width: 100%; overflow-x: hidden;
+      background: var(--tc-bg); color: var(--tc-text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.5;
+    }
+
+    .tc-wrap { max-width: 1040px; margin: 0 auto; padding: 20px 16px 36px; }
+    .tc-card {
+      background: var(--tc-surface); border: 1px solid var(--tc-border);
+      border-radius: 16px; padding: 18px; box-shadow: var(--tc-shadow);
+    }
+
+    .tc-head {
+      display: flex; flex-wrap: wrap; justify-content: space-between;
+      align-items: flex-start; gap: 12px; margin-bottom: 14px;
+    }
+    .tc-title-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .tc-title { margin: 0; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.015em; }
+    .tc-badge {
+      display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase;
+      background: var(--tc-accent-soft); color: var(--tc-accent); border: 1px solid var(--tc-accent);
+    }
+    .tc-why { margin: 6px 0 0; font-size: 0.875rem; color: var(--tc-muted); max-width: 68ch; }
+
+    .tc-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .tc-btn {
+      appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      min-height: 40px; min-width: 40px; padding: 0 13px; border-radius: 10px;
+      border: 1px solid var(--tc-border-strong); background: var(--tc-surface-alt);
+      color: var(--tc-text); font: inherit; font-size: 0.84rem; font-weight: 600;
+      cursor: pointer; transition: border-color 140ms ease, background-color 140ms ease, transform 120ms ease;
+    }
+    .tc-btn:hover:not(:disabled) { border-color: var(--tc-accent); }
+    .tc-btn:active:not(:disabled) { transform: translateY(1px); }
+    .tc-btn:disabled { cursor: not-allowed; opacity: 0.42; }
+    .tc-btn:focus-visible { outline: 2px solid var(--tc-focus); outline-offset: 2px; }
+    .tc-btn--primary { background: var(--tc-accent); border-color: var(--tc-accent); color: var(--tc-accent-text); }
+    .tc-btn[aria-expanded="true"], .tc-btn[aria-pressed="true"] {
+      background: var(--tc-accent-soft); border-color: var(--tc-accent); color: var(--tc-accent);
+    }
+    .tc-btn--primary[aria-pressed="true"] { background: var(--tc-accent); color: var(--tc-accent-text); }
+
+    .tc-controls {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 10px; padding: 10px 12px; margin-bottom: 14px;
+      border-radius: 12px; background: var(--tc-surface-alt); border: 1px solid var(--tc-border);
+    }
+    .tc-triggers { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .tc-triggers__label { font-size: 0.8rem; font-weight: 600; color: var(--tc-muted); margin-right: 2px; }
+    .tc-window-pill { font-size: 0.8rem; font-weight: 700; color: var(--tc-muted); }
+
+    .tc-stage-wrap {
+      width: 100%; border-radius: 12px; border: 1px solid var(--tc-border);
+      background: var(--tc-bg); overflow: hidden;
+    }
+    .tc-svg { display: block; width: 100%; height: auto; }
+    .tc-svg text { font-family: inherit; }
+
+    .tc-node { cursor: pointer; outline: none; }
+    .tc-node .tc-box { transition: fill 160ms ease, stroke 160ms ease, stroke-width 160ms ease; }
+    .tc-node .tc-node-ring { opacity: 0; pointer-events: none; transition: opacity 140ms ease; }
+    .tc-node:focus-visible .tc-node-ring { opacity: 1; }
+    .tc-node[data-active="true"] .tc-box { stroke-width: 2.8; }
+
+    .tc-edge { transition: stroke 160ms ease, opacity 160ms ease, stroke-width 160ms ease; opacity: 0.55; }
+    .tc-edge[data-active="true"] { opacity: 1; stroke-width: 2.6; }
+    .tc-playhead { transition: x 220ms ease, width 220ms ease, opacity 160ms ease; }
+
+    .tc-status {
+      margin-top: 12px; padding: 10px 14px; border-radius: 10px;
+      background: var(--tc-surface-alt); border: 1px solid var(--tc-border);
+      font-size: 0.875rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px;
+    }
+    .tc-state-pill { font-weight: 700; color: var(--tc-accent); }
+
+    .tc-logic {
+      margin-top: 14px; padding: 14px; border-radius: 12px;
+      border: 1px solid var(--tc-border); background: var(--tc-surface-alt);
+    }
+    .tc-logic[hidden] { display: none; }
+    .tc-logic-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px; align-items: start; }
+    @media (max-width: 780px) { .tc-logic-grid { grid-template-columns: 1fr; } }
+
+    .tc-subhead { margin: 0 0 8px; font-size: 0.875rem; font-weight: 700; color: var(--tc-text); }
+    .tc-rules { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+    .tc-rule {
+      padding: 8px 10px; border-radius: 8px; border: 1px solid var(--tc-border);
+      background: var(--tc-surface); font-size: 0.8125rem;
+    }
+    .tc-rule[data-active="true"] { border-color: var(--tc-accent); background: var(--tc-accent-soft); }
+    .tc-rule-id { font-weight: 700; color: var(--tc-accent); margin-right: 6px; }
+    .tc-flow-box { padding: 10px; border-radius: 10px; border: 1px solid var(--tc-border); background: var(--tc-surface); }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 0.01ms !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="tc-wrap">
+    <section class="tc-card" aria-label="14-Day SaaS Onboarding Timeline">
+      <header class="tc-head">
+        <div>
+          <div class="tc-title-row">
+            <h1 class="tc-title">14-Day SaaS Onboarding</h1>
+            <span class="tc-badge">Timeline</span>
+          </div>
+          <p class="tc-why"><strong>Why this chart:</strong> This onboarding flow is defined by consecutive day windows across a 14-day schedule (Day 0–3 Setup, Day 3–7 Trial Active, Day 7–14 Renewal Reminder), making a proportional Timeline ideal for comparing phase spans and stepping through milestones.</p>
+        </div>
+        <div class="tc-toolbar">
+          <button type="button" class="tc-btn tc-btn--primary" data-tc-play aria-pressed="false">Play</button>
+          <button type="button" class="tc-btn" data-tc-step>Step</button>
+          <button type="button" class="tc-btn" data-tc-reset>Reset</button>
+          <button type="button" class="tc-btn" data-tc-logic aria-expanded="false" aria-controls="tc-logic-drawer">Show the logic</button>
+          <button type="button" class="tc-btn" data-tc-theme aria-pressed="false">Dark mode</button>
+        </div>
+      </header>
+
+      <div class="tc-controls">
+        <div class="tc-triggers" data-tc-triggers role="group" aria-label="Trigger timeline milestone events">
+          <span class="tc-triggers__label">Events:</span>
+        </div>
+        <span class="tc-window-pill" data-tc-window>Window: Day 0–3</span>
+      </div>
+
+      <div class="tc-stage-wrap">
+        <svg id="tc-stage" class="tc-svg" viewBox="0 0 920 380" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="tc-svg-title tc-svg-desc">
+          <title id="tc-svg-title">14-Day SaaS Onboarding Timeline</title>
+          <desc id="tc-svg-desc">Proportional 14-day timeline showing three consecutive onboarding phases: Setup from Day 0 to Day 3, Trial Active from Day 3 to Day 7, and Renewal Reminder from Day 7 to Day 14.</desc>
+          <defs>
+            <marker id="tc-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 1 2 L 8 5 L 1 8 Z" fill="var(--tc-border-strong)" />
+            </marker>
+            <marker id="tc-arrow-active" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 1 2 L 8 5 L 1 8 Z" fill="var(--tc-accent)" />
+            </marker>
+          </defs>
+
+          <!-- Top Header & Proportional Day Scale (68 = Day 0, 852 = Day 14, 56px per day) -->
+          <g>
+            <text x="68" y="42" font-size="13" font-weight="700" fill="var(--tc-muted)">14-DAY SCALE</text>
+            <text x="852" y="42" text-anchor="end" font-size="12" font-weight="600" fill="var(--tc-muted)">Click any phase or use Play / Step</text>
+
+            <!-- Active Phase Playhead Band -->
+            <rect id="tc-playhead-band" class="tc-playhead" x="68" y="60" width="168" height="252" rx="8" fill="var(--tc-accent-soft)" opacity="0.28" />
+
+            <!-- Milestone Vertical Guides -->
+            <line x1="68" y1="60" x2="68" y2="322" stroke="var(--tc-border)" stroke-width="1.5" stroke-dasharray="4 4" />
+            <line x1="236" y1="60" x2="236" y2="322" stroke="var(--tc-border)" stroke-width="1.5" stroke-dasharray="4 4" />
+            <line x1="460" y1="60" x2="460" y2="322" stroke="var(--tc-border)" stroke-width="1.5" stroke-dasharray="4 4" />
+            <line x1="852" y1="60" x2="852" y2="322" stroke="var(--tc-border)" stroke-width="1.5" stroke-dasharray="4 4" />
+
+            <!-- Bottom Axis & Ticks -->
+            <line x1="68" y1="316" x2="852" y2="316" stroke="var(--tc-border-strong)" stroke-width="2" />
+            <circle cx="68" cy="316" r="4.5" fill="var(--tc-accent)" />
+            <circle cx="236" cy="316" r="4.5" fill="var(--tc-border-strong)" />
+            <circle cx="460" cy="316" r="4.5" fill="var(--tc-border-strong)" />
+            <circle cx="852" cy="316" r="4.5" fill="var(--tc-border-strong)" />
+
+            <text x="68" y="344" text-anchor="middle" font-size="13" font-weight="700" fill="var(--tc-text)">Day 0</text>
+            <text x="236" y="344" text-anchor="middle" font-size="13" font-weight="700" fill="var(--tc-text)">Day 3</text>
+            <text x="460" y="344" text-anchor="middle" font-size="13" font-weight="700" fill="var(--tc-text)">Day 7</text>
+            <text x="852" y="344" text-anchor="middle" font-size="13" font-weight="700" fill="var(--tc-text)">Day 14</text>
+          </g>
+
+          <!-- Phase Handoff Connectors -->
+          <g fill="none" stroke-width="2">
+            <path class="tc-edge" data-edge-from="setup" data-edge-to="trial" d="M 224 136 L 224 178 L 236 178" stroke="var(--tc-border-strong)" marker-end="url(#tc-arrow)" />
+            <path class="tc-edge" data-edge-from="trial" data-edge-to="renewal" d="M 448 212 L 448 254 L 460 254" stroke="var(--tc-border-strong)" marker-end="url(#tc-arrow)" />
+          </g>
+
+          <!-- Playable Phase Bands -->
+          <g class="tc-nodes">
+            <g class="tc-node" data-state-node="setup" tabindex="0" role="button" aria-pressed="true">
+              <rect class="tc-node-ring" x="63" y="69" width="178" height="72" rx="13" fill="none" stroke="var(--tc-focus)" stroke-width="3" />
+              <rect class="tc-box" x="68" y="74" width="168" height="62" rx="10" fill="var(--tc-accent-soft)" stroke="var(--tc-accent)" stroke-width="2" />
+              <text x="82" y="101" font-size="14" font-weight="700" fill="var(--tc-text)">Setup</text>
+              <text x="82" y="121" font-size="12" font-weight="600" fill="var(--tc-muted)">Day 0–3 (3 days)</text>
+            </g>
+
+            <g class="tc-node" data-state-node="trial" tabindex="0" role="button" aria-pressed="false">
+              <rect class="tc-node-ring" x="231" y="145" width="234" height="72" rx="13" fill="none" stroke="var(--tc-focus)" stroke-width="3" />
+              <rect class="tc-box" x="236" y="150" width="224" height="62" rx="10" fill="var(--tc-surface)" stroke="var(--tc-ok)" stroke-width="2" />
+              <text x="252" y="177" font-size="14" font-weight="700" fill="var(--tc-text)">Trial Active</text>
+              <text x="252" y="197" font-size="12" font-weight="600" fill="var(--tc-muted)">Day 3–7 (4 days)</text>
+            </g>
+
+            <g class="tc-node" data-state-node="renewal" tabindex="0" role="button" aria-pressed="false">
+              <rect class="tc-node-ring" x="455" y="221" width="402" height="72" rx="13" fill="none" stroke="var(--tc-focus)" stroke-width="3" />
+              <rect class="tc-box" x="460" y="226" width="392" height="62" rx="10" fill="var(--tc-surface)" stroke="var(--tc-warn)" stroke-width="2" />
+              <text x="478" y="253" font-size="14" font-weight="700" fill="var(--tc-text)">Renewal Reminder</text>
+              <text x="478" y="273" font-size="12" font-weight="600" fill="var(--tc-muted)">Day 7–14 (7 days)</text>
+            </g>
+          </g>
+        </svg>
+      </div>
+
+      <div class="tc-status" aria-live="polite" data-tc-status>
+        <span>Active phase: <span class="tc-state-pill" data-tc-state-label></span></span>
+        <span data-tc-step-desc></span>
+      </div>
+
+      <section id="tc-logic-drawer" class="tc-logic" hidden>
+        <div class="tc-logic-grid">
+          <div>
+            <h2 class="tc-subhead">Rules</h2>
+            <ul class="tc-rules" data-tc-rules></ul>
+          </div>
+          <div class="tc-flow-box">
+            <h2 class="tc-subhead">Logic Flowchart</h2>
+            <svg id="tc-logic-svg" class="tc-svg" viewBox="0 0 440 210" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="tc-logic-title tc-logic-desc">
+              <title id="tc-logic-title">14-Day SaaS Onboarding Logic Flowchart</title>
+              <desc id="tc-logic-desc">Synchronized rules and state transitions across Setup, Trial Active, and Renewal Reminder.</desc>
+            </svg>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const CHART_SPEC = {
+      chartType: 'Timeline',
+      title: '14-Day SaaS Onboarding',
+      rationale: 'Consecutive day windows (Day 0–3 Setup, Day 3–7 Trial Active, Day 7–14 Renewal Reminder) map directly to a proportional 14-day timeline.',
+      initialState: 'setup',
+      states: [
+        { id: 'setup', label: 'Setup', window: 'Day 0–3', summary: 'Day 0–3: Initial Setup phase (3-day window).', bandX: 68, bandW: 168, x: 74, y: 74 },
+        { id: 'trial', label: 'Trial Active', window: 'Day 3–7', summary: 'Day 3–7: Trial Active phase (4-day window).', bandX: 236, bandW: 224, x: 220, y: 74 },
+        { id: 'renewal', label: 'Renewal Reminder', window: 'Day 7–14', summary: 'Day 7–14: Renewal Reminder phase (7-day window).', bandX: 460, bandW: 392, x: 366, y: 74 }
+      ],
+      transitions: [
+        { id: 't1', from: 'setup', to: 'trial', event: 'Day 3 Reached', guard: 'day >= 3' },
+        { id: 't2', from: 'trial', to: 'renewal', event: 'Day 7 Reached', guard: 'day >= 7' },
+        { id: 't3', from: 'renewal', to: 'setup', event: 'Restart Timeline', guard: 'day 14 complete' }
+      ],
+      rules: [
+        { id: 'R1', from: 'setup', event: 'Day 3 Reached', guard: 'day >= 3', to: 'trial', text: 'At Day 3, transition from Setup (Day 0–3) into Trial Active (Day 3–7).' },
+        { id: 'R2', from: 'trial', event: 'Day 7 Reached', guard: 'day >= 7', to: 'renewal', text: 'At Day 7, transition from Trial Active (Day 3–7) into Renewal Reminder (Day 7–14).' },
+        { id: 'R3', from: 'renewal', event: 'Restart Timeline', guard: 'day 14 complete', to: 'setup', text: 'After Day 14 completes, Restart Timeline returns playback to Day 0–3 Setup.' }
+      ],
+      demoSequence: ['Day 3 Reached', 'Day 7 Reached', 'Restart Timeline']
+    };
+
+    (() => {
+      let current = CHART_SPEC.initialState;
+      let lastRuleId = null;
+      let playTimer = null;
+      let demoIndex = 0;
+
+      const playBtn = document.querySelector('[data-tc-play]');
+      const stepBtn = document.querySelector('[data-tc-step]');
+      const resetBtn = document.querySelector('[data-tc-reset]');
+      const logicBtn = document.querySelector('[data-tc-logic]');
+      const themeBtn = document.querySelector('[data-tc-theme]');
+      const drawer = document.getElementById('tc-logic-drawer');
+      const triggersEl = document.querySelector('[data-tc-triggers]');
+      const windowEl = document.querySelector('[data-tc-window]');
+      const playheadBand = document.getElementById('tc-playhead-band');
+      const rulesEl = document.querySelector('[data-tc-rules]');
+      const stateLabelEl = document.querySelector('[data-tc-state-label]');
+      const stepDescEl = document.querySelector('[data-tc-step-desc]');
+      const logicSvg = document.getElementById('tc-logic-svg');
+
+      function stateById(id) {
+        return CHART_SPEC.states.find((s) => s.id === id) || CHART_SPEC.states[0];
+      }
+
+      function fireEvent(eventName) {
+        const match = CHART_SPEC.transitions.find((t) => t.from === current && t.event === eventName);
+        if (!match) return false;
+        current = match.to;
+        const rule = CHART_SPEC.rules.find((r) => r.from === match.from && r.event === match.event && r.to === match.to);
+        lastRuleId = rule ? rule.id : null;
+        render();
+        return true;
+      }
+
+      function jumpToState(stateId) {
+        const target = CHART_SPEC.states.find((s) => s.id === stateId);
+        if (!target) return;
+        const via = CHART_SPEC.transitions.find((t) => t.from === current && t.to === stateId);
+        current = stateId;
+        lastRuleId = via ? (CHART_SPEC.rules.find((r) => r.from === via.from && r.to === via.to)?.id ?? null) : null;
+        render();
+      }
+
+      function renderTriggers() {
+        triggersEl.querySelectorAll('button').forEach((b) => b.remove());
+        const available = CHART_SPEC.transitions.filter((t) => t.from === current);
+        const events = [...new Set(CHART_SPEC.transitions.map((t) => t.event))];
+        events.forEach((ev) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'tc-btn';
+          btn.textContent = ev;
+          btn.disabled = !available.some((t) => t.event === ev);
+          btn.addEventListener('click', () => { stopPlay(); fireEvent(ev); });
+          triggersEl.appendChild(btn);
+        });
+      }
+
+      function renderStage() {
+        const activeState = stateById(current);
+        if (playheadBand) {
+          playheadBand.setAttribute('x', String(activeState.bandX));
+          playheadBand.setAttribute('width', String(activeState.bandW));
+        }
+
+        document.querySelectorAll('[data-state-node]').forEach((node) => {
+          const id = node.getAttribute('data-state-node');
+          const active = id === current;
+          node.setAttribute('data-active', String(active));
+          node.setAttribute('aria-pressed', String(active));
+          const box = node.querySelector('.tc-box');
+          if (box) box.setAttribute('fill', active ? 'var(--tc-accent-soft)' : 'var(--tc-surface)');
+        });
+
+        document.querySelectorAll('.tc-edge').forEach((edge) => {
+          const active = edge.dataset.edgeFrom === current;
+          edge.setAttribute('data-active', String(active));
+          edge.setAttribute('stroke', active ? 'var(--tc-accent)' : 'var(--tc-border-strong)');
+          edge.setAttribute('marker-end', active ? 'url(#tc-arrow-active)' : 'url(#tc-arrow)');
+        });
+      }
+
+      function renderRules() {
+        rulesEl.innerHTML = '';
+        CHART_SPEC.rules.forEach((r) => {
+          const li = document.createElement('li');
+          li.className = 'tc-rule';
+          const active = r.id === lastRuleId || r.from === current;
+          li.dataset.active = String(active);
+          li.innerHTML = `<span class="tc-rule-id">${r.id}</span><strong>${r.from} &rarr; ${r.to}</strong> (${r.event} &middot; ${r.guard})<br><span style="color:var(--tc-muted)">${r.text}</span>`;
+          rulesEl.appendChild(li);
+        });
+      }
+
+      function renderLogicFlowchart() {
+        const ns = 'http://www.w3.org/2000/svg';
+        logicSvg.querySelectorAll('.tc-lf-dyn').forEach((n) => n.remove());
+        const g = document.createElementNS(ns, 'g');
+        g.setAttribute('class', 'tc-lf-dyn');
+
+        CHART_SPEC.transitions.forEach((t) => {
+          const a = stateById(t.from);
+          const b = stateById(t.to);
+          const active = t.from === current;
+          const path = document.createElementNS(ns, 'path');
+          const d = a.x <= b.x
+            ? `M ${a.x + 58} ${a.y} L ${b.x - 58} ${b.y}`
+            : `M ${a.x} ${a.y + 20} Q ${(a.x + b.x) / 2} ${a.y + 92} ${b.x} ${b.y + 20}`;
+          path.setAttribute('d', d);
+          path.setAttribute('fill', 'none');
+          path.setAttribute('stroke', active ? 'var(--tc-accent)' : 'var(--tc-border-strong)');
+          path.setAttribute('stroke-width', active ? '2.2' : '1.4');
+          if (a.x > b.x) path.setAttribute('stroke-dasharray', '4 3');
+          g.appendChild(path);
+        });
+
+        CHART_SPEC.states.forEach((s) => {
+          const isActive = s.id === current;
+          const rect = document.createElementNS(ns, 'rect');
+          rect.setAttribute('x', String(s.x - 58));
+          rect.setAttribute('y', String(s.y - 20));
+          rect.setAttribute('width', '116');
+          rect.setAttribute('height', '40');
+          rect.setAttribute('rx', '8');
+          rect.setAttribute('fill', isActive ? 'var(--tc-accent-soft)' : 'var(--tc-surface)');
+          rect.setAttribute('stroke', isActive ? 'var(--tc-accent)' : 'var(--tc-border-strong)');
+          rect.setAttribute('stroke-width', isActive ? '2.2' : '1.3');
+          g.appendChild(rect);
+
+          const txt = document.createElementNS(ns, 'text');
+          txt.setAttribute('x', String(s.x));
+          txt.setAttribute('y', String(s.y - 2));
+          txt.setAttribute('text-anchor', 'middle');
+          txt.setAttribute('font-size', '11');
+          txt.setAttribute('font-weight', isActive ? '700' : '600');
+          txt.setAttribute('fill', 'var(--tc-text)');
+          txt.textContent = s.label;
+          g.appendChild(txt);
+
+          const sub = document.createElementNS(ns, 'text');
+          sub.setAttribute('x', String(s.x));
+          sub.setAttribute('y', String(s.y + 12));
+          sub.setAttribute('text-anchor', 'middle');
+          sub.setAttribute('font-size', '10');
+          sub.setAttribute('fill', 'var(--tc-muted)');
+          sub.textContent = s.window;
+          g.appendChild(sub);
+        });
+
+        logicSvg.appendChild(g);
+      }
+
+      function render() {
+        const st = stateById(current);
+        stateLabelEl.textContent = st.label;
+        stepDescEl.textContent = st.summary;
+        if (windowEl) windowEl.textContent = `Window: ${st.window}`;
+        renderTriggers();
+        renderStage();
+        renderRules();
+        renderLogicFlowchart();
+      }
+
+      function stopPlay() {
+        if (playTimer) { clearInterval(playTimer); playTimer = null; }
+        playBtn.setAttribute('aria-pressed', 'false');
+        playBtn.textContent = 'Play';
+      }
+
+      function stepOnce() {
+        const seq = CHART_SPEC.demoSequence;
+        if (seq.length) {
+          for (let tries = 0; tries < seq.length; tries++) {
+            const ev = seq[(demoIndex + tries) % seq.length];
+            if (fireEvent(ev)) { demoIndex = (demoIndex + tries + 1) % seq.length; return; }
+          }
+        }
+        const first = CHART_SPEC.transitions.find((t) => t.from === current);
+        if (first) fireEvent(first.event);
+      }
+
+      playBtn.addEventListener('click', () => {
+        if (playTimer) { stopPlay(); return; }
+        playBtn.setAttribute('aria-pressed', 'true');
+        playBtn.textContent = 'Pause';
+        stepOnce();
+        playTimer = setInterval(stepOnce, 1400);
+      });
+
+      stepBtn.addEventListener('click', () => { stopPlay(); stepOnce(); });
+      resetBtn.addEventListener('click', () => {
+        stopPlay();
+        demoIndex = 0;
+        current = CHART_SPEC.initialState;
+        lastRuleId = null;
+        render();
+      });
+
+      logicBtn.addEventListener('click', () => {
+        const next = logicBtn.getAttribute('aria-expanded') !== 'true';
+        logicBtn.setAttribute('aria-expanded', String(next));
+        drawer.hidden = !next;
+      });
+
+      const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      function currentTheme() {
+        const explicit = document.documentElement.dataset.theme;
+        if (explicit === 'dark' || explicit === 'light') return explicit;
+        return darkQuery.matches ? 'dark' : 'light';
+      }
+      function syncTheme() {
+        const isDark = currentTheme() === 'dark';
+        themeBtn.setAttribute('aria-pressed', String(isDark));
+        themeBtn.textContent = isDark ? 'Light mode' : 'Dark mode';
+      }
+      themeBtn.addEventListener('click', () => {
+        document.documentElement.dataset.theme = currentTheme() === 'dark' ? 'light' : 'dark';
+        syncTheme();
+      });
+      syncTheme();
+
+      document.querySelectorAll('[data-state-node]').forEach((node) => {
+        node.addEventListener('click', () => { stopPlay(); jumpToState(node.getAttribute('data-state-node')); });
+        node.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault(); stopPlay(); jumpToState(node.getAttribute('data-state-node'));
+          }
+        });
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

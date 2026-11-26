@@ -4,6 +4,10 @@ Versions of Skill Foundry itself (the `skill-foundry` command and the set of ski
 version in its folder. Versions move slowly: a bump needs the owner's approval in chat; record smaller changes under the
 current version.
 
+## 1.11.0 - 2026-11-26
+
+- New skill `tiny-charts` 0.1.0 (fetched on demand, not in the default core; `DEV_ENGINEER`, `UX_DESIGNER`, `engine: optional`): introduces the reusable runtime `assets/` pattern (`assets/shell.html`, 5 chart templates in `assets/templates/`, gold example `assets/examples/checkout-statechart.html`) alongside the 10-layer factory QA structure. Auto-picks the best playable chart type (`Statechart`, `Sequence`, `Flowchart`, `Timeline`, or `Sankey`) from a short prompt, explains `Why this chart:`, and outputs a self-contained HTML5 diagram with Light/Dark mode, a declarative `CHART_SPEC` statechart engine, `engine/lint-chart.mjs` (`C1`–`C8`), and a synchronized `"Show the logic"` (Rules + Flowchart) toggle. Proven with fresh real-agent recordings (`9/9` live evals, `5/5` Playwright `checkPage` & `lintTinyChart`, `114/114` routing, and portable external-project check), and wired into the showcase site's interactive playgrounds (`src/site/`).
+
 ## 1.10.0 - 2026-11-25
 
 - Live interactive playgrounds on the showcase site (`src/site/`): wired all 7 visual/motion/UI skills (`motion-craft`, `svg-mechanism`, `ui-craft`, `component-kit`, `ui-polish`, `design-system`, `figure-craft`) to render their real fresh-agent HTML demos open and interactive right inside `#result` with demo switcher tabs (including `motion-craft` 3D Museum Walkthrough + Khmer Coffee scrollytelling and `svg-mechanism` English `Webhook Delivery Pipeline` + Khmer `លំហូរទូទាត់ QR`) and an `Open full screen` button, plus live scaled visual previews and an `Interactive` badge on landing cards; `buildSite` inlines linked local CSS so sandboxed iframes render cleanly on both `file://` and GitHub Pages.

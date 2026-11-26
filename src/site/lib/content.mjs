@@ -95,6 +95,13 @@ const PLAYGROUND_SPECS = {
     { id: 'oauth-pkce-handshake', label: 'OAuth 2.0 PKCE Handshake', rel: 'evals/live/files/oauth-pkce-handshake.html' },
     { id: 'reads-design-foundation', label: 'Design Foundation Flow', rel: 'evals/live/files/reads-design-foundation.html' },
   ],
+  'tiny-charts': [
+    { id: 'checkout-statechart', label: 'Checkout Payment Statechart', rel: 'evals/live/files/checkout-statechart.html' },
+    { id: 'actor-sequence', label: 'Login Sequence Exchange', rel: 'evals/live/files/actor-sequence.html' },
+    { id: 'refund-flowchart', label: 'Refund Policy Flowchart', rel: 'evals/live/files/refund-flowchart.html' },
+    { id: 'trial-timeline', label: '14-Day Onboarding Timeline', rel: 'evals/live/files/trial-timeline.html' },
+    { id: 'funnel-sankey', label: 'Lead Funnel Sankey', rel: 'evals/live/files/funnel-sankey.html' },
+  ],
   'ui-craft': [
     { id: 'bento-glass-landing', label: 'Bento Glass Landing', rel: 'evals/live/files/bento-glass-landing.html' },
     { id: 'command-palette-shell', label: 'Command Palette (Ctrl+K)', rel: 'evals/live/files/command-palette-shell.html' },
@@ -115,7 +122,7 @@ const PLAYGROUND_SPECS = {
 };
 
 /** Visual/UI skills whose landing cards render a live visual thumbnail iframe of their primary HTML demo. */
-const LIVE_COVER_SKILLS = new Set(['motion-craft', 'svg-mechanism', 'ui-craft', 'component-kit', 'ui-polish']);
+const LIVE_COVER_SKILLS = new Set(['motion-craft', 'svg-mechanism', 'tiny-charts', 'ui-craft', 'component-kit', 'ui-polish']);
 
 /** Find local relative CSS stylesheets linked by a standalone HTML demo so buildSite copies them alongside it. */
 function linkedAssets(htmlPath) {

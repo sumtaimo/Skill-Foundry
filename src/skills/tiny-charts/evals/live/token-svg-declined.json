@@ -1,0 +1,8 @@
+{
+  "case": "token-svg-declined",
+  "prompt": "Draw an animated 2D architecture SVG showing Producer -> Queue -> Worker -> Retry DLQ synced strictly to design/tokens.css with <defs> gradients and Play/Pause.",
+  "agent": "codex",
+  "recordedAt": "2026-11-26",
+  "output": "This is out of scope for `tiny-charts`; use the `svg-mechanism` skill for a token-synced 2D architecture SVG with gradients and Play/Pause.",
+  "files": []
+}

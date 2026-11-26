@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login Code, Token &amp; User Profile Exchange — Playable Sequence Diagram</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --tc-bg: #f6f7f9;
+      --tc-surface: #ffffff;
+      --tc-surface-alt: #eef1f5;
+      --tc-border: #d5dbe4;
+      --tc-border-strong: #64748b;
+      --tc-text: #0f172a;
+      --tc-muted: #475569;
+      --tc-accent: #1d4ed8;
+      --tc-accent-soft: #dbeafe;
+      --tc-accent-text: #ffffff;
+      --tc-ok: #047857;
+      --tc-ok-soft: #d1fae5;
+      --tc-warn: #b45309;
+      --tc-warn-soft: #fef3c7;
+      --tc-err: #b91c1c;
+      --tc-err-soft: #fee2e2;
+      --tc-focus: #1d4ed8;
+      --tc-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    :root[data-theme="dark"] {
+      --tc-bg: #0b101b;
+      --tc-surface: #121927;
+      --tc-surface-alt: #1a2335;
+      --tc-border: #2a364d;
+      --tc-border-strong: #94a3b8;
+      --tc-text: #f8fafc;
+      --tc-muted: #cbd5e1;
+      --tc-accent: #38bdf8;
+      --tc-accent-soft: #0c2d48;
+      --tc-accent-text: #061826;
+      --tc-ok: #34d399;
+      --tc-ok-soft: #0b2e24;
+      --tc-warn: #fbbf24;
+      --tc-warn-soft: #2c2008;
+      --tc-err: #f87171;
+      --tc-err-soft: #361215;
+      --tc-focus: #60a5fa;
+      --tc-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --tc-bg: #0b101b;
+        --tc-surface: #121927;
+        --tc-surface-alt: #1a2335;
+        --tc-border: #2a364d;
+        --tc-border-strong: #94a3b8;
+        --tc-text: #f8fafc;
+        --tc-muted: #cbd5e1;
+        --tc-accent: #38bdf8;
+        --tc-accent-soft: #0c2d48;
+        --tc-accent-text: #061826;
+        --tc-ok: #34d399;
+        --tc-ok-soft: #0b2e24;
+        --tc-warn: #fbbf24;
+        --tc-warn-soft: #2c2008;
+        --tc-err: #f87171;
+        --tc-err-soft: #361215;
+        --tc-focus: #60a5fa;
+        --tc-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0; max-width: 100%; overflow-x: hidden;
+      background: var(--tc-bg); color: var(--tc-text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.5;
+    }
+
+    .tc-wrap { max-width: 1040px; margin: 0 auto; padding: 20px 16px 36px; }
+    .tc-card {
+      background: var(--tc-surface); border: 1px solid var(--tc-border);
+      border-radius: 16px; padding: 18px; box-shadow: var(--tc-shadow);
+    }
+
+    .tc-head {
+      display: flex; flex-wrap: wrap; justify-content: space-between;
+      align-items: flex-start; gap: 12px; margin-bottom: 14px;
+    }
+    .tc-title-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .tc-title { margin: 0; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.015em; }
+    .tc-badge {
+      display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase;
+      background: var(--tc-accent-soft); color: var(--tc-accent); border: 1px solid var(--tc-accent);
+    }
+    .tc-why { margin: 6px 0 0; font-size: 0.875rem; color: var(--tc-muted); max-width: 68ch; }
+
+    .tc-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .tc-btn {
+      appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      min-height: 40px; min-width: 40px; padding: 0 13px; border-radius: 10px;
+      border: 1px solid var(--tc-border-strong); background: var(--tc-surface-alt);
+      color: var(--tc-text); font: inherit; font-size: 0.84rem; font-weight: 600;
+      cursor: pointer; transition: border-color 140ms ease, background-color 140ms ease, transform 120ms ease;
+    }
+    .tc-btn:hover:not(:disabled) { border-color: var(--tc-accent); }
+    .tc-btn:active:not(:disabled) { transform: translateY(1px); }
+    .tc-btn:disabled { cursor: not-allowed; opacity: 0.42; }
+    .tc-btn:focus-visible { outline: 2px solid var(--tc-focus); outline-offset: 2px; }
+    .tc-btn--primary { background: var(--tc-accent); border-color: var(--tc-accent); color: var(--tc-accent-text); }
+    .tc-btn[aria-expanded="true"], .tc-btn[aria-pressed="true"] {
+      background: var(--tc-accent-soft); border-color: var(--tc-accent); color: var(--tc-accent);
+    }
+    .tc-btn--primary[aria-pressed="true"] { background: var(--tc-accent); color: var(--tc-accent-text); }
+
+    .tc-controls {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 10px; padding: 10px 12px; margin-bottom: 14px;
+      border-radius: 12px; background: var(--tc-surface-alt); border: 1px solid var(--tc-border);
+    }
+    .tc-triggers { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .tc-triggers__label { font-size: 0.8rem; font-weight: 600; color: var(--tc-muted); margin-right: 2px; }
+    .tc-step-counter { font-size: 0.8rem; font-weight: 700; color: var(--tc-muted); }
+
+    .tc-stage-wrap {
+      width: 100%; border-radius: 12px; border: 1px solid var(--tc-border);
+      background: var(--tc-bg); overflow: hidden;
+    }
+    .tc-svg { display: block; width: 100%; height: auto; }
+    .tc-svg text { font-family: inherit; }
+
+    .tc-actor-box { transition: fill 160ms ease, stroke 160ms ease, stroke-width 160ms ease; }
+    .tc-node { cursor: pointer; outline: none; transition: opacity 160ms ease; }
+    .tc-node .tc-msg-line, .tc-node .tc-msg-pill {
+      transition: stroke 160ms ease, fill 160ms ease, stroke-width 160ms ease;
+    }
+    .tc-node:focus-visible .tc-node-ring { opacity: 1; }
+    .tc-node-ring { opacity: 0; pointer-events: none; transition: opacity 140ms ease; }
+
+    .tc-status {
+      margin-top: 12px; padding: 10px 14px; border-radius: 10px;
+      background: var(--tc-surface-alt); border: 1px solid var(--tc-border);
+      font-size: 0.875rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px;
+    }
+    .tc-state-pill { font-weight: 700; color: var(--tc-accent); }
+
+    .tc-logic {
+      margin-top: 14px; padding: 14px; border-radius: 12px;
+      border: 1px solid var(--tc-border); background: var(--tc-surface-alt);
+    }
+    .tc-logic[hidden] { display: none; }
+    .tc-logic-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px; align-items: start; }
+    @media (max-width: 780px) { .tc-logic-grid { grid-template-columns: 1fr; } }
+
+    .tc-subhead { margin: 0 0 8px; font-size: 0.875rem; font-weight: 700; color: var(--tc-text); }
+    .tc-rules { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+    .tc-rule {
+      padding: 8px 10px; border-radius: 8px; border: 1px solid var(--tc-border);
+      background: var(--tc-surface); font-size: 0.8125rem;
+    }
+    .tc-rule[data-active="true"] {
+      border-color: var(--tc-accent); background: var(--tc-accent-soft);
+    }
+    .tc-rule-id { font-weight: 700; color: var(--tc-accent); margin-right: 6px; }
+    .tc-flow-box {
+      padding: 10px; border-radius: 10px; border: 1px solid var(--tc-border);
+      background: var(--tc-surface);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 0.01ms !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="tc-wrap">
+    <section class="tc-card" aria-label="Login Code, Token, and User Profile Exchange">
+      <header class="tc-head">
+        <div>
+          <div class="tc-title-row">
+            <h1 class="tc-title">Login Code, Token &amp; User Profile Exchange</h1>
+            <span class="tc-badge">Sequence</span>
+          </div>
+          <p class="tc-why"><strong>Why this chart:</strong> Three distinct actors (Browser, Auth Server, and API Service) exchange a login code, access token, and user profile in strict chronological order.</p>
+        </div>
+        <div class="tc-toolbar">
+          <button type="button" class="tc-btn tc-btn--primary" data-tc-play aria-pressed="false">Play</button>
+          <button type="button" class="tc-btn" data-tc-step>Step</button>
+          <button type="button" class="tc-btn" data-tc-reset>Reset</button>
+          <button type="button" class="tc-btn" data-tc-logic aria-expanded="false" aria-controls="tc-logic-drawer">Show the logic</button>
+          <button type="button" class="tc-btn" data-tc-theme aria-pressed="false">Dark mode</button>
+        </div>
+      </header>
+
+      <div class="tc-controls">
+        <div class="tc-triggers" data-tc-triggers role="group" aria-label="Trigger sequence events">
+          <span class="tc-triggers__label">Events:</span>
+        </div>
+        <span class="tc-step-counter" data-tc-counter>Step 1 / 6</span>
+      </div>
+
+      <div class="tc-stage-wrap">
+        <svg id="tc-stage" class="tc-svg" viewBox="0 0 920 468" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="tc-svg-title tc-svg-desc">
+          <title id="tc-svg-title">Login Code, Token, and User Profile Sequence Diagram</title>
+          <desc id="tc-svg-desc">Interactive sequence diagram showing Browser, Auth Server, and API Service exchanging a login request, login code, access token, and user profile in six ordered steps.</desc>
+          <defs>
+            <marker id="tc-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 1 2 L 8 5 L 1 8 Z" fill="var(--tc-border-strong)" />
+            </marker>
+            <marker id="tc-arrow-active" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 1 2 L 8 5 L 1 8 Z" fill="var(--tc-accent)" />
+            </marker>
+            <marker id="tc-arrow-ok" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 1 2 L 8 5 L 1 8 Z" fill="var(--tc-ok)" />
+            </marker>
+          </defs>
+
+          <!-- Actor Headers & Lifelines -->
+          <g class="tc-lifelines">
+            <rect class="tc-actor-box" data-actor="browser" x="80" y="24" width="160" height="44" rx="10" fill="var(--tc-surface)" stroke="var(--tc-border-strong)" stroke-width="1.6" />
+            <text x="160" y="51" text-anchor="middle" font-size="14" font-weight="700" fill="var(--tc-text)">Browser</text>
+            <line x1="160" y1="68" x2="160" y2="442" stroke="var(--tc-border)" stroke-width="2" stroke-dasharray="6 5" />
+
+            <rect class="tc-actor-box" data-actor="auth" x="380" y="24" width="160" height="44" rx="10" fill="var(--tc-surface)" stroke="var(--tc-border-strong)" stroke-width="1.6" />
+            <text x="460" y="51" text-anchor="middle" font-size="14" font-weight="700" fill="var(--tc-text)">Auth Server</text>
+            <line x1="460" y1="68" x2="460" y2="442" stroke="var(--tc-border)" stroke-width="2" stroke-dasharray="6 5" />
+
+            <rect class="tc-actor-box" data-actor="api" x="680" y="24" width="160" height="44" rx="10" fill="var(--tc-surface)" stroke="var(--tc-border-strong)" stroke-width="1.6" />
+            <text x="760" y="51" text-anchor="middle" font-size="14" font-weight="700" fill="var(--tc-text)">API Service</text>
+            <line x1="760" y1="68" x2="760" y2="442" stroke="var(--tc-border)" stroke-width="2" stroke-dasharray="6 5" />
+          </g>
+
+          <!-- Ordered Message Steps mapped to data-state-node="<step-id>" -->
+          <g class="tc-messages">
+            <g class="tc-node" data-state-node="step1" tabindex="0" role="button" aria-pressed="true">
+              <rect x="150" y="84" width="318" height="44" rx="8" fill="transparent" />
+              <rect class="tc-node-ring" x="152" y="85" width="314" height="42" rx="10" fill="none" stroke="var(--tc-focus)" stroke-width="2.5" />
+              <line class="tc-msg-line" x1="160" y1="118" x2="452" y2="118" stroke="var(--tc-accent)" stroke-width="2.6" marker-end="url(#tc-arrow-active)" />
+              <rect class="tc-msg-pill" x="214" y="88" width="192" height="24" rx="12" fill="var(--tc-accent-soft)" stroke="var(--tc-accent)" stroke-width="1.4" />
+              <text x="310" y="104" text-anchor="middle" font-size="12" font-weight="600" fill="var(--tc-text)">1. Request login</text>
+            </g>
+
+            <g class="tc-node" data-state-node="step2" tabindex="0" role="button" aria-pressed="false">
+              <rect x="150" y="142" width="318" height="44" rx="8" fill="transparent" />
+              <rect class="tc-node-ring" x="152" y="143" width="314" height="42" rx="10" fill="none" stroke="var(--tc-focus)" stroke-width="2.5" />
+              <line class="tc-msg-line" x1="460" y1="176" x2="168" y2="176" stroke="var(--tc-border-strong)" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#tc-arrow)" />
+              <rect class="tc-msg-pill" x="210" y="146" width="200" height="24" rx="12" fill="var(--tc-surface)" stroke="var(--tc-border)" stroke-width="1.2" />
+              <text x="310" y="162" text-anchor="middle" font-size="12" font-weight="600" fill="var(--tc-text)">2. Return login code</text>
+            </g>
+
+            <g class="tc-node" data-state-node="step3" tabindex="0" role="button" aria-pressed="false">
+              <rect x="150" y="200" width="318" height="44" rx="8" fill="transparent" />
+              <rect class="tc-node-ring" x="152" y="201" width="314" height="42" rx="10" fill="none" stroke="var(--tc-focus)" stroke-width="2.5" />
+              <line class="tc-msg-line" x1="160" y1="234" x2="452" y2="234" stroke="var(--tc-border-strong)" stroke-width="2" marker-end="url(#tc-arrow)" />
+              <rect class="tc-msg-pill" x="204" y="204" width="212" height="24" rx="12" fill="var(--tc-surface)" stroke="var(--tc-border)" stroke-width="1.2" />
+              <text x="310" y="220" text-anchor="middle" font-size="12" font-weight="600" fill="var(--tc-text)">3. Exchange login code</text>
+            </g>
+
+            <g class="tc-node" data-state-node="step4" tabindex="0" role="button" aria-pressed="false">
+              <rect x="150" y="258" width="318" height="44" rx="8" fill="transparent" />
+              <rect class="tc-node-ring" x="152" y="259" width="314" height="42" rx="10" fill="none" stroke="var(--tc-focus)" stroke-width="2.5" />
+              <line class="tc-msg-line" x1="460" y1="292" x2="168" y2="292" stroke="var(--tc-border-strong)" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#tc-arrow)" />
+              <rect class="tc-msg-pill" x="204" y="262" width="212" height="24" rx="12" fill="var(--tc-surface)" stroke="var(--tc-border)" stroke-width="1.2" />
+              <text x="310" y="278" text-anchor="middle" font-size="12" font-weight="600" fill="var(--tc-text)">4. Return access token</text>
+            </g>
+
+            <g class="tc-node" data-state-node="step5" tabindex="0" role="button" aria-pressed="false">
+              <rect x="150" y="316" width="618" height="44" rx="8" fill="transparent" />
+              <rect class="tc-node-ring" x="152" y="317" width="614" height="42" rx="10" fill="none" stroke="var(--tc-focus)" stroke-width="2.5" />
+              <line class="tc-msg-line" x1="160" y1="350" x2="752" y2="350" stroke="var(--tc-border-strong)" stroke-width="2" marker-end="url(#tc-arrow)" />
+              <rect class="tc-msg-pill" x="498" y="320" width="224" height="24" rx="12" fill="var(--tc-surface)" stroke="var(--tc-border)" stroke-width="1.2" />
+              <text x="610" y="336" text-anchor="middle" font-size="12" font-weight="600" fill="var(--tc-text)">5. Request profile (token)</text>
+            </g>
+
+            <g class="tc-node" data-state-node="step6" tabindex="0" role="button" aria-pressed="false">
+              <rect x="150" y="374" width="618" height="44" rx="8" fill="transparent" />
+              <rect class="tc-node-ring" x="152" y="375" width="614" height="42" rx="10" fill="none" stroke="var(--tc-focus)" stroke-width="2.5" />
+              <line class="tc-msg-line" x1="760" y1="408" x2="168" y2="408" stroke="var(--tc-border-strong)" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#tc-arrow)" />
+              <rect class="tc-msg-pill" x="502" y="378" width="216" height="24" rx="12" fill="var(--tc-surface)" stroke="var(--tc-border)" stroke-width="1.2" />
+              <text x="610" y="394" text-anchor="middle" font-size="12" font-weight="600" fill="var(--tc-text)">6. Return user profile</text>
+            </g>
+          </g>
+        </svg>
+      </div>
+
+      <div class="tc-status" aria-live="polite" data-tc-status>
+        <span>Active step: <span class="tc-state-pill" data-tc-state-label></span></span>
+        <span data-tc-step-desc></span>
+      </div>
+
+      <section id="tc-logic-drawer" class="tc-logic" hidden>
+        <div class="tc-logic-grid">
+          <div>
+            <h2 class="tc-subhead">Rules</h2>
+            <ul class="tc-rules" data-tc-rules></ul>
+          </div>
+          <div class="tc-flow-box">
+            <h2 class="tc-subhead">Logic Flowchart</h2>
+            <svg id="tc-logic-svg" class="tc-svg" viewBox="0 0 420 260" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="tc-logic-title tc-logic-desc">
+              <title id="tc-logic-title">Login Code, Token, and Profile Logic Flowchart</title>
+              <desc id="tc-logic-desc">Mini flowchart synchronized to the active sequence step and transition rules.</desc>
+              <defs>
+                <marker id="tc-lf-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 1 2 L 8 5 L 1 8 Z" fill="var(--tc-border-strong)" />
+                </marker>
+                <marker id="tc-lf-arrow-active" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 1 2 L 8 5 L 1 8 Z" fill="var(--tc-accent)" />
+                </marker>
+              </defs>
+            </svg>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const CHART_SPEC = {
+      chartType: 'Sequence',
+      title: 'Login Code, Token & User Profile Exchange',
+      rationale: 'Three actors (Browser, Auth Server, API Service) exchange login code, access token, and user profile in ordered request/response steps.',
+      initialState: 'step1',
+      states: [
+        { id: 'step1', shortLabel: '1. Login Req', label: '1. Request login', fromActor: 'browser', toActor: 'auth', summary: 'Browser sends the user to Auth Server to authenticate and start login.', x: 70, y: 66 },
+        { id: 'step2', shortLabel: '2. Login Code', label: '2. Return login code', fromActor: 'auth', toActor: 'browser', summary: 'Auth Server issues a login code back to Browser.', x: 210, y: 66 },
+        { id: 'step3', shortLabel: '3. Send Code', label: '3. Exchange login code', fromActor: 'browser', toActor: 'auth', summary: 'Browser sends the login code to Auth Server to obtain a token.', x: 350, y: 66 },
+        { id: 'step4', shortLabel: '4. Get Token', label: '4. Return access token', fromActor: 'auth', toActor: 'browser', summary: 'Auth Server validates the login code and returns an access token.', x: 350, y: 186 },
+        { id: 'step5', shortLabel: '5. Profile Req', label: '5. Request profile (token)', fromActor: 'browser', toActor: 'api', summary: 'Browser calls API Service with the access token to request the user profile.', x: 210, y: 186 },
+        { id: 'step6', shortLabel: '6. User Profile', label: '6. Return user profile', fromActor: 'api', toActor: 'browser', summary: 'API Service verifies the token and returns the user profile to Browser.', x: 70, y: 186 }
+      ],
+      transitions: [
+        { id: 't1', from: 'step1', to: 'step2', event: 'Return Code', guard: 'user authenticated' },
+        { id: 't2', from: 'step2', to: 'step3', event: 'Exchange Code', guard: 'login code received' },
+        { id: 't3', from: 'step3', to: 'step4', event: 'Issue Token', guard: 'login code valid' },
+        { id: 't4', from: 'step4', to: 'step5', event: 'Request Profile', guard: 'token received' },
+        { id: 't5', from: 'step5', to: 'step6', event: 'Return Profile', guard: 'token verified' },
+        { id: 't6', from: 'step6', to: 'step1', event: 'Restart', guard: 'always' }
+      ],
+      rules: [
+        { id: 'R1', from: 'step1', event: 'Return Code', guard: 'user authenticated', to: 'step2', text: 'Once the user authenticates, Auth Server returns a login code to Browser.' },
+        { id: 'R2', from: 'step2', event: 'Exchange Code', guard: 'login code received', to: 'step3', text: 'Browser submits the login code back to Auth Server to exchange it for a token.' },
+        { id: 'R3', from: 'step3', event: 'Issue Token', guard: 'login code valid', to: 'step4', text: 'Auth Server verifies the login code and returns an access token to Browser.' },
+        { id: 'R4', from: 'step4', event: 'Request Profile', guard: 'token received', to: 'step5', text: 'Browser presents the access token to API Service to request the user profile.' },
+        { id: 'R5', from: 'step5', event: 'Return Profile', guard: 'token verified', to: 'step6', text: 'API Service verifies the token and sends the user profile back to Browser.' },
+        { id: 'R6', from: 'step6', event: 'Restart', guard: 'always', to: 'step1', text: 'Restart returns the sequence to step 1 for a fresh login exchange.' }
+      ],
+      demoSequence: ['Return Code', 'Exchange Code', 'Issue Token', 'Request Profile', 'Return Profile', 'Restart']
+    };
+
+    (() => {
+      let current = CHART_SPEC.initialState;
+      let lastRuleId = null;
+      let playTimer = null;
+      let demoIndex = 0;
+
+      const playBtn = document.querySelector('[data-tc-play]');
+      const stepBtn = document.querySelector('[data-tc-step]');
+      const resetBtn = document.querySelector('[data-tc-reset]');
+      const logicBtn = document.querySelector('[data-tc-logic]');
+      const themeBtn = document.querySelector('[data-tc-theme]');
+      const drawer = document.getElementById('tc-logic-drawer');
+      const triggersEl = document.querySelector('[data-tc-triggers]');
+      const counterEl = document.querySelector('[data-tc-counter]');
+      const rulesEl = document.querySelector('[data-tc-rules]');
+      const stateLabelEl = document.querySelector('[data-tc-state-label]');
+      const stepDescEl = document.querySelector('[data-tc-step-desc]');
+      const logicSvg = document.getElementById('tc-logic-svg');
+
+      function stateIndex(id) {
+        return CHART_SPEC.states.findIndex((s) => s.id === id);
+      }
+
+      function stateById(id) {
+        return CHART_SPEC.states.find((s) => s.id === id) || CHART_SPEC.states[0];
+      }
+
+      function fireEvent(eventName) {
+        const match = CHART_SPEC.transitions.find((t) => t.from === current && t.event === eventName);
+        if (!match) return false;
+        current = match.to;
+        const rule = CHART_SPEC.rules.find((r) => r.from === match.from && r.event === match.event && r.to === match.to);
+        lastRuleId = rule ? rule.id : null;
+        render();
+        return true;
+      }
+
+      function jumpToState(stateId) {
+        const target = CHART_SPEC.states.find((s) => s.id === stateId);
+        if (!target) return;
+        const via = CHART_SPEC.transitions.find((t) => t.from === current && t.to === stateId);
+        const directRule = via
+          ? CHART_SPEC.rules.find((r) => r.from === via.from && r.to === via.to)
+          : CHART_SPEC.rules.find((r) => r.to === stateId);
+        current = stateId;
+        lastRuleId = directRule ? directRule.id : null;
+        render();
+      }
+
+      function renderTriggers() {
+        triggersEl.querySelectorAll('button').forEach((b) => b.remove());
+        const available = CHART_SPEC.transitions.filter((t) => t.from === current);
+        const events = [...new Set(CHART_SPEC.transitions.map((t) => t.event))];
+        events.forEach((ev) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'tc-btn';
+          btn.textContent = ev;
+          const validNow = available.some((t) => t.event === ev);
+          btn.disabled = !validNow;
+          btn.addEventListener('click', () => { stopPlay(); fireEvent(ev); });
+          triggersEl.appendChild(btn);
+        });
+      }
+
+      function renderStage() {
+        const currentIdx = stateIndex(current);
+        const st = stateById(current);
+
+        document.querySelectorAll('.tc-actor-box').forEach((box) => {
+          const actor = box.getAttribute('data-actor');
+          const involved = actor === st.fromActor || actor === st.toActor;
+          box.setAttribute('fill', involved ? 'var(--tc-accent-soft)' : 'var(--tc-surface)');
+          box.setAttribute('stroke', involved ? 'var(--tc-accent)' : 'var(--tc-border-strong)');
+          box.setAttribute('stroke-width', involved ? '2.2' : '1.6');
+        });
+
+        document.querySelectorAll('[data-state-node]').forEach((node) => {
+          const id = node.getAttribute('data-state-node');
+          const idx = stateIndex(id);
+          const active = id === current;
+          const past = idx < currentIdx;
+
+          node.setAttribute('data-active', String(active));
+          node.setAttribute('aria-pressed', String(active));
+          node.style.opacity = active ? '1' : (past ? '0.84' : '0.48');
+
+          const line = node.querySelector('.tc-msg-line');
+          const pill = node.querySelector('.tc-msg-pill');
+          if (line) {
+            line.setAttribute('stroke', active ? 'var(--tc-accent)' : (past ? 'var(--tc-ok)' : 'var(--tc-border-strong)'));
+            line.setAttribute('stroke-width', active ? '2.8' : '2');
+            line.setAttribute('marker-end', active ? 'url(#tc-arrow-active)' : (past ? 'url(#tc-arrow-ok)' : 'url(#tc-arrow)'));
+          }
+          if (pill) {
+            pill.setAttribute('fill', active ? 'var(--tc-accent-soft)' : 'var(--tc-surface)');
+            pill.setAttribute('stroke', active ? 'var(--tc-accent)' : (past ? 'var(--tc-ok)' : 'var(--tc-border)'));
+            pill.setAttribute('stroke-width', active ? '1.6' : '1.2');
+          }
+        });
+      }
+
+      function renderRules() {
+        rulesEl.innerHTML = '';
+        CHART_SPEC.rules.forEach((r) => {
+          const li = document.createElement('li');
+          li.className = 'tc-rule';
+          const active = r.id === lastRuleId || r.from === current;
+          li.dataset.active = String(active);
+          li.innerHTML = `<span class="tc-rule-id">${r.id}</span><strong>${stateById(r.from).shortLabel} → ${stateById(r.to).shortLabel}</strong> (${r.event} · ${r.guard})<br><span style="color:var(--tc-muted)">${r.text}</span>`;
+          rulesEl.appendChild(li);
+        });
+      }
+
+      function renderLogicFlowchart() {
+        const ns = 'http://www.w3.org/2000/svg';
+        logicSvg.querySelectorAll('.tc-lf-dyn').forEach((n) => n.remove());
+        const g = document.createElementNS(ns, 'g');
+        g.setAttribute('class', 'tc-lf-dyn');
+
+        const halfW = 48;
+        const halfH = 18;
+
+        CHART_SPEC.transitions.forEach((t) => {
+          const a = stateById(t.from);
+          const b = stateById(t.to);
+          const active = t.from === current;
+          const isRestart = t.from === 'step6' && t.to === 'step1';
+
+          let x1 = a.x;
+          let y1 = a.y;
+          let x2 = b.x;
+          let y2 = b.y;
+          if (a.y === b.y) {
+            const dir = b.x > a.x ? 1 : -1;
+            x1 = a.x + dir * halfW;
+            x2 = b.x - dir * halfW;
+          } else {
+            const dir = b.y > a.y ? 1 : -1;
+            y1 = a.y + dir * halfH;
+            y2 = b.y - dir * halfH;
+          }
+
+          const path = document.createElementNS(ns, 'path');
+          path.setAttribute('d', `M ${x1} ${y1} L ${x2} ${y2}`);
+          path.setAttribute('fill', 'none');
+          path.setAttribute('stroke', active ? 'var(--tc-accent)' : 'var(--tc-border-strong)');
+          path.setAttribute('stroke-width', active ? '2.2' : '1.4');
+          if (isRestart) path.setAttribute('stroke-dasharray', '4 3');
+          path.setAttribute('marker-end', active ? 'url(#tc-lf-arrow-active)' : 'url(#tc-lf-arrow)');
+          g.appendChild(path);
+        });
+
+        CHART_SPEC.states.forEach((s) => {
+          const isActive = s.id === current;
+          const rect = document.createElementNS(ns, 'rect');
+          rect.setAttribute('x', String(s.x - halfW));
+          rect.setAttribute('y', String(s.y - halfH));
+          rect.setAttribute('width', String(halfW * 2));
+          rect.setAttribute('height', String(halfH * 2));
+          rect.setAttribute('rx', '8');
+          rect.setAttribute('fill', isActive ? 'var(--tc-accent-soft)' : 'var(--tc-surface)');
+          rect.setAttribute('stroke', isActive ? 'var(--tc-accent)' : 'var(--tc-border-strong)');
+          rect.setAttribute('stroke-width', isActive ? '2.2' : '1.4');
+          g.appendChild(rect);
+
+          const txt = document.createElementNS(ns, 'text');
+          txt.setAttribute('x', String(s.x));
+          txt.setAttribute('y', String(s.y + 4));
+          txt.setAttribute('text-anchor', 'middle');
+          txt.setAttribute('font-size', '11');
+          txt.setAttribute('font-weight', isActive ? '700' : '600');
+          txt.setAttribute('fill', 'var(--tc-text)');
+          txt.textContent = s.shortLabel;
+          g.appendChild(txt);
+        });
+
+        logicSvg.appendChild(g);
+      }
+
+      function render() {
+        const st = stateById(current);
+        const idx = stateIndex(current);
+        stateLabelEl.textContent = st.label;
+        stepDescEl.textContent = st.summary;
+        counterEl.textContent = `Step ${idx + 1} / ${CHART_SPEC.states.length}`;
+        renderTriggers();
+        renderStage();
+        renderRules();
+        renderLogicFlowchart();
+      }
+
+      function stopPlay() {
+        if (playTimer) { clearInterval(playTimer); playTimer = null; }
+        playBtn.setAttribute('aria-pressed', 'false');
+        playBtn.textContent = 'Play';
+      }
+
+      function resetAll() {
+        stopPlay();
+        demoIndex = 0;
+        current = CHART_SPEC.initialState;
+        lastRuleId = null;
+        render();
+      }
+
+      function stepOnce() {
+        const seq = CHART_SPEC.demoSequence;
+        if (seq.length) {
+          for (let tries = 0; tries < seq.length; tries++) {
+            const ev = seq[(demoIndex + tries) % seq.length];
+            if (fireEvent(ev)) { demoIndex = (demoIndex + tries + 1) % seq.length; return; }
+          }
+        }
+        const first = CHART_SPEC.transitions.find((t) => t.from === current);
+        if (first) fireEvent(first.event);
+      }
+
+      playBtn.addEventListener('click', () => {
+        if (playTimer) { stopPlay(); return; }
+        playBtn.setAttribute('aria-pressed', 'true');
+        playBtn.textContent = 'Pause';
+        stepOnce();
+        playTimer = setInterval(stepOnce, 1400);
+      });
+
+      stepBtn.addEventListener('click', () => { stopPlay(); stepOnce(); });
+      resetBtn.addEventListener('click', resetAll);
+
+      logicBtn.addEventListener('click', () => {
+        const next = logicBtn.getAttribute('aria-expanded') !== 'true';
+        logicBtn.setAttribute('aria-expanded', String(next));
+        drawer.hidden = !next;
+      });
+
+      const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      function currentTheme() {
+        const explicit = document.documentElement.dataset.theme;
+        if (explicit === 'dark' || explicit === 'light') return explicit;
+        return darkQuery.matches ? 'dark' : 'light';
+      }
+      function syncTheme() {
+        const isDark = currentTheme() === 'dark';
+        themeBtn.setAttribute('aria-pressed', String(isDark));
+        themeBtn.textContent = isDark ? 'Light mode' : 'Dark mode';
+      }
+      themeBtn.addEventListener('click', () => {
+        document.documentElement.dataset.theme = currentTheme() === 'dark' ? 'light' : 'dark';
+        syncTheme();
+      });
+      syncTheme();
+
+      document.querySelectorAll('[data-state-node]').forEach((node) => {
+        node.addEventListener('click', () => { stopPlay(); jumpToState(node.getAttribute('data-state-node')); });
+        node.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault(); stopPlay(); jumpToState(node.getAttribute('data-state-node'));
+          }
+        });
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

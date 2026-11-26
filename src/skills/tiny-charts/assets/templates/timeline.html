@@ -1,0 +1,32 @@
+<!-- Template: Timeline / Bands (Chronological phases, parallel tracks, playhead scrubber) -->
+<!-- Best when: prompt emphasizes durations, deadlines, windows, SLA stages, or overlapping phases over time. -->
+<svg id="tc-stage" class="tc-svg" viewBox="0 0 920 380" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="tc-svg-title tc-svg-desc">
+  <title id="tc-svg-title">{{TITLE}}</title>
+  <desc id="tc-svg-desc">{{SVG_DESC}}</desc>
+  <!-- Axis & Grid -->
+  <g>
+    <line x1="60" y1="312" x2="860" y2="312" stroke="var(--tc-border-strong)" stroke-width="2" />
+    <text x="80" y="338" text-anchor="middle" font-size="12" fill="var(--tc-muted)">Day 0</text>
+    <text x="340" y="338" text-anchor="middle" font-size="12" fill="var(--tc-muted)">Day 3</text>
+    <text x="600" y="338" text-anchor="middle" font-size="12" fill="var(--tc-muted)">Day 7</text>
+    <text x="830" y="338" text-anchor="middle" font-size="12" fill="var(--tc-muted)">Day 14</text>
+  </g>
+  <!-- Playable Phase Bands -->
+  <g class="tc-nodes">
+    <g class="tc-node" data-state-node="phase1" tabindex="0" role="button" aria-pressed="true">
+      <rect x="64" y="76" width="270" height="58" rx="10" fill="var(--tc-accent-soft)" stroke="var(--tc-accent)" stroke-width="1.8" />
+      <text x="82" y="102" font-size="14" font-weight="700" fill="var(--tc-text)">Phase 1: Onboarding</text>
+      <text x="82" y="121" font-size="12" fill="var(--tc-muted)">Day 0 - Day 3</text>
+    </g>
+    <g class="tc-node" data-state-node="phase2" tabindex="0" role="button" aria-pressed="false">
+      <rect x="334" y="152" width="266" height="58" rx="10" fill="var(--tc-surface)" stroke="var(--tc-border-strong)" stroke-width="1.8" />
+      <text x="352" y="178" font-size="14" font-weight="700" fill="var(--tc-text)">Phase 2: Trial Active</text>
+      <text x="352" y="197" font-size="12" fill="var(--tc-muted)">Day 3 - Day 7</text>
+    </g>
+    <g class="tc-node" data-state-node="phase3" tabindex="0" role="button" aria-pressed="false">
+      <rect x="600" y="228" width="248" height="58" rx="10" fill="var(--tc-surface)" stroke="var(--tc-ok)" stroke-width="1.8" />
+      <text x="618" y="254" font-size="14" font-weight="700" fill="var(--tc-text)">Phase 3: Renewal</text>
+      <text x="618" y="273" font-size="12" fill="var(--tc-muted)">Day 7 - Day 14</text>
+    </g>
+  </g>
+</svg>

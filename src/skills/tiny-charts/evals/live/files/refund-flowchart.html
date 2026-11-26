@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Refund Approval Rule — Playable Interactive Diagram</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --tc-bg: #f6f7f9;
+      --tc-surface: #ffffff;
+      --tc-surface-alt: #eef1f5;
+      --tc-border: #d5dbe4;
+      --tc-border-strong: #64748b;
+      --tc-text: #0f172a;
+      --tc-muted: #475569;
+      --tc-accent: #1d4ed8;
+      --tc-accent-soft: #dbeafe;
+      --tc-accent-text: #ffffff;
+      --tc-ok: #047857;
+      --tc-ok-soft: #d1fae5;
+      --tc-warn: #b45309;
+      --tc-warn-soft: #fef3c7;
+      --tc-err: #b91c1c;
+      --tc-err-soft: #fee2e2;
+      --tc-focus: #1d4ed8;
+      --tc-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    :root[data-theme="dark"] {
+      --tc-bg: #0b101b;
+      --tc-surface: #121927;
+      --tc-surface-alt: #1a2335;
+      --tc-border: #2a364d;
+      --tc-border-strong: #94a3b8;
+      --tc-text: #f8fafc;
+      --tc-muted: #cbd5e1;
+      --tc-accent: #38bdf8;
+      --tc-accent-soft: #0c2d48;
+      --tc-accent-text: #061826;
+      --tc-ok: #34d399;
+      --tc-ok-soft: #0b2e24;
+      --tc-warn: #fbbf24;
+      --tc-warn-soft: #2c2008;
+      --tc-err: #f87171;
+      --tc-err-soft: #361215;
+      --tc-focus: #60a5fa;
+      --tc-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --tc-bg: #0b101b;
+        --tc-surface: #121927;
+        --tc-surface-alt: #1a2335;
+        --tc-border: #2a364d;
+        --tc-border-strong: #94a3b8;
+        --tc-text: #f8fafc;
+        --tc-muted: #cbd5e1;
+        --tc-accent: #38bdf8;
+        --tc-accent-soft: #0c2d48;
+        --tc-accent-text: #061826;
+        --tc-ok: #34d399;
+        --tc-ok-soft: #0b2e24;
+        --tc-warn: #fbbf24;
+        --tc-warn-soft: #2c2008;
+        --tc-err: #f87171;
+        --tc-err-soft: #361215;
+        --tc-focus: #60a5fa;
+        --tc-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0; max-width: 100%; overflow-x: hidden;
+      background: var(--tc-bg); color: var(--tc-text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.5;
+    }
+
+    .tc-wrap { max-width: 1040px; margin: 0 auto; padding: 20px 16px 36px; }
+    .tc-card {
+      background: var(--tc-surface); border: 1px solid var(--tc-border);
+      border-radius: 16px; padding: 18px; box-shadow: var(--tc-shadow);
+    }
+
+    .tc-head {
+      display: flex; flex-wrap: wrap; justify-content: space-between;
+      align-items: flex-start; gap: 12px; margin-bottom: 14px;
+    }
+    .tc-title-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .tc-title { margin: 0; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.015em; }
+    .tc-badge {
+      display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase;
+      background: var(--tc-accent-soft); color: var(--tc-accent); border: 1px solid var(--tc-accent);
+    }
+    .tc-why { margin: 6px 0 0; font-size: 0.875rem; color: var(--tc-muted); max-width: 68ch; }
+
+    .tc-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .tc-btn {
+      appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      min-height: 40px; min-width: 40px; padding: 0 13px; border-radius: 10px;
+      border: 1px solid var(--tc-border-strong); background: var(--tc-surface-alt);
+      color: var(--tc-text); font: inherit; font-size: 0.84rem; font-weight: 600;
+      cursor: pointer; transition: border-color 140ms ease, background-color 140ms ease, transform 120ms ease;
+    }
+    .tc-btn:hover:not(:disabled) { border-color: var(--tc-accent); }
+    .tc-btn:active:not(:disabled) { transform: translateY(1px); }
+    .tc-btn:disabled { cursor: not-allowed; opacity: 0.42; }
+    .tc-btn:focus-visible { outline: 2px solid var(--tc-focus); outline-offset: 2px; }
+    .tc-btn--primary { background: var(--tc-accent); border-color: var(--tc-accent); color: var(--tc-accent-text); }
+    .tc-btn[aria-expanded="true"], .tc-btn[aria-pressed="true"] {
+      background: var(--tc-accent-soft); border-color: var(--tc-accent); color: var(--tc-accent);
+    }
+    .tc-btn--primary[aria-pressed="true"] { background: var(--tc-accent); color: var(--tc-accent-text); }
+
+    .tc-controls {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 10px; padding: 10px 12px; margin-bottom: 14px;
+      border-radius: 12px; background: var(--tc-surface-alt); border: 1px solid var(--tc-border);
+    }
+    .tc-triggers { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .tc-triggers__label { font-size: 0.8rem; font-weight: 600; color: var(--tc-muted); margin-right: 2px; }
+
+    .tc-stage-wrap {
+      width: 100%; border-radius: 12px; border: 1px solid var(--tc-border);
+      background: var(--tc-bg); overflow: hidden;
+    }
+    .tc-svg { display: block; width: 100%; height: auto; }
+    .tc-svg text { font-family: inherit; }
+
+    .tc-node { cursor: pointer; outline: none; }
+    .tc-node .tc-box { transition: fill 160ms ease, stroke 160ms ease, stroke-width 160ms ease; }
+    .tc-node .tc-node-ring { opacity: 0; pointer-events: none; transition: opacity 140ms ease; }
+    .tc-node:focus-visible .tc-node-ring { opacity: 1; }
+    .tc-node[data-active="true"] .tc-box { stroke-width: 2.8; }
+
+    .tc-edge { transition: stroke 160ms ease, opacity 160ms ease, stroke-width 160ms ease; opacity: 0.58; }
+    .tc-edge[data-active="true"] { opacity: 1; stroke-width: 2.8; }
+
+    .tc-status {
+      margin-top: 12px; padding: 10px 14px; border-radius: 10px;
+      background: var(--tc-surface-alt); border: 1px solid var(--tc-border);
+      font-size: 0.875rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px;
+    }
+    .tc-state-pill { font-weight: 700; color: var(--tc-accent); }
+
+    .tc-logic {
+      margin-top: 14px; padding: 14px; border-radius: 12px;
+      border: 1px solid var(--tc-border); background: var(--tc-surface-alt);
+    }
+    .tc-logic[hidden] { display: none; }
+    .tc-logic-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px; align-items: start; }
+    @media (max-width: 780px) { .tc-logic-grid { grid-template-columns: 1fr; } }
+
+    .tc-subhead { margin: 0 0 8px; font-size: 0.875rem; font-weight: 700; color: var(--tc-text); }
+    .tc-rules { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+    .tc-rule {
+      padding: 8px 10px; border-radius: 8px; border: 1px solid var(--tc-border);
+      background: var(--tc-surface); font-size: 0.8125rem;
+    }
+    .tc-rule[data-active="true"] { border-color: var(--tc-accent); background: var(--tc-accent-soft); }
+    .tc-rule-id { font-weight: 700; color: var(--tc-accent); margin-right: 6px; }
+    .tc-rule-meta { font-weight: 700; }
+    .tc-rule-text { color: var(--tc-muted); display: block; margin-top: 2px; }
+    .tc-flow-box { padding: 10px; border-radius: 10px; border: 1px solid var(--tc-border); background: var(--tc-surface); }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 0.01ms !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="tc-wrap">
+    <section class="tc-card" aria-label="Refund Approval Rule">
+      <header class="tc-head">
+        <div>
+          <div class="tc-title-row">
+            <h1 class="tc-title">Refund Approval Rule</h1>
+            <span class="tc-badge">Flowchart</span>
+          </div>
+          <p class="tc-why"><strong>Why this chart:</strong> The refund policy is an explicit if/else decision gate combining a 14-day threshold and an item-unopened condition with two Yes/No outcomes.</p>
+        </div>
+        <div class="tc-toolbar">
+          <button type="button" class="tc-btn tc-btn--primary" data-tc-play aria-pressed="false">Play</button>
+          <button type="button" class="tc-btn" data-tc-step>Step</button>
+          <button type="button" class="tc-btn" data-tc-reset>Reset</button>
+          <button type="button" class="tc-btn" data-tc-logic aria-expanded="false" aria-controls="tc-logic-drawer">Show the logic</button>
+          <button type="button" class="tc-btn" data-tc-theme aria-pressed="false">Dark mode</button>
+        </div>
+      </header>
+
+      <div class="tc-controls">
+        <div class="tc-triggers" data-tc-triggers role="group" aria-label="Trigger refund rule events">
+          <span class="tc-triggers__label">Events:</span>
+        </div>
+      </div>
+
+      <div class="tc-stage-wrap">
+        <svg id="tc-stage" class="tc-svg" viewBox="0 0 920 380" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="tc-svg-title tc-svg-desc">
+          <title id="tc-svg-title">Refund Approval Rule Flowchart</title>
+          <desc id="tc-svg-desc">Interactive decision flowchart: Refund Request enters the policy gate checking if days &lt;= 14 and item is unopened; Yes routes to Auto-Approve, otherwise routes to Manual Support Review.</desc>
+          <defs>
+            <marker id="tc-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 1 2 L 8 5 L 1 8 Z" fill="var(--tc-border-strong)" />
+            </marker>
+            <marker id="tc-arrow-ok" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 1 2 L 8 5 L 1 8 Z" fill="var(--tc-ok)" />
+            </marker>
+            <marker id="tc-arrow-warn" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 1 2 L 8 5 L 1 8 Z" fill="var(--tc-warn)" />
+            </marker>
+          </defs>
+
+          <g class="tc-edges" fill="none" stroke-width="2">
+            <path class="tc-edge" data-edge-id="t1" data-edge-from="request" data-edge-to="decide" d="M 220 185 L 322 185" stroke="var(--tc-border-strong)" marker-end="url(#tc-arrow)" />
+            <path class="tc-edge" data-edge-id="t2" data-edge-from="decide" data-edge-to="approved" d="M 550 185 L 594 185 L 594 100 L 670 100" stroke="var(--tc-ok)" marker-end="url(#tc-arrow-ok)" />
+            <path class="tc-edge" data-edge-id="t3" data-edge-from="decide" data-edge-to="review" d="M 550 185 L 594 185 L 594 272 L 670 272" stroke="var(--tc-warn)" stroke-dasharray="5 4" marker-end="url(#tc-arrow-warn)" />
+          </g>
+
+          <g pointer-events="none" font-size="12" font-weight="600">
+            <text x="275" y="172" text-anchor="middle" fill="var(--tc-muted)">Evaluate</text>
+            <text x="634" y="88" text-anchor="middle" fill="var(--tc-ok)">Yes</text>
+            <text x="634" y="260" text-anchor="middle" fill="var(--tc-warn)">No</text>
+          </g>
+
+          <g class="tc-nodes">
+            <g class="tc-node" data-state-node="request" data-tone="accent" tabindex="0" role="button" aria-pressed="true">
+              <rect class="tc-node-ring" x="39" y="140" width="186" height="90" rx="14" fill="none" stroke="var(--tc-focus)" stroke-width="3" />
+              <rect class="tc-box" x="44" y="145" width="176" height="80" rx="12" fill="var(--tc-accent-soft)" stroke="var(--tc-border-strong)" stroke-width="1.8" />
+              <text x="132" y="180" text-anchor="middle" font-size="15" font-weight="700" fill="var(--tc-text)">Refund Request</text>
+              <text x="132" y="201" text-anchor="middle" font-size="12" fill="var(--tc-muted)">Incoming claim</text>
+            </g>
+
+            <g class="tc-node" data-state-node="decide" data-tone="accent" tabindex="0" role="button" aria-pressed="false">
+              <polygon class="tc-node-ring" points="440,97 557,185 440,273 323,185" fill="none" stroke="var(--tc-focus)" stroke-width="3" />
+              <polygon class="tc-box" points="440,103 550,185 440,267 330,185" fill="var(--tc-surface)" stroke="var(--tc-accent)" stroke-width="2" />
+              <text x="440" y="179" text-anchor="middle" font-size="13" font-weight="700" fill="var(--tc-text)">days &lt;= 14 &amp;</text>
+              <text x="440" y="199" text-anchor="middle" font-size="13" font-weight="700" fill="var(--tc-text)">item unopened?</text>
+            </g>
+
+            <g class="tc-node" data-state-node="approved" data-tone="ok" tabindex="0" role="button" aria-pressed="false">
+              <rect class="tc-node-ring" x="673" y="53" width="212" height="94" rx="14" fill="none" stroke="var(--tc-focus)" stroke-width="3" />
+              <rect class="tc-box" x="678" y="58" width="202" height="84" rx="12" fill="var(--tc-surface)" stroke="var(--tc-ok)" stroke-width="1.8" />
+              <text x="779" y="94" text-anchor="middle" font-size="15" font-weight="700" fill="var(--tc-text)">Auto-Approve</text>
+              <text x="779" y="116" text-anchor="middle" font-size="12" fill="var(--tc-muted)">days &lt;= 14 &amp; unopened</text>
+            </g>
+
+            <g class="tc-node" data-state-node="review" data-tone="warn" tabindex="0" role="button" aria-pressed="false">
+              <rect class="tc-node-ring" x="673" y="225" width="212" height="94" rx="14" fill="none" stroke="var(--tc-focus)" stroke-width="3" />
+              <rect class="tc-box" x="678" y="230" width="202" height="84" rx="12" fill="var(--tc-surface)" stroke="var(--tc-warn)" stroke-width="1.8" />
+              <text x="779" y="266" text-anchor="middle" font-size="15" font-weight="700" fill="var(--tc-text)">Manual Support Review</text>
+              <text x="779" y="288" text-anchor="middle" font-size="12" fill="var(--tc-muted)">days &gt; 14 or opened</text>
+            </g>
+          </g>
+        </svg>
+      </div>
+
+      <div class="tc-status" aria-live="polite" data-tc-status>
+        <span>Active state: <span class="tc-state-pill" data-tc-state-label></span></span>
+        <span data-tc-step-desc></span>
+      </div>
+
+      <section id="tc-logic-drawer" class="tc-logic" hidden>
+        <div class="tc-logic-grid">
+          <div>
+            <h2 class="tc-subhead">Rules</h2>
+            <ul class="tc-rules" data-tc-rules></ul>
+          </div>
+          <div class="tc-flow-box">
+            <h2 class="tc-subhead">Logic Flowchart</h2>
+            <svg id="tc-logic-svg" class="tc-svg" viewBox="0 0 420 240" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="tc-logic-title tc-logic-desc">
+              <title id="tc-logic-title">Refund Approval Logic Flowchart</title>
+              <desc id="tc-logic-desc">Synchronized rules and decision paths for the refund approval policy.</desc>
+            </svg>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const CHART_SPEC = {
+      chartType: 'Flowchart',
+      title: 'Refund Approval Rule',
+      rationale: 'The refund policy is an explicit if/else decision gate combining days <= 14 and item unopened with Yes/No branches.',
+      initialState: 'request',
+      states: [
+        { id: 'request', label: 'Refund Request', summary: 'Incoming refund request waiting to be evaluated against the policy.', tone: 'accent', x: 64, y: 120 },
+        { id: 'decide', label: 'Policy Gate', summary: 'Check whether days <= 14 and item is unopened.', tone: 'accent', x: 196, y: 120 },
+        { id: 'approved', label: 'Auto-Approve', summary: 'Condition met (days <= 14 and item unopened): refund is auto-approved.', tone: 'ok', x: 344, y: 62 },
+        { id: 'review', label: 'Manual Review', summary: 'Otherwise (days > 14 or item opened): routed to Manual Support Review.', tone: 'warn', x: 344, y: 178 }
+      ],
+      transitions: [
+        { id: 't1', from: 'request', to: 'decide', event: 'Evaluate Rule', guard: 'request received' },
+        { id: 't2', from: 'decide', to: 'approved', event: 'Yes (<= 14d & Unopened)', guard: 'days <= 14 && unopened' },
+        { id: 't3', from: 'decide', to: 'review', event: 'No (Otherwise)', guard: 'days > 14 || opened' },
+        { id: 't4', from: 'approved', to: 'request', event: 'New Request', guard: 'always' },
+        { id: 't5', from: 'review', to: 'request', event: 'New Request', guard: 'always' }
+      ],
+      rules: [
+        { id: 'R1', from: 'request', event: 'Evaluate Rule', guard: 'request received', to: 'decide', text: 'Incoming refund requests enter the policy decision gate.' },
+        { id: 'R2', from: 'decide', event: 'Yes (<= 14d & Unopened)', guard: 'days <= 14 && item unopened', to: 'approved', text: 'If days <= 14 and the item is unopened, Auto-Approve the refund.' },
+        { id: 'R3', from: 'decide', event: 'No (Otherwise)', guard: 'days > 14 || item opened', to: 'review', text: 'Otherwise, route the request to Manual Support Review.' },
+        { id: 'R4', from: 'approved', event: 'New Request', guard: 'always', to: 'request', text: 'Reset from Auto-Approve to evaluate another refund request.' },
+        { id: 'R5', from: 'review', event: 'New Request', guard: 'always', to: 'request', text: 'Reset from Manual Review to evaluate another refund request.' }
+      ],
+      demoSequence: [
+        'Evaluate Rule',
+        'Yes (<= 14d & Unopened)',
+        'New Request',
+        'Evaluate Rule',
+        'No (Otherwise)',
+        'New Request'
+      ]
+    };
+
+    (() => {
+      let current = CHART_SPEC.initialState;
+      let lastRuleId = null;
+      let lastTransitionId = null;
+      let playTimer = null;
+      let demoIndex = 0;
+
+      const playBtn = document.querySelector('[data-tc-play]');
+      const stepBtn = document.querySelector('[data-tc-step]');
+      const resetBtn = document.querySelector('[data-tc-reset]');
+      const logicBtn = document.querySelector('[data-tc-logic]');
+      const themeBtn = document.querySelector('[data-tc-theme]');
+      const drawer = document.getElementById('tc-logic-drawer');
+      const triggersEl = document.querySelector('[data-tc-triggers]');
+      const rulesEl = document.querySelector('[data-tc-rules]');
+      const stateLabelEl = document.querySelector('[data-tc-state-label]');
+      const stepDescEl = document.querySelector('[data-tc-step-desc]');
+      const logicSvg = document.getElementById('tc-logic-svg');
+
+      function stateById(id) {
+        return CHART_SPEC.states.find((s) => s.id === id) || CHART_SPEC.states[0];
+      }
+
+      function toneFill(tone) {
+        if (tone === 'ok') return 'var(--tc-ok-soft)';
+        if (tone === 'warn') return 'var(--tc-warn-soft)';
+        return 'var(--tc-accent-soft)';
+      }
+
+      function fireEvent(eventName) {
+        const match = CHART_SPEC.transitions.find((t) => t.from === current && t.event === eventName);
+        if (!match) return false;
+        current = match.to;
+        lastTransitionId = match.id;
+        const rule = CHART_SPEC.rules.find((r) => r.from === match.from && r.event === match.event && r.to === match.to);
+        lastRuleId = rule ? rule.id : null;
+        render();
+        return true;
+      }
+
+      function jumpToState(stateId) {
+        const target = CHART_SPEC.states.find((s) => s.id === stateId);
+        if (!target) return;
+        const via = CHART_SPEC.transitions.find((t) => t.from === current && t.to === stateId);
+        current = stateId;
+        lastTransitionId = via ? via.id : null;
+        lastRuleId = via ? (CHART_SPEC.rules.find((r) => r.from === via.from && r.to === via.to)?.id ?? null) : null;
+        render();
+      }
+
+      function renderTriggers() {
+        triggersEl.querySelectorAll('button').forEach((b) => b.remove());
+        const available = CHART_SPEC.transitions.filter((t) => t.from === current);
+        const events = [...new Set(CHART_SPEC.transitions.map((t) => t.event))];
+        events.forEach((ev) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'tc-btn';
+          btn.textContent = ev;
+          const validNow = available.some((t) => t.event === ev);
+          btn.disabled = !validNow;
+          btn.addEventListener('click', () => { stopPlay(); fireEvent(ev); });
+          triggersEl.appendChild(btn);
+        });
+      }
+
+      function renderStage() {
+        document.querySelectorAll('[data-state-node]').forEach((node) => {
+          const id = node.getAttribute('data-state-node');
+          const active = id === current;
+          const tone = node.getAttribute('data-tone') || 'accent';
+          node.setAttribute('data-active', String(active));
+          node.setAttribute('aria-pressed', String(active));
+          const box = node.querySelector('.tc-box');
+          if (box) box.setAttribute('fill', active ? toneFill(tone) : 'var(--tc-surface)');
+        });
+        document.querySelectorAll('.tc-edge').forEach((edge) => {
+          const active = edge.dataset.edgeId === lastTransitionId || edge.dataset.edgeFrom === current;
+          edge.setAttribute('data-active', String(active));
+        });
+      }
+
+      function renderRules() {
+        rulesEl.innerHTML = '';
+        CHART_SPEC.rules.forEach((r) => {
+          const li = document.createElement('li');
+          li.className = 'tc-rule';
+          const active = r.id === lastRuleId || r.from === current;
+          li.dataset.active = String(active);
+
+          const idSpan = document.createElement('span');
+          idSpan.className = 'tc-rule-id';
+          idSpan.textContent = r.id;
+
+          const metaStrong = document.createElement('strong');
+          metaStrong.className = 'tc-rule-meta';
+          metaStrong.textContent = `${stateById(r.from).label} -> ${stateById(r.to).label}`;
+
+          const detailSpan = document.createElement('span');
+          detailSpan.textContent = ` (${r.event}${r.guard ? ` · ${r.guard}` : ''})`;
+
+          const descSpan = document.createElement('span');
+          descSpan.className = 'tc-rule-text';
+          descSpan.textContent = r.text;
+
+          li.append(idSpan, metaStrong, detailSpan, descSpan);
+          rulesEl.appendChild(li);
+        });
+      }
+
+      function renderLogicFlowchart() {
+        const ns = 'http://www.w3.org/2000/svg';
+        logicSvg.querySelectorAll('.tc-lf-dyn').forEach((n) => n.remove());
+        const g = document.createElementNS(ns, 'g');
+        g.setAttribute('class', 'tc-lf-dyn');
+
+        CHART_SPEC.transitions.forEach((t) => {
+          const a = stateById(t.from);
+          const b = stateById(t.to);
+          const active = t.id === lastTransitionId || t.from === current;
+          const path = document.createElementNS(ns, 'path');
+          let d;
+          if (a.x <= b.x) {
+            d = `M ${a.x} ${a.y} L ${b.x} ${b.y}`;
+          } else if (a.y < 120) {
+            d = `M ${a.x} ${a.y - 18} Q ${(a.x + b.x) / 2} 14 ${b.x} ${b.y - 18}`;
+          } else {
+            d = `M ${a.x} ${a.y + 18} Q ${(a.x + b.x) / 2} 226 ${b.x} ${b.y + 18}`;
+          }
+          path.setAttribute('d', d);
+          path.setAttribute('fill', 'none');
+          path.setAttribute('stroke', active ? 'var(--tc-accent)' : 'var(--tc-border-strong)');
+          path.setAttribute('stroke-width', active ? '2.2' : '1.4');
+          if (a.x > b.x) path.setAttribute('stroke-dasharray', '4 3');
+          g.appendChild(path);
+        });
+
+        CHART_SPEC.states.forEach((s) => {
+          const active = s.id === current;
+          const rect = document.createElementNS(ns, 'rect');
+          rect.setAttribute('x', String(s.x - 48));
+          rect.setAttribute('y', String(s.y - 18));
+          rect.setAttribute('width', '96');
+          rect.setAttribute('height', '36');
+          rect.setAttribute('rx', '8');
+          rect.setAttribute('fill', active ? toneFill(s.tone) : 'var(--tc-surface)');
+          rect.setAttribute('stroke', active ? 'var(--tc-accent)' : 'var(--tc-border-strong)');
+          rect.setAttribute('stroke-width', active ? '2.2' : '1.3');
+          g.appendChild(rect);
+
+          const txt = document.createElementNS(ns, 'text');
+          txt.setAttribute('x', String(s.x));
+          txt.setAttribute('y', String(s.y + 4));
+          txt.setAttribute('text-anchor', 'middle');
+          txt.setAttribute('font-size', '11');
+          txt.setAttribute('font-weight', active ? '700' : '600');
+          txt.setAttribute('fill', 'var(--tc-text)');
+          txt.textContent = s.label;
+          g.appendChild(txt);
+        });
+
+        logicSvg.appendChild(g);
+      }
+
+      function render() {
+        const st = stateById(current);
+        stateLabelEl.textContent = st.label;
+        stepDescEl.textContent = st.summary;
+        renderTriggers();
+        renderStage();
+        renderRules();
+        renderLogicFlowchart();
+      }
+
+      function stopPlay() {
+        if (playTimer) { clearInterval(playTimer); playTimer = null; }
+        playBtn.setAttribute('aria-pressed', 'false');
+        playBtn.textContent = 'Play';
+      }
+
+      function resetAll() {
+        stopPlay();
+        demoIndex = 0;
+        current = CHART_SPEC.initialState;
+        lastRuleId = null;
+        lastTransitionId = null;
+        render();
+      }
+
+      function stepOnce() {
+        const seq = CHART_SPEC.demoSequence;
+        if (seq.length) {
+          for (let tries = 0; tries < seq.length; tries++) {
+            const ev = seq[(demoIndex + tries) % seq.length];
+            if (fireEvent(ev)) { demoIndex = (demoIndex + tries + 1) % seq.length; return; }
+          }
+        }
+        const first = CHART_SPEC.transitions.find((t) => t.from === current);
+        if (first) fireEvent(first.event);
+      }
+
+      playBtn.addEventListener('click', () => {
+        if (playTimer) { stopPlay(); return; }
+        playBtn.setAttribute('aria-pressed', 'true');
+        playBtn.textContent = 'Pause';
+        stepOnce();
+        playTimer = setInterval(stepOnce, 1400);
+      });
+
+      stepBtn.addEventListener('click', () => { stopPlay(); stepOnce(); });
+      resetBtn.addEventListener('click', resetAll);
+
+      logicBtn.addEventListener('click', () => {
+        const next = logicBtn.getAttribute('aria-expanded') !== 'true';
+        logicBtn.setAttribute('aria-expanded', String(next));
+        drawer.hidden = !next;
+      });
+
+      const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      function currentTheme() {
+        const explicit = document.documentElement.dataset.theme;
+        if (explicit === 'dark' || explicit === 'light') return explicit;
+        return darkQuery.matches ? 'dark' : 'light';
+      }
+      function syncTheme() {
+        const isDark = currentTheme() === 'dark';
+        themeBtn.setAttribute('aria-pressed', String(isDark));
+        themeBtn.textContent = isDark ? 'Light mode' : 'Dark mode';
+      }
+      themeBtn.addEventListener('click', () => {
+        document.documentElement.dataset.theme = currentTheme() === 'dark' ? 'light' : 'dark';
+        syncTheme();
+      });
+      syncTheme();
+
+      document.querySelectorAll('[data-state-node]').forEach((node) => {
+        node.addEventListener('click', () => { stopPlay(); jumpToState(node.getAttribute('data-state-node')); });
+        node.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault(); stopPlay(); jumpToState(node.getAttribute('data-state-node'));
+          }
+        });
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

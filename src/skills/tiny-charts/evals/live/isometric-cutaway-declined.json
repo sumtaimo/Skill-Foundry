@@ -1,0 +1,8 @@
+{
+  "case": "isometric-cutaway-declined",
+  "prompt": "Draw an interactive 3D isometric cutaway illustration of a coffee grinder showing the hopper, burrs, and motor.",
+  "agent": "codex",
+  "recordedAt": "2026-11-26",
+  "output": "This request is out of scope for tiny-charts; please use the figure-craft skill for an interactive 3D isometric coffee-grinder cutaway.",
+  "files": []
+}

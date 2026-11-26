@@ -1,0 +1,8 @@
+{
+  "case": "vague-ask-first",
+  "prompt": "Make me a nice playable chart for my app.",
+  "agent": "codex",
+  "recordedAt": "2026-11-26",
+  "output": "What workflow or process should the chart visualize?\n\nWhat states, steps, events, or rules should it include?",
+  "files": []
+}

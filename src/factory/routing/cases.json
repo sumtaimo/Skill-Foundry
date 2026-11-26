@@ -538,5 +538,35 @@
     "id": "sm6",
     "prompt": "Build a modern billing dashboard screen with frosted glass header, Ctrl+K command palette, and empty states.",
     "expect": "ui-craft"
+  },
+  {
+    "id": "tc1",
+    "prompt": "Create a playable single-file HTML statechart for our checkout payment retry rules and include a Show the logic toggle.",
+    "expect": "tiny-charts"
+  },
+  {
+    "id": "tc2",
+    "prompt": "Auto-pick the best playable chart type for our 14-day trial timeline, explain why, and give me a standalone HTML with Rules and Flowchart.",
+    "expect": "tiny-charts"
+  },
+  {
+    "id": "tc3",
+    "prompt": "Turn this refund policy (<= 14 days and unopened -> auto-approve, else manual review) into an interactive playable HTML flowchart with Show the logic.",
+    "expect": "tiny-charts"
+  },
+  {
+    "id": "tc4",
+    "prompt": "Show how 100% incoming leads split across Qualified, Drop-off, and Won in a playable standalone HTML Sankey with a Show the logic drawer.",
+    "expect": "tiny-charts"
+  },
+  {
+    "id": "tc5",
+    "prompt": "Draw an animated 2D architecture SVG of our Producer -> Queue -> Worker pipeline synced strictly to design/tokens.css with <defs> gradients and Play/Pause.",
+    "expect": "svg-mechanism"
+  },
+  {
+    "id": "tc6",
+    "prompt": "Draw an interactive 3D isometric cutaway of a coffee grinder showing its burrs and motor.",
+    "expect": "figure-craft"
   }
 ]

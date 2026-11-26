@@ -1,0 +1,46 @@
+<!-- Template: Sequence Diagram (Ordered messages across actors/services over time) -->
+<!-- Best when: prompt names 2-5 actors/participants exchanging requests, callbacks, or handshakes in order. -->
+<svg id="tc-stage" class="tc-svg" viewBox="0 0 920 380" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="tc-svg-title tc-svg-desc">
+  <title id="tc-svg-title">{{TITLE}}</title>
+  <desc id="tc-svg-desc">{{SVG_DESC}}</desc>
+  <defs>
+    <marker id="tc-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 1 2 L 8 5 L 1 8 Z" fill="var(--tc-border-strong)" />
+    </marker>
+    <marker id="tc-arrow-active" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 1 2 L 8 5 L 1 8 Z" fill="var(--tc-accent)" />
+    </marker>
+  </defs>
+  <!-- Actor Headers & Lifelines -->
+  <g class="tc-lifelines">
+    <rect x="90" y="30" width="140" height="44" rx="10" fill="var(--tc-surface)" stroke="var(--tc-border-strong)" stroke-width="1.6" />
+    <text x="160" y="57" text-anchor="middle" font-size="14" font-weight="700" fill="var(--tc-text)">Client</text>
+    <line x1="160" y1="74" x2="160" y2="346" stroke="var(--tc-border)" stroke-width="2" stroke-dasharray="6 5" />
+
+    <rect x="390" y="30" width="140" height="44" rx="10" fill="var(--tc-surface)" stroke="var(--tc-border-strong)" stroke-width="1.6" />
+    <text x="460" y="57" text-anchor="middle" font-size="14" font-weight="700" fill="var(--tc-text)">API Gateway</text>
+    <line x1="460" y1="74" x2="460" y2="346" stroke="var(--tc-border)" stroke-width="2" stroke-dasharray="6 5" />
+
+    <rect x="690" y="30" width="140" height="44" rx="10" fill="var(--tc-surface)" stroke="var(--tc-border-strong)" stroke-width="1.6" />
+    <text x="760" y="57" text-anchor="middle" font-size="14" font-weight="700" fill="var(--tc-text)">Worker</text>
+    <line x1="760" y1="74" x2="760" y2="346" stroke="var(--tc-border)" stroke-width="2" stroke-dasharray="6 5" />
+  </g>
+  <!-- Message steps mapped to data-state-node="<step-id>" -->
+  <g class="tc-messages">
+    <g class="tc-node" data-state-node="step1" tabindex="0" role="button" aria-pressed="true">
+      <line x1="160" y1="126" x2="452" y2="126" stroke="var(--tc-accent)" stroke-width="2.4" marker-end="url(#tc-arrow-active)" />
+      <rect x="242" y="100" width="136" height="22" rx="11" fill="var(--tc-surface)" stroke="var(--tc-border)" />
+      <text x="310" y="115" text-anchor="middle" font-size="12" font-weight="600" fill="var(--tc-text)">1. Submit request</text>
+    </g>
+    <g class="tc-node" data-state-node="step2" tabindex="0" role="button" aria-pressed="false">
+      <line x1="460" y1="196" x2="752" y2="196" stroke="var(--tc-border-strong)" stroke-width="2" marker-end="url(#tc-arrow)" />
+      <rect x="542" y="170" width="136" height="22" rx="11" fill="var(--tc-surface)" stroke="var(--tc-border)" />
+      <text x="610" y="185" text-anchor="middle" font-size="12" font-weight="600" fill="var(--tc-text)">2. Enqueue job</text>
+    </g>
+    <g class="tc-node" data-state-node="step3" tabindex="0" role="button" aria-pressed="false">
+      <line x1="460" y1="268" x2="168" y2="268" stroke="var(--tc-ok)" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#tc-arrow)" />
+      <rect x="242" y="242" width="136" height="22" rx="11" fill="var(--tc-surface)" stroke="var(--tc-border)" />
+      <text x="310" y="257" text-anchor="middle" font-size="12" font-weight="600" fill="var(--tc-text)">3. 202 Accepted</text>
+    </g>
+  </g>
+</svg>

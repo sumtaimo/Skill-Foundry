@@ -350,5 +350,27 @@
     ],
     "engine": "optional",
     "default": false
+  },
+  {
+    "name": "tiny-charts",
+    "version": "0.1.0",
+    "purpose": "Auto-picks the best playable diagram type (Statechart, Sequence, Flowchart, Timeline, or Sankey) from a short prompt, explains why, and outputs one self-contained HTML with a statechart engine and a Show the logic (Rules + Flowchart) toggle.",
+    "status": "ready",
+    "roles": [
+      "DEV_ENGINEER",
+      "UX_DESIGNER"
+    ],
+    "keywords": [
+      "playable chart",
+      "statechart",
+      "show the logic",
+      "auto-pick diagram",
+      "sequence diagram",
+      "flowchart",
+      "sankey",
+      "timeline"
+    ],
+    "engine": "optional",
+    "default": false
   }
 ]
